@@ -1,6 +1,6 @@
 <data-definition>
-  <struct-type type-name='language_word'>
-    <stl-string name='name'/>
+  <struct-type type-name='language_word' key-field='word'>
+    <stl-string name='word'/>
 
     <stl-string name='form_noun'/>
     <stl-string name='form_noun_plural'/>
@@ -38,8 +38,6 @@
       <flag-bit name='standard_verb'/>
     </pointer>
     <uint32_t name='flags_size' comment='flagarrayst.slotnum'/>
-
-    <code-helper name='describe'>(fmt "Word: ~A" $.name)</code-helper>
   </struct-type>
 
   <struct-type type-name='language_translation'>
@@ -48,7 +46,7 @@
     <stl-vector name='unknown1' comment='empty'/>
     <stl-vector name='unknown2' comment='empty'/>
 
-    <stl-vector name='words' comment='indexed by word idx'>
+    <stl-vector name='words' index-refers-to='$global.world.language_words[$]'>
       <pointer type-name='stl-string'/>
     </stl-vector>
   </struct-type>
@@ -59,9 +57,7 @@
     <stl-vector name='unknown' comment='empty'/>
 
     <stl-vector name='words'>
-      <int32_t>
-        <code-helper name='describe'>(describe-obj $global.world.language_words[$])</code-helper>
-      </int32_t>
+      <int32_t refers-to='$global.world.language_words[$]'/>
     </stl-vector>
   </struct-type>
 </data-definition>
