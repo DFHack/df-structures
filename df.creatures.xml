@@ -1,0 +1,504 @@
+<data-definition>
+  <struct-type type-name='creature_flags1'>
+    <flag-bit name='move_state'
+              comment='Can the dwarf move or are they waiting for their movement timer'/>
+    <flag-bit name='dead'
+              comment='Dead (might also be set for incoming/leaving critters that are alive)'/>
+    <flag-bit name='has_mood' comment='Currently in mood'/>
+    <flag-bit name='had_mood' comment='Had a mood already'/>
+
+    <flag-bit name='marauder' comment='wide class of invader/inside creature attackers'/>
+    <flag-bit name='drowning' comment='Is currently drowning'/>
+    <flag-bit name='merchant' comment='An active merchant'/>
+    <flag-bit name='forest'
+              comment='used for units no longer linked to merchant/diplomacy, they just try to leave mostly'/>
+
+    <flag-bit name='left' comment='left the map'/>
+    <flag-bit name='rider' comment='Is riding an another creature'/>
+    <flag-bit name='incoming'/>
+    <flag-bit name='diplomat'/>
+
+    <flag-bit name='zombie'/>
+    <flag-bit name='skeleton'/>
+    <flag-bit name='can_swap' comment='Can swap tiles during movement (prevents multiple swaps)'/>
+    <flag-bit name='on_ground' comment='The creature is laying on the floor, can be conscious'/>
+
+    <flag-bit name='projectile' comment='Launched into the air? Funny.'/>
+    <flag-bit name='active_invader' comment='Active invader (for organized ones)'/>
+    <flag-bit name='hidden_in_ambush'/>
+    <flag-bit name='invader_origin' comment='Invader origin (could be inactive and fleeing)'/>
+
+    <flag-bit name='coward' comment='Will flee if invasion turns around'/>
+    <flag-bit name='hidden_ambusher' comment='Active marauder/invader moving inward?'/>
+    <flag-bit name='invades' comment='Marauder resident/invader moving in all the way'/>
+    <flag-bit name='check_flows' comment='Check against flows next time you get a chance'/>
+
+    <flag-bit name='ridden'/>
+    <flag-bit name='caged'/>
+    <flag-bit name='tame'/>
+    <flag-bit name='chained'/>
+
+    <flag-bit name='royal_guard'/>
+    <flag-bit name='fortress_guard'/>
+    <flag-bit name='suppress_wield'/>
+    <flag-bit name='important_historical_figure' comment='Is an important historical figure'/>
+  </struct-type>
+
+  <struct-type type-name='creature_flags2'>
+    <flag-bit name='swimming'/>
+    <flag-bit name='sparring'/>
+    <flag-bit name='no_notify' comment='Do not notify about level gains (for embark etc)'/>
+    <flag-bit name='unused'/>
+
+    <flag-bit name='calculated_nerves'/>
+    <flag-bit name='calculated_bodyparts'/>
+    <flag-bit name='important_historical_figure'
+              comment='Is important historical figure (slight variation)'/>
+    <flag-bit name='killed'
+              comment='Has been killed by kill function (slightly different from dead, not necessarily violent death)'/>
+
+    <flag-bit name='cleanup_1' comment='Must be forgotten by forget function (just cleanup)'/>
+    <flag-bit name='cleanup_2' comment='Must be deleted (cleanup)'/>
+    <flag-bit name='cleanup_3' comment='Recently forgotten (cleanup)'/>
+    <flag-bit name='for_trade' comment='Offered for trade'/>
+
+    <flag-bit name='trade_resolved'/>
+    <flag-bit name='has_breaks'/>
+    <flag-bit name='gutted'/>
+    <flag-bit name='circulatory_spray'/>
+
+    <flag-bit name='locked_in_for_trading'
+              comment="Locked in for trading (it's a projectile on the other set of flags, might be what the flying was)"/>
+    <flag-bit name='slaughter' comment='marked for slaughter'/>
+    <flag-bit name='underworld' comment='Underworld creature'/>
+    <flag-bit name='resident' comment='Current resident'/>
+
+    <flag-bit name='cleanup_4'
+              comment='Marked for special cleanup as unused load from unit block on disk'/>
+    <flag-bit name='calculated_insulation' comment='Insulation from clothing calculated'/>
+    <flag-bit name='visitor_uninvited' comment='Uninvited guest'/>
+    <flag-bit name='visitor'/>
+
+    <flag-bit name='calculated_inventory' comment='Inventory order calculated'/>
+    <flag-bit name='vision_good' comment='Vision -- have good part'/>
+    <flag-bit name='vision_damaged' comment='Vision -- have damaged part'/>
+    <flag-bit name='vision_missing' comment='Vision -- have missing part'/>
+
+    <flag-bit name='breathing_good' comment='Breathing -- have good part'/>
+    <flag-bit name='breathing_problem' comment='Breathing -- having a problem'/>
+    <flag-bit name='roaming_wilderness_population_source'/>
+    <flag-bit name='roaming_wilderness_population_source_not_a_map_feature'/>
+  </struct-type>
+
+  <struct-type type-name='creature_flags3'>
+    <flag-bit name='unk0' comment='Is 1 for new and dead creatures, periodicaly set to 0 for non-dead creatures.'/>
+    <flag-bit name='unk1' comment='Is 1 for new creatures, periodically set to 0 for non-dead creatures.'/>
+    <flag-bit name='unk2' comment='Is set to 1 every tick for non-dead creatures.'/>
+    <flag-bit name='unk3' comment='Is periodically set to 0 for non-dead creatures.'/>
+
+    <flag-bit name='announce_titan' comment='Announces creature like an FB or titan.'/>
+    <flag-bit name='unk5'/>
+    <flag-bit name='unk6'/>
+    <flag-bit name='unk7'/>
+
+    <flag-bit name='unk8' comment='Is set to 1 every tick for non-dead creatures.'/>
+    <flag-bit name='unk9' comment='Is set to 0 every tick for non-dead creatures.'/>
+    <flag-bit name='scuttle'>
+      <comment>
+        Scuttle creature: causes creature to be killed, leaving a behind
+        corpse and generating negative thoughts like a real kill.
+      </comment>
+    </flag-bit>
+    <flag-bit name='unk11'/>
+
+    <flag-bit name='ghostly'/>
+
+    <static-array name='unknown' type-name='flag-bit' count='19'/>
+  </struct-type>
+
+  <struct-type type-name='attribute'>
+    <padding size='28' alignment='4'/>
+  </struct-type>
+
+  <struct-type type-name='creature' key-field='id'>
+    <compound type-name='language_name' name='name'/>
+
+    <code-helper name='describe'>
+      (describe-obj $.name)
+    </code-helper>
+
+    <stl-string name='custom_profession'/>
+
+    <int16_t name='profession'/>
+    <int16_t name='profession2'/>
+    <uint32_t name='race'/>
+
+    <int16_t name='x'/>
+    <int16_t name='y'/>
+    <int16_t name='z'/>
+
+    <int16_t name='old_x'>
+      <comment>
+        E.g. for a dead miner, holds the place where he
+        was likely hanging around when he got the command
+        to mine in an aquifer.
+      </comment>
+    </int16_t>
+    <int16_t name='old_y'/>
+    <int16_t name='old_z'/>
+
+    <compound name='unknown1'>
+      <uint32_t name='unk_9c'/>
+      <int16_t name='unk_a0'/>
+      <padding size='2'/>
+      <int16_t name='unk_a4a'/>
+      <int16_t name='unk_a4b'/>
+    </compound>
+
+    <compound name='path'>
+      <int16_t name='dest_x'/>
+      <int16_t name='dest_y'/>
+      <int16_t name='dest_z'/>
+      <int16_t name='unk_ae' comment='-1 unless dest valid'/>
+
+      <stl-vector name='path_x' type-name='int16_t'/>
+      <stl-vector name='path_y' type-name='int16_t'/>
+      <stl-vector name='path_z' type-name='int16_t'/>
+    </compound>
+
+    <compound name='flags1' type-name='creature_flags1'/>
+    <compound name='flags2' type-name='creature_flags2'/>
+    <compound name='flags3' type-name='creature_flags3'/>
+
+    <compound name='unknown2'>
+      <int8_t name='unk_ec'/>
+      <int32_t name='unk_f0'/>
+      <int16_t name='unk_f4'/>
+      <int16_t name='unused_f6'/>
+    </compound>
+
+    <uint16_t name='caste'/>
+    <uint8_t name='sex'/>
+
+    <int32_t name='id'/>
+
+    <int16_t name='unk_100'/>
+    <int32_t name='unk_104'/>
+
+    <int32_t name='civ'/>
+
+    <compound name='unknown3'>
+      <int32_t name='unk_10c'/>
+      <int32_t name='unk_110'/>
+
+      <stl-vector name='unk_114'/>
+      <stl-vector name='unk_124'/>
+      <stl-vector name='unk_134'/>
+
+      <uint32_t name='unk_144'/>
+
+      <stl-vector name='unk_148'/>
+    </compound>
+
+    <stl-vector name='refs'/>
+
+    <compound name='military'>
+      <int32_t name='squad_index'/>
+      <int32_t name='squad_position'/>
+      <int32_t name='unk_170'/>
+      <int32_t name='draft_timer'/>
+      <int16_t name='unk_178'/>
+
+      <stl-vector name='unk_17c'/>
+      <stl-vector name='unk_18c'/>
+      <stl-vector name='unk_19c'/>
+      <stl-vector name='unk_1ac'/>
+
+      <int32_t name='pickup_equipment_bit'/>
+
+      <stl-vector name='unk_1c0'/>
+      <stl-vector name='unk_1d0'/>
+      <stl-vector name='unk_1e0'/>
+    </compound>
+
+    <compound name='unknown4'>
+      <int32_t name='unk_1f0'/>
+      <int16_t name='unk_1f4'/>
+      <int32_t name='unk_1f8'/>
+      <int32_t name='unk_1fc'/>
+      <int32_t name='unk_200'/>
+      <int16_t name='unk_204'/>
+      <uint32_t name='unk_208'/>
+      <uint32_t name='unk_20c'/>
+    </compound>
+
+    <int16_t name='mood'/>
+
+    <compound name='relations'>
+      <uint32_t name='pregnancy_timer'/>
+      <pointer name='pregnancy_ptr'/>
+      <int32_t name='unk_21c'/>
+      <uint32_t name='unk_220'/>
+      <uint32_t name='birth_year'/>
+      <uint32_t name='birth_time'/>
+      <uint32_t name='unk_22c'/>
+      <uint32_t name='unk_230'/>
+      <pointer type-name='creature' name='following'/>
+      <uint16_t name='unk_238'/>
+
+      <uint16_t name='unk_238'/>
+      <int32_t name='unk_23c'/>
+      <int32_t name='married_id' comment='not used in relationship screen..'/>
+      <int32_t name='mother_id'/>
+      <int32_t name='father_id'/>
+      <int32_t name='unk_24c'/>
+      <int32_t name='unk_250'/>
+      <int32_t name='unk_254'/>
+      <int32_t name='unk_258'/>
+      <int32_t name='unk_25c_mother'/>
+      <int32_t name='lover_id'/>
+      <int16_t name='unk_264'/>
+      <int32_t name='unk_268'/>
+      <int32_t name='unk_26c'/>
+      <int16_t name='unk_270'/>
+      <int32_t name='unk_274'/>
+      <int32_t name='unk_278'/>
+      <int32_t name='unk_27c'/>
+      <int16_t name='unk_280'/>
+      <int32_t name='unk_284'/>
+    </compound>
+
+    <stl-vector name='inventory'>
+      <pointer name='item' type-name='item'/>
+    </stl-vector>
+    <stl-vector type-name='int32_t' name='owned_items'/> // 298 - vector of item IDs
+    <stl-vector name='unk_2a8'/>
+    <stl-vector name='owned_buildings'>
+      <pointer type-name='building'/>
+    </stl-vector>
+    <stl-vector name='unk_2c8'/>
+
+    <compound name='job'>
+      <uint32_t name='unk_2d8'/>
+      <uint32_t name='unk_2dc'/>
+      <pointer type-name='creature' name='hunt_target'/>
+      <uint32_t name='unk_2e4'/>
+      <int16_t name='unk_2e8'/> // fight related
+      <int16_t name='unk_2ea'/> // fight related
+      <uint16_t name='unk_2ec'/>
+      <uint16_t name='unk_2ee'/>
+      <uint16_t name='unk_2f0_cntr'/> // increments every tick
+      <uint16_t name='pad_2f2'/>
+      <pointer comment='df_job' name='current_job'/>
+      <uint16_t name='unk_2f8'/>
+      <uint32_t name='unk_2fc'/>
+      <uint32_t name='unk_300'/>
+      <uint32_t name='unk_304'/>
+    </compound>
+
+    <compound name='unknown5'>
+      <stl-vector name='unk_308'/> // 87*0 ?
+      <stl-vector name='unk_318'/>
+      <stl-vector name='unk_328'/>
+      <stl-vector name='unk_338'/> // 238*0
+      <stl-vector name='unk_348'/> // 238*0
+      <stl-vector name='unk_358'/> // 238*0
+      <stl-vector name='unk_368'/> // 238*0
+      <stl-vector name='unk_378'/> // 238*0
+      <stl-vector name='unk_388'/>
+
+      <uint32_t name='unk_398'/>
+      <int32_t name='unk_39c'/>
+      <int32_t name='unk_3a0'/>
+      <int32_t name='unk_3a4'/>
+      <int32_t name='unk_3a8'/>
+      <int32_t name='unk_3ac'/>
+      <int32_t name='unk_3b0'/>
+      <int32_t name='unk_3b4'/>
+      <int32_t name='unk_3b8'/>
+      <int32_t name='unk_3bc'/>
+      <int32_t name='unk_3c0'/>
+    </compound>
+
+    <compound name='body'>
+      <pointer name='body_plan'>
+        <stl-vector type-name='pointer'/>
+      </pointer>
+
+      <uint16_t name='unk_3c8'/>
+      <static-array type-name='attribute' name='physical' count='6'/>
+
+      <uint32_t name='unk_474'/>
+      <uint32_t name='unk_478'/>
+      <uint32_t name='unk_47c'/>
+      <uint32_t name='unk_480'/>
+      <uint32_t name='unk_484'/>
+      <uint32_t name='unk_488'/>
+
+      <uint32_t name='blood_max'/>
+      <uint32_t name='blood_count'/> // 490
+      <uint32_t name='unk_494'/>
+
+      <stl-vector name='spatters'/>
+    </compound>
+
+    <compound name='unknown6'>
+      <stl-vector type-name='uint16_t' name='unk_4a8'/>
+      <stl-vector type-name='uint16_t' name='unk_4b8'/>
+      <uint32_t name='unk_4c8'/>
+      <stl-vector type-name='int16_t' name='unk_4cc'/>
+      <stl-vector type-name='int32_t' name='unk_4dc'/>
+      <stl-vector type-name='int32_t' name='unk_4ec'/>
+      <stl-vector type-name='int32_t' name='unk_4fc'/>
+      <stl-vector type-name='int16_t' name='unk_50c'/>
+      <pointer name='unk_51c'/>
+      <uint16_t name='unk_520'/>
+      <pointer name='unk_524'/>
+      <uint16_t name='unk_528'/>
+    </compound>
+
+    <stl-vector type-name='uint32_t' name='appearance'/>
+
+    <compound name='counters'>
+      <int32_t name='think_counter'/> // 53c decrements every job_counter reroll, set when changing jobs
+      <int32_t name='job_counter'/> // 540 current_job unit/walk done when reach -1, decremented every tick
+      <int32_t name='unk_544'/> // if set, decrements every job_counter reroll
+      <int16_t name='unk_548'/>
+      <int16_t name='winded'/>
+      <int16_t name='stunned'/> // 54c decrements every tick, unstun at 0
+      <int16_t name='unconscious'/>
+      <int16_t name='unk_550'/>
+      <int16_t name='webbed'/>
+    </compound>
+
+    <compound name='unknown7'>
+      <int16_t name='unk_x554'/> // coords ? (-30.000x3)
+      <int16_t name='unk_y556'/>
+      <int16_t name='unk_z558'/>
+      <int16_t name='unk_x55a'/> // coords again
+      <int16_t name='unk_y55c'/>
+      <int16_t name='unk_z55e'/>
+      <int16_t name='unk_560'/>
+      <int16_t name='unk_562'/>
+
+      <uint32_t name='unk_564'/>
+      <uint32_t name='unk_568'/>
+      <uint32_t name='unk_56c'/>
+      <uint32_t name='unk_570'/>
+      <uint32_t name='unk_574'/>
+      <uint32_t name='unk_578'/>
+      <uint32_t name='unk_57c'/>
+      <uint32_t name='unk_580'/> // fluctuates a lot, temperature?
+      <uint32_t name='unk_584'/> // fluctuate
+      <uint32_t name='unk_588'/> // fluctuate
+      <uint32_t name='unk_58c'/> // counter, decrement to 0
+      <uint32_t name='unk_590'/> // same as 58c
+      <uint32_t name='unk_594'/>
+      <uint32_t name='unk_598'/> // fluctuate
+      <uint32_t name='unk_59c'/>
+    </compound>
+
+    <compound name='status'>
+      <stl-vector name='unk_5a0_recent_events'/> // recent events ? character traits ?
+      <pointer name='unk_5b0'/> //vector(uint32_t)* unk_5b0' // pointer to 12 vectors (uint32 and uint16)
+      <uint32_t name='unk_5b4'/> // 0x3e8 (1000)
+      <uint32_t name='unk_5b8'/> // 0x3e8 (1000)
+
+      <stl-vector name='unk_5bc'/>
+      <stl-vector name='unk_5cc'/>
+      <int8_t name='unk_5dc'/>
+
+      <compound type-name='language_name' name='artifact_name'/>
+      <stl-vector name='souls'/> // 64c
+      <pointer name='current_soul'/> // 65c
+      <stl-vector name='unk_660'/>
+
+      <static-array type-name='uint8_t' name='labors' count='94'/>
+
+      <stl-vector name='unk_6d0'/>
+      <stl-vector name='unk_6e0'/> // item ids?
+
+      <stl-vector name='recent_events'/> // 6f0: dined in a legendary dinning room, etc
+
+      <stl-vector name='unk_700'/>
+
+      <uint32_t name='happiness'/> // 710
+      <uint16_t name='unk_714'/>
+      <uint16_t name='pad_716'/>
+
+      <stl-vector name='unk_718'/>
+      <stl-vector name='unk_728'/>
+      <stl-vector name='relationships'/> // 738
+      <stl-vector name='unk_748'/>
+
+      <uint16_t name='unk_758'/>
+      <int16_t name='unk_x75a'/> // coords (-30000*3)
+      <int16_t name='unk_y75c'/>
+      <int16_t name='unk_z75e'/>
+      <stl-vector type-name='uint16_t' name='unk_760'/>
+      <stl-vector type-name='uint16_t' name='unk_770'/>
+      <stl-vector type-name='uint16_t' name='unk_780'/>
+    </compound>
+
+    <int32_t name='hist_figure_id'/> // 790
+
+    <compound name='ability'>
+      <uint16_t name='able_stand'/> // 794
+      <uint16_t name='able_stand_impair'/> // 796
+      <uint16_t name='able_grasp'/> // 798
+      <uint16_t name='able_grasp_impair'/> // 79a
+      <uint32_t name='unk_79c'/>
+      <uint32_t name='unk_7a0'/>
+      <stl-vector name='unk_7a4'/>
+      <uint32_t name='unk_7b4'/>
+      <uint32_t name='unk_7b8'/>
+      <uint8_t name='unk_7bc'/>
+
+      <int32_t name='unk_7c0'/>
+    </compound>
+
+    <compound name='unknown8'>
+      <stl-vector name='unk_7c4'/>
+      <stl-vector name='unk_7d4'/>
+      <stl-vector name='unk_7e4'/>
+      <stl-vector name='unk_7f4'/> // combat log?
+      <stl-vector name='unk_804'/>
+      <stl-vector name='unk_814'/>
+
+      <uint32_t name='unk_824'/>
+      <uint32_t name='unk_828'/>
+      <uint32_t name='unk_82c'/>
+      <uint32_t name='unk_830'/>
+      <uint32_t name='unk_834'/>
+      <uint32_t name='unk_838'/>
+      <pointer name='unk_83c'/>
+
+      <stl-vector name='unk_840'/> // item related
+      <stl-vector name='unk_850'/>
+      <stl-vector name='unk_860'/>
+      <uint32_t name='unk_870'/>
+      <uint32_t name='unk_874_cntr'/> // age ? incremented every tick
+      <stl-vector type-name='uint8_t' name='unk_878'/>
+      <stl-vector type-name='uint8_t' name='unk_888'/>
+      <stl-vector name='unk_898'/> // 87*0
+      <stl-vector  type-name='uint8_t'name='unk_8a8'/> // 87*1
+      <stl-vector type-name='uint16_t' name='unk_8b8'/> // 87*?
+      <stl-vector type-name='uint16_t' name='unk_8c8'/>
+      <stl-vector type-name='uint16_t' name='unk_8d8'/>
+      <stl-vector name='unk_8e8'/> // items ids?
+      <stl-vector type-name='uint16_t' name='unk_8f8'/> // same size as 8e8, soldier related?
+      <stl-vector name='unk_908'/> // 238*?
+
+      <int32_t name='unk_918'/>
+      <uint16_t name='unk_91c'/> // 91c..922 uninitialized on linux
+      <uint16_t name='unk_91e'/>
+      <uint16_t name='unk_920'/>
+      <uint16_t name='unk_922'/>
+      <uint32_t name='unk_924'/>
+      <uint32_t name='unk_928'/>
+      <stl-vector type-name='uint16_t' name='unk_92c'/>
+      <uint32_t name='unk_93c'/>
+    </compound>
+  </struct-type>
+
+</data-definition>

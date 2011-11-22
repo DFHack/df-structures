@@ -2,18 +2,23 @@
   <struct-type type-name='language_word' key-field='word'>
     <stl-string name='word'/>
 
-    <stl-string name='form_noun'/>
-    <stl-string name='form_noun_plural'/>
+    <compound name='forms' is-union='true'>
+      <static-array type-name='stl-string' name='all' count='9'/>
+      <compound>
+        <stl-string name='noun'/>
+        <stl-string name='noun_plural'/>
 
-    <stl-string name='form_adjective'/>
+        <stl-string name='adjective'/>
 
-    <stl-string name='form_prefix'/>
+        <stl-string name='prefix'/>
 
-    <stl-string name='form_verb'/>
-    <stl-string name='form_verb_3rd_person'/>
-    <stl-string name='form_verb_past'/>
-    <stl-string name='form_verb_passive'/>
-    <stl-string name='form_verb_gerund'/>
+        <stl-string name='verb'/>
+        <stl-string name='verb_3rd_person'/>
+        <stl-string name='verb_past'/>
+        <stl-string name='verb_passive'/>
+        <stl-string name='verb_gerund'/>
+      </compound>
+    </compound>
 
     <uint8_t name='adj_dist'/>
 
@@ -40,7 +45,7 @@
     <uint32_t name='flags_size' comment='flagarrayst.slotnum'/>
   </struct-type>
 
-  <struct-type type-name='language_translation'>
+  <struct-type type-name='language_translation' key-field='name'>
     <stl-string name='name'/>
 
     <stl-vector name='unknown1' comment='empty'/>
@@ -59,5 +64,28 @@
     <stl-vector name='words'>
       <int32_t refers-to='$global.world.language_words[$]'/>
     </stl-vector>
+  </struct-type>
+
+  <struct-type type-name='language_name'>
+    <stl-string name='first_name'/>
+    <stl-string name='nickname'/>
+
+    <static-array name='words' count='7'>
+      <int32_t refers-to='$global.world.language_words[$]'/>
+    </static-array>
+    <static-array name='parts_of_speech' count='7' type-name='int16_t'/>
+
+    <int32_t name='language' refers-to='$global.world.translations[$]'/>
+    <int16_t name='unknown'/>
+
+    <bool name='has_name'/>
+
+    <code-helper name='describe'>
+      (when $.has_name
+        (let ((nick $.nickname) (language $global.world.translations[$.language]))
+          (fmt "~:(~A~@[ '~A'~]~{ ~A~}~)" $.first_name (if (> (length nick) 0) nick)
+               (loop for i from 0 below 7 for word = $.words[i]
+                  when (>= word 0) collect $language.words[word].value))))
+    </code-helper>
   </struct-type>
 </data-definition>
