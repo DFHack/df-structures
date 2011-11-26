@@ -1,0 +1,95 @@
+<data-definition>
+  <struct-type type-name='historical_entity' key-field='id'>
+    <int16_t name='unk1'/>
+    <int32_t name='id'/>
+    <pointer name='entity_raw'/>
+    <int32_t name='unk2'/>
+    <int16_t name='unk3'/>
+
+    <compound name='name' type-name='language_name'/>
+
+    <code-helper name='describe'>
+      (describe-obj $.name)
+    </code-helper>
+
+    <stl-vector name='hist_figures' offset='0x804'>
+      <pointer type-name='historical_figure'/>
+    </stl-vector>
+    <stl-vector name='hist_units'>
+      <pointer type-name='historical_unit_assignment'/>
+    </stl-vector>
+ </struct-type>
+
+  <struct-type type-name='historical_figure' key-field='id'>
+    <int16_t name='profession'/>
+    <int16_t name='race' refers-to='$global.world.creature_raws[$]'/>
+    <int16_t name='caste' refers-to='$global.world.creature_raws[$$._parent.race].caste[$]'/>
+    <int8_t name='sex'/>
+
+    <int32_t name='appeared_year'/>
+    <int32_t name='born_year'/>
+    <int32_t name='born_seconds'/>
+    <int32_t name='unk1'/>
+    <int32_t name='unk2'/>
+    <int32_t name='died_year'/>
+    <int32_t name='died_seconds'/>
+
+    <compound type-name='language_name' name='name'/>
+
+    <code-helper name='describe'>
+      (describe-obj $.name)
+      (awhen $global.world.creature_raws[$.race]
+        (fmt "~:(~A ~A~)" $it.caste[$.caste].caste_id $it.creature_id))
+    </code-helper>
+
+    <int32_t name='civ_id' refers-to='$global.world.entities[$]'/>
+    <int32_t name='unk3'/>
+
+    <pointer name='flags' type-name='flag-bit'/>
+    <int32_t name='flags_cnt'/>
+
+    <int32_t name='unit_id' refers-to='(find-by-id $global.world.creatures $id $)'/>
+    <int32_t name='id'/>
+
+    <int32_t name='unk4'/>
+
+    <stl-vector name='entity_links'/>
+    <stl-vector name='site_links'/>
+    <stl-vector name='histfig_links'/>
+
+    <pointer name='unk6'/>
+
+    <stl-vector name='unk7' comment='empty'/>
+    <stl-vector name='unk8' comment='empty'/>
+  </struct-type>
+
+  <struct-type type-name='historical_unit_assignment' key-field='unit_id'>
+    <int32_t name='index' comment='sequential index in the array'/>
+    <int32_t name='unit_id' refers-to='(find-by-id $global.world.creatures $id $)'/>
+
+    <int32_t name='group_id' comment='some kind of group id'/>
+    <int16_t name='member_idx'
+             comment='index in the group; e.g. raises for fortress members, but may be different by migration wave'/>
+
+    <pointer name='figure' type-name='historical_figure'/>
+    <pointer name='unit' type-name='creature'/>
+
+    <code-helper name='describe'>
+      (describe-obj $.figure)
+    </code-helper>
+
+    <int32_t name='unk6' comment='-1'/>
+    <int32_t name='unk7' comment='0'/>
+    <int32_t name='unk8' comment='0'/>
+    <int32_t name='unk9' comment='0'/>
+    <int16_t name='unk10' comment='-1'/>
+    <int32_t name='unk11' comment='-1'/>
+    <int32_t name='unk12' comment='-1'/>
+    <pointer name='flags' type-name='flag-bit'/>
+    <int32_t name='flags_cnt'/>
+    <int32_t name='unk13' comment='0'/>
+    <int32_t name='unk14' comment='0'/>
+    <int32_t name='unk15' comment='0'/>
+  </struct-type>
+
+</data-definition>
