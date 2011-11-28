@@ -1,15 +1,17 @@
 <data-definition>
-  <struct-type type-name='historical_entity' key-field='group_id'>
+  <struct-type type-name='historical_entity'>
     <int16_t name='unk1'/>
     <int32_t name='index' comment='in the array'/>
     <pointer name='entity_raw'/>
-    <int32_t name='group_id'/>
-    <int16_t name='unk3'/>
+
+    <int32_t name='save_file_id' comment='changes once has 100 entries'/>
+    <int16_t name='next_member_idx'/>
 
     <compound name='name' type-name='language_name'/>
 
     <code-helper name='describe'>
       (describe-obj $.name)
+      (describe-obj $global.world.creature_raws[$.race])
     </code-helper>
 
     <int16_t name='race' refers-to='$global.world.creature_raws[$]'/>
@@ -121,17 +123,15 @@
 
     <pointer name='unk6'/>
 
-    <stl-vector name='unk7' comment='empty'/>
-    <stl-vector name='unk8' comment='empty'/>
+    <static-array name='unk7' count='5' type-name='int32_t' comment='empty'/>
   </struct-type>
 
   <struct-type type-name='historical_unit_assignment' key-field='unit_id'>
     <int32_t name='index' comment='sequential index in the array'/>
     <int32_t name='unit_id' refers-to='(find-by-id $global.world.creatures $id $)'/>
 
-    <int32_t name='group_id' refers-to='(find-by-id $global.world.entities $group_id $)'/>
-    <int16_t name='member_idx'
-             comment='index in the group; e.g. raises for fortress members, but may be different by migration wave'/>
+    <int32_t name='save_file_id' comment='unit-*.dat'/>
+    <int16_t name='member_idx' comment='index in the file'/>
 
     <pointer name='figure' type-name='historical_figure'/>
     <pointer name='unit' type-name='creature'/>

@@ -30,8 +30,6 @@
   (browse-object-in-new-window *memory* obj))
 
 (reload)
-(refresh)
-
 
 (defun ctor-addresses ()
   (let ((section (find-section-by-name (main-image-of (executable-of *process*)) ".ctors")))
