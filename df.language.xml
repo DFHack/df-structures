@@ -51,7 +51,7 @@
     <stl-vector name='unknown1' comment='empty'/>
     <stl-vector name='unknown2' comment='empty'/>
 
-    <stl-vector name='words' index-refers-to='$global.world.language_words[$]'>
+    <stl-vector name='words' index-refers-to='$global.world.raws.language_words[$]'>
       <pointer type-name='stl-string'/>
     </stl-vector>
   </struct-type>
@@ -62,7 +62,7 @@
     <stl-vector name='unknown' comment='empty'/>
 
     <stl-vector name='words'>
-      <int32_t refers-to='$global.world.language_words[$]'/>
+      <int32_t refers-to='$global.world.raws.language_words[$]'/>
     </stl-vector>
   </struct-type>
 
@@ -71,18 +71,19 @@
     <stl-string name='nickname'/>
 
     <static-array name='words' count='7'>
-      <int32_t refers-to='$global.world.language_words[$]'/>
+      <int32_t refers-to='$global.world.raws.language_words[$]'/>
     </static-array>
     <static-array name='parts_of_speech' count='7' type-name='int16_t'/>
 
-    <int32_t name='language' refers-to='$global.world.translations[$]'/>
+    <int32_t name='language' refers-to='$global.world.raws.translations[$]'/>
     <int16_t name='unknown'/>
 
     <bool name='has_name'/>
 
     <code-helper name='describe'>
       (when $.has_name
-        (let ((nick $.nickname) (language $global.world.translations[$.language]))
+        (let ((nick $.nickname)
+              (language $global.world.raws.translations[$.language]))
           (fmt "~:(~A~@[ '~A'~]~{ ~A~}~)" $.first_name (if (> (length nick) 0) nick)
                (loop for i from 0 below 7 for word = $.words[i]
                   when (>= word 0) collect $language.words[word].value))))
