@@ -29,6 +29,17 @@
 (defun browse (obj)
   (browse-object-in-new-window *memory* obj))
 
+(defun resume ()
+  (call-debug-task 'resume-all-threads *process*))
+
+(defun suspend ()
+  (call-debug-task 'stop-all-threads *process*))
+
+(defun find-str (string &key any-prefix? any-suffix?)
+  (browse (find-stl-strings *memory* string
+                            :any-prefix? any-prefix?
+                            :any-suffix? any-suffix?)))
+
 (reload)
 
 (defun ctor-addresses ()
