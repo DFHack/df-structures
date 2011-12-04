@@ -1,28 +1,3 @@
-(defun material-by-id (mat-type &optional mat-idx)
-  (let ((raws $global.world.raws))
-    (cond ((= mat-type 0)
-           (or $raws.inorganics[mat-idx].material
-               $raws.materials_other[0]))
-          ((<= 19 mat-type 418)
-           (or $raws.creatures[mat-idx].material[(- mat-type 19)]
-               $raws.materials_other[19]))
-          ((<= 419 mat-type 429) ; TODO: upper bound
-           (or $raws.organics_all[mat-idx].material[(- mat-type 419)]
-               $raws.materials_other[419]))
-          ((< 0 mat-type)
-           $raws.materials_other[mat-type]))))
-
-(defun food-mat-by-idx (category idx)
-  (let* ((raws $global.world.raws)
-         (table $raws.food_mat_table)
-         (type $table.types[category][idx])
-         (idx $table.indexes[category][idx]))
-    (case category
-      ((1 2 3)
-       $raws.creatures[type].caste[idx])
-      (otherwise
-       (material-by-id type idx)))))
-
 <data-definition>
   <struct-type type-name='material'>
     <stl-string name='id'/>

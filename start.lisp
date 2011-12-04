@@ -13,6 +13,8 @@
 
 (in-package :work)
 
+(load "df-code.lisp")
+
 (defvar *process* (start-debug (progn (format t "Enter process ID: ") (read))))
 (defvar *memory* (make-memory-mirror *process* 'object-memory-mirror))
 
@@ -20,7 +22,7 @@
 
 (defun reload ()
   (dolist (i (directory (merge-pathnames #P"*.xml" #.*load-truename*)))
-    (load-data-definition i))
+    (register-data-definition *memory* i))
   (check-refresh-context *memory*))
 
 (defun refresh ()

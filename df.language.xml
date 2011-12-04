@@ -82,11 +82,15 @@
 
     <code-helper name='describe'>
       (when $.has_name
-        (let ((nick $.nickname)
-              (language $global.world.raws.translations[$.language]))
-          (fmt "~:(~A~@[ '~A'~]~{ ~A~}~)" $.first_name (if (> (length nick) 0) nick)
+        (let* ((nick $.nickname)
+               (language $global.world.raws.translations[$.language])
+               (fname $.first_name)
+               (lwords $language.words))
+          (fmt "~:(~@[~A ~]~@['~A' ~]~{~A~^ ~}~)"
+               (if (> (length fname) 0) fname)
+               (if (> (length nick) 0) nick)
                (loop for i from 0 below 7 for word = $.words[i]
-                  when (>= word 0) collect $language.words[word].value))))
+                  when (>= word 0) collect $lwords[word].value))))
     </code-helper>
   </struct-type>
 </data-definition>
