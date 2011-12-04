@@ -8,6 +8,7 @@
 (defun find-nemesis (key) (find-by-id $global.world.nemesis.all $id key))
 (defun find-artifact (key) (find-by-id $global.world.artifacts.all $id key))
 (defun find-building (key) (find-by-id $global.world.buildings.all $id key))
+(defun find-activity (key) (find-by-id $global.world.activities.all $id key))
 
 (defun material-by-id (mat-type &optional mat-idx)
   (let ((raws $global.world.raws))
