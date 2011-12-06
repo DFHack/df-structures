@@ -23,6 +23,11 @@
 (defun reload ()
   (dolist (i (directory (merge-pathnames #P"*.xml" #.*load-truename*)))
     (register-data-definition *memory* i))
+  (let ((subdir (case (os-type-of *memory*)
+                  ($windows #P"windows/*.xml")
+                  (otherwise #P"linux/*.xml"))))
+    (dolist (i (directory (merge-pathnames subdir #.*load-truename*)))
+      (register-data-definition *memory* i)))
   (check-refresh-context *memory*))
 
 (defun refresh ()
