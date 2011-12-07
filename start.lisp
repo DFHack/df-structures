@@ -49,6 +49,13 @@
 
 (reload)
 
+(if (eq (os-type-of *memory*) $windows)
+    (progn
+      (pushnew 11 (ignored-signals-of *process*))
+      (setf (garbage-word-of *memory*) #x33333333))
+    (progn
+      (setf (garbage-word-of *memory*) #xd2d2d2d2)))
+
 (defun ctor-addresses ()
   (let ((section (find-section-by-name (main-image-of (executable-of *process*)) ".ctors")))
     (loop for i from 0 below (length-of section) by 4
