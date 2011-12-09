@@ -9,6 +9,12 @@
 (defun find-artifact (key) (find-by-id $global.world.artifacts.all $id key))
 (defun find-building (key) (find-by-id $global.world.buildings.all $id key))
 (defun find-activity (key) (find-by-id $global.world.activities.all $id key))
+(defun find-squad (key) (find-by-id $global.world.squads.all $id key))
+
+(defun find-creature (key) $global.world.raws.creatures[key])
+(defun find-figure (key) (find-by-id $global.world.history.figures $id key))
+
+(defun find-burrow (key) (find-by-id $global.ui.burrows.list $id key))
 
 (defun material-by-id (mat-type &optional mat-idx)
   (let ((raws $global.world.raws))

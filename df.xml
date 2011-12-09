@@ -1,5 +1,21 @@
 <data-definition>
-  <struct-type type-name='ui' size='28320'>
+  <struct-type type-name='list_selector_ui'>
+    <pointer name='mask' type-name='flag-bit'/>
+    <int32_t name='unk1'/>
+    <pointer name='unk_mask1' comment='mask+x'/>
+    <int32_t name='unk2'/>
+    <pointer name='unk_mask2' comment='mask+y, 0 x y'/>
+  </struct-type>
+
+  <struct-type type-name='dipscript_info' key-field='code'>
+    <int32_t name='unk1' comment='uninit'/>
+    <stl-string name='script_file' comment='data/dipscript/dwarf_liaison'/>
+    <stl-vector name='script_steps' type-name='pointer'/>
+    <stl-vector name='unknown' comment='null'/>
+    <stl-string name='code' comment='DWARF_LIAISON etc'/>
+  </struct-type>
+
+  <struct-type type-name='ui'>
     ctor 86e33c0 x
     dtor 8534190
 
@@ -21,24 +37,18 @@
     <padding size='4'/>
     <stl-vector name='unk22e8'/>
 
-    <stl-vector name='meeting_vec' offset='0x22f4'>
-      <pointer type-name='meeting'/>
+    <stl-vector name='dip_meeting_vec'>
+      <pointer type-name='meeting_diplomat'/>
     </stl-vector>
 
-    <stl-vector name='meeting_info'>
+    <stl-vector name='dip_meeting_info'>
       <pointer>
         <int32_t name='civ_id' refers-to='(find-entity $)'/>
         <int16_t name='unk1'/>
-        <int32_t name='diplomat_id' refers-to='(find-by-id $global.world.history.figures $id $)'/>
+        <int32_t name='diplomat_id' refers-to='(find-figure $)'/>
         <int32_t name='unk2' comment='-1'/>
         <padding size='32' comment='0'/>
-        <pointer>
-          <int32_t name='unk1' comment='uninit'/>
-          <stl-string name='script_file' comment='data/dipscript/dwarf_liaison'/>
-          <stl-vector name='script_steps' type-name='pointer'/>
-          <stl-vector name='unknown' comment='null'/>
-          <stl-string name='code' comment='DWARF_LIAISON'/>
-        </pointer>
+        <pointer name='dipscript' type-name='dipscript_info'/>
         <padding size='16' comment='0'/>
         <stl-string name='unk3'/>
         <stl-string name='unk4'/>
@@ -50,13 +60,77 @@
 
     <padding size='4'/>
 
-    <stl-vector name='unk231c' offset='0x231c'>
-      <pointer/>
+    <stl-vector name='invasions' comment='goblins...'>
+      <pointer>
+        <int32_t name='id'/>
+        <int32_t name='civ_id' refers-to='(find-entity $)'/>
+        <int32_t name='unk1'/>
+        <int32_t name='unk2'/>
+        <int32_t name='size'/>
+        <int32_t name='unk3'/>
+        <int16_t name='unk4a'/>
+        <int16_t name='unk4b'/>
+      </pointer>
     </stl-vector>
-    <int32_t name='unk2328'/>
+    <int32_t name='next_invasion_id'/>
 
-    <static-array name='unk232c' count='77'>
-      <stl-vector/>
+    <stl-vector name='unk232c'>
+      <pointer>
+        <int16_t name='unk1'/>
+        <int16_t name='unk2' comment='uninit'/>
+        <int16_t name='unk3'/>
+        <int16_t name='unk4'/>
+        <int32_t name='unk5'/>
+        <pointer name='unk6' type-name='unit'/>
+        <pointer name='unk7' type-name='unit'/>
+        <int32_t name='unk8'/>
+      </pointer>
+    </stl-vector>
+
+    <stl-vector name='unk2338' type-name='pointer'/>
+
+    <stl-vector name='pet_meeting_vec'>
+      <pointer type-name='meeting_pet'/>
+    </stl-vector>
+
+    <stl-vector name='unk2350' type-name='pointer'/>
+    <stl-vector name='unk235c' type-name='pointer'/>
+
+    <stl-vector name='dipscripts'>
+      <pointer type-name='dipscript_info'/>
+    </stl-vector>
+
+    <stl-vector name='unk2374' type-name='pointer'/>
+
+    <compound name='kitchen'>
+      <stl-vector name='item_types' type-name='int16_t'/>
+      <stl-vector name='item_subtypes' type-name='int16_t'/>
+      <stl-vector name='mat_types'>
+        <int16_t refers-to='(material-by-id $ $$._parent._parent.mat_indices[$$._key])'/>
+      </stl-vector>
+      <stl-vector name='mat_indices' type-name='int32_t'/>
+      <stl-vector name='exc_types' type-name='int8_t'/>
+    </compound>
+
+    <stl-vector name='economic_stone' type-name='bool'
+                index-refers-to='(material-by-id 0 $)'/>
+
+    <padding size='4'/>
+    <int16_t name='unk23cc'/>
+    <int16_t name='unk23ce'/>
+    <int32_t name='unk23d0'/>
+    <int32_t name='unk23d4'/>
+
+    <int32_t name='group_id' refers-to='(find-entity $)'/>
+    <int32_t name='race_id' refers-to='(find-creature $)'/>
+
+    <stl-vector name='unk23e0' type-name='int16_t'/>
+    <stl-vector name='unk23ec' type-name='int8_t'/>
+
+    <static-array name='unk23f8' count='2'>
+      <static-array count='30'>
+        <stl-vector type-name='int32_t'/>
+      </static-array>
     </static-array>
 
     <compound name='stockpile'>
@@ -66,7 +140,14 @@
       <compound name='custom_settings' type-name='stockpile_settings'/>
     </compound>
 
-    <stl-vector name='unk5a8c' type-name='int16_t' offset='0x5a8c'/>
+    <static-array name='unk2a8c' count='4'>
+      <static-array count='768'>
+        <int16_t name='unk1'/>
+        <int16_t name='unk2'/>
+      </static-array>
+    </static-array>
+
+    <stl-vector name='unk5a8c' type-name='int16_t'/>
     <stl-vector name='unk5a98' type-name='int16_t'/>
     <stl-vector name='unk5aa4' type-name='int16_t'/>
 
@@ -92,7 +173,7 @@
       <stl-vector/>
     </static-array>
 
-    <compound name='waypoints' offset='0x5bdc'>
+    <compound name='waypoints'>
       <stl-vector name='points'>
         <pointer key-field='name'>
           <int32_t name='id'/>
@@ -156,11 +237,7 @@
       <stl-vector name='list_units'>
         <pointer type-name='unit'/>
       </stl-vector>
-      <pointer name='list_sel_mask' type-name='flag-bit'/>
-      <int32_t name='unk3'/>
-      <pointer/>
-      <int32_t name='unk4'/>
-      <pointer/>
+      <compound name='unit_selector' type-name='list_selector_ui'/>
       <int32_t name='unit_cursor_pos'/>
       <bool name='in_define_mode'/>
       <int16_t name='rect_start_x'/>
@@ -185,44 +262,146 @@
       <int32_t name='civ_alert_idx' refers-to='$$._parent.list[$]'/>
     </compound>
 
-    <compound name='unk5c8c' offset='0x5c8c'>
-      <static-array name='unk1' count='112'>
-        <stl-vector/>
+    <compound name='unk5c8c'>
+      <static-array name='items_by_type1' count='112'>
+        <stl-vector>
+          <pointer type-name='item'/>
+        </stl-vector>
       </static-array>
-      <static-array name='unk2' count='112'>
-        <stl-vector/>
+      <static-array name='items_by_type2' count='112'>
+        <stl-vector>
+          <pointer type-name='item'/>
+        </stl-vector>
       </static-array>
-      <static-array name='unk3' count='112'>
-        <stl-vector/>
+      <static-array name='items_by_type3' count='112'>
+        <stl-vector>
+          <pointer type-name='item'/>
+        </stl-vector>
       </static-array>
-      <padding size='4'/>
-      <stl-vector name='unk6c50'/>
-      <stl-vector name='unk6c5c'/>
+      <int32_t name='unk6c4c'/>
+      <stl-vector name='unk6c50' type-name='int32_t'/>
+      <stl-vector name='unk6c5c' type-name='int32_t'/>
       <stl-vector name='unk6c68'>
         <pointer>
-          <padding size='20'/>
-          <stl-vector comment='or pointer'/>
+          <int32_t name='unk1'/>
+          <int16_t name='unk2a'/>
+          <int16_t name='unk2b'/>
+          <int32_t name='unk3'/>
+          <int32_t name='unk4'/>
+          <int32_t name='unk5'/>
+          <stl-vector type-name='int16_t'/>
         </pointer>
       </stl-vector>
       <stl-vector name='unk6c74'/>
       <stl-vector name='unk6c80'/>
     </compound>
 
-    <static-array name='hotkeys' count='16'>
-      <stl-string name='name'/>
-      <int16_t name='cmd'/>
-      <int32_t name='x'/>
-      <int32_t name='y'/>
-      <int32_t name='z'/>
-    </static-array>
+    <compound name='main'>
+      <static-array name='hotkeys' count='16'>
+        <stl-string name='name'/>
+        <int16_t name='cmd'/>
+        <int32_t name='x'/>
+        <int32_t name='y'/>
+        <int32_t name='z'/>
+      </static-array>
 
-    <stl-vector name='unk6ddc' offset='0x6ddc'/>
-    <stl-vector name='unk6dfc' offset='0x6dfc'/>
-    <stl-vector name='unk6e08' offset='0x6e08'/>
-    <stl-vector name='unk6e14' offset='0x6e14'/>
-    <stl-vector name='unk6e28' offset='0x6e28'/>
-    <stl-vector name='unk6e58' offset='0x6e58'/>
-    <stl-vector name='unk6e6c' offset='0x6e6c'/>
-    <stl-vector name='unk6e78' offset='0x6e78'/>
+      <int32_t name='traffic_cost_high'/>
+      <int32_t name='traffic_cost_normal'/>
+      <int32_t name='traffic_cost_low'/>
+      <int32_t name='traffic_cost_restricted'/>
+
+      <stl-vector name='unk6ddc'>
+        <pointer>
+          <int32_t name='unk1'/>
+          <int32_t name='unk2'/>
+          <int32_t name='unk3'/>
+          <int32_t name='unk4'/>
+          <int32_t name='unk5'/>
+          <int16_t name='unk6'/>
+          <int32_t name='unk7'/>
+        </pointer>
+      </stl-vector>
+
+      <pointer name='unk6de8' type-name='historical_entity'/>
+
+      <int32_t name='mode'>
+        none 0
+        s 1
+
+        d-d 2 d-z 3 d-u 4 d-j 5 d-i 6 d-r 7 d-h 8 d-p 9 d-x 10 d-s 11 d-e 12 d-a 13
+        d-b-c 25 d-b-f 26 d-b-m 27 d-b-M 28 d-b-d 29 d-b-D 30 d-b-h 31 d-b-H 32
+        d-t 33 d-v 34
+        d-o-h 36 d-o-n 37 d-o-l 38 d-o-r 39
+        d-n 44
+
+        p 14
+        b 15
+        q 16
+        o 17 o-F 18 o-r 19 o-W 20 o-z 21
+        t 22
+        v 23
+        k 24
+        h 35
+        i 40
+        N 46
+        w 48
+
+        ??? 41 42 43 45 47
+      </int32_t>
+
+      <int32_t name='selected_traffic_cost'
+               comment='For changing the above costs.'/>
+
+      <int32_t name='unk6df4'/>
+
+      <int16_t name='selected_hotkey'/>
+      <bool name='in_rename_hotkey'/>
+    </compound>
+
+    <compound name='squads'>
+      <stl-vector name='list'>
+        <pointer type-name='squad'/>
+      </stl-vector>
+
+      <stl-vector name='unk6e08'/>
+
+      <compound name='squad_selector' type-name='list_selector_ui'/>
+
+      <stl-vector name='indiv_selected'>
+        <int32_t refers-to='(find-figure $)'/>
+      </stl-vector>
+      <bool name='in_select_indiv'/>
+      <int32_t name='sel_indiv_squad' refers-to='$$._parent.list[$]'/>
+
+      <padding size='8'/>
+
+      <int32_t name='unk48'/>
+      <pointer name='unk4c' type-name='squad'/>
+
+      <bool name='in_move_order'/>
+      <int32_t name='point_list_scroll'/>
+
+      <bool name='in_kill_order'/>
+
+      <stl-vector name='kill_rect_targets'>
+        <pointer type-name='unit'/>
+      </stl-vector>
+
+      <padding size='4'/>
+
+      <bool name='in_kill_list'/>
+      <stl-vector name='kill_targets'>
+        <pointer type-name='unit'/>
+      </stl-vector>
+      <compound name='kill_selector' type-name='list_selector_ui'/>
+      <padding size='4'/>
+
+      <bool name='in_kill_rect'/>
+      <int16_t name='rect_start_x'/>
+      <int16_t name='rect_start_y'/>
+      <int16_t name='rect_start_z'/>
+    </compound>
+
+    <padding size='8'/>
   </struct-type>
 </data-definition>
