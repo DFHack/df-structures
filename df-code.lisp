@@ -20,23 +20,38 @@
   (let ((raws $global.world.raws))
     (cond ((= mat-type 0)
            (or $raws.inorganics[mat-idx].material
-               $raws.materials_other[0]))
-          ((<= 19 mat-type 418)
+               $raws.mat_table.builtin[0]))
+          ((<= 19 mat-type 218)
            (or $raws.creatures[mat-idx].material[(- mat-type 19)]
-               $raws.materials_other[19]))
-          ((<= 419 mat-type 429) ; TODO: upper bound
-           (or $raws.organics_all[mat-idx].material[(- mat-type 419)]
-               $raws.materials_other[419]))
+               $raws.mat_table.builtin[19]))
+          ((<= 219 mat-type 418)
+           (let ((hfig (find-figure mat-idx)))
+             (values
+              (or $raws.creatures[$hfig.race].material[(- mat-type 219)]
+                  $raws.mat_table.builtin[19])
+              hfig)))
+          ((<= 419 mat-type 618)
+           (or $raws.plants.all[mat-idx].material[(- mat-type 419)]
+               $raws.mat_table.builtin[419]))
           ((< 0 mat-type)
-           $raws.materials_other[mat-type]))))
+           $raws.mat_table.builtin[mat-type]))))
 
-(defun food-mat-by-idx (category idx)
+(defun food-mat-by-idx (category-id idx)
   (let* ((raws $global.world.raws)
-         (table $raws.food_mat_table)
-         (type $table.types[category][idx])
-         (idx $table.indexes[category][idx]))
+         (table $raws.mat_table)
+         (category (enum-to-int $organic_mat_category category-id))
+         (type $table.organic_types[category][idx])
+         (idx $table.organic_indexes[category][idx]))
     (case category
       ((1 2 3)
        $raws.creatures[type].caste[idx])
       (otherwise
        (material-by-id type idx)))))
+
+(defun describe-material ($)
+  (let ((pfix (ignore-errors $.prefix))
+        (mtemp $.heat.melting_point))
+    (fmt "~@[~A ~]~A"
+         (if (string= pfix "") nil pfix)
+         (if (< mtemp 10015)
+              $.state_name[1] $.state_name[0]))))

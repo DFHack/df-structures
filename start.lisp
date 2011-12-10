@@ -129,7 +129,16 @@
       (write-csv-entry root level pname inc-offset type
                        :item (format nil "~A~A" elt-name (if (eq elt real-elt) "" "*")))
       (when anon?
-        (export-csv-rec elt elt-name 0 nil 0)))))
+        (export-csv-rec elt elt-name 0 nil 0))))
+  (:method ((type abstract-enum-item) root level pname inc-offset)
+    (call-next-method)
+    (dolist (field (effective-fields-of type))
+      (format *csv-stream* "\"~A\",\"~A\",\"~A\",\"~A\",\"~A\",\"~A\",\"~A\",\"~A\"~%"
+              root (1+ level) "" ""
+              (xml:xml-tag-name-string (effective-base-type-of type))
+              (aif (name-of field) (get-$-field-name it) "?") (effective-value-of field)
+              (remove-if (lambda (c) (case c ((#\Newline) t)))
+                         (or (comment-string-of field) ""))))))
 
 (defun export-csv (stream context)
   (let ((*csv-stream* stream))

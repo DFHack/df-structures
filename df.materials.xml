@@ -1,18 +1,11 @@
 <data-definition>
-  <struct-type type-name='material'>
+  <struct-type type-name='material_common'>
     <stl-string name='id'/>
     <stl-string name='gem_name1'/>
     <stl-string name='gem_name2'/>
     <stl-string name='stone_name'/>
 
-    <code-helper name='describe'>
-      (let ((pfix $.prefix)
-            (mtemp $.heat.melting_point))
-        (fmt "~@[~A ~]~A"
-             (if (string= pfix "") nil pfix)
-             (if (&lt; mtemp 10015)
-                 $.state_name[1] $.state_name[0])))
-    </code-helper>
+    <code-helper name='describe'> (describe-material $) </code-helper>
 
     <compound name='heat'>
       <uint16_t name='spec_heat'/>
@@ -107,6 +100,13 @@
     </stl-vector>
 
     <int32_t name='soap_level'/>
+  </struct-type>
+
+  <struct-type type-name='material'>
+    <compound type-name='material_common'/>
+
+    <code-helper name='describe'> (describe-material $) </code-helper>
+
     <stl-string name='prefix'/>
 
     <static-array name='food_mat_index' count='37'>
@@ -118,7 +118,16 @@
     <static-array name='state_color_str' type-name='stl-string' count='6'/>
   </struct-type>
 
-  <struct-type type-name='material_organic' key-field='id'>
+  <struct-type type-name='material_template'>
+    <compound type-name='material_common'/>
+
+    <code-helper name='describe'> (describe-material $) </code-helper>
+
+    <stl-string name='powder_dye_str' comment='temporary'/>
+    <static-array name='state_color_str' type-name='stl-string' count='6'/>
+  </struct-type>
+
+  <struct-type type-name='material_plant' key-field='id'>
     <stl-string name='id'/>
 
     <pointer name='flags' type-name='flag-bit'/>
@@ -259,17 +268,68 @@
     <compound name='material' type-name='material'/>
   </struct-type>
 
-  <struct-type type-name='food_mat_table'>
-    meat, fish, unprepared fish, eggs, plants, plant alcohol, creature alcohol, plant cheese, creature cheese, seed, leaf, plant powder, creature powder, glob (fat/tallow), plant liquid, creature liquid, misc liquid, leather, silk, plant fiber, bone, shell, wood, horn, pearl, tooth, edible cheese, any alcohol, edible plant, cookable liquid, cookable powder, cookable seed, cookable leaf, paste, pressed, yarn, metal thread
-  
-    <static-array name='types' count='37'>
+  <enum-type type-name='organic_mat_category'>
+    <enum-item name='Meat'/>
+    <enum-item name='Fish'/>
+    <enum-item name='UnpreparedFish'/>
+    <enum-item name='Eggs'/>
+    <enum-item name='Plants'/>
+    <enum-item name='PlantDrink'/>
+    <enum-item name='CreatureDrink'/>
+    <enum-item name='PlantCheese'/>
+    <enum-item name='CreatureCheese'/>
+    <enum-item name='Seed'/>
+    <enum-item name='Leaf'/>
+    <enum-item name='PlantPowder'/>
+    <enum-item name='CreaturePowder'/>
+    <enum-item name='Glob'/>
+    <enum-item name='PlantLiquid'/>
+    <enum-item name='CreatureLiquid'/>
+    <enum-item name='MiscLiquid'/>
+    <enum-item name='Leather'/>
+    <enum-item name='Silk'/>
+    <enum-item name='PlantFiber'/>
+    <enum-item name='Bone'/>
+    <enum-item name='Shell'/>
+    <enum-item name='Wood'/>
+    <enum-item name='Horn'/>
+    <enum-item name='Pearl'/>
+    <enum-item name='Tooth'/>
+    <enum-item name='EdibleCheese'/>
+    <enum-item name='AnyDrink'/>
+    <enum-item name='EdiblePlant'/>
+    <enum-item name='CookableLiquid'/>
+    <enum-item name='CookablePowder'/>
+    <enum-item name='CookableSeed'/>
+    <enum-item name='CookableLeaf'/>
+    <enum-item name='Paste'/>
+    <enum-item name='Pressed'/>
+    <enum-item name='Yarn'/>
+    <enum-item name='MetalThread'/>
+  </enum-type>
+
+  <struct-type type-name='special_mat_table'>
+    <static-array name='organic_types' count='37'
+                  index-refers-to='(enum-to-key $organic_mat_category $)'>
       <stl-vector type-name='int16_t' index-refers-to='(food-mat-by-idx $$._key $)'/>
     </static-array>
-    <static-array name='indexes' count='37'>
+    <static-array name='organic_indexes' count='37'
+                  index-refers-to='(enum-to-key $organic_mat_category $)'>
       <stl-vector type-name='int32_t'/>
     </static-array>
-    <static-array name='unknown' count='37' comment='everything 0'>
+    <static-array name='organic_unknown' count='37' comment='everything 0'
+                  index-refers-to='(enum-to-key $organic_mat_category $)'>
       <stl-vector type-name='int32_t'/>
     </static-array>
+
+    <static-array name='builtin' count='659'>
+      <pointer type-name='material'/>
+    </static-array>
+
+    <stl-vector name='extract_types'>
+      <int16_t refers-to='(material-by-id $ $$._parent._parent.extract_indexes[$$._key])'/>
+    </stl-vector>
+    <stl-vector name='extract_indexes' type-name='int32_t'/>
+    <stl-vector name='extract_unknown' type-name='int32_t'/>
   </struct-type>
 </data-definition>
