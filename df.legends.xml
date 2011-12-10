@@ -11,10 +11,10 @@
 
     <code-helper name='describe'>
       (describe-obj $.name)
-      (describe-obj $global.world.raws.creatures[$.race])
+      (describe-obj (find-creature $.race))
     </code-helper>
 
-    <int16_t name='race' refers-to='$global.world.raws.creatures[$]'/>
+    <int16_t name='race' refers-to='(find-creature $)'/>
     <int32_t name='unk5'/>
 
     <static-array name='unk6' count='2'>
@@ -220,8 +220,8 @@
 
   <struct-type type-name='historical_figure' key-field='id'>
     <int16_t name='profession'/>
-    <int16_t name='race' refers-to='$global.world.raws.creatures[$]'/>
-    <int16_t name='caste' refers-to='$global.world.raws.creatures[$$._parent.race].caste[$]'/>
+    <int16_t name='race' refers-to='(find-creature $)'/>
+    <int16_t name='caste' refers-to='$(find-creature $$._parent.race).caste[$]'/>
     <int8_t name='sex'/>
 
     <int32_t name='appeared_year'/>
@@ -236,7 +236,7 @@
 
     <code-helper name='describe'>
       (describe-obj $.name)
-      (awhen $global.world.raws.creatures[$.race]
+      (awhen (find-creature $.race)
         (fmt "~:(~A ~A~)" $it.caste[$.caste].caste_id $it.creature_id))
     </code-helper>
 
