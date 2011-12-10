@@ -48,6 +48,21 @@
     <static-array type-name='flag-bit' name='unused' count='28'/>
   </struct-type>
 
+  <enum-type type-name='uniform_category'>
+    <enum-item name='body'/>
+    <enum-item name='head'/>
+    <enum-item name='pants'/>
+    <enum-item name='gloves'/>
+    <enum-item name='shoes'/>
+    <enum-item name='shield'/>
+    <enum-item name='weapon'/>
+  </enum-type>
+
+  <struct-type type-name='uniform_flags' size='4'>
+    <flag-bit name='replace_clothing'/>
+    <flag-bit name='exact_matches'/>
+  </struct-type>
+
   <struct-type type-name='squad_position' key-field='occupant'>
     <int32_t name='occupant' refers-to='(find-figure $)'/>
 
@@ -67,36 +82,16 @@
 
     <stl-vector name="unk_44"/>
 
-    <compound name='uniform'>
-      <stl-vector name="body">
+    <static-array name='uniform' count='7'
+                  index-refers-to='(enum-to-key $uniform_category $)'>
+      <stl-vector>
         <pointer type-name='squad_uniform_spec'/>
       </stl-vector>
-      <stl-vector name="head">
-        <pointer type-name='squad_uniform_spec'/>
-      </stl-vector>
-      <stl-vector name="pants">
-        <pointer type-name='squad_uniform_spec'/>
-      </stl-vector>
-      <stl-vector name="gloves">
-        <pointer type-name='squad_uniform_spec'/>
-      </stl-vector>
-      <stl-vector name="shoes">
-        <pointer type-name='squad_uniform_spec'/>
-      </stl-vector>
-      <stl-vector name="shield">
-        <pointer type-name='squad_uniform_spec'/>
-      </stl-vector>
-      <stl-vector name="weapon">
-        <pointer type-name='squad_uniform_spec'/>
-      </stl-vector>
-    </compound>
+    </static-array>
 
     <stl-string name="unk_c4"/>
 
-    <compound name='flags' size='4'>
-      <flag-bit name='replace_clothing'/>
-      <flag-bit name='exact_matches'/>
-    </compound>
+    <compound name='flags' type-name='uniform_flags'/>
 
     <stl-vector name='assigned_items'>
       <int32_t refers-to='(find-item $)'/>
@@ -191,5 +186,49 @@
 
     <int16_t name="carry_food"/>
     <int16_t name="carry_water"/>
+  </struct-type>
+
+  <struct-type type-name='entity_uniform' key-field='id'>
+    <int32_t name="id"/>
+    <int16_t name="unk_4"/>
+
+    <code-helper name='describe'>
+      (describe-obj $.name)
+    </code-helper>
+
+    <static-array name='uniform_item_types' count='7'
+                  index-refers-to='(enum-to-key $uniform_category $)'>
+      <stl-vector>
+        <enum type-name='item_type'/>
+      </stl-vector>
+    </static-array>
+
+    <static-array name='uniform_item_subtypes' count='7'
+                  index-refers-to='(enum-to-key $uniform_category $)'>
+      <stl-vector>
+        <int16_t refers-to='(item-subtype-target $$._parent._parent._parent.uniform_item_types[$$._parent._key][$$._key] $)'/>
+      </stl-vector>
+    </static-array>
+
+    <static-array name='uniform_item_info' count='7'
+                  index-refers-to='(enum-to-key $uniform_category $)'>
+      <stl-vector name="unk_e8">
+        <pointer>
+          <int16_t name="unk_0"/>
+          <int16_t name="color"/>
+          <int32_t name="unk_4"/>
+          <int32_t name="unk_8"/>
+          <int32_t name="unk_c"/>
+          <int32_t name="indiv_choice"/>
+          <int16_t name="mattype" refers-to='(material-by-id $ $$._parent.matindex)'/>
+          <int32_t name="matindex"/>
+          <int16_t name="material_class"/>
+        </pointer>
+      </stl-vector>
+    </static-array>
+
+    <stl-string name="name"/>
+
+    <compound name='flags' type-name='uniform_flags'/>
   </struct-type>
 </data-definition>
