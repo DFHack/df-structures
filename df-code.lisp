@@ -1,5 +1,24 @@
 ;;; -*- mode: Lisp; indent-tabs-mode: nil; -*-
 
+(in-package :cl-linux-debug.data-defs)
+
+(def (class* eas) df-flagarray (array-item data-field concrete-item)
+  ()
+  (:default-initargs :type-name $flag-bit))
+
+(in-package :cl-linux-debug.data-info)
+
+(defmethod compute-effective-fields ((type df-flagarray))
+  (list
+   (make-instance 'pointer :name $start)
+   (make-instance 'int32_t :name $size)))
+
+(defmethod array-base-dimensions ((type df-flagarray) ref)
+  (assert (typep (effective-contained-item-of type) 'flag-bit))
+  (let ((s $ref.start) (e $ref.size))
+    (awhen (and s e)
+      (values (start-address-of s) (* 8 e)))))
+
 (in-package :cl-linux-debug.data-xml)
 
 (defun find-entity (key) (find-by-id $global.world.entities.all $id key))
@@ -55,3 +74,23 @@
          (if (string= pfix "") nil pfix)
          (if (< mtemp 10015)
               $.state_name[1] $.state_name[0]))))
+
+(defun item-subtype-target (type subtype)
+  (let* ((defs $global.world.raws.itemdefs)
+         (key (enum-to-key $item_type type))
+         (table (case key
+                  ($WEAPON $defs.weapons)
+                  ($TRAPCOMP $defs.trapcomps)
+                  ($TOY $defs.toys)
+                  ($TOOL $defs.tools)
+                  ($INSTRUMENT $defs.instruments)
+                  ($ARMOR $defs.armor)
+                  ($AMMO $defs.ammo)
+                  ($SIEGEAMMO $defs.siege_ammo)
+                  ($GLOVES $defs.gloves)
+                  ($SHOES $defs.shoes)
+                  ($SHIELD $defs.shields)
+                  ($HELM $defs.helms)
+                  ($PANTS $defs.pants)
+                  ($FOOD $defs.food))))
+    $table[subtype]))
