@@ -13,6 +13,8 @@
 
 (in-package :work)
 
+(setf *print-length* 50)
+
 (load "df-code.lisp")
 
 (defvar *process* (start-debug (progn (format t "Enter process ID: ") (read))))
