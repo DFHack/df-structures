@@ -30,6 +30,8 @@
 (defun find-activity (key) (find-by-id $global.world.activities.all $id key))
 (defun find-squad (key) (find-by-id $global.world.squads.all $id key))
 
+(defun find-inorganic (key) $global.world.raws.inorganics[key])
+(defun find-plant-raw (key) $global.world.raws.plants.all[key])
 (defun find-creature (key) $global.world.raws.creatures.all[key])
 (defun find-figure (key) (find-by-id $global.world.history.figures $id key))
 
@@ -37,7 +39,9 @@
 
 (defun material-by-id (mat-type &optional mat-idx)
   (let ((raws $global.world.raws))
-    (cond ((= mat-type 0)
+    (cond ((and (< (or mat-idx -1) 0) (< 0 mat-type))
+           $raws.mat_table.builtin[mat-type])
+          ((= mat-type 0)
            (or $raws.inorganics[mat-idx].material
                $raws.mat_table.builtin[0]))
           ((<= 19 mat-type 218)
