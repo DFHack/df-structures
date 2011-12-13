@@ -15,6 +15,26 @@
     <stl-string name='code' comment='DWARF_LIAISON etc'/>
   </struct-type>
 
+  <struct-type type-name='burrow' key-field='id'>
+    <int32_t name='id'/>
+    <stl-string name='name'/>
+
+    <code-helper name='find-instance'>(find-by-id $global.ui.burrows.list $id $)</code-helper>
+    <code-helper name='describe'>
+      (describe-obj $.name)
+    </code-helper>
+
+    <uint8_t name='tile'/>
+    <int16_t name='fg_color'/>
+    <int16_t name='bg_color'/>
+    <stl-vector name='unk1' type-name='int32_t'/>
+    <stl-vector name='unk2' type-name='int32_t'/>
+    <stl-vector name='unk3' type-name='int32_t'/>
+    <stl-vector name='units'>
+      <int32_t ref-target='unit'/>
+    </stl-vector>
+  </struct-type>
+
   <struct-type type-name='ui'>
     ctor 86e33c0 x
     dtor 8534190
@@ -48,9 +68,9 @@
 
     <stl-vector name='dip_meeting_info'>
       <pointer>
-        <int32_t name='civ_id' refers-to='(find-entity $)'/>
+        <int32_t name='civ_id' ref-target='historical_entity'/>
         <int16_t name='unk1'/>
-        <int32_t name='diplomat_id' refers-to='(find-figure $)'/>
+        <int32_t name='diplomat_id' ref-target='historical_figure'/>
         <int32_t name='unk2' comment='-1'/>
         <padding size='32' comment='0'/>
         <pointer name='dipscript' type-name='dipscript_info'/>
@@ -70,7 +90,7 @@
     <stl-vector name='invasions' comment='goblins...'>
       <pointer>
         <int32_t name='id'/>
-        <int32_t name='civ_id' refers-to='(find-entity $)'/>
+        <int32_t name='civ_id' ref-target='historical_entity'/>
         <int32_t name='is_active1' comment='0 unless active'/>
         <int32_t name='is_active2'/>
         <int32_t name='size' comment='just a guess'/>
@@ -137,7 +157,7 @@
       <stl-vector name='item_types' type-name='int16_t'/>
       <stl-vector name='item_subtypes' type-name='int16_t'/>
       <stl-vector name='mat_types'>
-        <int16_t refers-to='(material-by-id $ $$._parent._parent.mat_indices[$$._key])'/>
+        <int16_t ref-target='material' aux-value='$$._parent.mat_indices[$._key]'/>
       </stl-vector>
       <stl-vector name='mat_indices' type-name='int32_t'/>
       <stl-vector name='exc_types' type-name='int8_t'/>
@@ -152,8 +172,8 @@
     <int32_t name='unk23d0'/>
     <int32_t name='unk23d4'/>
 
-    <int32_t name='group_id' refers-to='(find-entity $)'/>
-    <int32_t name='race_id' refers-to='(find-creature $)'/>
+    <int32_t name='group_id' ref-target='historical_entity'/>
+    <int32_t name='race_id' ref-target='creature_raw'/>
 
     <stl-vector name='unk23e0' type-name='int16_t'/>
     <stl-vector name='unk23ec' type-name='int8_t'/>
@@ -247,19 +267,7 @@
 
     <compound name='burrows'>
       <stl-vector name='list'>
-        <pointer key-field='name'>
-          <int32_t name='id'/>
-          <stl-string name='name'/>
-          <uint8_t name='tile'/>
-          <int16_t name='fg_color'/>
-          <int16_t name='bg_color'/>
-          <stl-vector name='unk1' type-name='int32_t'/>
-          <stl-vector name='unk2' type-name='int32_t'/>
-          <stl-vector name='unk3' type-name='int32_t'/>
-          <stl-vector name='units'>
-            <int32_t ref-target='unit'/>
-          </stl-vector>
-        </pointer>
+        <pointer type-name='burrow'/>
       </stl-vector>
       <int32_t name='next_id'/>
       <int32_t name='sel_index1'/>
@@ -317,7 +325,7 @@
       <int32_t name='unk6c4c'/>
 
       <stl-vector name='work_weapons' comment='i.e. woodcutter axes, and miner picks'>
-        <int32_t refers-to='(find-item $)'/>
+        <int32_t ref-target='item'/>
       </stl-vector>
       <stl-vector name='work_units'>
         <int32_t ref-target='unit'/>
@@ -393,7 +401,8 @@
     </compound>
 
     <compound name='squads'>
-      <stl-vector name='list'>
+      <stl-vector name='list' has-bad-pointers='true'
+                  comment='valid only when ui is displayed'>
         <pointer type-name='squad'/>
       </stl-vector>
 
@@ -402,7 +411,7 @@
       <compound name='squad_selector' type-name='list_selector_ui'/>
 
       <stl-vector name='indiv_selected'>
-        <int32_t refers-to='(find-figure $)'/>
+        <int32_t ref-target='historical_figure'/>
       </stl-vector>
       <bool name='in_select_indiv'/>
       <int32_t name='sel_indiv_squad' refers-to='$$._parent.list[$]'/>

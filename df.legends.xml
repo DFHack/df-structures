@@ -9,12 +9,14 @@
 
     <compound name='name' type-name='language_name'/>
 
+    <code-helper name='find-instance'>(find-by-id $global.world.entities.all $id $)</code-helper>
+
     <code-helper name='describe'>
       (describe-obj $.name)
       (describe-obj (find-creature $.race))
     </code-helper>
 
-    <int16_t name='race' refers-to='(find-creature $)'/>
+    <int16_t name='race' ref-target='creature_raw'/>
     <int32_t name='unk5'/>
 
     <static-array name='unk6' count='2'>
@@ -34,7 +36,7 @@
     <stl-vector name='unk7' type-name='int32_t'/>
 
     <stl-vector name='nemesis_ids'>
-      <int32_t refers-to='(find-by-id $global.world.history.figures $id $)'/>
+      <int32_t ref-target='historical_figure'/>
     </stl-vector>
 
     <compound name='unknown1'>
@@ -221,12 +223,45 @@
 
       <stl-vector name='unk28' type-name='pointer' comment='empty'/>
     </compound>
- </struct-type>
+  </struct-type>
+
+  <struct-type type-name='entity_population' key-field='id'>
+    <compound name='name' type-name='language_name'/>
+
+    <code-helper name='find-instance'>(find-by-id $global.world.entity_populations $id $)</code-helper>
+    <code-helper name='describe'>
+      (describe-obj $.name)
+    </code-helper>
+
+    <stl-vector name='unk1'>
+      <int16_t ref-target='creature_raw'/>
+    </stl-vector>
+    <stl-vector name='unk2' type-name='int32_t'/>
+    <stl-vector name='unk3' type-name='int32_t'/>
+    <stl-vector name='unk4'>
+      <pointer>
+        <static-array count='3'>
+          <stl-vector>
+            <pointer>
+              <int32_t name='idx'/>
+              <int32_t name='unk1'/>
+              <int32_t name='unk2'/>
+            </pointer>
+          </stl-vector>
+        </static-array>
+      </pointer>
+    </stl-vector>
+    <int32_t name='unk5'/>
+    <int32_t name='unk6'/>
+    <int32_t name='id'/>
+    <bool name='unk7' comment='unk6 == -1'/>
+    <int32_t name='civ_id' ref-target='historical_entity'/>
+  </struct-type>
 
   <struct-type type-name='historical_figure' key-field='id'>
     <int16_t name='profession'/>
-    <int16_t name='race' refers-to='(find-creature $)'/>
-    <int16_t name='caste' refers-to='$(find-creature $$._parent.race).caste[$]'/>
+    <int16_t name='race' ref-target='creature_raw'/>
+    <int16_t name='caste' ref-target='caste_raw' aux-value='$$.race'/>
     <int8_t name='sex'/>
 
     <int32_t name='appeared_year'/>
@@ -239,14 +274,16 @@
 
     <compound type-name='language_name' name='name'/>
 
+    <code-helper name='find-instance'>(find-by-id $global.world.history.figures $id $)</code-helper>
+
     <code-helper name='describe'>
       (describe-obj $.name)
       (awhen (find-creature $.race)
         (fmt "~:(~A ~A~)" $it.caste[$.caste].caste_id $it.creature_id))
     </code-helper>
 
-    <int32_t name='civ_id' refers-to='(find-entity $)'/>
-    <int32_t name='population_id' refers-to='(find-by-id $global.world.entity_populations $id $)'/>
+    <int32_t name='civ_id' ref-target='historical_entity'/>
+    <int32_t name='population_id' ref-target='entity_population'/>
 
     <df-flagarray name='flags'/>
 
@@ -266,6 +303,9 @@
 
   <struct-type type-name='nemesis_record' key-field='id'>
     <int32_t name='id' comment='sequential index in the array'/>
+
+    <code-helper name='find-instance'>(find-by-id $global.world.nemesis.all $id $)</code-helper>
+
     <int32_t name='unit_id' ref-target='unit'/>
 
     <int32_t name='save_file_id' comment='unit-*.dat'/>
@@ -289,6 +329,8 @@
 
   <struct-type type-name='artifact_record' key-field='id'>
     <int32_t name='id'/>
+
+    <code-helper name='find-instance'>(find-by-id $global.world.artifacts.all $id $)</code-helper>
 
     <code-helper name='describe'>
       (describe-obj $.name)
