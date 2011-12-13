@@ -45,12 +45,12 @@
            (or $raws.inorganics[mat-idx].material
                $raws.mat_table.builtin[0]))
           ((<= 19 mat-type 218)
-           (or $raws.creatures[mat-idx].material[(- mat-type 19)]
+           (or $raws.creatures.all[mat-idx].material[(- mat-type 19)]
                $raws.mat_table.builtin[19]))
           ((<= 219 mat-type 418)
            (let ((hfig (find-figure mat-idx)))
              (values
-              (or $raws.creatures[$hfig.race].material[(- mat-type 219)]
+              (or $raws.creatures.all[$hfig.race].material[(- mat-type 219)]
                   $raws.mat_table.builtin[19])
               hfig)))
           ((<= 419 mat-type 618)
