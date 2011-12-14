@@ -245,6 +245,8 @@ sub get_struct_field_type($) {
     return $handler->($tag);
 }
 
+our $is_strong_ref = 1;
+
 sub render_struct_field($) {
     my ($tag) = @_;
     my $tag_name = $tag->nodeName;
@@ -259,9 +261,11 @@ sub render_struct_field($) {
             my $kwd = (is_attr_true($tag,'is-union') ? "union" : "struct");
             emit_block {
                 local $_;
+                local $is_strong_ref = 1;
                 render_struct_field($_) for get_struct_fields($tag);
             } "$kwd ", ";";
         };
+        return;
     }
 
     # Otherwise, create the name if necessary, and render
@@ -271,8 +275,6 @@ sub render_struct_field($) {
         emit $prefix, ' ', $name, $postfix, ';';
     } "T_$name";
 }
-
-our $is_strong_ref = 1;
 
 sub emit_typedef($$) {
     # Convert a prefix/postfix pair into a single name
@@ -312,6 +314,7 @@ sub get_container_item_type($$;$) {
                 my $kwd = (is_attr_true($tag,'is-union') ? "union" : "struct");
                 emit_block {
                     local $_;
+                    local $is_strong_ref = 1;
                     render_struct_field($_) for @fields;
                 } "$kwd $tname ", ";";
             };
@@ -392,6 +395,7 @@ sub get_compound_type($) {
             my $kwd = (is_attr_true($tag,'is-union') ? "union" : "struct");
             emit_block {
                 local $_;
+                local $is_strong_ref = 1;
                 render_struct_field($_) for get_struct_fields($tag);
             } "$kwd $tname ", ";";
         };
@@ -427,7 +431,7 @@ sub get_enum_type($) {
     my $base = get_primitive_base($tag, 'int32_t');
 
     if ($tname) {
-        register_ref $tname, $is_strong_ref;
+        register_ref $tname, 1;
     } else {
         $tname = ensure_name undef;
         with_anon {
@@ -549,12 +553,12 @@ sub type_header_def($) {
 
 for my $name (keys %types) {
     local $typename = $name;
+    local $filename = $type_files{$typename};
     local %weak_refs;
     local %strong_refs;
-    
+
     eval {
         my $type = $types{$typename};
-        local $filename = $type_files{$typename};
 
         # Emit the actual type definition
         my @code = with_emit {
@@ -585,6 +589,7 @@ for my $name (keys %types) {
                     my $tstr = 'struct';
                     $tstr = 'enum' if $ttype->nodeName eq 'enum-type';
                     $tstr = 'union' if $ttype->nodeName eq 'bitfield-type';
+                    $tstr = 'union' if ($ttype->nodeName eq 'struct-type' && is_attr_true($ttype,'is-union'));
                     emit $tstr, ' ', $weak, ';';
                 }
 
@@ -602,6 +607,8 @@ for my $name (keys %types) {
 }
 
 # Write output files
+
+mkdir $output_dir;
 
 for my $name (keys %type_data) {
     open FH, ">$output_dir/$name.h";
