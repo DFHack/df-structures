@@ -31,7 +31,7 @@ sub parse_address($;$) {
 sub check_bad_attrs($;$$) {
     my ($tag, $allow_size, $allow_align) = @_;
     
-    die "Cannot use size, alignment or offset for $typename in $filename\n"
+    die "Cannot use size, alignment or offset for ".$tag->nodeName."\n"
         if ((!$allow_size && defined $tag->getAttribute('size')) ||
             defined $tag->getAttribute('offset') ||
             (!$allow_align && defined $tag->getAttribute('alignment')));
@@ -42,16 +42,21 @@ sub is_attr_true($$) {
     return ($tag->getAttribute($name)||'') eq 'true';
 }
 
+sub type_header_def($) {
+    my ($name) = @_;
+    return uc($main_namespace).'_'.uc($name).'_H';
+}
+
 # Text generation with indentation
 
 our @lines;
-our $prefix = '';
+our $indentation = 0;
 
 sub with_emit(&;$) { 
     # Executes the code block, and returns emitted lines
-    my ($blk, $start_prefix) = @_;
+    my ($blk, $start_indent) = @_;
     local @lines;
-    local $prefix = ($start_prefix||'');
+    local $indentation = ($start_indent||0);
     $blk->();
     return @lines;
 }
@@ -59,21 +64,21 @@ sub with_emit(&;$) {
 sub emit(@) {
     # Emit an indented line to be returned from with_emit
     my $line = join('',map { defined($_) ? $_ : '' } @_);
-    $line = $prefix.$line unless length($line) == 0;
+    $line = (' 'x$indentation).$line unless length($line) == 0;
     push @lines, $line;
 }
 
 sub indent(&) {
     # Indent lines emitted from the block by one step
     my ($blk) = @_;
-    local $prefix = $prefix.'  ';
+    local $indentation = $indentation+2;
     $blk->();
 }
 
 sub outdent(&) {
     # Unindent lines emitted from the block by one step
     my ($blk) = @_;
-    local $prefix = substr($prefix,0,length($prefix)-2);
+    local $indentation = ($indentation >= 2 ? $indentation-2 : 0);
     $blk->();
 }
 
@@ -85,6 +90,17 @@ sub emit_block(&;$$) {
     emit $prefix,'{';
     &indent($blk);
     emit '}',$suffix;
+}
+
+# Static file output
+
+my @static_lines;
+my %static_includes;
+
+sub with_emit_static(&) {
+    my ($blk) = @_;
+    $static_includes{$typename}++;
+    push @static_lines, &with_emit($blk,2);
 }
 
 # Anonymous variable names
@@ -106,7 +122,7 @@ sub with_anon(&;$) {
     # Establish a new anonymous namespace
     my ($blk,$stem) = @_;
     local $anon_id = $stem ? 0 : 1;
-    local $anon_prefix = ($stem||'_anon');
+    local $anon_prefix = ($stem||'anon');
     $blk->();
 }
 
@@ -131,32 +147,206 @@ $primitive_types{$_}++ for @primitive_type_list;
 sub primitive_type_name($) {
     my ($tag_name) = @_;
     $primitive_types{$tag_name}
-        or die "Not primitive: $tag_name in $typename in $filename\n";
+        or die "Not primitive: $tag_name\n";
     return $primitive_aliases{$tag_name} || $tag_name;
+}
+
+# Type references
+
+our %weak_refs;
+our %strong_refs;
+
+sub register_ref($;$) {
+    # Register a reference to another type.
+    # Strong ones require the type to be included.
+    my ($ref, $is_strong) = @_;
+
+    if ($ref) {
+        my $type = $types{$ref}
+            or die "Unknown type $ref referenced.\n";
+
+        if ($is_strong) {
+            $strong_refs{$ref}++;
+        } else {
+            $weak_refs{$ref}++;
+        }
+    }
+}
+
+# Determines if referenced other types should be included or forward-declared
+our $is_strong_ref = 1;
+
+sub with_struct_block(&$;$) {
+    my ($blk, $tag, $name) = @_;
+    
+    my $kwd = (is_attr_true($tag,'is-union') ? "union" : "struct");
+    my $prefix = $kwd.($name ? ' '.$name : '').' ';
+    
+    emit_block {
+        local $_;
+        local $is_strong_ref = 1; # reset the state
+        &with_anon($blk);
+    } $prefix, ";";
+}
+
+sub decode_type_name_ref($;$$) {
+    # Interpret the type-name field of a tag
+    my ($tag,$force_type,$force_strong) = @_;
+    my $tname = $tag->getAttribute('type-name')
+        or return undef;
+
+    if ($primitive_types{$tname}) {
+        die "Cannot use type $tname as type-name of ".$tag->nodeName."\n"
+            if ($force_type && $force_type ne 'primitive');
+        return primitive_type_name($tname);
+    } else {
+        register_ref $tname, ($force_strong||$is_strong_ref);
+        die "Cannot use type $tname as type-name of ".$tag->nodeName."\n"
+            if ($force_type && $force_type ne $types{$tname}->nodeName);
+        return $tname;
+    }
+}
+
+# CONDITIONALS
+
+sub is_conditional($) {
+    my ($tag) = @_;
+    return $tag->nodeName =~ /^(cond-if|cond-elseif)$/;    
+}
+
+sub translate_if_cond($) {
+    my ($tag) = @_;
+
+    my @rules;
+    if (my $defvar = $tag->getAttribute('defined')) {
+        push @rules, "defined($defvar)";
+    }
+    if (my $cmpvar = $tag->getAttribute('var')) {
+        if (my $cmpval = $tag->getAttribute('lt')) {
+            push @rules, "($cmpvar < $cmpval)";
+        }
+        if (my $cmpval = $tag->getAttribute('le')) {
+            push @rules, "($cmpvar <= $cmpval)";
+        }
+        if (my $cmpval = $tag->getAttribute('eq')) {
+            push @rules, "($cmpvar == $cmpval)";
+        }
+        if (my $cmpval = $tag->getAttribute('ge')) {
+            push @rules, "($cmpvar >= $cmpval)";
+        }
+        if (my $cmpval = $tag->getAttribute('gt')) {
+            push @rules, "($cmpvar > $cmpval)";
+        }
+        if (my $cmpval = $tag->getAttribute('ne')) {
+            push @rules, "($cmpvar != $cmpval)";
+        }
+    }
+    return '('.(join(' && ',@rules) || '1').')';
+}
+
+our $in_cond = 0;
+
+sub render_cond_if($$$;@) {
+    my ($tag, $in_elseif, $render_cb, @tail) = @_;
+
+    local $in_cond = 1;
+
+    {
+        local $indentation = 0;
+        my $op = ($in_elseif && $in_elseif >= 2) ? '#elif' : '#if';
+        emit $op, ' ', translate_if_cond($tag);
+    }
+
+    for my $child ($tag->findnodes('child::*')) {
+        &render_cond($child, $render_cb, @tail);
+    }
+
+    unless ($in_elseif) {
+        local $indentation = 0;
+        emit "#endif";
+    }
+}
+
+sub render_cond($$;@) {
+    my ($tag, $render_cb, @tail) = @_;
+    
+    my $tag_name = $tag->nodeName;
+    if ($tag_name eq 'cond-if') {
+        render_cond_if($tag, 0, $render_cb, @tail);
+    } elsif ($tag_name eq 'cond-elseif') {
+        my $idx = 1;
+        for my $child ($tag->findnodes('child::*')) {
+            ($child->nodeName eq 'cond-if')
+                or die "Only cond-if tags may be inside a cond-switch: ".$child->nodeName."\n";
+            render_cond_if($child, $idx++, $render_cb, @tail);
+        }
+        {
+            local $indentation = 0;
+            emit "#endif";
+        }
+    } else {
+        $render_cb->($tag, @tail);
+    }
 }
 
 # ENUM
 
-sub render_enum_core($$$) {
-    my ($name,$tag,$emit_last) = @_;
-    
+sub render_enum_core($$) {
+    my ($name,$tag) = @_;
+
+    my $base = 0;
+
     emit_block {
         my @items = $tag->findnodes('child::*');
-        my $num = @items;
-        $num++ if $emit_last;
+        my $idx = 0;
 
         for my $item (@items) {
-            ($item->nodeName eq 'enum-item')
-                or die "Invalid enum member in $typename: $item\n";
+            render_cond $item, sub {
+                my ($item) = @_;
+                ($item->nodeName eq 'enum-item')
+                    or die "Invalid enum member: ".$item->nodeName."\n";
 
-            my $name = ensure_name $item->getAttribute('name');
-            my $value = $item->getAttribute('value');
+                my $name = ensure_name $item->getAttribute('name');
+                my $value = $item->getAttribute('value');
 
-            emit $name, (defined($value) ? ' = '.$value : ''), (--$num > 0 ? ',' : '');
+                $base = ($idx == 0 && !$in_cond) ? $value : undef if defined $value;
+                $idx++;
+
+                emit $name, (defined($value) ? ' = '.$value : ''), ',';
+            };
         }
 
-        emit "_LAST_ENUM_ITEM" if $emit_last;
-    } "enum $name ", ";";    
+        emit "_last_item_of_$name";
+    } "enum $name ", ";";
+
+    return $base;
+}
+
+sub render_enum_tables($$$) {
+    my ($name,$tag,$base) = @_;
+
+    emit "const char *get_key($name value);";
+
+    with_emit_static {
+        emit_block {
+            emit_block {
+                emit_block {
+                    for my $item ($tag->findnodes('child::*')) {
+                        render_cond $item, sub {
+                            my ($item) = @_;
+                            my $name = $item->getAttribute('name');
+                            emit(($name?'"'.$name.'"':'NULL'),',');
+                        };
+                    }
+                    emit "NULL";
+                } "static const char *_keys[] = ", ";";
+
+                emit_block {
+                    emit "return (value >= $base && value < _last_item_of_$name) ? _keys[value-$base] : NULL;";
+                } "const char *get_key($name value) ";
+            } "namespace $name ";
+        } "namespace enums ";
+    };
 }
 
 sub render_enum_type {
@@ -164,7 +354,13 @@ sub render_enum_type {
 
     emit_block {
         emit_block {
-            render_enum_core($typename,$tag,1);
+            my $base = render_enum_core($typename,$tag);
+            
+            if (defined $base) {
+                render_enum_tables($typename,$tag,$base);
+            } else {
+                print STDERR "Warning: complex enum: $typename\n";
+            }
         } "namespace $typename ";
     } "namespace enums ";
 
@@ -177,52 +373,40 @@ sub get_primitive_base($;$) {
     my ($tag, $default) = @_;
 
     my $base = $tag->getAttribute('base-type') || $default || 'uint32_t';
-    $primitive_types{$base} or die "Must be primitive: $base in $typename in $filename\n";
+    $primitive_types{$base} or die "Must be primitive: $base\n";
 
     return $base;
 }
 
-sub render_bitfield_type {
-    my ($tag) = @_;
+sub render_bitfield_core {
+    my ($name, $tag) = @_;
 
     emit_block {
         emit get_primitive_base($tag), ' whole;';
 
         emit_block {
             for my $item ($tag->findnodes('child::*')) {
-                ($item->nodeName eq 'flag-bit')
-                    or die "Invalid bitfield member in $typename: $item\n";
+                render_cond $item, sub {
+                    my ($item) = @_;
+                    ($item->nodeName eq 'flag-bit')
+                        or die "Invalid bitfield member:".$item->nodeName."\n";
 
-                check_bad_attrs($item,1);
-                my $name = ensure_name $item->getAttribute('name');
-                my $size = parse_address($item->getAttribute('size'),1) || 1;
-                emit "unsigned ", $name, " : ", $size, ";";
+                    check_bad_attrs($item,1);
+                    my $name = ensure_name $item->getAttribute('name');
+                    my $size = parse_address($item->getAttribute('size'),1) || 1;
+                    emit "unsigned ", $name, " : ", $size, ";";
+                };
             }
         } "struct ", " bits;";
-    } "union $typename ", ";";
+    } "union $name ", ";";
+}
+
+sub render_bitfield_type {
+    my ($tag) = @_;
+    render_bitfield_core($typename,$tag);
 }
 
 # STRUCT
-
-our %weak_refs;
-our %strong_refs;
-
-sub register_ref($;$) {
-    # Register a reference to another type.
-    # Strong ones require the type to be included.
-    my ($ref, $is_strong) = @_;
-
-    if ($ref) {
-        my $type = $types{$ref}
-            or die "Unknown type $ref referenced from $typename in $filename\n";
-
-        if ($is_strong) {
-            $strong_refs{$ref}++;
-        } else {
-            $weak_refs{$ref}++;
-        }
-    }
-}
 
 my %struct_field_handlers;
 
@@ -232,7 +416,7 @@ sub get_struct_fields($) {
     local $_;
     return grep {
         my $tag = $_->nodeName;
-        die "Unknown tag: $tag in $typename in $filename\n"
+        die "Unknown field tag: $tag\n"
             unless exists $struct_field_handlers{$tag};
         $struct_field_handlers{$tag};
     } $struct_tag->findnodes('child::*');
@@ -241,13 +425,12 @@ sub get_struct_fields($) {
 sub get_struct_field_type($) {
     # Dispatch on the tag name, and retrieve the type prefix & suffix
     my ($tag) = @_;
-    my $handler = $struct_field_handlers{$tag->nodeName};
+    my $handler = $struct_field_handlers{$tag->nodeName}
+        or die "Unexpected tag: ".$tag->nodeName;
     return $handler->($tag);
 }
 
-our $is_strong_ref = 1;
-
-sub render_struct_field($) {
+sub do_render_struct_field($) {
     my ($tag) = @_;
     my $tag_name = $tag->nodeName;
     my $field_name = $tag->getAttribute('name');
@@ -257,14 +440,9 @@ sub render_struct_field($) {
         !defined $tag->getAttribute('type-name')) 
     {
         check_bad_attrs($tag);
-        with_anon {
-            my $kwd = (is_attr_true($tag,'is-union') ? "union" : "struct");
-            emit_block {
-                local $_;
-                local $is_strong_ref = 1;
-                render_struct_field($_) for get_struct_fields($tag);
-            } "$kwd ", ";";
-        };
+        with_struct_block {
+            render_struct_field($_) for get_struct_fields($tag);
+        } $tag;
         return;
     }
 
@@ -274,6 +452,11 @@ sub render_struct_field($) {
         my ($prefix, $postfix) = get_struct_field_type($tag);
         emit $prefix, ' ', $name, $postfix, ';';
     } "T_$name";
+}
+
+sub render_struct_field($) {
+    my ($tag) = @_;
+    render_cond $tag, \&do_render_struct_field;
 }
 
 sub emit_typedef($$) {
@@ -288,37 +471,25 @@ sub get_container_item_type($$;$) {
     # Interpret the type-name and nested fields for a generic container type
     my ($tag,$strong_ref,$allow_void) = @_;
     
-    local $is_strong_ref = $strong_ref;
     check_bad_attrs($tag);
 
-    my $prefix = $tag->getAttribute('type-name'); 
+    my $prefix;
     my $postfix = '';
+    local $is_strong_ref = $strong_ref;
 
-    if ($prefix) {
-        if ($primitive_types{$prefix}) {
-            $prefix = primitive_type_name($prefix);
-        } else {
-            register_ref $prefix, $is_strong_ref;
-        }
-    } else {
+    unless ($prefix = decode_type_name_ref($tag)) {
         my @fields = get_struct_fields($tag);
 
-        if (scalar(@fields) == 1) {
+        if (scalar(@fields) == 1 && !is_conditional($fields[0])) {
             ($prefix, $postfix) = get_struct_field_type($fields[0]);
         } elsif (scalar(@fields) == 0) {
-            $allow_void or die "Empty container: ".$tag->nodeName." in $typename in $filename\n";
+            $allow_void or die "Empty container: ".$tag->nodeName."\n";
             $prefix = $allow_void;            
         } else {
-            my $tname = ensure_name undef;
-            with_anon {
-                my $kwd = (is_attr_true($tag,'is-union') ? "union" : "struct");
-                emit_block {
-                    local $_;
-                    local $is_strong_ref = 1;
-                    render_struct_field($_) for @fields;
-                } "$kwd $tname ", ";";
-            };
-            $prefix = $tname;
+            $prefix = ensure_name undef;
+            with_struct_block {
+                render_struct_field($_) for @fields;
+            } $tag, $prefix;
         }
     }
     
@@ -354,10 +525,10 @@ sub get_padding_type {
     if ($align == 1) {
         return ('char', "[$count]");
     } elsif ($align == 2) {
-        ($count % 2 == 0) or die "Size not aligned in padding of $typename in $filename\n";
+        ($count % 2 == 0) or die "Size not aligned in padding: $count at $align\n";
         return ('short', "[".($count/2)."]");
     } elsif ($align == 4) {
-        ($count % 4 == 0) or die "Size not aligned in padding of $typename in $filename\n";
+        ($count % 4 == 0) or die "Size not aligned in padding: $count at $align\n";
         return ('int', "[".($count/4)."]");
     } else {
         die "Bad padding alignment $align in $typename in $filename\n";
@@ -370,7 +541,7 @@ sub get_static_array_type {
     my ($pre, $post) = get_container_item_type($tag, 1);
     my $count = $tag->getAttribute('count')
         or die "Count is mandatory for static-array in $typename in $filename\n";
-    return ($pre, $post."[$count]");
+    return ($pre, "[$count]".$post);
 }
 
 sub get_pointer_type($) {
@@ -385,22 +556,14 @@ sub get_compound_type($) {
     my ($tag) = @_;
     check_bad_attrs($tag);
 
-    my $tname = $tag->getAttribute('type-name');
-    if ($tname) {
-        register_ref $tname, $is_strong_ref;
-        return ($tname, '');
-    } else {
-        my $tname = ensure_name undef;
-        with_anon {
-            my $kwd = (is_attr_true($tag,'is-union') ? "union" : "struct");
-            emit_block {
-                local $_;
-                local $is_strong_ref = 1;
-                render_struct_field($_) for get_struct_fields($tag);
-            } "$kwd $tname ", ";";
-        };
-        return ($tname,'');
+    my $tname = decode_type_name_ref($tag);
+    unless ($tname) {
+        $tname = ensure_name undef;
+        with_struct_block {
+            render_struct_field($_) for get_struct_fields($tag);
+        } $tag, $tname;
     }
+    return ($tname,'');
 }
 
 sub get_bitfield_type($) {
@@ -408,18 +571,14 @@ sub get_bitfield_type($) {
     my ($tag) = @_;
     check_bad_attrs($tag);
 
-    my $tname = $tag->getAttribute('type-name');
-    if ($tname) {
-        register_ref $tname, $is_strong_ref;
-        return ($tname, '');
-    } else {
-        my $tname = ensure_name undef;
+    my $tname = decode_type_name_ref($tag, 'bitfield-type');
+    unless ($tname) {
+        $tname = ensure_name undef;
         with_anon {
-            local $typename = $tname;
-            render_bitfield_type($tag);
+            render_bitfield_core($tname, $tag);
         };
-        return ($tname,'');
     }
+    return ($tname,'');
 }
 
 sub get_enum_type($) {
@@ -427,18 +586,14 @@ sub get_enum_type($) {
     my ($tag) = @_;
     check_bad_attrs($tag);
 
-    my $tname = $tag->getAttribute('type-name');
+    my $tname = decode_type_name_ref($tag, 'enum-type', 1);
     my $base = get_primitive_base($tag, 'int32_t');
-
-    if ($tname) {
-        register_ref $tname, 1;
-    } else {
+    unless ($tname) {
         $tname = ensure_name undef;
         with_anon {
-            render_enum_core($tname,$tag,0);
-        }
+            render_enum_core($tname,$tag);
+        };
     }
-
     return ("enum_field<$tname,$base>", '');
 }
 
@@ -461,6 +616,8 @@ sub get_df_flagarray_type($) {
 %struct_field_handlers = (
     'comment' => undef, # skip
     'code-helper' => undef, # skip
+    'cond-if' => sub { die "cond handling error"; },
+    'cond-elseif' => sub { die "cond handling error"; },
     'static-string' => \&get_static_string_type,
     'padding' => \&get_padding_type,
     'static-array' => \&get_static_array_type,
@@ -475,33 +632,45 @@ $struct_field_handlers{$_} ||= \&get_primitive_field_type for @primitive_type_li
 
 sub render_struct_type {
     my ($tag) = @_;
-    
+
     my $tag_name = $tag->nodeName;
     my $is_class = ($tag_name eq 'class-type');
     my $has_methods = $is_class || is_attr_true($tag, 'has-methods');
     my $inherits = $tag->getAttribute('inherits-from');
+    my $original_name = $tag->getAttribute('original-name');
     my $ispec = '';
 
     if ($inherits) {
         register_ref $inherits, 1;
-        $ispec = ': '.$inherits.' ';
+        $ispec = ' : '.$inherits;
     }
 
-    emit_block {
+    with_struct_block {
         render_struct_field($_) for get_struct_fields($tag);
 
         if ($has_methods) {
+            if ($is_class) {
+                emit "static virtual_identity<$typename> _identity;";
+                with_emit_static {
+                    emit "virtual_identity<$typename> ${typename}::_identity(",
+                         "\"$typename\",",
+                         ($original_name ? "\"$original_name\"" : 'NULL'), ',',
+                         ($inherits ? "&${inherits}::_identity" : 'NULL'),
+                         ");";
+                }
+            }
+
             outdent {
                 emit "protected:";
             };
 
             if ($is_class) {
                 emit "virtual ~",$typename,"() {}";
-            } elsif ($has_methods) {
+            } else {
                 emit "~",$typename,"() {}";
             }
         }
-    } "struct $typename $ispec", ";";
+    } $tag, "$typename$ispec";
 }
 
 # MAIN BODY
@@ -546,12 +715,7 @@ my %type_handlers = (
 
 my %type_data;
 
-sub type_header_def($) {
-    my ($name) = @_;
-    return uc($main_namespace).'_'.uc($name).'_H';
-}
-
-for my $name (keys %types) {
+for my $name (sort { $a cmp $b } keys %types) {
     local $typename = $name;
     local $filename = $type_files{$typename};
     local %weak_refs;
@@ -565,7 +729,7 @@ for my $name (keys %types) {
             with_anon {
                 $type_handlers{$type->nodeName}->($type);
             };
-        };
+        } 2;
         
         delete $weak_refs{$name};
         delete $strong_refs{$name};
@@ -575,7 +739,7 @@ for my $name (keys %types) {
             my $def = type_header_def($typename);
             emit "#ifndef $def";
             emit "#define $def";
-        
+
             for my $strong (sort { $a cmp $b } keys %strong_refs) {
                 my $sdef = type_header_def($strong);
                 emit "#ifndef $sdef";
@@ -585,6 +749,7 @@ for my $name (keys %types) {
 
             emit_block {
                 for my $weak (sort { $a cmp $b } keys %weak_refs) {
+                    next if $strong_refs{$weak};
                     my $ttype = $types{$weak};
                     my $tstr = 'struct';
                     $tstr = 'enum' if $ttype->nodeName eq 'enum-type';
@@ -593,7 +758,7 @@ for my $name (keys %types) {
                     emit $tstr, ' ', $weak, ';';
                 }
 
-                emit $_ for @code;
+                push @lines, @code;
             } "namespace $main_namespace ";
 
             emit "#endif";
@@ -610,10 +775,22 @@ for my $name (keys %types) {
 
 mkdir $output_dir;
 
-for my $name (keys %type_data) {
-    open FH, ">$output_dir/$name.h";
+{
     local $, = "\n";
     local $\ = "\n";
-    print FH @{$type_data{$name}};
+
+    for my $name (keys %type_data) {
+        open FH, ">$output_dir/$name.h";
+        print FH @{$type_data{$name}};
+        close FH;
+    }
+
+    open FH, ">$output_dir/static.inc";
+    for my $name (sort { $a cmp $b } keys %static_includes) {
+        print FH "#include \"$name.h\"";
+    }
+    print FH "namespace $main_namespace {";
+    print FH @static_lines;
+    print FH '}';
     close FH;
 }
