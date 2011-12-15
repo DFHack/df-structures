@@ -1,4 +1,7 @@
+#+quicklisp
 (ql:quickload :cl-linux-debug.gui)
+#-quicklisp
+(asdf:load-system :cl-linux-debug.gui)
 
 (defpackage :work 
   (:use :common-lisp
@@ -17,7 +20,7 @@
 
 (load "df-code.lisp")
 
-(defvar *process* (start-debug (progn (format t "Enter process ID: ") (read))))
+(defvar *process* (start-debug (progn (format t "Enter process ID:~%") (read))))
 (defvar *memory* (make-memory-mirror *process* 'object-memory-mirror))
 
 (define-symbol-macro global *memory*)
