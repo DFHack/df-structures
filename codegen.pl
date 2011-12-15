@@ -5,8 +5,9 @@ use warnings;
    
 use XML::LibXML;
 
-my $output_dir = 'codegen';
-my $main_namespace = 'df';
+my $input_dir = $ARGV[0] || '.';
+my $output_dir = $ARGV[1] || 'codegen';
+my $main_namespace = $ARGV[2] || 'df';
 
 my %types;
 my %type_files;
@@ -677,8 +678,6 @@ sub render_struct_type {
 
 # Collect all type definitions from XML files
 
-my @xmls = @ARGV;
-
 sub add_type_to_hash($) {
     my ($type) = @_;
 
@@ -693,7 +692,7 @@ sub add_type_to_hash($) {
     $type_files{$name} = $filename;
 }
 
-for my $fn (@xmls) {
+for my $fn (glob "$input_dir/*.xml") {
     local $filename = $fn;
     my $parser = XML::LibXML->new();
     my $doc    = $parser->parse_file($filename);
