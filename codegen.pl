@@ -394,9 +394,9 @@ sub render_bitfield_core {
                     ($item->nodeName eq 'flag-bit')
                         or die "Invalid bitfield member:".$item->nodeName."\n";
 
-                    check_bad_attrs($item,1);
+                    check_bad_attrs($item);
                     my $name = ensure_name $item->getAttribute('name');
-                    my $size = parse_address($item->getAttribute('size'),1) || 1;
+                    my $size = $item->getAttribute('count') || 1;
                     emit "unsigned ", $name, " : ", $size, ";";
                 };
             }
