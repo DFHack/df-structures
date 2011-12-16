@@ -602,7 +602,15 @@ sub get_stl_vector_type($) {
     # STL vector
     my ($tag) = @_;
     my $item = get_container_item_type($tag,1,'void*');
+    $item = 'char' if $item eq 'bool';
     return ("std::vector<$item>", '');
+}
+
+sub get_stl_bit_vector_type($) {
+    # STL bit vector
+    my ($tag) = @_;
+    check_bad_attrs($tag);
+    return ("std::vector<bool>", '');
 }
 
 sub get_df_flagarray_type($) {
@@ -627,6 +635,7 @@ sub get_df_flagarray_type($) {
     'bitfield' => \&get_bitfield_type,
     'enum' => \&get_enum_type,
     'stl-vector' => \&get_stl_vector_type,
+    'stl-bit-vector' => \&get_stl_bit_vector_type,
     'df-flagarray' => \&get_df_flagarray_type,
 );
 $struct_field_handlers{$_} ||= \&get_primitive_field_type for @primitive_type_list;
