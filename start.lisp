@@ -41,6 +41,9 @@
 (defun browse (obj)
   (browse-object-in-new-window *memory* obj))
 
+(defun browse-addr (addr)
+  (browse (make-ad-hoc-memory-ref *memory* addr (make-instance 'padding) :parent :addr)))
+
 (defun resume ()
   (call-debug-task 'resume-all-threads *process*))
 
@@ -86,3 +89,4 @@
 (defun make-csv ()
   (write-csv (make-instance 'type-context :os-type $windows) "windows/all.csv")
   (write-csv (make-instance 'type-context :os-type $linux) "linux/all.csv"))
+
