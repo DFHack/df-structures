@@ -345,7 +345,7 @@ sub render_enum_tables($$$) {
                 } "static const char *_keys[] = ", ";";
 
                 emit_block {
-                    emit "return (value >= $base && value < _last_item_of_$name) ? _keys[value-$base] : NULL;";
+                    emit "return (value >= $base && value < _last_item_of_$name) ? _keys[value - $base] : NULL;";
                 } "const char *get_key($name value) ";
             } "namespace $name ";
         } "namespace enums ";
