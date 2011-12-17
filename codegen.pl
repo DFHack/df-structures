@@ -288,6 +288,7 @@ sub render_cond($$;@) {
             emit "#endif";
         }
     } else {
+        local $_ = $tag;
         $render_cb->($tag, @tail);
     }
 }
@@ -305,12 +306,13 @@ sub render_enum_core($$) {
 
         for my $item (@items) {
             render_cond $item, sub {
-                my ($item) = @_;
-                ($item->nodeName eq 'enum-item')
+                my $tag = $_->nodeName;
+                return if $tag eq 'enum-attr';
+                ($tag eq 'enum-item')
                     or die "Invalid enum member: ".$item->nodeName."\n";
 
-                my $name = ensure_name $item->getAttribute('name');
-                my $value = $item->getAttribute('value');
+                my $name = ensure_name $_->getAttribute('name');
+                my $value = $_->getAttribute('value');
 
                 $base = ($idx == 0 && !$in_cond) ? $value : undef if defined $value;
                 $idx++;
@@ -328,25 +330,94 @@ sub render_enum_core($$) {
 sub render_enum_tables($$$) {
     my ($name,$tag,$base) = @_;
 
-    emit "const char *get_key($name value);";
+    # Enumerate enum attributes
+
+    my %aidx = ('key' => 0);
+    my @anames = ('key');
+    my @avals = ('NULL');
+    my @atypes = ('const char*');
+    my @atnames = (undef);
+
+    for my $attr ($tag->findnodes('child::enum-attr')) {
+        my $name = $attr->getAttribute('name') or die "Unnamed enum-attr.\n";
+        my $type = $attr->getAttribute('type-name');
+        my $def = $attr->getAttribute('default-value');
+
+        die "Duplicate attribute $name.\n" if exists $aidx{$name};
+
+        $aidx{$name} = scalar @anames;
+        push @anames, $name;
+        push @atnames, $type;
+
+        if ($type) {
+            push @atypes, $type;
+            push @avals, (defined $def ? $def : "($type)0");
+        } else {
+            push @atypes, 'const char*';
+            push @avals, (defined $def ? "\"$def\"" : 'NULL');
+        }
+    }
+
+    # Emit accessor function prototypes
+
+    emit "bool is_valid($name value);";
+
+    for (my $i = 0; $i < @anames; $i++) {
+        emit "$atypes[$i] get_$anames[$i]($name value);";
+    }
+
+    # Emit implementation
 
     with_emit_static {
         emit_block {
             emit_block {
+                # Emit the entry type
+                emit_block {
+                    for (my $i = 0; $i < @anames; $i++) {
+                        emit "$atypes[$i] $anames[$i];";
+                    }
+                } "struct _info_entry ", ";";
+            
+                # Emit the info table
                 emit_block {
                     for my $item ($tag->findnodes('child::*')) {
                         render_cond $item, sub {
-                            my ($item) = @_;
-                            my $name = $item->getAttribute('name');
-                            emit(($name?'"'.$name.'"':'NULL'),',');
+                            my $tag = $_->nodeName;
+                            return if $tag eq 'enum-attr';
+                            
+                            # Assemble item-specific attr values
+                            my @evals = @avals;
+                            my $name = $_->getAttribute('name');
+                            $evals[0] = "\"$name\"" if $name;
+
+                            for my $attr ($_->findnodes('child::item-attr')) {
+                                my $name = $attr->getAttribute('name') or die "Unnamed item-attr.\n";
+                                my $value = $attr->getAttribute('value') or die "No-value item-attr.\n";
+                                my $idx = $aidx{$name} or die "Unknown item-attr: $name\n";
+
+                                if ($atnames[$idx]) {
+                                    $evals[$idx] = $value;
+                                } else {
+                                    $evals[$idx] = "\"$value\"";
+                                }
+                            }
+
+                            emit "{ ",join(', ',@evals)," },";
                         };
                     }
-                    emit "NULL";
-                } "static const char *_keys[] = ", ";";
+
+                    emit "{ ",join(', ',@avals)," }";
+                } "static const _info_entry _info[] = ", ";";
 
                 emit_block {
-                    emit "return (value >= $base && value < _last_item_of_$name) ? _keys[value - $base] : NULL;";
-                } "const char *get_key($name value) ";
+                    emit "return (value >= $base && value < _last_item_of_$name);";
+                } "bool is_valid($name value) ";
+
+                for (my $i = 0; $i < @anames; $i++) {
+                    emit_block {
+                        emit "return is_valid(value) ? _info[value - $base].$anames[$i] : $avals[$i];";
+                    } "$atypes[$i] get_$anames[$i]($name value) ";
+                }
             } "namespace $name ";
         } "namespace enums ";
     };

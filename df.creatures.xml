@@ -114,10 +114,6 @@
     <flag-bit name='ghostly'/>
   </bitfield-type>
 
-  <struct-type type-name='attribute'>
-    <padding size='28' alignment='4'/>
-  </struct-type>
-
   <struct-type type-name='unit' key-field='id'>
     <compound type-name='language_name' name='name'/>
 
@@ -131,8 +127,9 @@
 
     <stl-string name='custom_profession'/>
 
-    <int16_t name='profession'/>
-    <int16_t name='profession2'/>
+    <enum base-type='int16_t' name='profession' type-name='profession'/>
+    <enum base-type='int16_t' name='profession2' type-name='profession'/>
+
     <uint32_t name='race' ref-target='creature_raw'/>
 
     <int16_t name='x'/>
@@ -371,7 +368,8 @@
       </pointer>
 
       <uint16_t name='unk_3c8'/>
-      <static-array type-name='attribute' name='physical' count='6'/>
+
+      <static-array type-name='unit_attribute' name='physical_attrs' count='6'/>
 
       <uint32_t name='unk_474'/>
       <uint32_t name='unk_478'/>
@@ -460,11 +458,13 @@
       <int8_t name='unk_5dc'/>
 
       <compound type-name='language_name' name='artifact_name'/>
-      <stl-vector name='souls'/> // 64c
-      <pointer name='current_soul'/> // 65c
+      <stl-vector name='souls'>
+        <pointer type-name='unit_soul'/>
+      </stl-vector>
+      <pointer name='current_soul' type-name='unit_soul'/>
       <stl-vector name='unk_660'/>
 
-      <static-array type-name='uint8_t' name='labors' count='94'/>
+      <static-array type-name='bool' name='labors' index-enum='unit_labor' count='94'/>
 
       <stl-vector name='unk_6d0'/>
       <stl-vector name='unk_6e0'/> // item ids?
@@ -566,6 +566,100 @@
     </stl-vector>
 
     <uint32_t name='unk_93c'/>
+  </struct-type>
+
+  <struct-type type-name='unit_attribute'>
+    <int32_t name='unk1'/>
+    <int32_t name='unk2'/>
+    <int32_t name='unk3'/>
+    <int32_t name='unk4'/>
+    <int32_t name='unk5'/>
+    <int32_t name='unk6'/>
+    <int32_t name='unk7'/>
+  </struct-type>
+
+  <struct-type type-name='unit_soul'>
+    <int32_t name='unit_id' ref-target='unit'/>
+
+    <compound name='name' type-name='language_name'/>
+
+    <uint32_t name='race' ref-target='creature_raw'/>
+    <uint8_t name='sex'/>
+    <uint16_t name='caste' ref-target='caste_raw' aux-value='$$.race'/>
+
+    <code-helper name='describe'>
+      (describe-obj $.name)
+      (awhen (find-creature $.race)
+        (fmt "~:(~A ~A~)" $it.caste[$.caste].caste_id $it.creature_id))
+    </code-helper>
+
+    <int32_t name='unk1'/>
+    <int32_t name='unk2'/>
+    <int32_t name='unk3'/>
+    <int32_t name='unk4'/>
+
+    <static-array type-name='unit_attribute' name='mental_attrs' count='13'/>
+
+    <stl-vector name='skills'>
+      <pointer type-name='unit_skill'/>
+    </stl-vector>
+    <stl-vector name='preferences'>
+      <pointer type-name='unit_preference'/>
+    </stl-vector>
+
+    <static-array type-name='uint16_t' name='traits' count='30'/>
+
+    <stl-vector name='unk5'>
+      <pointer>
+        <int16_t name='unk1'/>
+        <int16_t name='unk2'/>
+      </pointer>
+    </stl-vector>
+
+    <stl-vector name='unk6'/>
+  </struct-type>
+
+  <struct-type type-name='unit_skill' key-field='id'>
+    <enum base-type='int16_t' name="id" type-name='job_skill'/>
+
+    <int32_t name="rating"/>
+    <uint32_t name="experience"/>
+    <int32_t name="unk_c"/>
+    <int32_t name="rusty"/>
+    <int32_t name="unk_14"/>
+    <int32_t name="unk_18"/>
+    <int32_t name="unk_1c"/>
+  </struct-type>
+
+  <struct-type type-name='unit_preference' key-field='type'>
+    <enum base-type='int16_t' name="type">
+      <enum-item name='LikeMaterial'/>
+      <enum-item name='LikeCreature'/>
+      <enum-item name='LikeFood'/>
+      <enum-item name='HateCreature'/>
+      <enum-item name='LikeItem'/>
+      <enum-item name='LikePlant'/>
+      <enum-item name='LikePlant2' comment='likely 2nd prefstring'/>
+      <enum-item name='LikeColor'/>
+      <enum-item name='LikeShape'/>
+    </enum>
+
+    <compound is-union='true'>
+      <enum base-type='int16_t' name="item_type" type-name='item_type'/>
+      <int16_t name='creature_id' ref-target='creature_raw'/>
+      <int16_t name='color_id' refers-to='$global.world.raws.color_words[$]'/>
+      <int16_t name='shape_id' refers-to='$global.world.raws.shape_words[$]'/>
+      <int16_t name='plant_id' ref-target='material_plant'/>
+    </compound>
+
+    <int16_t name="item_subtype" refers-to='(item-subtype-target $$._parent.item_type $)'/>
+
+    <int16_t name='mattype' ref-target='material' aux-value='$$.matindex'/>
+    <int32_t name='matindex'/>
+
+    <bool name='active'/>
+
+    <uint32_t name='unk'/>
   </struct-type>
 
 </data-definition>
