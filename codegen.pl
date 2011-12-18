@@ -8,6 +8,7 @@ use XML::LibXML;
 my $input_dir = $ARGV[0] || '.';
 my $output_dir = $ARGV[1] || 'codegen';
 my $main_namespace = $ARGV[2] || 'df';
+my $export_prefix = 'DFHACK_EXPORT ';
 
 my %types;
 my %type_files;
@@ -36,6 +37,13 @@ sub check_bad_attrs($;$$) {
         if ((!$allow_size && defined $tag->getAttribute('size')) ||
             defined $tag->getAttribute('offset') ||
             (!$allow_align && defined $tag->getAttribute('alignment')));
+}
+
+sub check_name($) {
+    my ($name) = @_;
+    $name =~ /^[_a-zA-Z][_a-zA-Z0-9]*$/
+        or die "Invalid identifier: $name\n";
+    return $name;
 }
 
 sub is_attr_true($$) {
@@ -116,7 +124,7 @@ sub ensure_name($) {
         $name = $anon_prefix.(($anon_id == 0) ? '' : '_'.$anon_id);
         $anon_id++;
     }
-    return $name;
+    return check_name($name);
 }
 
 sub with_anon(&;$) {
@@ -179,11 +187,12 @@ sub register_ref($;$) {
 # Determines if referenced other types should be included or forward-declared
 our $is_strong_ref = 1;
 
-sub with_struct_block(&$;$) {
-    my ($blk, $tag, $name) = @_;
+sub with_struct_block(&$;$$) {
+    my ($blk, $tag, $name, $export) = @_;
     
     my $kwd = (is_attr_true($tag,'is-union') ? "union" : "struct");
-    my $prefix = $kwd.($name ? ' '.$name : '').' ';
+    my $exp = $export ? $export_prefix : '';
+    my $prefix = $kwd.' '.$exp.($name ? $name.' ' : '');
     
     emit_block {
         local $_;
@@ -192,10 +201,12 @@ sub with_struct_block(&$;$) {
     } $prefix, ";";
 }
 
-sub decode_type_name_ref($;$$) {
+sub decode_type_name_ref($;%) {
     # Interpret the type-name field of a tag
-    my ($tag,$force_type,$force_strong) = @_;
-    my $tname = $tag->getAttribute('type-name')
+    my ($tag,%flags) = @_;
+    my $force_type = $flags{-force_type};
+    my $force_strong = $flags{-force_strong};
+    my $tname = $tag->getAttribute($flags{-attr_name} || 'type-name')
         or return undef;
 
     if ($primitive_types{$tname}) {
@@ -206,7 +217,7 @@ sub decode_type_name_ref($;$$) {
         register_ref $tname, ($force_strong||$is_strong_ref);
         die "Cannot use type $tname as type-name of ".$tag->nodeName."\n"
             if ($force_type && $force_type ne $types{$tname}->nodeName);
-        return $tname;
+        return $main_namespace.'::'.$tname;
     }
 }
 
@@ -345,6 +356,7 @@ sub render_enum_tables($$$) {
 
         die "Duplicate attribute $name.\n" if exists $aidx{$name};
 
+        check_name $name;
         $aidx{$name} = scalar @anames;
         push @anames, $name;
         push @atnames, $type;
@@ -360,10 +372,14 @@ sub render_enum_tables($$$) {
 
     # Emit accessor function prototypes
 
-    emit "bool is_valid($name value);";
+    emit "const $name _first_item_of_$name = ($name)$base;";
+
+    emit_block {
+        emit "return (value >= _first_item_of_$name && value < _last_item_of_$name);";
+    } "inline bool is_valid($name value) ";
 
     for (my $i = 0; $i < @anames; $i++) {
-        emit "$atypes[$i] get_$anames[$i]($name value);";
+        emit "${export_prefix}$atypes[$i] get_$anames[$i]($name value);";
     }
 
     # Emit implementation
@@ -408,10 +424,6 @@ sub render_enum_tables($$$) {
 
                     emit "{ ",join(', ',@avals)," }";
                 } "static const _info_entry _info[] = ", ";";
-
-                emit_block {
-                    emit "return (value >= $base && value < _last_item_of_$name);";
-                } "bool is_valid($name value) ";
 
                 for (my $i = 0; $i < @anames; $i++) {
                     emit_block {
@@ -645,7 +657,7 @@ sub get_bitfield_type($) {
     my ($tag) = @_;
     check_bad_attrs($tag);
 
-    my $tname = decode_type_name_ref($tag, 'bitfield-type');
+    my $tname = decode_type_name_ref($tag, -force_type => 'bitfield-type');
     unless ($tname) {
         $tname = ensure_name undef;
         with_anon {
@@ -660,7 +672,7 @@ sub get_enum_type($) {
     my ($tag) = @_;
     check_bad_attrs($tag);
 
-    my $tname = decode_type_name_ref($tag, 'enum-type', 1);
+    my $tname = decode_type_name_ref($tag, -force_type => 'enum-type', -force_strong => 1);
     my $base = get_primitive_base($tag, 'int32_t');
     unless ($tname) {
         $tname = ensure_name undef;
@@ -690,7 +702,8 @@ sub get_df_flagarray_type($) {
     # DF flag array
     my ($tag) = @_;
     check_bad_attrs($tag);
-    return ("flagarray", '');
+    my $type = decode_type_name_ref($tag, -attr_name => 'index-enum', -force_type => 'enum-type', -force_strong => 1) || 'int';
+    return ("BitArray<$type>", '');
 }
 
 # Struct dispatch table and core
@@ -726,6 +739,8 @@ sub render_struct_type {
     if ($inherits) {
         register_ref $inherits, 1;
         $ispec = ' : '.$inherits;
+    } elsif ($is_class) {
+        $ispec = ' : virtual_class';
     }
 
     with_struct_block {
@@ -733,9 +748,9 @@ sub render_struct_type {
 
         if ($has_methods) {
             if ($is_class) {
-                emit "static virtual_identity<$typename> _identity;";
+                emit "static class_virtual_identity<$typename> _identity;";
                 with_emit_static {
-                    emit "virtual_identity<$typename> ${typename}::_identity(",
+                    emit "class_virtual_identity<$typename> ${typename}::_identity(",
                          "\"$typename\",",
                          ($original_name ? "\"$original_name\"" : 'NULL'), ',',
                          ($inherits ? "&${inherits}::_identity" : 'NULL'),
@@ -753,7 +768,7 @@ sub render_struct_type {
                 emit "~",$typename,"() {}";
             }
         }
-    } $tag, "$typename$ispec";
+    } $tag, "$typename$ispec", 1;
 }
 
 # MAIN BODY
@@ -857,16 +872,25 @@ for my $name (sort { $a cmp $b } keys %types) {
 mkdir $output_dir;
 
 {
+    # Delete the old files
+    for my $name (glob "$output_dir/*.h") {
+        unlink $name;
+    }
+
+    # Write out the headers
     local $, = "\n";
     local $\ = "\n";
 
     for my $name (keys %type_data) {
         open FH, ">$output_dir/$name.h";
+        print FH "/* THIS FILE WAS GENERATED. DO NOT EDIT. */";
         print FH @{$type_data{$name}};
         close FH;
     }
 
+    # Write out the static file
     open FH, ">$output_dir/static.inc";
+    print FH "/* THIS FILE WAS GENERATED. DO NOT EDIT. */";
     for my $name (sort { $a cmp $b } keys %static_includes) {
         print FH "#include \"$name.h\"";
     }
