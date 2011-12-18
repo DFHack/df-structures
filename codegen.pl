@@ -187,17 +187,21 @@ sub register_ref($;$) {
 # Determines if referenced other types should be included or forward-declared
 our $is_strong_ref = 1;
 
-sub with_struct_block(&$;$$) {
-    my ($blk, $tag, $name, $export) = @_;
+sub with_struct_block(&$;$%) {
+    my ($blk, $tag, $name, %flags) = @_;
     
     my $kwd = (is_attr_true($tag,'is-union') ? "union" : "struct");
-    my $exp = $export ? $export_prefix : '';
+    my $exp = $flags{-export} ? $export_prefix : '';
     my $prefix = $kwd.' '.$exp.($name ? $name.' ' : '');
     
     emit_block {
         local $_;
         local $is_strong_ref = 1; # reset the state
-        &with_anon($blk);
+        if ($flags{-no_anon}) {
+            $blk->();
+        } else {
+            &with_anon($blk);
+        }
     } $prefix, ";";
 }
 
@@ -528,7 +532,7 @@ sub do_render_struct_field($) {
         check_bad_attrs($tag);
         with_struct_block {
             render_struct_field($_) for get_struct_fields($tag);
-        } $tag;
+        } $tag, undef, -no_anon => 1;
         return;
     }
 
@@ -768,7 +772,7 @@ sub render_struct_type {
                 emit "~",$typename,"() {}";
             }
         }
-    } $tag, "$typename$ispec", 1;
+    } $tag, "$typename$ispec", -export => 1;
 }
 
 # MAIN BODY
