@@ -78,15 +78,17 @@
       (when cmd
         (format t "~10X: ~A~%" (x86-instruction-address cmd) (x86-instruction-text cmd))))))
 
-(defun write-csv (context filename)
+(defun write-csv (context filename gfilename)
   (let ((*known-types* (remove-if-not #'consp *known-types* :key #'car))
         (*known-globals* nil)
         (*memory* context))
     (reload)
     (with-open-file (stream filename :direction :output :if-exists :supersede)
-      (export-csv stream context))))
+      (export-csv stream context))
+    (with-open-file (stream gfilename :direction :output :if-exists :supersede)
+      (export-csv stream context :globals? t))))
 
 (defun make-csv ()
-  (write-csv (make-instance 'type-context :os-type $windows) "windows/all.csv")
-  (write-csv (make-instance 'type-context :os-type $linux) "linux/all.csv"))
+  (write-csv (make-instance 'type-context :os-type $windows) "windows/all.csv" "windows/globals.csv")
+  (write-csv (make-instance 'type-context :os-type $linux) "linux/all.csv" "linux/globals.csv"))
 
