@@ -38,7 +38,7 @@
     <flag-bit name='artifact2' comment='Artifact ?'/>
 
     <flag-bit name='unk8' comment='unknown, unseen, common'/>
-    <flag-bit name='unk9' comment='unknown, set when viewing details'/>
+    <flag-bit name='weight_computed'/>
     <flag-bit name='unk10' comment='unknown, unseen'/>
     <flag-bit name='unk11' comment='unknown, unseen'/>
   </bitfield-type>
@@ -50,7 +50,19 @@
     <uint16_t name='temperature'/>
     <uint16_t name='temperature_fraction'/>
     <int32_t name='size' comment='1-24=spatter, 25-49=smear, 50-* = coating'/>
+    <int16_t name='unk' comment='-1'/>
+    <int16_t name='id'/>
   </struct-type>
+
+  <enum-type type-name='item_quality'>
+    <enum-item name='Ordinary'/>
+    <enum-item name='WellCrafted'/>
+    <enum-item name='FinelyCrafted'/>
+    <enum-item name='Superior'/>
+    <enum-item name='Exceptional'/>
+    <enum-item name='Masterful'/>
+    <enum-item name='Artifact'/>
+  </enum-type>
 
   -- CORE ITEM
 
@@ -68,8 +80,9 @@
 
     <stl-vector name='jobs'>
       <pointer>
-        <int32_t name='unk'/>
+        <int32_t name='unk1'/>
         <pointer name='job' type-name='job'/>
+        <int32_t name='unk2'/>
       </pointer>
     </stl-vector>
 
@@ -92,19 +105,66 @@
       <int16_t name='fixed_temp'/>
     </compound>
 
-    <int32_t name='mystery1'/>
-    <int32_t name='mystery2'/>
+    <int32_t name='weight' comment='if flags.weight_computed'/>
+    <int32_t name='weight_fraction' comment='1e-6'/>
   </class-type>
 
   -- ACTUAL ITEM
 
+  <struct-type type-name='item_kill_info'>
+    -- Important
+
+    <stl-vector name="events">
+      <int32_t ref-target='history_event'/>
+    </stl-vector>
+
+    -- Misc
+
+    <stl-vector name="killed_race">
+      <int16_t ref-target='creature_raw'/>
+    </stl-vector>
+    <stl-vector name="killed_caste">
+      <int16_t ref-target='caste_raw' aux-value='$$._parent.killed_race[$._key]'/>
+    </stl-vector>
+    <stl-vector name="unk_30">
+      <int32_t comment='-1'/>
+    </stl-vector>
+    <stl-vector name="unk_40">
+      <int32_t comment='-1'/>
+    </stl-vector>
+    <stl-vector name="killed_location">
+      <int32_t/>
+    </stl-vector>
+    <stl-vector name="killed_undead">
+      <bitfield base-type='uint16_t'>
+        <flag-bit name='skeletal'/>
+        <flag-bit name='zombie'/>
+        <flag-bit name='ghostly'/>
+      </bitfield>
+    </stl-vector>
+    <stl-vector name="killed_count" type-name='int32_t'/>
+
+    -- Wielders
+
+    <stl-vector name="slayers">
+      <int32_t ref-target='historical_figure'/>
+    </stl-vector>
+    <stl-vector name="slayer_kill_counts" type-name='int32_t'/>
+  </struct-type>
+
   <class-type type-name='item_actual' inherits-from='item' original-name='item_actualst'>
     <int32_t name='stack_size'/>
-    <pointer name='mystery4'>
+
+    <code-helper name='describe'>
+      (if (> $.stack_size 1) (fmt "stack: ~A" $.stack_size))
+      (if (> $.wear 0) (fmt "wear: ~A" $.wear))
+    </code-helper>
+
+    <pointer name='history_info'>
       <pointer>
-        <int32_t name='a'/>
-        <int32_t name='b'/>
-        <int32_t name='c'/>
+        <pointer name='kills' type-name='item_kill_info'/>
+        <int32_t name='unk1'/>
+        <int32_t name='unk2'/>
       </pointer>
     </pointer>
 
@@ -113,15 +173,18 @@
     </pointer>
 
     <pointer name='contaminants'>
-      <stl-vector type-name='pointer'/>
+      <stl-vector>
+        <pointer type-name='contaminant'/>
+      </stl-vector>
     </pointer>
 
     <uint16_t name='temperature'/>
     <uint16_t name='temperature_fraction'/>
 
     <int16_t name='wear'/>
-    <int32_t name='unk2'/>
-    <int32_t name='unk3'/>
+    <int32_t name='wear_timer' comment='counts up to 806400'/>
+
+    <int32_t name='unk3' comment='-1'/>
   </class-type>
 
   -- CRAFTED ITEM
@@ -130,11 +193,17 @@
               original-name='item_craftedst'>
     <int16_t name='matType' ref-target='material' aux-value='$$.matIndex'/>
     <int32_t name='matIndex'/>
-    <int16_t name='unk_80'/>
-    <int16_t name='quality'/>
-    <int32_t name='unk_84'/>
-    <int32_t name='maker' ref-target='unit'/>
-    <int32_t name='unk_8c'/>
+
+    <code-helper name='describe'>
+      $.quality
+      (describe-obj (material-by-id $.matType $.matIndex))
+    </code-helper>
+
+    <int16_t name='maker_race' ref-target='creature_raw'/>
+    <enum base-type='int16_t' name='quality' type-name='item_quality'/>
+    <enum base-type='int32_t' name='skill_used' type-name='job_skill'/>
+    <int32_t name='maker' ref-target='historical_figure'/>
+    <int32_t name='masterpiece_event' ref-target='history_event'/>
   </class-type>
 
   -- CONSTRUCTED ITEM
@@ -399,9 +468,6 @@
   <class-type type-name='item_splintst' inherits-from='item_constructed'/>
   <class-type type-name='item_crutchst' inherits-from='item_constructed'/>
   <class-type type-name='item_traction_benchst' inherits-from='item_constructed'/>
-  <class-type type-name='item_st' inherits-from='item_constructed'/>
-  <class-type type-name='item_st' inherits-from='item_constructed'/>
-  <class-type type-name='item_st' inherits-from='item_constructed'/>
 
   <class-type type-name='item_instrumentst' inherits-from='item_constructed'>
     <pointer name='subtype' type-name='itemdef_instrumentst'/>
