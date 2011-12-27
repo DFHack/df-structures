@@ -362,11 +362,15 @@ sub render_enum_tables($$$) {
     my @avals = ('NULL');
     my @atypes = ('const char*');
     my @atnames = (undef);
+    my @aprefix = ('');
 
     for my $attr ($tag->findnodes('child::enum-attr')) {
         my $name = $attr->getAttribute('name') or die "Unnamed enum-attr.\n";
-        my $type = $attr->getAttribute('type-name');
+        my $type = decode_type_name_ref $attr;
         my $def = $attr->getAttribute('default-value');
+
+        my $base_tname = ($type && $type =~ /::(.*)$/ ? $1 : '');
+        $type = $base_tname if $base_tname eq $typename;
 
         die "Duplicate attribute $name.\n" if exists $aidx{$name};
 
@@ -377,10 +381,12 @@ sub render_enum_tables($$$) {
 
         if ($type) {
             push @atypes, $type;
-            push @avals, (defined $def ? $def : "($type)0");
+            push @aprefix, ($base_tname ? $base_tname."::" : '');
+            push @avals, (defined $def ? $aprefix[-1].$def : "($type)0");
         } else {
             push @atypes, 'const char*';
             push @avals, (defined $def ? "\"$def\"" : 'NULL');
+            push @aprefix, '';
         }
     }
 
@@ -426,7 +432,7 @@ sub render_enum_tables($$$) {
                                 my $idx = $aidx{$name} or die "Unknown item-attr: $name\n";
 
                                 if ($atnames[$idx]) {
-                                    $evals[$idx] = $value;
+                                    $evals[$idx] = $aprefix[$idx].$value;
                                 } else {
                                     $evals[$idx] = "\"$value\"";
                                 }
