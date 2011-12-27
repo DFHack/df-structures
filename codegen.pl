@@ -529,7 +529,7 @@ sub get_container_item_type($;%) {
 }
 
 my %atable = ( 1 => 'char', 2 => 'short', 4 => 'int' );
-        
+
 my %custom_container_handlers = (
     'stl-vector' => sub {
         my $item = get_container_item_type($_, -void => 'void*');
@@ -681,6 +681,82 @@ sub emit_find_instance {
     }
 }
 
+sub render_virtual_methods {
+    my ($tag) = @_;
+
+    my @parents = ( $tag );
+    for (;;) {
+        my $inherits = $parents[0]->getAttribute('inherits-from') or last;
+        my $parent = $types{$inherits} || die "Unknown parent: $inherits\n";
+        unshift @parents, $parent;
+    }
+
+    my %name_index;
+    my @vtable;
+    my @starts;
+    my $dtor_id = '~destructor';
+
+    for my $type (@parents) {
+        push @starts, scalar(@vtable);
+        for my $method ($type->findnodes('virtual-methods/vmethod')) {
+            my $is_destructor = is_attr_true($method, 'is-destructor');
+            my $name = $is_destructor ? $dtor_id : $method->getAttribute('name');
+            if ($name) {
+                die "Duplicate method: $name in ".$type->getAttribute('type-name')."\n"
+                    if exists $name_index{$name};
+                $name_index{$name} = scalar(@vtable);
+            }
+            push @vtable, $method;
+        }
+    }
+
+    my $dtor_idx = $name_index{$dtor_id};
+    unless (defined $dtor_idx) {
+        for (my $i = 0; $i <= $#vtable; $i++) {
+            next if $vtable[$i]->getAttribute('name');
+            $name_index{$dtor_id} = $dtor_idx = $i;
+            last;
+        }
+    }
+    unless (defined $dtor_idx) {
+        push @vtable, undef;
+        $dtor_idx = $#vtable;
+    }
+
+    my $min_id = $starts[-1];
+    my $cur_mode = '';
+    for (my $idx = $min_id; $idx <= $#vtable; $idx++) {
+        my $method = $vtable[$idx];
+        my $is_destructor = $method ? is_attr_true($method, 'is-destructor') : 1;
+        my $name = $is_destructor ? $typename : $method->getAttribute('name');
+
+        my $rq_mode = ($method && $name) ? 'public' : 'protected';
+        unless ($rq_mode eq $cur_mode) {
+            $cur_mode = $rq_mode;
+            outdent { emit "$cur_mode:"; }
+        }
+
+        if ($idx == $dtor_idx) {
+            $is_destructor = 1;
+            $name = $typename;
+        }
+
+        with_anon {
+            $name = ensure_name $name;
+            my @ret_type = $is_destructor ? () : $method->findnodes('ret-type');
+            my @arg_types = $is_destructor ? () : $method->findnodes('ld:field');
+            my $ret_type = $ret_type[0] ? get_struct_field_type($ret_type[0]) : 'void';
+            my $ret_stmt = '';
+            unless ($ret_type eq 'void') {
+                $ret_stmt = ' return '.($ret_type =~ /\*$/ ? '0' : "$ret_type()").'; ';
+            }
+            $ret_type = $is_destructor ? '~' : $ret_type.' ';
+            my @arg_strs = map { scalar get_struct_field_type($_) } @arg_types;
+            emit 'virtual ', $ret_type, $name, '(', join(', ', @arg_strs), ') {', $ret_stmt, '}; //', $idx;
+        } "anon_vmethod_$idx";
+    }
+}
+
 sub render_struct_type {
     my ($tag) = @_;
 
@@ -715,12 +791,8 @@ sub render_struct_type {
                 }
             }
 
-            outdent {
-                emit "protected:";
-            };
-
             if ($is_class) {
-                emit "virtual ~",$typename,"() {}";
+                render_virtual_methods $tag;
             } else {
                 emit "~",$typename,"() {}";
             }

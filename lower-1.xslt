@@ -34,8 +34,19 @@
         </ld:data-definition>
     </xsl:template>
 
-    <xsl:template match="comment|code-helper|enum-attr|enum-item">
-        <xsl:copy-of select='.'/>
+    <xsl:template match="comment|code-helper|enum-attr|enum-item|item-attr">
+        <xsl:copy>
+            <xsl:apply-templates select='@*|node()'/>
+        </xsl:copy>
+    </xsl:template>
+
+    <xsl:template match="virtual-methods|cond-if|cond-else">
+        <xsl:param name='level' select='-1'/>
+        <xsl:copy>
+            <xsl:apply-templates select='@*|node()'>
+                <xsl:with-param name='level' select="$level"/>
+            </xsl:apply-templates>
+        </xsl:copy>
     </xsl:template>
 
     <!-- Type defs: convert to one common 'global-type' tag name. -->
@@ -120,25 +131,34 @@
         - When an ad-hoc compound: meta='compound' subtype='$tag'
         - Level not incremented unless it has a name.
     -->
+    <xsl:template name='compound'>
+        <xsl:param name='level' select='-1'/>
+        <xsl:param name='level_shift' select='1'/>
+        <xsl:attribute name='ld:level'><xsl:value-of select='$level'/></xsl:attribute>
+        <xsl:choose>
+            <xsl:when test='@type-name'>
+                <xsl:call-template name='lookup-type-ref'>
+                    <xsl:with-param name='name' select="@type-name"/>
+                </xsl:call-template>
+                <xsl:apply-templates select='@*|node()'/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:attribute name='ld:meta'>compound</xsl:attribute>
+                <xsl:apply-templates select='@*|node()'>
+                    <xsl:with-param name='level' select="$level+$level_shift"/>
+                </xsl:apply-templates>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+
     <xsl:template match='compound|bitfield|enum'>
         <xsl:param name='level' select='-1'/>
         <ld:field>
-            <xsl:attribute name='ld:level'><xsl:value-of select='$level'/></xsl:attribute>
             <xsl:attribute name='ld:subtype'><xsl:value-of select='name(.)'/></xsl:attribute>
-            <xsl:choose>
-                <xsl:when test='@type-name'>
-                    <xsl:call-template name='lookup-type-ref'>
-                        <xsl:with-param name='name' select="@type-name"/>
-                    </xsl:call-template>
-                    <xsl:apply-templates select='@*|node()'/>
-                </xsl:when>
-                <xsl:otherwise>
-                    <xsl:attribute name='ld:meta'>compound</xsl:attribute>
-                    <xsl:apply-templates select='@*|node()'>
-                        <xsl:with-param name='level' select="$level+count(@name)"/>
-                    </xsl:apply-templates>
-                </xsl:otherwise>
-            </xsl:choose>
+            <xsl:call-template name='compound'>
+                <xsl:with-param name='level' select="$level"/>
+                <xsl:with-param name='level_shift' select="count(@name)"/>
+            </xsl:call-template>
         </ld:field>
     </xsl:template>
 
@@ -189,6 +209,37 @@
                 <xsl:with-param name='level' select="$level+1"/>
             </xsl:call-template>
         </ld:field>
+    </xsl:template>
+    
+    <!-- Virtual methods -->
+
+    <xsl:template match='vmethod'>
+        <xsl:param name='level' select='-1'/>
+        <xsl:copy>
+            <xsl:attribute name='ld:level'><xsl:value-of select='$level'/></xsl:attribute>
+            <xsl:apply-templates select='@*'/>
+            <xsl:if test='@ret-type'>
+                <xsl:copy-of select='text()[1]'/>
+                <ret-type>
+                    <xsl:attribute name='ld:level'><xsl:value-of select='$level+1'/></xsl:attribute>
+                    <xsl:call-template name='lookup-type-ref'>
+                        <xsl:with-param name='name' select="@ret-type"/>
+                    </xsl:call-template>
+                </ret-type>
+            </xsl:if>
+            <xsl:apply-templates select='node()'>
+                <xsl:with-param name='level' select="$level+1"/>
+            </xsl:apply-templates>
+        </xsl:copy>
+    </xsl:template>
+
+    <xsl:template match='ret-type'>
+        <xsl:param name='level' select='-1'/>
+        <xsl:copy>
+            <xsl:call-template name='compound'>
+                <xsl:with-param name='level' select="$level"/>
+            </xsl:call-template>
+        </xsl:copy>
     </xsl:template>
 </xsl:stylesheet>
 
