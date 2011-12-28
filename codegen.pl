@@ -690,6 +690,7 @@ sub emit_find_instance {
 sub render_virtual_methods {
     my ($tag) = @_;
 
+    # Collect all parent classes
     my @parents = ( $tag );
     for (;;) {
         my $inherits = $parents[0]->getAttribute('inherits-from') or last;
@@ -697,6 +698,7 @@ sub render_virtual_methods {
         unshift @parents, $parent;
     }
 
+    # Build the vtable array
     my %name_index;
     my @vtable;
     my @starts;
@@ -716,6 +718,7 @@ sub render_virtual_methods {
         }
     }
 
+    # Ensure there is a destructor to avoid warnings
     my $dtor_idx = $name_index{$dtor_id};
     unless (defined $dtor_idx) {
         for (my $i = 0; $i <= $#vtable; $i++) {
@@ -729,36 +732,43 @@ sub render_virtual_methods {
         $dtor_idx = $#vtable;
     }
 
+    # Generate the methods
     my $min_id = $starts[-1];
     my $cur_mode = '';
     for (my $idx = $min_id; $idx <= $#vtable; $idx++) {
         my $method = $vtable[$idx];
-        my $is_destructor = $method ? is_attr_true($method, 'is-destructor') : 1;
-        my $name = $is_destructor ? $typename : $method->getAttribute('name');
+        my $is_destructor = 1;
+        my $name = $typename;
+        my $is_anon = 1;
 
-        my $rq_mode = ($method && $name) ? 'public' : 'protected';
+        if ($method) {
+            $is_destructor = is_attr_true($method, 'is-destructor');
+            $name = $method->getAttribute('name') unless $is_destructor;
+            $is_anon = 0 if $name;
+        }
+
+        my $rq_mode = $is_anon ? 'protected' : 'public';            
         unless ($rq_mode eq $cur_mode) {
             $cur_mode = $rq_mode;
             outdent { emit "$cur_mode:"; }
         }
 
-        if ($idx == $dtor_idx) {
-            $is_destructor = 1;
-            $name = $typename;
-        }
-
         with_anon {
             $name = ensure_name $name;
+            $method->setAttribute('ld:anon-name', $name) if $method && $is_anon;
+
             my @ret_type = $is_destructor ? () : $method->findnodes('ret-type');
             my @arg_types = $is_destructor ? () : $method->findnodes('ld:field');
             my $ret_type = $ret_type[0] ? get_struct_field_type($ret_type[0]) : 'void';
+            my @arg_strs = map { scalar get_struct_field_type($_) } @arg_types;
+
             my $ret_stmt = '';
             unless ($ret_type eq 'void') {
                 $ret_stmt = ' return '.($ret_type =~ /\*$/ ? '0' : "$ret_type()").'; ';
             }
-            $ret_type = $is_destructor ? '~' : $ret_type.' ';
-            my @arg_strs = map { scalar get_struct_field_type($_) } @arg_types;
-            emit 'virtual ', $ret_type, $name, '(', join(', ', @arg_strs), ') {', $ret_stmt, '}; //', $idx;
+
+            emit 'virtual ', ($is_destructor?'~':$ret_type.' '), $name,
+                 '(', join(', ', @arg_strs), ') {', $ret_stmt, '}; //', $idx;
         } "anon_vmethod_$idx";
     }
 }
