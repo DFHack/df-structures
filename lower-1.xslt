@@ -63,7 +63,7 @@
 
     <!-- Code to properly annotate references to types by name -->
 
-    <xsl:key name="primitive-type-lookup" match="prim-type" use="@name"/>
+    <xsl:key name="primitive-type-lookup" match="prim-type" use="@type-name"/>
     <xsl:variable name="primitive-types-top" select="document('')/*/ld:primitive-types"/>
 
     <xsl:template match="ld:primitive-types">
@@ -73,8 +73,7 @@
                 <xsl:attribute name='ld:meta'>pointer</xsl:attribute>
             </xsl:when>
             <xsl:when test="key('primitive-type-lookup', $name)">
-                <xsl:attribute name='ld:meta'>primitive</xsl:attribute>
-                <xsl:attribute name='type-name'><xsl:value-of select='$name'/></xsl:attribute>
+                <xsl:apply-templates select="key('primitive-type-lookup', $name)/@*"/>
             </xsl:when>
             <xsl:otherwise>
                 <xsl:attribute name='ld:meta'>global</xsl:attribute>
@@ -99,27 +98,29 @@
 
     <!-- Primitive types: meta='primitive' type-name='blah' -->
     <ld:primitive-types>
-        <prim-type name='int8_t'/>
-        <prim-type name='uint8_t'/>
-        <prim-type name='int16_t'/>
-        <prim-type name='uint16_t'/>
-        <prim-type name='int32_t'/>
-        <prim-type name='uint32_t'/>
-        <prim-type name='int64_t'/>
-        <prim-type name='uint64_t'/>
-        <prim-type name='bool'/>
-        <prim-type name='padding'/>
-        <prim-type name='stl-string'/>
-        <prim-type name='flag-bit'/>
-        <prim-type name='s-float'/>
-        <prim-type name='static-string'/>
+        <prim-type ld:meta='number' type-name='int8_t' ld:bits='8'/>
+        <prim-type ld:meta='number' type-name='uint8_t' ld:unsigned='true' ld:bits='8'/>
+        <prim-type ld:meta='number' type-name='int16_t' ld:bits='16'/>
+        <prim-type ld:meta='number' type-name='uint16_t' ld:unsigned='true' ld:bits='16'/>
+        <prim-type ld:meta='number' type-name='int32_t' ld:bits='32'/>
+        <prim-type ld:meta='number' type-name='uint32_t' ld:unsigned='true' ld:bits='32'/>
+        <prim-type ld:meta='number' type-name='int64_t' ld:bits='64'/>
+        <prim-type ld:meta='number' type-name='uint64_t' ld:unsigned='true' ld:bits='64'/>
+        <prim-type ld:meta='number' type-name='bool' ld:bits='8'/>
+        <prim-type ld:meta='number' type-name='s-float' ld:bits='32'/>
+        <prim-type ld:meta='number' type-name='flag-bit' ld:bits='1'/>
+        <prim-type ld:meta='primitive' type-name='padding'/>
+        <prim-type ld:meta='primitive' type-name='static-string'/>
+        <prim-type ld:meta='primitive' type-name='stl-string'/>
     </ld:primitive-types>
 
     <xsl:template match='int8_t|uint8_t|int16_t|uint16_t|int32_t|uint32_t|int64_t|uint64_t|bool|padding|stl-string|flag-bit|s-float|static-string'>
         <xsl:param name='level' select='-1'/>
-        <ld:field ld:meta='primitive'>
+        <ld:field>
             <xsl:attribute name='ld:level'><xsl:value-of select='$level'/></xsl:attribute>
-            <xsl:attribute name='type-name'><xsl:value-of select='name(.)'/></xsl:attribute>
+            <xsl:call-template name='lookup-type-ref'>
+                <xsl:with-param name="name" select="name(.)"/>
+            </xsl:call-template>
             <xsl:apply-templates select='@*|node()'/>
         </ld:field>
     </xsl:template>
@@ -151,13 +152,25 @@
         </xsl:choose>
     </xsl:template>
 
-    <xsl:template match='compound|bitfield|enum'>
+    <xsl:template match='compound'>
+        <xsl:param name='level' select='-1'/>
+        <ld:field>
+            <xsl:if test="not(@name|@type-name)">
+                <xsl:attribute name='ld:anon-compound'>true</xsl:attribute>
+            </xsl:if>
+            <xsl:call-template name='compound'>
+                <xsl:with-param name='level' select="$level"/>
+                <xsl:with-param name='level_shift' select="count(@name)"/>
+            </xsl:call-template>
+        </ld:field>
+    </xsl:template>
+
+    <xsl:template match='bitfield|enum'>
         <xsl:param name='level' select='-1'/>
         <ld:field>
             <xsl:attribute name='ld:subtype'><xsl:value-of select='name(.)'/></xsl:attribute>
             <xsl:call-template name='compound'>
                 <xsl:with-param name='level' select="$level"/>
-                <xsl:with-param name='level_shift' select="count(@name)"/>
             </xsl:call-template>
         </ld:field>
     </xsl:template>

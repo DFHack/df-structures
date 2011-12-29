@@ -103,25 +103,29 @@ sub outdent(&) {
     $blk->();
 }
 
-sub emit_block(&;$$) {
+sub emit_block(&;$$%) {
     # Emit a full {...} block with indentation
-    my ($blk, $prefix, $suffix) = @_;
+    my ($blk, $prefix, $suffix, %flags) = @_;
+    my @inner = &with_emit($blk,$indentation+2);
+    return if $flags{-auto} && !@inner;
     $prefix ||= '';
     $suffix ||= '';
     emit $prefix,'{';
-    &indent($blk);
+    push @lines, @inner;
     emit '}',$suffix;
 }
 
 # Static file output
 
-my @static_lines;
+my %static_lines;
 my %static_includes;
 
-sub with_emit_static(&) {
-    my ($blk) = @_;
-    $static_includes{$typename}++;
-    push @static_lines, &with_emit($blk,2);
+sub with_emit_static(&;$) {
+    my ($blk, $tag) = @_;
+    my @inner = &with_emit($blk,2) or return;
+    $tag ||= '';
+    $static_includes{$tag}{$typename}++;
+    push @{$static_lines{$tag}}, @inner;
 }
 
 # Anonymous variable names
@@ -452,7 +456,7 @@ sub render_enum_tables($$$) {
                 }
             } "namespace $name ";
         } "namespace enums ";
-    };
+    } 'enums';
 }
 
 sub render_enum_type {
@@ -495,7 +499,7 @@ sub render_bitfield_core {
                 render_cond $item, sub {
                     my ($item) = @_;
                     ($item->nodeName eq 'ld:field' &&
-                     $item->getAttribute('ld:meta') eq 'primitive' &&
+                     $item->getAttribute('ld:meta') eq 'number' &&
                      $item->getAttribute('type-name') eq 'flag-bit')
                         or die "Invalid bitfield member: ".$item->toString."\n";
 
@@ -506,6 +510,8 @@ sub render_bitfield_core {
                 };
             }
         } "struct ", " bits;";
+
+        emit $name, '() : whole(0) {};';
     } "union $name ", ";";
 }
 
@@ -518,15 +524,11 @@ sub render_bitfield_type {
 
 my %struct_field_handlers;
 
-sub get_struct_fields($) {
-    return $_[0]->findnodes('ld:field');
-}
-
 sub get_container_item_type($;%) {
     my ($tag, %flags) = @_;
     my @items = $tag->findnodes('ld:item');
     if (@items) {
-        return get_struct_field_type($items[0], %flags);
+        return get_struct_field_type($items[0], -local => 1, %flags);
     } elsif ($flags{-void}) {
         return $flags{-void};
     } else {
@@ -559,6 +561,10 @@ sub emit_typedef($$) {
     return $name;
 }
 
+sub get_struct_fields($) {
+    return $_[0]->findnodes('ld:field');
+}
+
 sub get_struct_field_type($;%) {
     # Dispatch on the tag name, and retrieve the type prefix & suffix
     my ($tag, %flags) = @_;
@@ -569,13 +575,25 @@ sub get_struct_field_type($;%) {
     my $suffix = '';
 
     if ($prefix = $tag->getAttribute('ld:typedef-name')) {
-        # Nothing to do - already named
+        unless ($flags{-local}) {
+            my @names = ( $main_namespace );
+            for my $parent ($tag->findnodes('ancestor::*')) {
+                if ($parent->nodeName eq 'ld:global-type') {
+                    push @names, $parent->getAttribute('type-name');
+                } elsif (my $n = $parent->getAttribute('ld:typedef-name')) {
+                    push @names, $n;
+                }
+            }
+            $prefix = join('::',@names,$prefix);
+        }
+    } elsif ($meta eq 'number') {
+        $prefix = primitive_type_name($tname);
     } elsif ($meta eq 'primitive') {
-        if ($tname eq 'static-string' && !$flags{-weak}) {
+        if ($tname eq 'static-string' && $flags{-local} && !$flags{-weak}) {
             my $count = $tag->getAttribute('size') || 0;
             $prefix = "char";
             $suffix = "[$count]";
-        } elsif ($tname eq 'padding' && !$flags{-weak}) {
+        } elsif ($tname eq 'padding' && $flags{-local} && !$flags{-weak}) {
             my $count = $tag->getAttribute('size') || 0;
             my $alignment = $tag->getAttribute('alignment') || 1;
             $prefix = $atable{$alignment} or die "Invalid alignment: $alignment\n";
@@ -588,6 +606,8 @@ sub get_struct_field_type($;%) {
         register_ref $tname, !$flags{-weak};
         $prefix = $main_namespace.'::'.$tname;
     } elsif ($meta eq 'compound') {
+        die "Unnamed compound in global mode: ".$tag->toString."\n" unless $flags{-local};
+
         $prefix = ensure_name undef;
         $tag->setAttribute('ld:typedef-name', $prefix);
 
@@ -602,7 +622,7 @@ sub get_struct_field_type($;%) {
             };
         } else {
             with_struct_block {
-                &render_struct_field($_) for get_struct_fields($tag);
+                emit_struct_fields($tag, $prefix);
             } $tag, $prefix;
         }
     } elsif ($meta eq 'pointer') {
@@ -614,11 +634,13 @@ sub get_struct_field_type($;%) {
     } elsif ($meta eq 'container') {
         local $_ = $tag;
         $prefix = $custom_container_handlers{$subtype}->($tag, %flags);
+    } elsif (!$flags{-local} && ($meta eq 'struct-type' || $meta eq 'class-type')) {
+        $prefix = $main_namespace.'::'.$tname;
     } else {
         die "Invalid field meta type: $meta\n";
     }
 
-    if ($subtype && $subtype eq 'enum') {
+    if ($subtype && $flags{-local} && $subtype eq 'enum') {
         my $base = get_primitive_base($tag, 'int32_t');
         $prefix = "enum_field<$prefix,$base>";
     }
@@ -626,19 +648,16 @@ sub get_struct_field_type($;%) {
     return ($prefix,$suffix) if wantarray;
     if ($suffix) {
         $prefix = emit_typedef($prefix, $suffix);
-        $tag->setAttribute('ld:typedef-name', $prefix);
+        $tag->setAttribute('ld:typedef-name', $prefix) if $flags{-local};
     }
     return $prefix;
 }
 
 sub do_render_struct_field($) {
     my ($tag) = @_;
-    my $tag_name = $tag->getAttribute('ld:meta');
-    my $field_name = $tag->getAttribute('name');
 
     # Special case: anonymous compounds.
-    if ($tag_name eq 'compound' && !defined $field_name
-        && ($tag->getAttribute('subtype')||'compound') eq 'compound')
+    if (is_attr_true($tag, 'ld:anon-compound'))
     {
         check_bad_attrs($tag);
         with_struct_block {
@@ -648,10 +667,11 @@ sub do_render_struct_field($) {
     }
 
     # Otherwise, create the name if necessary, and render
+    my $field_name = $tag->getAttribute('name');
     my $name = ensure_name $field_name;
     $tag->setAttribute('ld:anon-name', $name) unless $field_name;
     with_anon {
-        my ($prefix, $postfix) = get_struct_field_type($tag);
+        my ($prefix, $postfix) = get_struct_field_type($tag, -local => 1);
         emit $prefix, ' ', $name, $postfix, ';';
     } "T_$name";
 }
@@ -659,6 +679,111 @@ sub do_render_struct_field($) {
 sub render_struct_field($) {
     my ($tag) = @_;
     render_cond $tag, \&do_render_struct_field;
+}
+
+our @simple_inits;
+our $in_union = 0;
+
+sub render_field_init($$) {
+    my ($field, $prefix) = @_;
+    local $_;
+
+    my $meta = $field->getAttribute('ld:meta');
+    my $subtype = $field->getAttribute('ld:subtype');
+    my $name = $field->getAttribute('name') || $field->getAttribute('ld:anon-name');
+    my $fname = ($prefix && $name ? $prefix.'.'.$name : ($name||$prefix));
+
+    my $is_struct = $meta eq 'compound' && !$subtype;
+    my $is_union = ($is_struct && is_attr_true($field, 'is-union'));
+    local $in_union = $in_union || $is_union;
+
+    if (is_attr_true($field, 'ld:anon-compound') || ($in_union && $is_struct))
+    {
+        my @fields = $is_union ? $field->findnodes('ld:field[1]') : get_struct_fields($field);
+        &render_field_init($_, $fname) for @fields;
+        return;
+    }
+
+    return unless ($name || $prefix =~ /\]$/);
+
+    my $val = $field->getAttribute('init-value');    
+    my $assign = 0;
+
+    if ($meta eq 'number' || $meta eq 'pointer') {
+        $assign = 1;
+        my $signed_ref =
+            !is_attr_true($field,'ld:unsigned') &&
+            ($field->getAttribute('ref-target') || $field->getAttribute('refers-to'));
+        $val ||= ($signed_ref ? '-1' : 0);
+    } elsif ($meta eq 'primitive') {
+        my $tn = $field->getAttribute('type-name');
+        if ($tn eq 'padding' || $tn eq 'static-string') {
+            emit "memset($fname, 0, sizeof($fname));";
+        }
+    } elsif ($meta eq 'global' || $meta eq 'compound') {
+        return unless $subtype;
+
+        if ($subtype eq 'bitfield' && $val) {
+            emit $fname, '.whole = ', $val;
+        } elsif ($subtype eq 'enum') {
+            $assign = 1;
+            if ($meta eq 'global') {
+                my $tname = $field->getAttribute('type-name');
+                $val = ($val ? $main_namespace.'::enums::'.$tname.'::'.$val : "ENUM_FIRST_ITEM($tname)");
+            } else {
+                $val ||= $field->findvalue('enum-item[1]/@name');
+            }
+        }
+    } elsif ($meta eq 'static-array') {
+        my $idx = ensure_name undef;
+        my $count = $field->getAttribute('count')||0;
+        emit_block {
+            my $pfix = $fname."[$idx]";
+            render_field_init($_, $pfix) for $field->findnodes('ld:item');
+        } "for (int $idx = 0; $idx < $count; $idx++) ", "", -auto => 1;
+    }
+
+    if ($assign) {
+        if ($prefix || $in_union) {
+            emit "$fname = $val;";
+        } else {
+            push @simple_inits, "$name($val)";
+        }
+    }
+}
+
+sub emit_struct_fields($$;%) {
+    my ($tag, $name, %flags) = @_;
+
+    local $_;
+    my @fields = get_struct_fields($tag);
+    &render_struct_field($_) for @fields;
+
+    return if $tag->findnodes("ancestor-or-self::ld:field[\@is-union='true']");
+
+    my $want_ctor = 0;
+
+    with_emit_static {
+        local @simple_inits;
+        my @ctor_lines = with_emit {
+            render_field_init($_, '') for @fields;
+        };
+        if (@simple_inits || @ctor_lines) {
+            $want_ctor = 1;
+            my $full_name = get_struct_field_type($tag);
+            emit $full_name,'::',$name,"()";
+            emit "  :  ", join(', ', @simple_inits) if @simple_inits;
+            emit_block {
+                emit $_ for @ctor_lines;
+            };
+        }
+    } 'ctors';
+
+    if ($want_ctor) {
+#        outdent { emit "protected:"; } if $flags{-protect_ctor};
+        emit "$name();";
+#        outdent { emit "public:"; } if $flags{-protect_ctor};
+    }
 }
 
 sub emit_find_instance {
@@ -683,7 +808,7 @@ sub emit_find_instance {
                     emit "return (id_ >= 0 && id_ < vec_.size()) ? vec_[id_] : NULL;";
                 }
             } "$typename *${typename}::find(int id_) ";
-        }
+        };
     }
 }
 
@@ -759,8 +884,8 @@ sub render_virtual_methods {
 
             my @ret_type = $is_destructor ? () : $method->findnodes('ret-type');
             my @arg_types = $is_destructor ? () : $method->findnodes('ld:field');
-            my $ret_type = $ret_type[0] ? get_struct_field_type($ret_type[0]) : 'void';
-            my @arg_strs = map { scalar get_struct_field_type($_) } @arg_types;
+            my $ret_type = $ret_type[0] ? get_struct_field_type($ret_type[0], -local => 1) : 'void';
+            my @arg_strs = map { scalar get_struct_field_type($_, -local => 1) } @arg_types;
 
             my $ret_stmt = '';
             unless ($ret_type eq 'void') {
@@ -791,8 +916,7 @@ sub render_struct_type {
     }
 
     with_struct_block {
-        render_struct_field($_) for get_struct_fields($tag);
-
+        emit_struct_fields($tag, $typename, -protect_ctor => $is_class);
         emit_find_instance($tag);
         
         if ($has_methods) {
@@ -804,7 +928,7 @@ sub render_struct_type {
                          ($original_name ? "\"$original_name\"" : 'NULL'), ',',
                          ($inherits ? "&${inherits}::_identity" : 'NULL'),
                          ");";
-                }
+                };
             }
 
             if ($is_class) {
@@ -942,16 +1066,19 @@ mkdir $output_dir;
     }
 
     # Write out the static file
-    open FH, ">$output_dir/static.inc";
-    print FH "/* THIS FILE WAS GENERATED. DO NOT EDIT. */";
-    for my $name (sort { $a cmp $b } keys %static_includes) {
-        print FH "#include \"$name.h\"";
+    for my $tag (keys %static_lines) {
+        my $name = $output_dir.'/static'.($tag?'.'.$tag:'').'.inc';
+        open FH, ">$name";
+        print FH "/* THIS FILE WAS GENERATED. DO NOT EDIT. */";
+        for my $name (sort { $a cmp $b } keys %{$static_includes{$tag}}) {
+            print FH "#include \"$name.h\"";
+        }
+        print FH "namespace $main_namespace {";
+        print FH @{$static_lines{$tag}};
+        print FH '}';
+        close FH;
     }
-    print FH "namespace $main_namespace {";
-    print FH @static_lines;
-    print FH '}';
-    close FH;
-    
+
     # Write an xml file with all types
     open FH, ">$output_dir/codegen.out.xml";
     print FH '<ld:data-definition xmlns:ld="http://github.com/peterix/dfhack/lowered-data-definition">';
