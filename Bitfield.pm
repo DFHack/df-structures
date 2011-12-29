@@ -28,7 +28,7 @@ sub render_bitfield_core {
         emit_block {
             for my $item ($tag->findnodes('child::ld:field')) {
                 ($item->getAttribute('ld:meta') eq 'number' &&
-                    $item->getAttribute('type-name') eq 'flag-bit')
+                    $item->getAttribute('ld:subtype') eq 'flag-bit')
                     or die "Invalid bitfield member: ".$item->toString."\n";
 
                 check_bad_attrs($item);

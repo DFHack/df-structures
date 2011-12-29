@@ -63,6 +63,10 @@ sub get_container_item_type($;%) {
 
 my %atable = ( 1 => 'char', 2 => 'short', 4 => 'int' );
 
+my %custom_primitive_handlers = (
+    'stl-string' => sub { return "std::string"; },
+);
+
 my %custom_container_handlers = (
     'stl-vector' => sub {
         my $item = get_container_item_type($_, -void => 'void*');
@@ -94,7 +98,6 @@ sub get_struct_field_type($;%) {
     # Dispatch on the tag name, and retrieve the type prefix & suffix
     my ($tag, %flags) = @_;
     my $meta = $tag->getAttribute('ld:meta');
-    my $tname = $tag->getAttribute('type-name');
     my $subtype = $tag->getAttribute('ld:subtype');
     my $prefix;
     my $suffix = '';
@@ -112,22 +115,27 @@ sub get_struct_field_type($;%) {
             $prefix = join('::',@names,$prefix);
         }
     } elsif ($meta eq 'number') {
-        $prefix = primitive_type_name($tname);
-    } elsif ($meta eq 'primitive') {
-        if ($tname eq 'static-string' && $flags{-local} && !$flags{-weak}) {
-            my $count = $tag->getAttribute('size') || 0;
-            $prefix = "char";
-            $suffix = "[$count]";
-        } elsif ($tname eq 'padding' && $flags{-local} && !$flags{-weak}) {
-            my $count = $tag->getAttribute('size') || 0;
-            my $alignment = $tag->getAttribute('alignment') || 1;
-            $prefix = $atable{$alignment} or die "Invalid alignment: $alignment\n";
-            ($count % $alignment) == 0 or die "Invalid size & alignment: $count $alignment\n";
-            $suffix = "[".($count/$alignment)."]";
+        $prefix = primitive_type_name($subtype);
+    } elsif ($meta eq 'bytes') {
+        if ($flags{-local} && !$flags{-weak}) {
+            if ($subtype eq 'static-string') {
+                my $count = $tag->getAttribute('size') || 0;
+                $prefix = "char";
+                $suffix = "[$count]";
+            } elsif ($subtype eq 'padding') {
+                my $count = $tag->getAttribute('size') || 0;
+                my $alignment = $tag->getAttribute('alignment') || 1;
+                $prefix = $atable{$alignment} or die "Invalid alignment: $alignment\n";
+                ($count % $alignment) == 0 or die "Invalid size & alignment: $count $alignment\n";
+                $suffix = "[".($count/$alignment)."]";
+            } else {
+                die "Invalid bytes subtype: $subtype\n";
+            }
         } else {
-            $prefix = primitive_type_name($tname);
+            $prefix = primitive_type_name($subtype);
         }
     } elsif ($meta eq 'global') {
+        my $tname = $tag->getAttribute('type-name');
         register_ref $tname, !$flags{-weak};
         $prefix = $main_namespace.'::'.$tname;
     } elsif ($meta eq 'compound') {
@@ -156,10 +164,16 @@ sub get_struct_field_type($;%) {
         ($prefix, $suffix) = get_container_item_type($tag);
         my $count = $tag->getAttribute('count') || 0;
         $suffix = "[$count]".$suffix;
+    } elsif ($meta eq 'primitive') {
+        local $_ = $tag;
+        my $handler = $custom_primitive_handlers{$subtype} or die "Invalid primitive: $subtype\n";
+        $prefix = $handler->($tag, %flags);
     } elsif ($meta eq 'container') {
         local $_ = $tag;
-        $prefix = $custom_container_handlers{$subtype}->($tag, %flags);
-    } elsif (!$flags{-local} && ($meta eq 'struct-type' || $meta eq 'class-type')) {
+        my $handler = $custom_container_handlers{$subtype} or die "Invalid container: $subtype\n";
+        $prefix = $handler->($tag, %flags);
+    } elsif (!$flags{-local} && $tag->nodeName eq 'ld:global-type') {
+        my $tname = $tag->getAttribute('type-name');
         $prefix = $main_namespace.'::'.$tname;
     } else {
         die "Invalid field meta type: $meta\n";
@@ -235,11 +249,8 @@ sub render_field_init($$) {
             !is_attr_true($field,'ld:unsigned') &&
             ($field->getAttribute('ref-target') || $field->getAttribute('refers-to'));
         $val ||= ($signed_ref ? '-1' : 0);
-    } elsif ($meta eq 'primitive') {
-        my $tn = $field->getAttribute('type-name');
-        if ($tn eq 'padding' || $tn eq 'static-string') {
-            emit "memset($fname, 0, sizeof($fname));";
-        }
+    } elsif ($meta eq 'bytes') {
+        emit "memset($fname, 0, sizeof($fname));";
     } elsif ($meta eq 'global' || $meta eq 'compound') {
         return unless $subtype;
 

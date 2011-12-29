@@ -149,18 +149,14 @@ my @primitive_type_list =
     qw(int8_t uint8_t int16_t uint16_t
        int32_t uint32_t int64_t uint64_t
        s-float
-       bool ptr-string stl-string flag-bit
-       pointer padding
-       static-string);
+       bool flag-bit
+       padding static-string);
 
 my %primitive_aliases = (
-    'stl-string' => 'std::string',
-    'ptr-string' => 'char*',
+    's-float' => 'float',
     'static-string' => 'char',
     'flag-bit' => 'void',
     'padding' => 'void',
-    'pointer' => 'void*',
-    's-float' => 'float',
 );
 
 my %primitive_types;

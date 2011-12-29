@@ -63,17 +63,25 @@
 
     <!-- Code to properly annotate references to types by name -->
 
-    <xsl:key name="primitive-type-lookup" match="prim-type" use="@type-name"/>
+    <xsl:key name="primitive-type-lookup" match="prim-type" use="@ld:subtype"/>
     <xsl:variable name="primitive-types-top" select="document('')/*/ld:primitive-types"/>
 
     <xsl:template match="ld:primitive-types">
         <xsl:param name="name"/>
+        <xsl:param name="level"/>
+        <xsl:param name="rq_global"/>
+        <xsl:variable name='item' select="key('primitive-type-lookup', $name)"/>
         <xsl:choose>
-            <xsl:when test="$name = 'pointer'">
-                <xsl:attribute name='ld:meta'>pointer</xsl:attribute>
-            </xsl:when>
-            <xsl:when test="key('primitive-type-lookup', $name)">
-                <xsl:apply-templates select="key('primitive-type-lookup', $name)/@*"/>
+            <xsl:when test="$item">
+                <xsl:if test='$rq_global'>
+                    <xsl:message terminate="yes">
+                        Error: Cannot refer to primitive types from <xsl:value-of select='$rq_global'/>
+                    </xsl:message>
+                </xsl:if>
+                <xsl:apply-templates select="$item/@*"/>
+                <xsl:apply-templates select="$item/*">
+                    <xsl:with-param name='level' select="$level+1"/>
+                </xsl:apply-templates>
             </xsl:when>
             <xsl:otherwise>
                 <xsl:attribute name='ld:meta'>global</xsl:attribute>
@@ -84,8 +92,13 @@
 
     <xsl:template name="lookup-type-ref">
         <xsl:param name='name'/>
+        <xsl:param name='level' select='-1'/>
+        <xsl:param name='rq_global'/>
+        <xsl:attribute name='ld:level'><xsl:value-of select='$level'/></xsl:attribute>
         <xsl:apply-templates select="$primitive-types-top">
             <xsl:with-param name="name" select="$name"/>
+            <xsl:with-param name="level" select="$level"/>
+            <xsl:with-param name="rq_global" select="$rq_global"/>
         </xsl:apply-templates>
     </xsl:template>
 
@@ -96,32 +109,40 @@
         - Add a 'level' attribute to assist in searching by name.
     -->
 
-    <!-- Primitive types: meta='primitive' type-name='blah' -->
+    <!-- Primitive types: -->
     <ld:primitive-types>
-        <prim-type ld:meta='number' type-name='int8_t' ld:bits='8'/>
-        <prim-type ld:meta='number' type-name='uint8_t' ld:unsigned='true' ld:bits='8'/>
-        <prim-type ld:meta='number' type-name='int16_t' ld:bits='16'/>
-        <prim-type ld:meta='number' type-name='uint16_t' ld:unsigned='true' ld:bits='16'/>
-        <prim-type ld:meta='number' type-name='int32_t' ld:bits='32'/>
-        <prim-type ld:meta='number' type-name='uint32_t' ld:unsigned='true' ld:bits='32'/>
-        <prim-type ld:meta='number' type-name='int64_t' ld:bits='64'/>
-        <prim-type ld:meta='number' type-name='uint64_t' ld:unsigned='true' ld:bits='64'/>
-        <prim-type ld:meta='number' type-name='bool' ld:bits='8'/>
-        <prim-type ld:meta='number' type-name='s-float' ld:bits='32'/>
-        <prim-type ld:meta='number' type-name='flag-bit' ld:bits='1'/>
-        <prim-type ld:meta='primitive' type-name='padding'/>
-        <prim-type ld:meta='primitive' type-name='static-string'/>
-        <prim-type ld:meta='primitive' type-name='stl-string'/>
+        <prim-type ld:meta='number' ld:subtype='int8_t' ld:bits='8'/>
+        <prim-type ld:meta='number' ld:subtype='uint8_t' ld:unsigned='true' ld:bits='8'/>
+        <prim-type ld:meta='number' ld:subtype='int16_t' ld:bits='16'/>
+        <prim-type ld:meta='number' ld:subtype='uint16_t' ld:unsigned='true' ld:bits='16'/>
+        <prim-type ld:meta='number' ld:subtype='int32_t' ld:bits='32'/>
+        <prim-type ld:meta='number' ld:subtype='uint32_t' ld:unsigned='true' ld:bits='32'/>
+        <prim-type ld:meta='number' ld:subtype='int64_t' ld:bits='64'/>
+        <prim-type ld:meta='number' ld:subtype='uint64_t' ld:unsigned='true' ld:bits='64'/>
+        <prim-type ld:meta='number' ld:subtype='bool' ld:bits='8'/>
+        <prim-type ld:meta='number' ld:subtype='s-float' ld:bits='32'/>
+        <prim-type ld:meta='number' ld:subtype='flag-bit' ld:bits='1'/>
+
+        <prim-type ld:meta='bytes' ld:subtype='padding'/>
+        <prim-type ld:meta='bytes' ld:subtype='static-string'/>
+
+        <prim-type ld:meta='pointer' ld:subtype='pointer'/>
+        <prim-type ld:meta='pointer' ld:subtype='ptr-string' ld:is-container='true'>
+            <static-string/>
+        </prim-type>
+
+        <prim-type ld:meta='primitive' ld:subtype='stl-string'/>
     </ld:primitive-types>
 
-    <xsl:template match='int8_t|uint8_t|int16_t|uint16_t|int32_t|uint32_t|int64_t|uint64_t|bool|padding|stl-string|flag-bit|s-float|static-string'>
+    <xsl:template match='int8_t|uint8_t|int16_t|uint16_t|int32_t|uint32_t|int64_t|uint64_t|bool|flag-bit|s-float|padding|static-string|ptr-string|stl-string'>
         <xsl:param name='level' select='-1'/>
         <ld:field>
-            <xsl:attribute name='ld:level'><xsl:value-of select='$level'/></xsl:attribute>
+            <xsl:apply-templates select='@*'/>
             <xsl:call-template name='lookup-type-ref'>
                 <xsl:with-param name="name" select="name(.)"/>
+                <xsl:with-param name="level" select="$level"/>
             </xsl:call-template>
-            <xsl:apply-templates select='@*|node()'/>
+            <xsl:apply-templates select='node()'/>
         </ld:field>
     </xsl:template>
 
@@ -135,17 +156,21 @@
     <xsl:template name='compound'>
         <xsl:param name='level' select='-1'/>
         <xsl:param name='level_shift' select='1'/>
-        <xsl:attribute name='ld:level'><xsl:value-of select='$level'/></xsl:attribute>
+        <xsl:param name='rq_global'/>
+        <xsl:apply-templates select='@*'/>
         <xsl:choose>
             <xsl:when test='@type-name'>
                 <xsl:call-template name='lookup-type-ref'>
                     <xsl:with-param name='name' select="@type-name"/>
+                    <xsl:with-param name="level" select="$level"/>
+                    <xsl:with-param name='rq_global' select="$rq_global"/>
                 </xsl:call-template>
-                <xsl:apply-templates select='@*|node()'/>
+                <xsl:apply-templates select='node()'/>
             </xsl:when>
             <xsl:otherwise>
+                <xsl:attribute name='ld:level'><xsl:value-of select='$level'/></xsl:attribute>
                 <xsl:attribute name='ld:meta'>compound</xsl:attribute>
-                <xsl:apply-templates select='@*|node()'>
+                <xsl:apply-templates select='node()'>
                     <xsl:with-param name='level' select="$level+$level_shift"/>
                 </xsl:apply-templates>
             </xsl:otherwise>
@@ -171,6 +196,7 @@
             <xsl:attribute name='ld:subtype'><xsl:value-of select='name(.)'/></xsl:attribute>
             <xsl:call-template name='compound'>
                 <xsl:with-param name='level' select="$level"/>
+                <xsl:with-param name='rq_global' select="name(.)"/>
             </xsl:call-template>
         </ld:field>
     </xsl:template>
@@ -178,14 +204,13 @@
     <!-- Generic container helper: resolve type-name to a field, then process subtags. -->
     <xsl:template name='container'>
         <xsl:param name='level' select='-1'/>
-        <xsl:param name='type' select='@type-name'/>
         <xsl:attribute name='ld:is-container'>true</xsl:attribute>
         <xsl:choose>
-            <xsl:when test='$type'>
+            <xsl:when test='@type-name'>
                 <ld:field>
-                    <xsl:attribute name='ld:level'><xsl:value-of select='$level'/></xsl:attribute>
                     <xsl:call-template name='lookup-type-ref'>
-                        <xsl:with-param name='name' select="$type"/>
+                        <xsl:with-param name='name' select="@type-name"/>
+                        <xsl:with-param name="level" select="$level"/>
                     </xsl:call-template>
                 </ld:field>
                 <xsl:apply-templates select='node()'/>
@@ -234,9 +259,9 @@
             <xsl:if test='@ret-type'>
                 <xsl:copy-of select='text()[1]'/>
                 <ret-type>
-                    <xsl:attribute name='ld:level'><xsl:value-of select='$level+1'/></xsl:attribute>
                     <xsl:call-template name='lookup-type-ref'>
                         <xsl:with-param name='name' select="@ret-type"/>
+                        <xsl:with-param name="level" select="$level+1"/>
                     </xsl:call-template>
                 </ret-type>
             </xsl:if>
