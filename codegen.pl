@@ -762,16 +762,24 @@ sub emit_struct_fields($$;%) {
     return if $tag->findnodes("ancestor-or-self::ld:field[\@is-union='true']");
 
     my $want_ctor = 0;
+    my $ctor_args = '';
+    my $ctor_arg_init = '';
 
     with_emit_static {
         local @simple_inits;
         my @ctor_lines = with_emit {
+            if ($flags{-class}) {
+                $ctor_args = "virtual_identity *_id";
+                $ctor_arg_init = " = &".$name."::_identity";
+                push @simple_inits, "$flags{-inherits}(_id)" if $flags{-inherits};
+                emit "_identity.adjust_vtable(this, _id);";
+            }
             render_field_init($_, '') for @fields;
         };
         if (@simple_inits || @ctor_lines) {
             $want_ctor = 1;
             my $full_name = get_struct_field_type($tag);
-            emit $full_name,'::',$name,"()";
+            emit $full_name,'::',$name,"($ctor_args)";
             emit "  :  ", join(', ', @simple_inits) if @simple_inits;
             emit_block {
                 emit $_ for @ctor_lines;
@@ -780,9 +788,7 @@ sub emit_struct_fields($$;%) {
     } 'ctors';
 
     if ($want_ctor) {
-#        outdent { emit "protected:"; } if $flags{-protect_ctor};
-        emit "$name();";
-#        outdent { emit "public:"; } if $flags{-protect_ctor};
+        emit "$name($ctor_args$ctor_arg_init);";
     }
 }
 
@@ -916,7 +922,7 @@ sub render_struct_type {
     }
 
     with_struct_block {
-        emit_struct_fields($tag, $typename, -protect_ctor => $is_class);
+        emit_struct_fields($tag, $typename, -class => $is_class, -inherits => $inherits);
         emit_find_instance($tag);
         
         if ($has_methods) {
