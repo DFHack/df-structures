@@ -1,0 +1,99 @@
+<data-definition>
+    <struct-type type-name='meeting_diplomat'>
+        <int32_t name='unk1' comment='uninitialized'/>
+        <pointer name='person1' type-name='unit' comment='diplomat'/>
+        <pointer name='person2' type-name='unit' comment='count'/>
+        <pointer name='place' type-name='building'/>
+        <int16_t name='unk2' comment='1'/>
+        <int8_t name='unk3' comment='3'/>
+        <int16_t name='unk4' comment='0'/>
+        <int32_t name='unk5' comment='-1'/>
+    </struct-type>
+
+    <struct-type type-name='meeting_pet' key-field='name'>
+        <int32_t name='unk0' comment='uninitialized'/>
+        <int32_t name='unk1' comment='-1'/>
+        <int32_t name='pet_id' ref-target='unit'/>
+        <compound name='name' type-name='language_name'/>
+        <int32_t name='unk3'/>
+        <int32_t name='owner_id' ref-target='unit'/>
+    </struct-type>
+
+    <struct-type type-name='meeting_ref'>
+        <int32_t name='unk1'
+                 comment='4 person, 7 pet (pet), 8 pet (owner)'/>
+        <pointer name='ptr' comment='type varies'/>
+        <int32_t name='unk2' comment='0'/>
+    </struct-type>
+
+    <struct-type type-name='activity_entry' instance-vector='$global.world.activities.all' key-field='id'>
+        <int32_t name='id'/>
+        <int16_t name='is_individual'/>
+        <stl-vector name='events'>
+            <pointer type-name='activity_event'/>
+        </stl-vector>
+        <int32_t name='unk2'/>
+    </struct-type>
+
+    <class-type type-name='activity_event' original-name='activity_eventst'>
+        <int32_t name='event_id'
+                 comment='mostly, but not always, the index in activity.events'/>
+        <int32_t name='activity_id' ref-target='activity_entry'/>
+
+        -- Guess:
+        <int32_t name='subevent_id' comment='-1 unless subevent'/>
+        <int32_t name='num_subevents' comment='0 for ind.drill, 2 for all in training session'/>
+
+        <stl-vector name='hist_figure_ids'>
+            <int32_t ref-target='historical_figure'/>
+        </stl-vector>
+        <stl-vector name='participant_ids'>
+            <int32_t ref-target='unit'/>
+        </stl-vector>
+
+        -- Either empty, or same as above:
+        <stl-vector name='hist_figure_ids2'>
+            <int32_t ref-target='historical_figure'/>
+        </stl-vector>
+        <stl-vector name='participant_ids2'>
+            <int32_t ref-target='unit'/>
+        </stl-vector>
+
+        -- These are equal to the ones above:
+        <int32_t name='activity_id2' ref-target='activity_entry'/>
+        <int32_t name='event_id2'/>
+    </class-type>
+
+    <class-type type-name='activity_event_individual_skill_drillst' inherits-from='activity_event'>
+        <int32_t name='building_id' ref-target='building'/>
+        <int32_t name='unk5'/>
+    </class-type>
+
+    <class-type type-name='activity_event_training_sessionst' inherits-from='activity_event'>
+    </class-type>
+
+    <class-type type-name='activity_event_combat_trainingst' inherits-from='activity_event'>
+        <int32_t name='building_id' ref-target='building'/>
+        <int32_t name='hist_figure_id' ref-target='historical_figure'/>
+        <int32_t name='unit_id' ref-target='unit'/>
+        <int32_t name='unk5'/>
+    </class-type>
+
+    <class-type type-name='activity_event_skill_demonstrationst' inherits-from='activity_event'>
+        <int32_t name='building_id' ref-target='building'/>
+        <int32_t name='hist_figure_id' ref-target='historical_figure'/>
+        <int32_t name='unit_id' ref-target='unit'/>
+        <int16_t name='unk5'/>
+        <int32_t name='unk6'/>
+        <int32_t name='unk7'/>
+        <int32_t name='unk8'/>
+        <int32_t name='unk9'/>
+    </class-type>
+</data-definition>
+
+<!--
+Local Variables:
+indent-tabs-mode: nil
+nxml-child-indent: 4
+End:
+-->

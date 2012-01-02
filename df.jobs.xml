@@ -1,31 +1,4 @@
 <data-definition>
-    <struct-type type-name='meeting_diplomat'>
-        <int32_t name='unk1' comment='uninitialized'/>
-        <pointer name='person1' type-name='unit' comment='diplomat'/>
-        <pointer name='person2' type-name='unit' comment='count'/>
-        <pointer name='place' type-name='building'/>
-        <int16_t name='unk2' comment='1'/>
-        <int8_t name='unk3' comment='3'/>
-        <int16_t name='unk4' comment='0'/>
-        <int32_t name='unk5' comment='-1'/>
-    </struct-type>
-
-    <struct-type type-name='meeting_pet' key-field='name'>
-        <int32_t name='unk0' comment='uninitialized'/>
-        <int32_t name='unk1' comment='-1'/>
-        <int32_t name='pet_id' ref-target='unit'/>
-        <compound name='name' type-name='language_name'/>
-        <int32_t name='unk3'/>
-        <int32_t name='owner_id' ref-target='unit'/>
-    </struct-type>
-
-    <struct-type type-name='meeting_ref'>
-        <int32_t name='unk1'
-                 comment='4 person, 7 pet (pet), 8 pet (owner)'/>
-        <pointer name='ptr' comment='type varies'/>
-        <int32_t name='unk2' comment='0'/>
-    </struct-type>
-
     <bitfield-type type-name='job_material_category' base-type='uint32_t'>
         <flag-bit name='plant'/>
         <flag-bit name='wood'/>
@@ -118,42 +91,91 @@
         </stl-vector>
     </struct-type>
 
-    <bitfield-type type-name='job_item_sel_flags' base-type='uint32_t'>
-        <flag-bit name='match'/>
-        <flag-bit/>
-        <flag-bit/>
-        <flag-bit/>
-        <flag-bit/>
-        <flag-bit/>
-        <flag-bit/>
-        <flag-bit/>
+    <bitfield-type type-name='job_item_flags1' base-type='uint32_t'>
+        <flag-bit name='improvable' comment='vtable[155]:eax,-1,-1'/>
+        <flag-bit name="butcherable" comment='(call 0074c6d0)'/>
+        <flag-bit name="millable" comment='vtable[79]'/>
+        <flag-bit name="buryable" comment='check for item flag "dead_dwarf"'/>
+        <flag-bit name="unrotten" comment='check for item flag "rotten"'/>
+        <flag-bit name="undisturbed" comment='check for item flag "spider_web"'/>
+        <flag-bit name="collected" comment='check for item flag "spider_web"'/>
+        <flag-bit name="sharpenable" comment='vtable[25]'/>
 
-        <flag-bit/>
-        <flag-bit/>
-        <flag-bit/>
-        <flag-bit/>
-        <flag-bit/>
-        <flag-bit/>
-        <flag-bit/>
-        <flag-bit/>
+        <flag-bit name="murdered" comment='check for item flag'/>
+        <flag-bit name="distillable" comment='vtable[105],1'/>
+        <flag-bit name="empty" comment='(call 00753a40)'/>
+        <flag-bit name="processable" comment='vtable[80]'/>
+        <flag-bit name="bag" comment='vtable[131]'/>
+        <flag-bit name="cookable" comment='(call 00753fe0)'/>
+        <flag-bit name="extract_bearing_plant" comment='vtable[164]'/>
+        <flag-bit name="extract_bearing_fish" comment='vtable[181]'/>
 
-        <flag-bit/>
-        <flag-bit/>
-        <flag-bit/>
-        <flag-bit/>
-        <flag-bit/>
-        <flag-bit/>
-        <flag-bit/>
-        <flag-bit/>
+        <flag-bit name="extract_bearing_vermin" comment='vtable[182]'/>
+        <flag-bit name="processable_to_vial" comment='vtable[81]'/>
+        <flag-bit name="processable_to_bag" comment='vtable[82]'/>
+        <flag-bit name="processable_to_barrel" comment='vtable[83]'/>
+        <flag-bit name="solid" comment='vtable[74]'/>
+        <flag-bit name="tameable_vermin" comment='vtable[104]'/>
+        <flag-bit name="nearby"/>
+        <flag-bit name="sand_bearing" comment='vtable[108]'/>
 
-        <flag-bit/>
-        <flag-bit/>
-        <flag-bit/>
+        <flag-bit name="glass" comment='check for material flag IS_GLASS'/>
+        <flag-bit name="milk" comment='(call 00753d30 - check if material has CHEESE_MAT?)'/>
+        <flag-bit name="milkable" comment='vtable[107],1,1'/>
         <flag-bit name='finished_goods'/>
         <flag-bit name='ammo'/>
-        <flag-bit name='furniture1'/>
-        <flag-bit name='furniture2'/>
+        <flag-bit name='furniture'/>
+        <flag-bit name='not_bin'/>
+        <flag-bit name='lye_bearing'/>
+    </bitfield-type>
+
+    <bitfield-type type-name='job_item_flags2' base-type='uint32_t'>
+        <flag-bit name="dye" comment='vtable[106]'/>
+        <flag-bit name="dyeable" comment='vtable[159]'/>
+        <flag-bit name="dyed" comment='vtable[161]'/>
+        <flag-bit name="sewn_imageless" comment='vtable[162]'/>
+        <flag-bit name="glass_making" comment='vtable[26]'/>
+        <flag-bit name="screw" comment='vtable[46]'/>
+        <flag-bit name="building_material" comment='vtable[47]'/>
+        <flag-bit name="fire_safe" comment='vtable[48],1'/>
+
+        <flag-bit name="magma_safe" comment='vtable[48],2'/>
+        <flag-bit name="deep_material" comment='check for inorganic material flag DEEP'/>
+        <flag-bit name="melt_designated" comment='check for item flag "melt"'/>
+        <flag-bit name="non_economic" comment='(call 0076be60)'/>
+        <flag-bit name="no_melt_dump" comment='item must not be designated for melting or dumping'/>
+        <flag-bit name="allow_artifact" comment='item can be artifact'/>
+        <flag-bit name="plant" comment='check if material is a PLANT_MAT'/>
+        <flag-bit name="silk" comment='check for material flag SILK'/>
+
+        <flag-bit name="leather" comment='check for material flag LEATHER'/>
+        <flag-bit name="bone" comment='check for material flag BONE'/>
+        <flag-bit name="shell" comment='check for material flag SHELL'/>
+        <flag-bit name="totemable" comment='vtable[158]'/>
+        <flag-bit name="horn" comment='check for material flag HORN'/>
+        <flag-bit name="pearl" comment='check for material flag PEARL'/>
+        <flag-bit name="plaster_containing" comment='vtable[17]'/>
         <flag-bit/>
+
+        <flag-bit name="soap" comment='check for material flag SOAP'/>
+        <flag-bit name="body_part" comment='itemtype CORPSE or CORPSEPIECE'/>
+        <flag-bit name="ivory_tooth" comment='check for material flag TOOTH'/>
+        <flag-bit name="lye_milk_free" comment='(call 00759110)'/>
+        <flag-bit name="blunt" comment='vtable[157]'/>
+        <flag-bit name="unengraved" comment='vtable[214]'/>
+        <flag-bit name="hair_wool" comment='??? (pretty sure this is [ANY_STRAND_TISSUE])'/>
+        <flag-bit name="yarn" comment='check for material flag YARN'/>
+    </bitfield-type>
+
+    <bitfield-type type-name='job_item_flags3' base-type='uint32_t'>
+        <flag-bit name="unimproved" comment='vtable[176]'/>
+        <flag-bit name="any_raw_material" comment='itemtype BAR, BOULDER, POWDER_MISC, or GLOB'/>
+        <flag-bit name="non_absorbent" comment='vtable[215]'/>
+        <flag-bit name="non_pressed" comment='vtable[91]'/>
+        <flag-bit/>
+        <flag-bit name="any_craft" comment='FIGURINE, AMULET, SCEPTER, CROWN, RING, EARRING, BRACLET'/>
+        <flag-bit name="hard" comment='check for material flag ITEMS_HARD'/>
+        <flag-bit name="food_storage" comment='vtable[15]'/>
     </bitfield-type>
 
     <struct-type type-name='job_item'>
@@ -162,18 +184,14 @@
         <int16_t name='matType' ref-target='material' aux-value='$$.matIndex'/>
         <int32_t name='matIndex'/>
 
-        <compound name='item_sel_flags' type-name='job_item_sel_flags'/>
+        <compound name='flags1' type-name='job_item_flags1'/>
 
         <int32_t name='count'/>
         <int16_t name='unk1'/>
 
-        <bitfield name='flags2' base-type='uint32_t'>
-            <flag-bit/>
-        </bitfield>
+        <compound name='flags2' type-name='job_item_flags2'/>
         <int32_t name='unk2'/>
-        <bitfield name='flags3' base-type='uint32_t'>
-            <flag-bit/>
-        </bitfield>
+        <compound name='flags3' type-name='job_item_flags3'/>
         <int32_t name='unk3'/>
 
         <int32_t name='metal_ore'/>
@@ -232,70 +250,6 @@
         <int32_t name='unk4'/>
         <uint8_t name='unk5'/>
     </struct-type>
-
-    <struct-type type-name='activity_entry' instance-vector='$global.world.activities.all' key-field='id'>
-        <int32_t name='id'/>
-        <int16_t name='is_individual'/>
-        <stl-vector name='events'>
-            <pointer type-name='activity_event'/>
-        </stl-vector>
-        <int32_t name='unk2'/>
-    </struct-type>
-
-    <class-type type-name='activity_event' original-name='activity_eventst'>
-        <int32_t name='event_id'
-                 comment='mostly, but not always, the index in activity.events'/>
-        <int32_t name='activity_id' ref-target='activity_entry'/>
-
-        -- Guess:
-        <int32_t name='subevent_id' comment='-1 unless subevent'/>
-        <int32_t name='num_subevents' comment='0 for ind.drill, 2 for all in training session'/>
-
-        <stl-vector name='hist_figure_ids'>
-            <int32_t ref-target='historical_figure'/>
-        </stl-vector>
-        <stl-vector name='participant_ids'>
-            <int32_t ref-target='unit'/>
-        </stl-vector>
-
-        -- Either empty, or same as above:
-        <stl-vector name='hist_figure_ids2'>
-            <int32_t ref-target='historical_figure'/>
-        </stl-vector>
-        <stl-vector name='participant_ids2'>
-            <int32_t ref-target='unit'/>
-        </stl-vector>
-
-        -- These are equal to the ones above:
-        <int32_t name='activity_id2' ref-target='activity_entry'/>
-        <int32_t name='event_id2'/>
-    </class-type>
-
-    <class-type type-name='activity_event_individual_skill_drillst' inherits-from='activity_event'>
-        <int32_t name='building_id' ref-target='building'/>
-        <int32_t name='unk5'/>
-    </class-type>
-
-    <class-type type-name='activity_event_training_sessionst' inherits-from='activity_event'>
-    </class-type>
-
-    <class-type type-name='activity_event_combat_trainingst' inherits-from='activity_event'>
-        <int32_t name='building_id' ref-target='building'/>
-        <int32_t name='hist_figure_id' ref-target='historical_figure'/>
-        <int32_t name='unit_id' ref-target='unit'/>
-        <int32_t name='unk5'/>
-    </class-type>
-
-    <class-type type-name='activity_event_skill_demonstrationst' inherits-from='activity_event'>
-        <int32_t name='building_id' ref-target='building'/>
-        <int32_t name='hist_figure_id' ref-target='historical_figure'/>
-        <int32_t name='unit_id' ref-target='unit'/>
-        <int16_t name='unk5'/>
-        <int32_t name='unk6'/>
-        <int32_t name='unk7'/>
-        <int32_t name='unk8'/>
-        <int32_t name='unk9'/>
-    </class-type>
 </data-definition>
 
 <!--
