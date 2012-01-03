@@ -22,11 +22,17 @@ use Common;
 sub render_bitfield_core {
     my ($name, $tag) = @_;
 
+    my $base = get_primitive_base($tag);
+    my @fields = $tag->findnodes('child::ld:field');
+
+    my $mod = ($tag->nodeName eq 'ld:global-type' ? "$export_prefix extern" : 'static');
+    emit "$mod const bitfield_item_info ${name}_items_[sizeof($base)*8];";
+
     emit_block {
-        emit get_primitive_base($tag), ' whole;';
+        emit $base, ' whole;';
 
         emit_block {
-            for my $item ($tag->findnodes('child::ld:field')) {
+            for my $item (@fields) {
                 ($item->getAttribute('ld:meta') eq 'number' &&
                     $item->getAttribute('ld:subtype') eq 'flag-bit')
                     or die "Invalid bitfield member: ".$item->toString."\n";
@@ -38,8 +44,26 @@ sub render_bitfield_core {
             }
         } "struct ", " bits;";
 
-        emit $name, '() : whole(0) {};';
+        emit $name, "($base whole_ = 0) : whole(whole_) {};";
+
+        emit "const bitfield_item_info *get_items() const { return ${name}_items_; }";
     } "union $name ", ";";
+
+    with_emit_static {
+        my $fname = fully_qualified_name($tag, $name.'_items_', 1);
+        emit_block {
+            for my $item (@fields) {
+                my $name = $item->getAttribute('name');
+                my $size = $item->getAttribute('count') || 1;
+                emit "{ ", ($name?'"'.$name.'"':'NULL'), ", ", $size, " },";
+                for (my $j = 1; $j < $size; $j++) {
+                    emit "{ NULL, ", -$j, " },";
+                }
+            }
+
+            $lines[-1] =~ s/,$//;
+        } "const bitfield_item_info ".$fname."[sizeof($base)*8] = ", ";";
+    } 'enums';
 }
 
 sub render_bitfield_type {
