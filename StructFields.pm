@@ -114,17 +114,7 @@ sub get_struct_field_type($;%) {
     my $suffix = '';
 
     if ($prefix = $tag->getAttribute('ld:typedef-name')) {
-        unless ($flags{-local}) {
-            my @names = ( $main_namespace );
-            for my $parent ($tag->findnodes('ancestor::*')) {
-                if ($parent->nodeName eq 'ld:global-type') {
-                    push @names, $parent->getAttribute('type-name');
-                } elsif (my $n = $parent->getAttribute('ld:typedef-name')) {
-                    push @names, $n;
-                }
-            }
-            $prefix = join('::',@names,$prefix);
-        }
+        $prefix = fully_qualified_name($tag,$prefix) unless $flags{-local};
     } elsif ($meta eq 'number') {
         $prefix = primitive_type_name($subtype);
     } elsif ($meta eq 'bytes') {
