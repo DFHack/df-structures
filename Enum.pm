@@ -62,7 +62,10 @@ sub render_enum_tables($$$) {
         my $def = $attr->getAttribute('default-value');
 
         my $base_tname = ($type && $type =~ /::(.*)$/ ? $1 : '');
-        $type = $base_tname if $base_tname eq $typename;
+        if ($base_tname eq $typename) {
+            $type = $base_tname;
+            $base_tname = '';
+        }
 
         die "Duplicate attribute $name.\n" if exists $aidx{$name};
 

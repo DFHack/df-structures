@@ -38,10 +38,36 @@ sub translate_lookup($) {
 sub emit_find_instance {
     my ($tag) = @_;
 
+    my $keyfield = $tag->getAttribute('key-field');
+    my $keyfield_tag = find_subfield $tag, $keyfield;
+    my $keytype = 'int';
+    my $vectype = "std::vector<$typename*>";
+
+    if ($keyfield) {
+        die "Could not find field $keyfield in $typename\n" unless $keyfield_tag;
+        my $type = get_struct_field_type($keyfield_tag);
+        $keytype = 'key_field_type';
+
+        emit "typedef $typename* key_pointer_type;";
+        emit "typedef $type key_field_type;";
+
+        emit "static int binsearch_index(const $vectype &vec, key_field_type key, bool exact = true);";
+        emit "static int binsearch_index(const $vectype &vec, key_pointer_type key, bool exact = true);";
+
+        with_emit_static {
+            emit_block {
+                emit "return ::binsearch_index(vec, &${typename}::$keyfield, key, exact);";
+            } "int ${typename}::binsearch_index(const $vectype &vec, key_field_type key, bool exact) ";
+            emit_block {
+                emit "return binsearch_index(vec, key->$keyfield, exact);";
+            } "int ${typename}::binsearch_index(const $vectype &vec, key_pointer_type key, bool exact) ";
+        };
+    }
+
     my $instance_vector = translate_lookup $tag->getAttribute('instance-vector');
     if ($instance_vector) {
-        emit "static std::vector<$typename*> &get_vector();";
-        emit "static $typename *find(int id);";
+        emit "static $vectype &get_vector();";
+        emit "static $typename *find($keytype id);";
 
         with_emit_static {
             emit_block {
@@ -51,12 +77,12 @@ sub emit_find_instance {
             emit_block {
                 emit "std::vector<$typename*> &vec_ = get_vector();";
 
-                if (my $id = $tag->getAttribute('key-field')) {
-                    emit "return binsearch_in_vector(vec_, &${typename}::$id, id_);";
+                if ($keyfield) {
+                    emit "return binsearch_in_vector(vec_, id_);";
                 } else {
                     emit "return (id_ >= 0 && id_ < vec_.size()) ? vec_[id_] : NULL;";
                 }
-            } "$typename *${typename}::find(int id_) ";
+            } "$typename *${typename}::find($keytype id_) ";
         };
     }
 }

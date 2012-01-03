@@ -12,6 +12,7 @@ BEGIN {
         *in_struct_body &with_struct_block
         &get_struct_fields &get_struct_field_type
         &emit_struct_fields
+        &find_subfield
     );
     our %EXPORT_TAGS = ( ); # eg: TAG => [ qw!name1 name2! ],
     our @EXPORT_OK   = qw( );
@@ -92,6 +93,16 @@ sub emit_typedef($$) {
 
 sub get_struct_fields($) {
     return $_[0]->findnodes('ld:field');
+}
+
+sub find_subfield($$) {
+    my ($tag, $name) = @_;
+    return undef unless $name;
+    my $level = $tag->getAttribute('ld:level');
+    return undef unless defined $level;
+    my $cond = 'descendant::ld:field[@ld:level='.($level+1).' and @name=\''.$name.'\']';
+    my @items = $tag->findnodes($cond);
+    return wantarray ? @items : $items[0];
 }
 
 sub get_struct_field_type($;%) {
