@@ -1,0 +1,156 @@
+<data-definition>
+    <enum-type type-name='reaction_flags'>
+        <enum-item name='FUEL'/>
+        <enum-item name='AUTOMATIC'/>
+        <enum-item name='ADVENTURE_MODE_ENABLED'/>
+    </enum-type>
+
+    <struct-type type-name='reaction'
+                instance-vector='$global.world.raws.reactions' key-field='id'>
+        <stl-string name="code"/>
+        <stl-string name="name"/>
+        <df-flagarray name='flags' index-enum='reaction_flags'/>
+
+        <stl-vector name="reagents">
+            <pointer type-name='reaction_reagent'/>
+        </stl-vector>
+        <stl-vector name="products">
+            <pointer type-name='reaction_product'/>
+        </stl-vector>
+        <int16_t name='skill'/>
+
+        <compound name='building'>
+            <static-array name='str' count='2'>
+                <stl-vector>
+                    <pointer type-name='stl-string'/>
+                </stl-vector>
+            </static-array>
+            <stl-vector type-name='int32_t' name='type' ref-target='building'/>
+            <stl-vector type-name='int32_t' name='subtype'/>
+            <stl-vector type-name='int32_t' name='custom'/>
+            <stl-vector type-name='int32_t' name='hotkey'/>
+        </compound>
+
+        <int32_t name="id"/>
+    </struct-type>
+
+    <class-type type-name='reaction_reagent' original-name='reaction_reagentst'>
+        <virtual-methods>
+            <vmethod/>
+            <vmethod/>
+            <vmethod/>
+            <vmethod/>
+            <vmethod/>
+            <vmethod/>
+            <vmethod/>
+            <vmethod/>
+            <vmethod/>
+        </virtual-methods>
+    </class-type>
+
+    <bitfield-type type-name='reaction_reagent_flags'>
+        <flag-bit name='PRESERVE_REAGENT'/>
+        <flag-bit/>
+        <flag-bit name='DOES_NOT_DETERMINE_PRODUCT_AMOUNT'/>
+    </bitfield-type>
+
+    <class-type type-name='reaction_reagent_itemst' inherits-from='reaction_reagent'>
+        <stl-string name="code"/>
+        <int32_t name='quantity'/>
+        <compound name="flags" type-name='reaction_reagent_flags'/>
+
+        <enum base-type='int16_t' name='itemType' type-name='item_type'/>
+        <int16_t name='itemSubtype' refers-to='(item-subtype-target $$._parent.itemType $)'/>
+        <int16_t name='matType' ref-target='material' aux-value='$$.matIndex'/>
+        <int16_t name='matIndex'/>
+
+        <stl-string name='reaction_class'/>
+        <stl-string name='has_material_reaction_product'/>
+        <compound name='flags1' type-name='job_item_flags1'/>
+        <compound name='flags2' type-name='job_item_flags2'/>
+        <compound name='flags3' type-name='job_item_flags3'/>
+	<int32_t/>
+	<int32_t/>
+
+        <int32_t name='metal_ore'/>
+        <int32_t name='min_dimension'/>
+
+        <stl-vector type-name='int32_t' name='contains'/>
+
+        <int16_t name='has_tool_use'/>
+
+        <static-array type-name='stl-string' name='item_str' count='2'/>
+        <static-array type-name='stl-string' name='material_str' count='3'/>
+        <stl-string name='metal_ore_str'/>
+        <stl-vector name='contains_str'>
+            <pointer type-name='stl-string'/>
+        </stl-vector>
+    </class-type>
+
+    <class-type type-name='reaction_product' original-name='reaction_productst'>
+        <virtual-methods>
+            <vmethod/>
+            <vmethod/>
+            <vmethod/>
+            <vmethod/>
+            <vmethod/>
+        </virtual-methods>
+    </class-type>
+
+    <enum-type type-name='reaction_product_item_flags'>
+        <enum-item/>
+        <enum-item/>
+        <enum-item name='FORCE_EDGE'/>
+        <enum-item name='PASTE'/>
+        <enum-item name='PRESSED'/>
+        <enum-item name='CRAFTS'/>
+    </enum-type>
+
+    <class-type type-name='reaction_product_itemst' inherits-from='reaction_product'>
+        <stl-string name="product_to_container"/>
+
+        <enum base-type='int16_t' name='itemType' type-name='item_type'/>
+        <int16_t name='itemSubtype' refers-to='(item-subtype-target $$._parent.itemType $)'/>
+        <int16_t name='matType' ref-target='material' aux-value='$$.matIndex'/>
+        <int32_t name='matIndex'/>
+
+        <int16_t name='probability'/>
+        <int16_t name='count'/>
+        <int32_t name='product_dimension'/>
+
+        <df-flagarray name='flags' index-enum='reaction_product_item_flags'/>
+        <static-array type-name='stl-string' name='get_material_from_reagent' count='2'/>
+
+        <static-array type-name='stl-string' name='item_str' count='2'/>
+        <static-array type-name='stl-string' name='material_str' count='3'/>
+    </class-type>
+
+    <enum-type type-name='reaction_product_item_improvement_flags'>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+    </enum-type>
+
+    <class-type type-name='reaction_product_item_improvementst' inherits-from='reaction_product'>
+        <stl-string/>
+        <stl-string name="target_reagent"/>
+
+        <enum base-type='int32_t' name='improvement_type' type-name='improvement_type'/>
+        <int16_t name='matType' ref-target='material' aux-value='$$.matIndex'/>
+        <int32_t name='matIndex'/>
+
+        <int16_t name='probability'/>
+
+        <df-flagarray name='flags' index-enum='reaction_product_item_improvement_flags'/>
+
+        <static-array type-name='stl-string' name='get_material_from_reagent' count='2'/>
+        <static-array type-name='stl-string' name='material_str' count='3'/>
+    </class-type>
+</data-definition>
+
+<!--
+Local Variables:
+indent-tabs-mode: nil
+nxml-child-indent: 4
+End:
+-->
