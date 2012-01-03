@@ -97,7 +97,7 @@
         <df-flagarray name='flags' index-enum='block_flags'/>
 
         <stl-vector name='block_events'>
-            <pointer/>
+            <pointer type-name='block_square_event'/>
         </stl-vector>
 
         <compound name='block_burrows' type-name='block_burrow_link'/>
@@ -237,6 +237,70 @@
         <int16_t name='unk_c3e'/>
         <int16_t name='unk_c40'/>
     </struct-type>
+
+    <enum-type type-name='block_square_event_type'>
+        <enum-item name='mineral'/>
+        <enum-item name='frozen_liquid'/>
+        <enum-item name='world_construction'/>
+        <enum-item name='material_spatter'/>
+        <enum-item name='grass'/>
+    </enum-type>
+
+    <class-type type-name='block_square_event' original-name='block_square_eventst'>
+        <virtual-methods>
+            <vmethod ret-type='block_square_event_type' name='getType'/>
+            <vmethod name='write_file'> <pointer comment='file_compressorst'/> </vmethod>
+            <vmethod name='read_file'>
+                <pointer comment='file_compressorst'/>
+                <int32_t name='loadversion'/>
+            </vmethod>
+            <vmethod ret-type='bool' name='isEmpty'/>
+            <vmethod is-destructor='true'/>
+            <vmethod name='checkTemperature'>
+                <int16_t name='x'/>
+                <int16_t name='y'/>
+                <int16_t name='temperature'/>
+            </vmethod>
+        </virtual-methods>
+    </class-type>
+
+    <class-type type-name='block_square_event_mineralst' inherits-from='block_square_event'>
+        <int32_t name='inorganic_mat' ref-target='inorganic_raw'/>
+        <static-array name='tile_bitmask' count='16' type-name='uint16_t'/>
+        <uint32_t name='flags'/>
+    </class-type>
+
+    <class-type type-name='block_square_event_frozen_liquidst' inherits-from='block_square_event'>
+        <static-array name='tiles' count='16'>
+            <static-array count='16' type-name='int16_t'/>
+        </static-array>
+        <static-array count='16'>
+            <static-array count='16' type-name='int8_t'/>
+        </static-array>
+    </class-type>
+
+    <class-type type-name='block_square_event_world_constructionst' inherits-from='block_square_event'>
+        <int32_t name='inorganic_mat' ref-target='inorganic_raw'/>
+        <static-array name='tile_bitmask' count='16' type-name='uint16_t'/>
+    </class-type>
+
+    <class-type type-name='block_square_event_material_spatterst' inherits-from='block_square_event'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+        <int16_t name='mat_state'/>
+        <static-array name='amount' count='16'>
+            <static-array count='16' type-name='int8_t'/>
+        </static-array>
+        <int16_t name='min_temperature'/>
+        <int16_t name='max_temperature'/>
+    </class-type>
+
+    <class-type type-name='block_square_event_grassst' inherits-from='block_square_event'>
+        <int32_t name='plant_index' ref-target='plant_raw' />
+        <static-array name='amount' count='16'>
+            <static-array count='16' type-name='int8_t'/>
+        </static-array>
+    </class-type>
 </data-definition>
 
 <!--
