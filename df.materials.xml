@@ -153,6 +153,15 @@
         <enum-item name='STOCKPILE_THREAD_METAL'/>
     </enum-type>
 
+    <enum-type type-name='matter_state'>
+        <enum-item name='Solid'/>
+        <enum-item name='Liquid'/>
+        <enum-item name='Gas'/>
+        <enum-item name='Powder'/>
+        <enum-item name='Paste'/>
+        <enum-item name='Pressed'/>
+    </enum-type>
+
     <struct-type type-name='material_common'>
         <stl-string name='id'/>
         <stl-string name='gem_name1'/>
@@ -173,9 +182,12 @@
         <int32_t name='liquid_density'/>
         <int32_t name='molar_mass'/>
 
-        <static-array name='state_color' type-name='int32_t' count='6'/>
-        <static-array name='state_name' type-name='stl-string' count='6'/>
-        <static-array name='state_adj' type-name='stl-string' count='6'/>
+        <static-array name='state_color' type-name='int32_t'
+                      count='6' index-enum='matter_state'/>
+        <static-array name='state_name' type-name='stl-string'
+                      count='6' index-enum='matter_state'/>
+        <static-array name='state_adj' type-name='stl-string'
+                      count='6' index-enum='matter_state'/>
 
         <compound name='strength'>
             <int32_t name='absorption'/>
@@ -389,38 +401,115 @@
         <int32_t name='underground_depth_max'/>
     </struct-type>
 
+    <enum-type type-name='inorganic_flags'>
+        <enum-item name='LAVA'/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item name='SEDIMENTARY'/>
+        <enum-item name='SEDIMENTARY_OCEAN_SHALLOW'/>
+        <enum-item name='IGNEOUS_INTRUSIVE'/>
+        <enum-item name='IGNEOUS_EXTRUSIVE'/>
+        <enum-item name='METAMORPHIC'/>
+
+        <enum-item name='DEEP_SURFACE'/>
+        <enum-item name='METAL_ORE'/>
+        <enum-item name='AQUIFER'/>
+        <enum-item name='SOIL_ANY'/>
+        <enum-item name='SOIL_OCEAN'/>
+        <enum-item name='SOIL_SAND'/>
+        <enum-item name='SEDIMENTARY_OCEAN_DEEP'/>
+        <enum-item name='THREAD_METAL'/>
+
+        <enum-item name='DEEP_ANY'/>
+        <enum-item name='SOIL'/>
+        <enum-item name='DEEP_SPECIAL'/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+
+        <enum-item/>
+        <enum-item name='WAFERS'/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+    </enum-type>
+
+    <enum-type type-name='environment_type'>
+        <enum-item name='SOIL'/>
+        <enum-item name='SOIL_OCEAN'/>
+        <enum-item name='SOIL_SAND'/>
+        <enum-item name='METAMORPHIC'/>
+        <enum-item name='SEDIMENTARY'/>
+        <enum-item name='IGNEOUS_INTRUSIVE'/>
+        <enum-item name='IGNEOUS_EXTRUSIVE'/>
+        <enum-item name='ALLUVIAL'/>
+    </enum-type>
+
+    <enum-type type-name='inclusion_type'>
+        <enum-item comment='unused'/>
+        <enum-item name='VEIN'/>
+        <enum-item name='CLUSTER'/>
+        <enum-item name='CLUSTER_SMALL'/>
+        <enum-item name='CLUSTER_ONE'/>
+    </enum-type>
+
     <struct-type type-name='inorganic_raw' instance-vector='$global.world.raws.inorganics'>
         <stl-string name='id'/>
 
         <code-helper name='describe'>$.id</code-helper>
 
-        <df-flagarray name='flags'/>
+        <df-flagarray name='flags' index-enum='inorganic_flags'/>
 
-        <stl-vector name='metal_ore_str' comment='only during parsing'>
-            <pointer type-name='stl-string'/>
-        </stl-vector>
-        <stl-vector type-name='int16_t' name='metal_ore_matIndex'/>
-        <stl-vector type-name='int16_t' name='metal_ore_probability'/>
+        <compound name='metal_ore'>
+            <stl-vector name='str' comment='only during parsing'>
+                <pointer type-name='stl-string'/>
+            </stl-vector>
+            <stl-vector name='matIndex'>
+                <int16_t ref-target='inorganic_raw'/>
+            </stl-vector>
+            <stl-vector type-name='int16_t' name='probability'/>
+        </compound>
 
-        <stl-vector name='thread_metal_str' comment='only during parsing'>
-            <pointer type-name='stl-string'/>
-        </stl-vector>
-        <stl-vector type-name='int16_t' name='thread_metal_matIndex'/>
-        <stl-vector type-name='int16_t' name='thread_metal_probability'/>
+        <compound name='thread_metal'>
+            <stl-vector name='str' comment='only during parsing'>
+                <pointer type-name='stl-string'/>
+            </stl-vector>
+            <stl-vector name='matIndex'>
+                <int16_t ref-target='inorganic_raw'/>
+            </stl-vector>
+            <stl-vector type-name='int16_t' name='probability'/>
+        </compound>
 
         <stl-vector type-name='int32_t' name='unk1'/>
 
-        <stl-vector name='environment_spec_str' comment='only during parsing'>
-            <pointer type-name='stl-string'/>
-        </stl-vector>
-        <stl-vector type-name='int16_t' name='environment_spec_matIndex'/>
-        <stl-vector type-name='int16_t' name='environment_spec_inclusion_type'/>
-        <stl-vector type-name='int8_t' name='environment_spec_probability'/>
-        <stl-vector type-name='int16_t' name='environment_location'/>
-        <stl-vector type-name='int16_t' name='environment_type'/>
-        <stl-vector type-name='int8_t' name='environment_probability'/>
+        <compound name='environment_spec'>
+            <stl-vector name='str' comment='only during parsing'>
+                <pointer type-name='stl-string'/>
+            </stl-vector>
+            <stl-vector name='matIndex'>
+                <int16_t ref-target='inorganic_raw'/>
+            </stl-vector>
+            <stl-vector name='inclusion_type'>
+                <enum base-type='int16_t' type-name='inclusion_type'/>
+            </stl-vector>
+            <stl-vector type-name='int8_t' name='probability'/>
+        </compound>
+
+        <compound name='environment'>
+            <stl-vector type-name='int16_t' name='location'/>
+            <stl-vector name='type'>
+                <enum base-type='int16_t' type-name='environment_type'/>
+            </stl-vector>
+            <stl-vector type-name='int8_t' name='probability'/>
+        </compound>
 
         <int32_t name='unk2'/>
+
         <compound name='material' type-name='material'/>
     </struct-type>
 
