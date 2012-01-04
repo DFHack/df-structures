@@ -24,6 +24,8 @@ BEGIN {
         %static_lines %static_includes &with_emit_static
 
         &ensure_name &with_anon
+
+        &fully_qualified_name
     );
     our %EXPORT_TAGS = ( ); # eg: TAG => [ qw!name1 name2! ],
     our @EXPORT_OK   = qw( );
@@ -257,6 +259,22 @@ sub with_anon(&;$) {
     local $anon_id = $stem ? 0 : 1;
     local $anon_prefix = ($stem||'anon');
     $blk->();
+}
+
+# Global type names
+
+sub fully_qualified_name($$;$) {
+    my ($tag, $name, $no_ns) = @_;
+    my @names;
+    push @names, $main_namespace unless $no_ns;
+    for my $parent ($tag->findnodes('ancestor::*')) {
+        if ($parent->nodeName eq 'ld:global-type') {
+            push @names, $parent->getAttribute('type-name');
+        } elsif (my $n = $parent->getAttribute('ld:typedef-name')) {
+            push @names, $n;
+        }
+    }
+    return join('::',@names,$name);
 }
 
 1;
