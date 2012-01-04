@@ -31,16 +31,42 @@
 
     <struct-type type-name='job_list_link'>
         <code-helper name='describe'>(describe-obj $.job)</code-helper>
-        <pointer name='job' type-name='job'/>
+        <pointer name='item' type-name='job'/>
         <pointer name='prev' type-name='job_list_link'/>
         <pointer name='next' type-name='job_list_link'/>
     </struct-type>
 
+    <bitfield-type type-name='job_flags' base-type='uint32_t'>
+        <flag-bit name='repeat'/>
+        <flag-bit name='suspend'/>
+        <flag-bit name='working' comment='not for food, or store in sp'/>
+        <flag-bit name='fetching'
+                  comment='Actually going out to bring; corresponds to items->is_fetching'/>
+        <flag-bit name='special'
+                  comment='Sleep/Drink/Eat/Clean; cannot be aborted via the ui'/>
+        <flag-bit name='bringing'>
+            <comment>
+                When actually carrying non-last item to the workshop.
+                If last, 'working' is used instead.
+            </comment>
+        </flag-bit>
+        <flag-bit/>
+        <flag-bit/>
+        <flag-bit/>
+        <flag-bit name='by_manager'/>
+        <flag-bit/>
+        <flag-bit/>
+        <flag-bit/>
+        <flag-bit/>
+    </bitfield-type>
+
     <struct-type type-name='job' key-field='id'>
         <int32_t name='id'/>
         <pointer name='list_link' type-name='job_list_link'/>
-        <enum name='job_id' base-type='int16_t' type-name='job_type'/>
+        <enum name='job_type' base-type='int16_t' type-name='job_type'/>
         <int32_t name='unk2'/>
+
+        <code-helper name='describe'>$.job_type</code-helper>
 
         <int16_t name='x'/>
         <int16_t name='y'/>
@@ -51,10 +77,7 @@
         <uint16_t name='unk4a'/>
         <uint16_t name='unk4b'/>
 
-        <bitfield name='flags' base-type='uint32_t'>
-            <flag-bit name='repeat'/>
-            <flag-bit name='suspend'/>
-        </bitfield>
+        <compound name='flags' type-name='job_flags'/>
 
         <int16_t name='matType' ref-target='material' aux-value='$$.matIndex'/>
         <int32_t name='matIndex'/>
@@ -72,16 +95,15 @@
         <int32_t name='unk10'/>
 
         <stl-vector name='items'>
-            <pointer>
-                <pointer name='item' type-name='item'/>
-                <int32_t name='unk1' comment='1 for reagents, 2 for build materials'/>
-                <int32_t name='to_bring'
-                         comment='0 immediately once taken to be brought'/>
-                <int32_t name='job_item_idx'/>
-            </pointer>
+            <pointer type-name='job_item_ref'/>
         </stl-vector>
 
-        <stl-vector name='unk11' type-name='pointer'/>
+        <stl-vector name='misc_links'>
+            <pointer>
+                <int32_t name='id'/>
+                <pointer name='ptr'/>
+            </pointer>
+        </stl-vector>
 
         <stl-vector name='references'>
             <pointer type-name='general_ref'/>
@@ -90,6 +112,23 @@
         <stl-vector name='job_items'>
             <pointer type-name='job_item'/>
         </stl-vector>
+    </struct-type>
+
+    <struct-type type-name='job_item_ref'>
+        <pointer name='item' type-name='item'/>
+
+        <enum base-type='int32_t' name='role'>
+            <enum-item/>
+            <enum-item name='Reagent'/>
+            <enum-item name='Hauled'/>
+            <enum-item/>
+            <enum-item/>
+            <enum-item/>
+            <enum-item name='TargetContainer'/>
+        </enum>
+        <int32_t name='is_fetching'
+                 comment='0 immediately once taken to be brought'/>
+        <int32_t name='job_item_idx'/>
     </struct-type>
 
     <bitfield-type type-name='job_item_flags1' base-type='uint32_t'>
@@ -187,7 +226,7 @@
 
         <compound name='flags1' type-name='job_item_flags1'/>
 
-        <int32_t name='count'/>
+        <int32_t name='quantity'/>
         <int16_t name='unk1'/>
 
         <compound name='flags2' type-name='job_item_flags2'/>
@@ -195,22 +234,21 @@
         <compound name='flags3' type-name='job_item_flags3'/>
         <int32_t name='unk3'/>
 
-        <int32_t name='metal_ore'/>
+        -- Custom:
+        <int32_t name='metal_ore' ref-target='inorganic_raw'/>
 
         <stl-string name='reaction_class'/>
         <stl-string name='has_material_reaction_product'/>
 
-        <int32_t name='unk4'/>
+        <int32_t name='min_dimension' comment='pure guess by context'/>
         <int32_t name='reagent_index'/>
-
         <stl-vector type-name='int32_t' name='contains' comment='used with custom reactions'/>
-
-        <int32_t name='unk5'/>
+        <int32_t name='reaction_id' ref-target='reaction'/>
         <int16_t name='has_tool_use'/>
     </struct-type>
 
     <struct-type type-name='manager_order'>
-        <enum name='job_id' base-type='int16_t' type-name='job_type'/>
+        <enum name='job_type' base-type='int16_t' type-name='job_type'/>
         <int16_t name="unk_2"/>
 
         <int16_t name="item_subtype"/>

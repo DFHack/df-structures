@@ -9,6 +9,9 @@
                 instance-vector='$global.world.raws.reactions' key-field='id'>
         <stl-string name="code"/>
         <stl-string name="name"/>
+
+        <code-helper name='describe'>$.code</code-helper>
+
         <df-flagarray name='flags' index-enum='reaction_flags'/>
 
         <stl-vector name="reagents">
@@ -17,7 +20,8 @@
         <stl-vector name="products">
             <pointer type-name='reaction_product'/>
         </stl-vector>
-        <int16_t name='skill'/>
+
+        <enum base-type='int16_t' name='skill' type-name='job_skill'/>
 
         <compound name='building'>
             <static-array name='str' count='2'>
@@ -25,7 +29,7 @@
                     <pointer type-name='stl-string'/>
                 </stl-vector>
             </static-array>
-            <stl-vector type-name='int32_t' name='type' ref-target='building'/>
+            <stl-vector type-name='int32_t' name='type'/>
             <stl-vector type-name='int32_t' name='subtype'/>
             <stl-vector type-name='int32_t' name='custom'/>
             <stl-vector type-name='int32_t' name='hotkey'/>
@@ -35,6 +39,10 @@
     </struct-type>
 
     <class-type type-name='reaction_reagent' original-name='reaction_reagentst'>
+        <stl-string name="code"/>
+
+        <code-helper name='describe'>$.code</code-helper>
+
         <virtual-methods>
             <vmethod/>
             <vmethod/>
@@ -50,34 +58,35 @@
 
     <bitfield-type type-name='reaction_reagent_flags'>
         <flag-bit name='PRESERVE_REAGENT'/>
-        <flag-bit/>
+        <flag-bit name='IN_CONTAINER'/>
         <flag-bit name='DOES_NOT_DETERMINE_PRODUCT_AMOUNT'/>
     </bitfield-type>
 
     <class-type type-name='reaction_reagent_itemst' inherits-from='reaction_reagent'>
-        <stl-string name="code"/>
         <int32_t name='quantity'/>
+
         <compound name="flags" type-name='reaction_reagent_flags'/>
 
-        <enum base-type='int16_t' name='itemType' type-name='item_type'/>
-        <int16_t name='itemSubtype' refers-to='(item-subtype-target $$._parent.itemType $)'/>
-        <int16_t name='matType' ref-target='material' aux-value='$$.matIndex'/>
-        <int16_t name='matIndex'/>
+        <enum base-type='int16_t' name='item_type' type-name='item_type'/>
+        <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int16_t name='mat_index'/>
 
         <stl-string name='reaction_class'/>
         <stl-string name='has_material_reaction_product'/>
+
         <compound name='flags1' type-name='job_item_flags1'/>
         <compound name='flags2' type-name='job_item_flags2'/>
         <compound name='flags3' type-name='job_item_flags3'/>
-	<int32_t/>
-	<int32_t/>
+	<int32_t name='unk1'/>
+	<int32_t name='unk2'/>
 
-        <int32_t name='metal_ore'/>
+        <int32_t name='metal_ore' ref-target='inorganic_raw'/>
         <int32_t name='min_dimension'/>
 
         <stl-vector type-name='int32_t' name='contains'/>
 
-        <int16_t name='has_tool_use'/>
+        <enum base-type='int16_t' name='has_tool_use' type-name='tool_uses'/>
 
         <static-array type-name='stl-string' name='item_str' count='2'/>
         <static-array type-name='stl-string' name='material_str' count='3'/>
@@ -98,8 +107,8 @@
     </class-type>
 
     <enum-type type-name='reaction_product_item_flags'>
-        <enum-item/>
-        <enum-item/>
+        <enum-item name='GET_MATERIAL_SAME'/>
+        <enum-item name='GET_MATERIAL_PRODUCT'/>
         <enum-item name='FORCE_EDGE'/>
         <enum-item name='PASTE'/>
         <enum-item name='PRESSED'/>
@@ -109,23 +118,27 @@
     <class-type type-name='reaction_product_itemst' inherits-from='reaction_product'>
         <stl-string name="product_to_container"/>
 
-        <enum base-type='int16_t' name='itemType' type-name='item_type'/>
-        <int16_t name='itemSubtype' refers-to='(item-subtype-target $$._parent.itemType $)'/>
-        <int16_t name='matType' ref-target='material' aux-value='$$.matIndex'/>
-        <int32_t name='matIndex'/>
+        <enum base-type='int16_t' name='item_type' type-name='item_type'/>
+        <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
 
         <int16_t name='probability'/>
         <int16_t name='count'/>
         <int32_t name='product_dimension'/>
 
         <df-flagarray name='flags' index-enum='reaction_product_item_flags'/>
-        <static-array type-name='stl-string' name='get_material_from_reagent' count='2'/>
+
+        <compound name='get_material'>
+            <stl-string name='reagent_code'/>
+            <stl-string name='product_code'/>
+        </compound>
 
         <static-array type-name='stl-string' name='item_str' count='2'/>
         <static-array type-name='stl-string' name='material_str' count='3'/>
     </class-type>
 
-    <enum-type type-name='reaction_product_item_improvement_flags'>
+    <enum-type type-name='reaction_product_improvement_flags'>
         <enum-item/>
         <enum-item/>
         <enum-item/>
@@ -136,14 +149,19 @@
         <stl-string name="target_reagent"/>
 
         <enum base-type='int32_t' name='improvement_type' type-name='improvement_type'/>
-        <int16_t name='matType' ref-target='material' aux-value='$$.matIndex'/>
-        <int32_t name='matIndex'/>
+
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
 
         <int16_t name='probability'/>
 
-        <df-flagarray name='flags' index-enum='reaction_product_item_improvement_flags'/>
+        <df-flagarray name='flags' index-enum='reaction_product_improvement_flags'/>
 
-        <static-array type-name='stl-string' name='get_material_from_reagent' count='2'/>
+        <compound name='get_material'>
+            <stl-string name='reagent_code'/>
+            <stl-string name='product_code'/>
+        </compound>
+
         <static-array type-name='stl-string' name='material_str' count='3'/>
     </class-type>
 </data-definition>

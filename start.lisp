@@ -92,3 +92,7 @@
   (write-csv (make-instance 'type-context :os-type $windows) "windows/all.csv" "windows/globals.csv")
   (write-csv (make-instance 'type-context :os-type $linux) "linux/all.csv" "linux/globals.csv"))
 
+(defun browse-list (start)
+  (browse (loop for node = $start.next then $node.next
+             while node
+             collect $node.item)))
