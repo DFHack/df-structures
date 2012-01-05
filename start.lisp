@@ -17,6 +17,7 @@
 (in-package :work)
 
 (setf *print-length* 50)
+(enable-gui-debugger-hook)
 
 (load "df-code.lisp")
 
