@@ -267,8 +267,7 @@
         <int32_t name="min_level"/>
         <int32_t name="max_level"/>
 
-        <int32_t name="machine_id" ref-target='machine'/>
-        <int32_t name="unk_118"/>
+        <compound name='machine' type-name='machine_info'/>
 
         <int32_t name="custom_type" ref-target='building_def'/>
     </class-type>
@@ -280,15 +279,13 @@
         <int16_t name='timer'/>
     </class-type>
 
-    <enum-type type-name='archery_direction'>
-        <enum-item name="top_to_bottom"/>
-        <enum-item name="bottom_to_top"/>
-        <enum-item name="left_to_right"/>
-        <enum-item name="right_to_left"/>
-    </enum-type>
-
     <class-type type-name='building_archerytargetst' inherits-from='building_actual'>
-        <enum base-type='int8_t' name="direction" type-name='archery_direction'/>
+        <enum name='archery_direction' base-type='int8_t'>
+            <enum-item name='top_to_bottom'/>
+            <enum-item name='bottom_to_top'/>
+            <enum-item name='left_to_right'/>
+            <enum-item name='right_to_left'/>
+        </enum-type>
     </class-type>
 
     <class-type type-name='building_armorstandst' inherits-from='building_actual'>
@@ -306,13 +303,21 @@
     </class-type>
 
     <class-type type-name='building_bars_verticalst' inherits-from='building_actual'>
-        <int16_t/>
-        <int8_t/>
+        <bitfield name='flags' base-type='int16_t'>
+            <flag-bit name='closed'/>
+            <flag-bit name='closing'/>
+            <flag-bit name='opening'/>
+        </bitfield>
+        <int8_t name='timer'/>
     </class-type>
 
     <class-type type-name='building_bars_floorst' inherits-from='building_actual'>
-        <int16_t/>
-        <int8_t/>
+        <bitfield name='flags' base-type='int16_t'>
+            <flag-bit name='closed'/>
+            <flag-bit name='closing'/>
+            <flag-bit name='opening'/>
+        </bitfield>
+        <int8_t name='timer'/>
     </class-type>
 
     <class-type type-name='building_bedst' inherits-from='building_actual'>
@@ -332,8 +337,14 @@
     </class-type>
 
     <class-type type-name='building_bridgest' inherits-from='building_actual'>
-        <int16_t/>
-        <int8_t/>
+        <bitfield name='flags' base-type='int16_t'>
+            <flag-bit name='closed'/>
+            <flag-bit name='closing'/>
+            <flag-bit name='opening'/>
+            <flag-bit/>
+            <flag-bit name='unk'/>
+        </bitfield>
+        <int8_t name='timer'/>
         <int8_t/>
         <int32_t/>
     </class-type>
@@ -405,18 +416,30 @@
     </class-type>
 
     <class-type type-name='building_floodgatest' inherits-from='building_actual'>
-        <int16_t/>
-        <int8_t/>
+        <bitfield name='flags' base-type='int16_t'>
+            <flag-bit name='closed'/>
+            <flag-bit name='closing'/>
+            <flag-bit name='opening'/>
+        </bitfield>
+        <int8_t name='timer'/>
     </class-type>
 
     <class-type type-name='building_grate_floorst' inherits-from='building_actual'>
-        <int16_t/>
-        <int8_t/>
+        <bitfield name='flags' base-type='int16_t'>
+            <flag-bit name='closed'/>
+            <flag-bit name='closing'/>
+            <flag-bit name='opening'/>
+        </bitfield>
+        <int8_t name='timer'/>
     </class-type>
 
     <class-type type-name='building_grate_wallst' inherits-from='building_actual'>
-        <int16_t/>
-        <int8_t/>
+        <bitfield name='flags' base-type='int16_t'>
+            <flag-bit name='closed'/>
+            <flag-bit name='closing'/>
+            <flag-bit name='opening'/>
+        </bitfield>
+        <int8_t name='timer'/>
     </class-type>
 
     <class-type type-name='building_hatchst' inherits-from='building_actual'>
@@ -458,12 +481,26 @@
         <int16_t/>
     </class-type>
 
+    <enum-type type-name='siegeengine_type'>
+        <enum-item name="Catapult"/>
+        <enum-item name="Ballista"/>
+    </enum-type>
+
     <class-type type-name='building_siegeenginest' inherits-from='building_actual'>
-        <int16_t/>
-        <int8_t/>
-        <int8_t/>
-        <int8_t/>
-        <int16_t/>
+        <enum base-type='int16_t' name="type" type-name='siegeengine_type'/>
+        <enum name='facing' base-type='int8_t'>
+            <enum-item name='left'/>
+            <enum-item name='up'/>
+            <enum-item name='right'/>
+            <enum-item name='down'/>
+        </enum-type>
+        <enum name='action' base-type='int8_t'>
+            <enum-item name='not_in_use'/>
+            <enum-item name='prepare_to_fire'/>
+            <enum-item name='fire_at_will'/>
+        </enum-type>
+        <int8_t name='fire_timer'/>
+        <int16_t name='unk_timer'/>
     </class-type>
 
     <class-type type-name='building_slabst' inherits-from='building_actual'>
@@ -479,7 +516,9 @@
     </class-type>
 
     <class-type type-name='building_tablest' inherits-from='building_actual'>
-        <int16_t/>
+        <bitfield name='flags' base-type='int16_t'>
+            <flag-bit name='meeting_hall'/>
+        </bitfield>
         <stl-vector type-name='int32_t'/>
         <stl-vector type-name='int16_t'/>
     </class-type>
@@ -491,7 +530,7 @@
     </class-type>
 
     <class-type type-name='building_tradedepotst' inherits-from='building_actual'>
-        <bitfield name='supplies_needed' base-type='uint32_t'>
+        <bitfield name='flags' base-type='uint32_t'>
             <flag-bit name='trader_requested'/>
             <flag-bit name='anyone_can_trade'/>
         </bitfield>
@@ -529,11 +568,15 @@
     </class-type>
 
     <class-type type-name='building_wagonst' inherits-from='building_actual'>
-
     </class-type>
 
     <class-type type-name='building_weaponst' inherits-from='building_actual'>
-
+        <bitfield name='flags' base-type='int16_t'>
+            <flag-bit name='closed'/>
+            <flag-bit name='closing'/>
+            <flag-bit name='opening'/>
+        </bitfield>
+        <int8_t name='timer'/>
     </class-type>
 
     <class-type type-name='building_weaponrackst' inherits-from='building_actual'>
@@ -550,19 +593,23 @@
     </class-type>
 
     <class-type type-name='building_wellst' inherits-from='building_actual'>
-
+        <bitfield name='flags' base-type='int16_t'>
+            <flag-bit name='lowering'/>
+        </bitfield>
+        <int8_t/>
+        <int16_t name='bucket_z'/>
+        <int8_t name='bucket_timer'/>
+        <int16_t name='unk_timer'/>
     </class-type>
 
     <class-type type-name='building_windowst' inherits-from='building_actual'>
-
+        <int16_t/>
     </class-type>
 
     <class-type type-name='building_window_glassst' inherits-from='building_windowst'>
-
     </class-type>
 
     <class-type type-name='building_window_gemst' inherits-from='building_windowst'>
-
     </class-type>
 </data-definition>
 
