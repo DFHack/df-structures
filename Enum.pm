@@ -55,6 +55,10 @@ sub render_enum_tables($$$) {
     my @atypes = ('const char*');
     my @atnames = (undef);
     my @aprefix = ('');
+    my @is_list = (undef);
+
+    my @use_key = (0);
+    my @use_list = ();
 
     for my $attr ($tag->findnodes('child::enum-attr')) {
         my $name = $attr->getAttribute('name') or die "Unnamed enum-attr.\n";
@@ -73,6 +77,7 @@ sub render_enum_tables($$$) {
         $aidx{$name} = scalar @anames;
         push @anames, $name;
         push @atnames, $type;
+        push @is_list, undef;
 
         if ($type) {
             push @atypes, $type;
@@ -82,6 +87,15 @@ sub render_enum_tables($$$) {
             push @atypes, 'const char*';
             push @avals, (defined $def ? "\"$def\"" : 'NULL');
             push @aprefix, '';
+        }
+        
+        if (is_attr_true($attr, 'is-list')) {
+            push @use_list, $#anames;
+            $is_list[-1] = $atypes[-1];
+            $atypes[-1] = "enum_list_attr<$atypes[-1]>";
+            $avals[-1] = $atypes[-1].'()';
+        } elsif (is_attr_true($attr, 'use-key-name')) {
+            push @use_key, $#anames;
         }
     }
 
@@ -108,33 +122,61 @@ sub render_enum_tables($$$) {
                         emit "$atypes[$i] $anames[$i];";
                     }
                 } "struct _info_entry ", ";";
-            
-                # Emit the info table
-                emit_block {
-                    for my $item ($tag->findnodes('child::enum-item')) {
-                        my $tag = $item->nodeName;
-                        
-                        # Assemble item-specific attr values
-                        my @evals = @avals;
-                        my $name = $item->getAttribute('name');
-                        $evals[0] = "\"$name\"" if $name;
 
-                        for my $attr ($item->findnodes('child::item-attr')) {
-                            my $name = $attr->getAttribute('name') or die "Unnamed item-attr.\n";
-                            my $value = $attr->getAttribute('value') or die "No-value item-attr.\n";
-                            my $idx = $aidx{$name} or die "Unknown item-attr: $name\n";
+                my $list_entry_id;
+                my @table_entries;
+                
+                my $fmt_val = sub {
+                    my ($idx, $value) = @_;
+                    if ($atnames[$idx]) {
+                        return $aprefix[$idx].$value;
+                    } else {
+                        return "\"$value\"";
+                    }
+                };
 
-                            if ($atnames[$idx]) {
-                                $evals[$idx] = $aprefix[$idx].$value;
-                            } else {
-                                $evals[$idx] = "\"$value\"";
-                            }
-                        }
-
-                        emit "{ ",join(', ',@evals)," },";
+                for my $item ($tag->findnodes('child::enum-item')) {
+                    my $tag = $item->nodeName;
+                    
+                    # Assemble item-specific attr values
+                    my @evals = @avals;
+                    my $name = $item->getAttribute('name');
+                    if ($name) {
+                        $evals[$_] = $fmt_val->($_, $name) for @use_key;
                     }
 
-                    emit "{ ",join(', ',@avals)," }";
+                    my @list;
+
+                    for my $attr ($item->findnodes('child::item-attr')) {
+                        my $name = $attr->getAttribute('name') or die "Unnamed item-attr.\n";
+                        my $value = $attr->getAttribute('value') or die "No-value item-attr.\n";
+                        my $idx = $aidx{$name} or die "Unknown item-attr: $name\n";
+
+                        if ($is_list[$idx]) {
+                            push @{$list[$idx]}, $fmt_val->($idx, $value);
+                        } else {
+                            $evals[$idx] = $fmt_val->($idx, $value);
+                        }
+                    }
+
+                    for my $idx (@use_list) {
+                        my @items = @{$list[$idx]||[]};
+                        my $ptr = 'NULL';
+                        if (@items) {
+                            my $id = $list_entry_id++;
+                            $ptr = "_list_items_${id}";
+                            emit "static const $is_list[$idx] ${ptr}[] = { ", join(', ', @items), ' };';
+                        }
+                        $evals[$idx] = "{ ".scalar(@items).', '.$ptr.' }';
+                    }
+
+                    push @table_entries, "{ ".join(', ',@evals)." },";
+                }
+
+                # Emit the info table
+                emit_block {
+                    emit $_ for @table_entries;
+                    $lines[-1] =~ s/,$//;
                 } "static const _info_entry _info[] = ", ";";
 
                 for (my $i = 0; $i < @anames; $i++) {

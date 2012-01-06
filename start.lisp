@@ -17,7 +17,10 @@
 (in-package :work)
 
 (setf *print-length* 50)
+
+;; Best effort to alter the root value for all threads
 (enable-gui-debugger-hook)
+(bt:make-thread (lambda () (enable-gui-debugger-hook)))
 
 (load "df-code.lisp")
 
