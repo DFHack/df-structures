@@ -72,7 +72,7 @@ my %custom_container_handlers = (
     'stl-vector' => sub {
         my $item = get_container_item_type($_, -void => 'void*');
         $item = 'char' if $item eq 'bool';
-        return "std::vector<$item>";
+        return "std::vector<$item >";
     },
     'stl-bit-vector' => sub {
         return "std::vector<bool>";
