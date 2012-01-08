@@ -45,8 +45,8 @@
 (defun browse (obj)
   (browse-object-in-new-window *memory* obj))
 
-(defun browse-addr (addr)
-  (browse (make-ad-hoc-memory-ref *memory* addr (make-instance 'padding) :parent :addr)))
+(defun browse-addr (addr &optional (tname 'padding))
+  (browse (make-ad-hoc-memory-ref *memory* addr (make-instance tname) :parent :addr)))
 
 (defun resume ()
   (call-debug-task 'resume-all-threads *process*))
