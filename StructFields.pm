@@ -208,11 +208,19 @@ sub render_struct_field($) {
 
     # Otherwise, create the name if necessary, and render
     my $field_name = $tag->getAttribute('name');
+    my $field_comment = $tag->getAttribute('comment');
     my $name = ensure_name $field_name;
     $tag->setAttribute('ld:anon-name', $name) unless $field_name;
     with_anon {
         my ($prefix, $postfix) = get_struct_field_type($tag, -local => 1);
-        emit $prefix, ' ', $name, $postfix, ';';
+        if($field_comment)
+        {
+            emit $prefix, ' ', $name, $postfix, ';', ' /*!< ', $field_comment, ' */';
+        }
+        else
+        {
+            emit $prefix, ' ', $name, $postfix, ';';
+        }
     } "T_$name";
 }
 
