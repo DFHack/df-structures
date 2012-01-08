@@ -226,8 +226,9 @@
         <compound name='flags3' type-name='unit_flags3'/>
 
         <compound name='unknown2'>
+            -- defined for visiting diplomats
             <int8_t name='unk_ec'/>
-            <int32_t name='unk_f0'/>
+            <int32_t name='unk_f0' ref-target='historical_entity'/>
             <int16_t name='unk_f4'/>
             <padding size='2'/>
         </compound>
@@ -242,13 +243,12 @@
 
         <int32_t name='civ_id' ref-target='historical_entity'/>
         <int32_t name='population_id' ref-target='entity_population'/>
+        <int32_t name='invasion_id' ref-target='invasion_info'/>
 
         <compound name='unknown3'>
-            <int32_t name='unk_110'/>
-
-            <stl-vector name='unk_114'/>
-            <stl-vector name='unk_124'/>
-            <stl-vector name='unk_134'/>
+            <stl-vector name='unk_x' type-name='int16_t'/>
+            <stl-vector name='unk_y' type-name='int16_t'/>
+            <stl-vector name='unk_z' type-name='int16_t'/>
 
             <uint32_t name='unk_144'/>
         </compound>
@@ -383,30 +383,13 @@
         </compound>
 
         <compound name='body'>
-            <stl-vector name='body_part_308' type-name='uint32_t'/> // 87*0 ?
+            <compound name='components' type-name='body_component_info'/>
 
-            <stl-vector name='unk_318'/>
-
-            <stl-vector name='body_layer_328' type-name='uint32_t'/>
-            <stl-vector name='body_layer_338' type-name='uint32_t'/> // 238*0
-            <stl-vector name='body_layer_348' type-name='uint32_t'/> // 238*0
-            <stl-vector name='body_layer_358' type-name='uint32_t'/> // 238*0
-            <stl-vector name='body_layer_368' type-name='uint32_t'/> // 238*0
-            <stl-vector name='body_layer_378' type-name='uint32_t'/> // 238*0
-
-            <stl-vector name='body_layer_388' type-name='pointer'/>
+            <stl-vector name='wounds' type-name='pointer'/>
 
             <uint32_t name='unk_398'/>
-            <int32_t name='unk_39c'/>
-            <int32_t name='unk_3a0'/>
-            <int32_t name='unk_3a4'/>
-            <int32_t name='unk_3a8'/>
-            <int32_t name='unk_3ac'/>
-            <int32_t name='unk_3b0'/>
-            <int32_t name='unk_3b4'/>
-            <int32_t name='unk_3b8'/>
-            <int32_t name='unk_3bc'/>
-            <int32_t name='unk_3c0'/>
+
+            <static-array name='unk_39c' type-name='int32_t' count='10'/>
 
             <pointer name='body_plan' comment='points to the body_parts field of caste_raw'>
                 <stl-vector name='body_parts'>
@@ -416,38 +399,37 @@
 
             <uint16_t name='unk_3c8'/>
 
-            <static-array type-name='unit_attribute' name='physical_attrs' count='6' index-enum='physical_attribute_type'/>
+            <static-array type-name='unit_attribute' name='physical_attrs'
+                          count='6' index-enum='physical_attribute_type'/>
 
-            <uint32_t name='unk_474'/>
-            <uint32_t name='unk_478'/>
-            <uint32_t name='unk_47c'/>
-            <uint32_t name='unk_480'/>
-            <uint32_t name='unk_484'/>
-            <uint32_t name='unk_488'/>
+            <static-array type-name='int32_t' name='physical_attr_unk3'
+                          count='6' index-enum='physical_attribute_type'/>
 
             <uint32_t name='blood_max'/>
             <uint32_t name='blood_count'/> // 490
             <uint32_t name='unk_494'/>
 
             <stl-vector name='spatters'/>
-        </compound>
 
-        <compound name='unknown6'>
             <stl-vector type-name='uint16_t' name='unk_4a8'/>
             <stl-vector type-name='uint16_t' name='unk_4b8'/>
             <uint32_t name='unk_4c8'/>
+        </compound>
+
+        <compound name='appearance'>
             <stl-vector type-name='int16_t' name='unk_4cc'/>
             <stl-vector type-name='int32_t' name='unk_4dc'/>
             <stl-vector type-name='int32_t' name='unk_4ec'/>
             <stl-vector type-name='int32_t' name='unk_4fc'/>
             <stl-vector type-name='int16_t' name='unk_50c'/>
-            <pointer name='unk_51c'/>
-            <uint16_t name='unk_520'/>
-            <pointer name='unk_524'/>
-            <uint16_t name='unk_528'/>
-        </compound>
 
-        <stl-vector type-name='uint32_t' name='appearance'/>
+            <pointer name="unk_51c" type-name='uint8_t' is-array='true'/>
+            <int16_t name="unk_520"/>
+            <pointer name="unk_524" type-name='int16_t' is-array='true'/>
+            <int16_t name="unk_528"/>
+
+            <stl-vector name='colors' type-name='int32_t'/>
+        </compound>
 
         <compound name='counters'>
             <int32_t name='think_counter'/> // 53c decrements every job_counter reroll, set when changing jobs
@@ -546,12 +528,14 @@
             <stl-vector name='unk_748'/>
 
             <uint16_t name='unk_758'/>
-            <int16_t name='unk_x75a'/> // coords (-30000*3)
-            <int16_t name='unk_y75c'/>
-            <int16_t name='unk_z75e'/>
-            <stl-vector type-name='uint16_t' name='unk_760'/>
-            <stl-vector type-name='uint16_t' name='unk_770'/>
-            <stl-vector type-name='uint16_t' name='unk_780'/>
+
+            -- coordinates, and a set of coordinate vectors
+            <int16_t name='unk_x75a' init-value='-30000'/>
+            <int16_t name='unk_y75c' init-value='-30000'/>
+            <int16_t name='unk_z75e' init-value='-30000'/>
+            <stl-vector type-name='uint16_t' name='unk_x760'/>
+            <stl-vector type-name='uint16_t' name='unk_y770'/>
+            <stl-vector type-name='uint16_t' name='unk_z780'/>
         </compound>
 
         <int32_t name='hist_figure_id' ref-target='historical_figure'/>
