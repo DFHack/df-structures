@@ -36,7 +36,9 @@ sub with_struct_block(&$;$%) {
     my $kwd = (is_attr_true($tag,'is-union') ? "union" : "struct");
     my $exp = $flags{-export} ? $export_prefix : '';
     my $prefix = $kwd.' '.$exp.($name ? $name.' ' : '');
-    
+
+    emit_comment $tag, -attr => 1;
+
     emit_block {
         local $_;
         local $in_struct_body = 1;
@@ -208,19 +210,12 @@ sub render_struct_field($) {
 
     # Otherwise, create the name if necessary, and render
     my $field_name = $tag->getAttribute('name');
-    my $field_comment = $tag->getAttribute('comment');
     my $name = ensure_name $field_name;
     $tag->setAttribute('ld:anon-name', $name) unless $field_name;
     with_anon {
         my ($prefix, $postfix) = get_struct_field_type($tag, -local => 1);
-        if($field_comment)
-        {
-            emit $prefix, ' ', $name, $postfix, ';', ' /*!< ', $field_comment, ' */';
-        }
-        else
-        {
-            emit $prefix, ' ', $name, $postfix, ';';
-        }
+        emit_comment $tag;
+        emit $prefix, ' ', $name, $postfix, ';', get_comment($tag);
     } "T_$name";
 }
 

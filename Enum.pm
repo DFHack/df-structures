@@ -24,6 +24,8 @@ sub render_enum_core($$) {
 
     my $base = 0;
 
+    emit_comment $tag, -attr => 1;
+
     emit_block {
         my @items = $tag->findnodes('child::enum-item');
         my $idx = 0;
@@ -35,7 +37,8 @@ sub render_enum_core($$) {
             $base = ($idx == 0) ? $value : undef if defined $value;
             $idx++;
 
-            emit $name, (defined($value) ? ' = '.$value : ''), ',';
+            emit_comment $item;
+            emit $name, (defined($value) ? ' = '.$value : ''), ',', get_comment($item);
         }
 
         emit "_last_item_of_$name";

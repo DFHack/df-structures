@@ -26,6 +26,7 @@ BEGIN {
         &ensure_name &with_anon
 
         &fully_qualified_name
+        &get_comment &emit_comment
     );
     our %EXPORT_TAGS = ( ); # eg: TAG => [ qw!name1 name2! ],
     our @EXPORT_OK   = qw( );
@@ -275,6 +276,48 @@ sub fully_qualified_name($$;$) {
         }
     }
     return join('::',@names,$name);
+}
+
+# Comments
+
+sub get_comment($) {
+    my ($tag) = @_;
+
+    return '' unless $tag;
+
+    if (my $val = $tag->getAttribute('comment')) {
+        return ' /*!< '.$val.' */';
+    } else {
+        return '';
+    }
+}
+
+sub emit_comment($;%) {
+    my ($tag,%flags) = @_;
+
+    return unless $tag;
+
+    my $val = $tag->findvalue('child::comment');
+
+    if ($flags{-attr}) {
+        my $attr = $tag->getAttribute('comment');
+        if ($attr && $val) {
+            $val = $attr."\n".$val;
+        } else {
+            $val ||= $attr;
+        }
+    }
+
+    if ($val) {
+        emit '/**';
+        for my $line (split(/\n/, $val)) {
+            $line =~ s/^\s*//;
+            $line =~ s/\s*$//;
+            next if $line eq '';
+            emit ' * ', $line;
+        }
+        emit ' */';
+    }
 }
 
 1;

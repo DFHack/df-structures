@@ -28,6 +28,8 @@ sub render_bitfield_core {
     my $mod = ($tag->nodeName eq 'ld:global-type' ? "$export_prefix extern" : 'static');
     emit "$mod const bitfield_item_info ${name}_items_[sizeof($base)*8];";
 
+    emit_comment $tag, -attr => 1;
+
     emit_block {
         emit $base, ' whole;';
 
@@ -40,7 +42,9 @@ sub render_bitfield_core {
                 check_bad_attrs($item);
                 my $name = ensure_name $item->getAttribute('name');
                 my $size = $item->getAttribute('count') || 1;
-                emit "unsigned ", $name, " : ", $size, ";";
+
+                emit_comment $item;
+                emit "unsigned ", $name, " : ", $size, ";", get_comment($item);
             }
         } "struct ", " bits;";
 

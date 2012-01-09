@@ -164,11 +164,13 @@ sub render_virtual_methods {
 
             my $ret_stmt = '';
             unless ($ret_type eq 'void') {
-                $ret_stmt = ' return '.($ret_type =~ /\*$/ ? '0' : "$ret_type()").'; ';
+                $ret_stmt = ' return '.($ret_type =~ /\*$/ ? '0' : "$ret_type()").';';
             }
 
+            emit_comment $method;
             emit 'virtual ', ($is_destructor?'~':$ret_type.' '), $name,
-                 '(', join(', ', @arg_strs), ') {', $ret_stmt, '}; //', $idx;
+                 '(', join(', ', @arg_strs), ') {', $ret_stmt, ' /*', $idx, '*/ };',
+                 get_comment($method);
         } "anon_vmethod_$idx";
     }
 }
