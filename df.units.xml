@@ -349,6 +349,8 @@
                 <pointer name='item' type-name='item'/>
                 <int16_t name='mode' comment='0 carried, 1 weapon, 2 worn, 9 sewn'/>
                 <int16_t name='body_part_id'/>
+                <int32_t/>
+                <int32_t init-value='-1'/>
             </pointer>
         </stl-vector>
 
@@ -481,19 +483,25 @@
                 <pointer type-name='unit_misc_trait'/>
             </stl-vector>
 
-            <pointer name='unk_5b0'>
-                <stl-vector type-name='int16_t'/>
-                <stl-vector type-name='int16_t'/>
-                <stl-vector type-name='int16_t'/>
-                <stl-vector type-name='int32_t'/>
-                <stl-vector type-name='int32_t'/>
-                <stl-vector type-name='int32_t'/>
-                <stl-vector type-name='int16_t'/>
-                <stl-vector type-name='int16_t'/>
-                <stl-vector type-name='int16_t'/>
-                <stl-vector type-name='int32_t'/>
-                <stl-vector type-name='int32_t'/>
-                <stl-vector type-name='int32_t'/>
+            <pointer name='eat_history'>
+                <compound name='food'>
+                    <stl-vector name='item_type'>
+                        <enum base-type='int16_t' type-name='item_type'/>
+                    </stl-vector>
+                    <stl-vector name='item_subtype' type-name='int16_t'/>
+                    <compound name='material' type-name='material_vec_ref'/>
+                    <stl-vector name='year' type-name='int32_t'/>
+                    <stl-vector name='year_time' type-name='int32_t'/>
+                </compound>
+                <compound name='drink'>
+                    <stl-vector name='item_type'>
+                        <enum base-type='int16_t' type-name='item_type'/>
+                    </stl-vector>
+                    <stl-vector name='item_subtype' type-name='int16_t'/>
+                    <compound name='material' type-name='material_vec_ref'/>
+                    <stl-vector name='year' type-name='int32_t'/>
+                    <stl-vector name='year_time' type-name='int32_t'/>
+                </compound>
             </pointer>
 
             <uint32_t name='unk_5b4'/> // 0x3e8 (1000)
@@ -513,9 +521,11 @@
             <static-array type-name='bool' name='labors' index-enum='unit_labor' count='94'/>
 
             <stl-vector name='unk_6d0'/>
-            <stl-vector name='unk_6e0'/> // item ids?
+            <stl-vector name='unk_6e0' type-name='int32_t'/> // item ids?
 
-            <stl-vector name='recent_events'/> // 6f0: dined in a legendary dinning room, etc
+            <stl-vector name='recent_events'>
+                <pointer type-name='unit_thought'/>
+            </stl-vector>
 
             <stl-vector name='unk_700'/>
 
@@ -524,7 +534,16 @@
 
             <stl-vector name='unk_718'/>
             <stl-vector name='unk_728'/>
-            <stl-vector name='relationships'/> // 738
+
+            <stl-vector name='acquintances'>
+                <pointer>
+                    <int32_t name='unit_id' ref-target='unit'/>
+                    <int32_t name='acquintance_level' comment='>= 30 -> long-term'/>
+                    <int32_t name='timer' comment='+1 per 10 frames; limit at 1 year'/>
+                    <int32_t name='is_friend'/>
+                </pointer>
+            </stl-vector>
+
             <stl-vector name='unk_748'/>
 
             <uint16_t name='unk_758'/>
@@ -637,6 +656,13 @@
         <code-helper name='describe'>(fmt "id=~A value=~A" $.id $.value)</code-helper>
 
         <int32_t name='value'/>
+    </struct-type>
+
+    <struct-type type-name='unit_thought'>
+        <int16_t name="type"/>
+        <int32_t name="age" comment='+1 per frame'/>
+        <int32_t name="subtype" init-value='-1'/>
+        <int32_t name="severity"/>
     </struct-type>
 
     <struct-type type-name='unit_soul'>
