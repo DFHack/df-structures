@@ -507,9 +507,12 @@
             <uint32_t name='unk_5b4'/> // 0x3e8 (1000)
             <uint32_t name='unk_5b8'/> // 0x3e8 (1000)
 
-            <stl-vector name='unk_5bc'/>
-            <stl-vector name='unk_5cc'/>
-            <int8_t name='unk_5dc'/>
+            <stl-vector name='attacker_ids'>
+                <int32_t ref-target='unit'/>
+            </stl-vector>
+            <stl-vector name='attacker_unk' type-name='int16_t'/>
+
+            <uint8_t name='unk_5dc'/>
 
             <compound type-name='language_name' name='artifact_name'/>
             <stl-vector name='souls'>
@@ -581,24 +584,44 @@
             <int32_t name='unk_7c0'/>
         </compound>
 
-        <compound name='unknown8'>
+        <compound name='unknown7'>
             <stl-vector name='unk_7c4'/>
             <stl-vector name='unk_7d4' type-name='int32_t'/>
             <stl-vector name='unk_7e4' type-name='int16_t'/>
-            <stl-vector name='unk_7f4' type-name='int32_t'/> // combat log?
-            <stl-vector name='unk_804' type-name='int32_t'/>
-            <stl-vector name='unk_814' type-name='int32_t'/>
+        </compound>
 
-            <uint32_t name='unk_824'/>
-            <uint32_t name='unk_828'/>
-            <uint32_t name='unk_82c'/>
-            <uint32_t name='unk_830'/>
-            <uint32_t name='unk_834'/>
-            <uint32_t name='unk_838'/>
+        <compound name='reports'>
+            <stl-vector name='combat_log'>
+                <int32_t ref-target='report'/>
+            </stl-vector>
+            <stl-vector name='sparring_log'>
+                <int32_t ref-target='report'/>
+            </stl-vector>
+            <stl-vector name='unk_log'>
+                <int32_t ref-target='report'/>
+            </stl-vector>
 
-            <pointer name='unk_83c'/>
+            -- Garbage when the matching vector is empty:
+            <uint32_t name='last_combat_year'/>
+            <uint32_t name='last_sparring_year'/>
+            <uint32_t name='last_unk_year'/>
+            <uint32_t name='last_combat_time'/>
+            <uint32_t name='last_sparring_time'/>
+            <uint32_t name='last_unk_time'/>
+        </compound>
 
-            <stl-vector name='unk_840' type-name='pointer'/> // item related
+        <pointer name='health' type-name='unit_health_info'/>
+
+        <compound name='unknown8'>
+            <stl-vector name='used_items'>
+                <comment>Contains worn clothes, armor, weapons, arrows fired by archers</comment>
+                <pointer>
+                    <int32_t name="id" ref-target='item'/>
+                    <int32_t name="unk_4"/>
+                    <int32_t name="unk_8"/>
+                    <int32_t name="unk_c"/>
+                </pointer>
+            </stl-vector>
 
             <stl-vector name='unk_850'/>
             <stl-vector name='unk_860' type-name='int32_t'/>
@@ -663,6 +686,49 @@
         <int32_t name="age" comment='+1 per frame'/>
         <int32_t name="subtype" init-value='-1'/>
         <int32_t name="severity"/>
+    </struct-type>
+
+    <struct-type type-name='unit_health_info'>
+        <int32_t name="unit_id" ref-target='unit'/>
+
+        <int32_t name="unk_4"/>
+        <stl-vector name="body_part_8" type-name='int32_t'/>
+        <int32_t name="unk_18"/>
+        <int32_t name="unk_1c"/>
+        <int16_t name="unk_20"/>
+
+        <stl-vector name="op_history">
+            <pointer>
+                <enum base-type='int16_t' name="job_type" type-name='job_type'/>
+
+                <compound name='info' is-union='true'>
+                    <compound name='crutch'>
+                        <int32_t name='item_type' refers-to='(enum-to-key $item_type $)'/>
+                        <int32_t name='item_subtype' init-value='-1'/>
+                        <int32_t name="mat_type" ref-target='material' aux-value='$$.mat_index'/>
+                        <int32_t name="mat_index" init-value='-1'/>
+                        <int32_t name="item_id" ref-target='item'/>
+                    </compound>
+
+                    <int32_t name='bed_id' ref-target='building'/>
+
+                    <compound name='bandage'>
+                        <int32_t name="mat_type" ref-target='material' aux-value='$$.mat_index'/>
+                        <int32_t name="mat_index" init-value='-1'/>
+
+                        <int32_t name="body_part_id" init-value='-1'/>
+                        <int32_t name="item_id" ref-target='item'/>
+                    </compound>
+                </compound>
+
+                <int32_t name="year"/>
+                <int32_t name="year_time"/>
+
+                <int32_t name="doctor_id" ref-target='unit'/>
+            </pointer>
+        </stl-vector>
+
+        <stl-vector name="unk_34"/>
     </struct-type>
 
     <struct-type type-name='unit_soul'>

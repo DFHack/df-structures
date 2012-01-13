@@ -294,7 +294,8 @@ sub emit_struct_fields($$;%) {
     my @fields = get_struct_fields($tag);
     &render_struct_field($_) for @fields;
 
-    return if $tag->findnodes("ancestor-or-self::ld:field[\@is-union='true']");
+    my @unions = $tag->findnodes('ancestor-or-self::ld:field[@is-union="true"]');
+    return if @unions;
 
     local $in_struct_body = 0;
 
