@@ -159,8 +159,8 @@ sub render_virtual_methods {
 
             my @ret_type = $is_destructor ? () : $method->findnodes('ret-type');
             my @arg_types = $is_destructor ? () : $method->findnodes('ld:field');
-            my $ret_type = $ret_type[0] ? get_struct_field_type($ret_type[0], -local => 1) : 'void';
-            my @arg_strs = map { scalar get_struct_field_type($_, -local => 1) } @arg_types;
+            my $ret_type = $ret_type[0] ? get_struct_field_type($ret_type[0], -local => 1, -rettype => 1) : 'void';
+            my @arg_strs = map { scalar get_struct_field_type($_, -local => 1, -funcarg => 1) } @arg_types;
 
             my $ret_stmt = '';
             unless ($ret_type eq 'void') {

@@ -184,7 +184,13 @@ sub get_struct_field_type($;%) {
 
     if ($subtype && $flags{-local} && $subtype eq 'enum') {
         my $base = get_primitive_base($tag, 'int32_t');
-        $prefix = "enum_field<$prefix,$base>";
+        unless ($base eq 'int32_t') {
+            if ($flags{-rettype} || $flags{-funcarg}) {
+                $prefix = $base;
+            } else {
+                $prefix = "enum_field<$prefix,$base>";
+            }
+        }
     }
 
     return ($prefix,$suffix) if wantarray;
