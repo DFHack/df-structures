@@ -47,6 +47,15 @@
         <int32_t name='unk2'/>
     </struct-type>
 
+    <enum-type type-name='activity_event_type'>
+        <enum-item name='TrainingSession'/>
+        <enum-item name='CombatTraining'/>
+        <enum-item name='SkillDemonstration'/>
+        <enum-item name='IndividualSkillDrill'/>
+        <enum-item name='Sparring'/>
+        <enum-item name='RangedPractice'/>
+    </enum-type>
+
     <class-type type-name='activity_event' original-name='activity_eventst'>
         <int32_t name='event_id'
                  comment='mostly, but not always, the index in activity.events'/>
@@ -74,6 +83,52 @@
         -- These are equal to the ones above:
         <int32_t name='activity_id2' ref-target='activity_entry'/>
         <int32_t name='event_id2'/>
+
+        <virtual-methods>
+            <vmethod ret-type='activity_event_type' name='getType'/>
+            <vmethod name='write_file'> <pointer comment='file_compressorst'/> </vmethod>
+            <vmethod name='read_file'>
+                <pointer comment='file_compressorst'/>
+                <int32_t name='loadversion'/>
+            </vmethod>
+            <vmethod is-destructor='true'/>
+            <vmethod ret-type='bool' comment='returns true if hist_figure_ids empty or if various subclass fields are uninitialized'/>
+            <vmethod comment='returns -1'/>
+            <vmethod comment='does nothing'> <pointer/> </vmethod>
+            <vmethod name='getHistFigVector'>
+                <ret-type> <stl-vector> <int32_t ref-target='historical_figure'/> </stl-vector> </ret-type>
+            </vmethod>
+            <vmethod/>
+            <vmethod/>
+            <vmethod/>
+            <vmethod/>
+            <vmethod/>
+            <vmethod/>
+            <vmethod name='setSkillDemoUnk5'>
+                <int16_t name='unk5'/>
+            </vmethod>
+            <vmethod name='setSkillDemoUnk789'>
+                <int32_t name='unk7'/>
+                <int32_t name='unk8'/>
+                <int32_t name='unk9'/>
+            </vmethod>
+            <vmethod name='adjustUnkA' comment='combat_training adjusts unk5, skill_demonstration adjusts unk6, others do nothing'>
+                <int32_t name='amount'/>
+            </vmethod>
+            <vmethod name='getOrganizer' comment='or perhaps somebody else - only works for combat_training and skill_demonstration'>
+                <pointer type-name='int32_t' name='hist_figure_id'/>
+                <pointer type-name='int32_t' name='unit_id'/>
+            </vmethod>
+            <vmethod name='getBuilding' comment='returns pointer to building_id'>
+                <ret-type><pointer type-name='int32_t'/></ret-type>
+            </vmethod>
+            <vmethod/>
+            <vmethod/>
+            <vmethod name='getName'>
+                <int32_t/>
+                <pointer type-name='stl-string' name='str'/>
+            </vmethod>
+        </virtual-methods>
     </class-type>
 
     <class-type type-name='activity_event_individual_skill_drillst' inherits-from='activity_event'>
