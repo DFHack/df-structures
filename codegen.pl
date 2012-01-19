@@ -123,7 +123,7 @@ mkdir $output_dir;
     for my $name (glob "$output_dir/*.h") {
         unlink $name;
     }
-    for my $name (glob "$output_dir/*.inc") {
+    for my $name (glob "$output_dir/static*.inc") {
         unlink $name;
     }
     unlink "$output_dir/codegen.out.xml";

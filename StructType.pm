@@ -180,6 +180,7 @@ sub render_struct_type {
 
     my $tag_name = $tag->getAttribute('ld:meta');
     my $is_class = ($tag_name eq 'class-type');
+    my $custom_methods = is_attr_true($tag, 'custom-methods');
     my $has_methods = $is_class || is_attr_true($tag, 'has-methods');
     my $inherits = $tag->getAttribute('inherits-from');
     my $original_name = $tag->getAttribute('original-name');
@@ -195,8 +196,8 @@ sub render_struct_type {
     with_struct_block {
         emit_struct_fields($tag, $typename, -class => $is_class, -inherits => $inherits);
         emit_find_instance($tag);
-        
-        if ($has_methods) {
+
+        if ($has_methods || $custom_methods) {
             if ($is_class) {
                 emit "static class_virtual_identity<$typename> _identity;";
                 with_emit_static {
@@ -208,9 +209,14 @@ sub render_struct_type {
                 };
             }
 
+            if ($custom_methods) {
+                local $indentation = 0;
+                emit '#include "custom/', $typename, '.methods.inc"';
+            }
+
             if ($is_class) {
                 render_virtual_methods $tag;
-            } else {
+            } elsif (!$custom_methods) {
                 emit "~",$typename,"() {}";
             }
         }
