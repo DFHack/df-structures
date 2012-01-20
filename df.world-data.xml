@@ -156,6 +156,41 @@
         <pointer name="feature_init" type-name='feature_init'/>
     </struct-type>
 
+    <struct-type type-name='world_geo_layer'>
+        <int16_t name="unk_0"/>
+        <int32_t name="mat_index" ref-target='inorganic_raw'/>
+
+        <code-helper name='describe'>(describe-obj $.mat_index.ref-target)</code-helper>
+
+        <stl-vector name="vein_mat">
+            <int32_t ref-target='inorganic_raw'/>
+        </stl-vector>
+        <stl-vector name="vein_nested_in">
+            -- Index of the other vein this one is nested in, or -1
+            <int16_t refers-to='$$._global.vein_mat[$].ref-target'/>
+        </stl-vector>
+        <stl-vector name="vein_type">
+            <enum base-type='int8_t' type-name='inclusion_type'/>
+        </stl-vector>
+        <stl-vector name="vein_unk_38" comment='density??'>
+            <int8_t/>
+        </stl-vector>
+
+        <int16_t name="top_height" comment='negative'/>
+        <int16_t name="bottom_height"/>
+    </struct-type>
+
+    <struct-type type-name='world_geo_biome' instance-vector='$global.world.world_data.geo_biomes'>
+        <int16_t name='unk1'/>
+        <int16_t name='index'/>
+
+        <code-helper name='describe'>(fmt "~A geo_layers" $.layers.count)</code-helper>
+
+        <stl-vector name="layers">
+            <pointer type-name='world_geo_layer'/>
+        </stl-vector>
+    </struct-type>
+
     <struct-type type-name='world_data'>
         <compound name='name' type-name='language_name' comment='name of the world'/>
 
@@ -318,30 +353,8 @@
         <stl-vector name="underground_regions">
             <pointer type-name='world_underground_region'/>
         </stl-vector>
-        <stl-vector name="unk_190">
-            <pointer>
-                <int16_t name='unk1'/>
-                <int16_t name='index'/>
-                <stl-vector name="unk_4">
-                    <pointer>
-                        <int16_t name="unk_0"/>
-                        <int32_t name="unk_4"/>
-                        <stl-vector name="unk_8">
-                            <int32_t/>
-                        </stl-vector>
-                        <stl-vector name="unk_18">
-                            <int16_t/>
-                        </stl-vector>
-                        <stl-vector name="unk_28">
-                            <int8_t/>
-                        </stl-vector>
-                        <stl-vector name="unk_38">
-                            <int8_t/>
-                        </stl-vector>
-                        <int32_t name="index"/>
-                    </pointer>
-                </stl-vector>
-            </pointer>
+        <stl-vector name="geo_biomes">
+            <pointer type-name='world_geo_biome'/>
         </stl-vector>
         <stl-vector name="unk_1a0">
             <pointer>
@@ -378,9 +391,33 @@
 
         <pointer name="unk_1c0" is-array='true'>
             <pointer is-array='true'>
-                <padding size="88"/>
-                <int16_t name='geo_index'/>
-                <padding size="2"/>
+                <int32_t name="unk_0"/>
+                <padding name="unk_4" size="4"/>
+                <stl-vector name="sites">
+                    <pointer type-name='world_site'/>
+                </stl-vector>
+                <df-flagarray name='flags'/>
+                <int16_t name="unk_20"/>
+                <int16_t name="unk_22"/>
+                <int16_t name="unk_24"/>
+                <int16_t name="unk_26"/>
+                <int16_t name="unk_28"/>
+                <int16_t name="unk_2a"/>
+                <int16_t name="unk_2c"/>
+                <int16_t name="unk_2e"/>
+                <int16_t name="unk_30"/>
+                <int16_t name="unk_32"/>
+                <int16_t name="unk_34"/>
+                <int16_t name="unk_36"/>
+                <int16_t name="unk_38"/>
+                <int16_t name="unk_3a"/>
+                <int16_t name="unk_3c"/>
+                <compound name='unk_3e' type-name='coord'/>
+                <compound name='unk_44' type-name='coord'/>
+                <compound name='unk_4a' type-name='coord'/>
+                <int32_t name="unk_50"/>
+                <int32_t name="unk_54"/>
+                <int16_t name='geo_index' ref-target='world_geo_biome'/>
             </pointer>
         </pointer>
         <pointer name="unk_1c4"/>
