@@ -23,32 +23,32 @@ sub render_enum_core($$) {
     my ($name,$tag) = @_;
 
     my $base = 0;
+    my $count = 0;
 
     emit_comment $tag, -attr => 1;
 
     emit_block {
         my @items = $tag->findnodes('child::enum-item');
-        my $idx = 0;
 
         for my $item (@items) {
             my $name = ensure_name $item->getAttribute('name');
             my $value = $item->getAttribute('value');
 
-            $base = ($idx == 0) ? $value : undef if defined $value;
-            $idx++;
+            $base = ($count == 0) ? $value : undef if defined $value;
+            $count++;
 
-            emit_comment $item;
-            emit $name, (defined($value) ? ' = '.$value : ''), ',', get_comment($item);
+            emit_comment $item, -attr => 1;
+            emit $name, (defined($value) ? ' = '.$value : ''), ',';
         }
 
-        emit "_last_item_of_$name";
+        $lines[-1] =~ s/,$//;
     } "enum $name ", ";";
 
-    return $base;
+    return ($base, $count);
 }
 
-sub render_enum_tables($$$) {
-    my ($name,$tag,$base) = @_;
+sub render_enum_tables($$$$) {
+    my ($name,$tag,$base,$count) = @_;
 
     # Enumerate enum attributes
 
@@ -105,9 +105,10 @@ sub render_enum_tables($$$) {
     # Emit accessor function prototypes
 
     emit "const $name _first_item_of_$name = ($name)$base;";
+    emit "const $name _last_item_of_$name = ($name)", ($base+$count-1), ";";
 
     emit_block {
-        emit "return (value >= _first_item_of_$name && value < _last_item_of_$name);";
+        emit "return (value >= _first_item_of_$name && value <= _last_item_of_$name);";
     } "inline bool is_valid($name value) ";
 
     for (my $i = 0; $i < @anames; $i++) {
@@ -197,10 +198,10 @@ sub render_enum_type {
 
     emit_block {
         emit_block {
-            my $base = render_enum_core($typename,$tag);
-            
+            my ($base,$count) = render_enum_core($typename,$tag);
+
             if (defined $base) {
-                render_enum_tables($typename,$tag,$base);
+                render_enum_tables($typename,$tag,$base,$count);
             } else {
                 print STDERR "Warning: complex enum: $typename\n";
             }

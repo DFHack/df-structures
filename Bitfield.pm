@@ -43,8 +43,10 @@ sub render_bitfield_core {
                 my $name = ensure_name $item->getAttribute('name');
                 my $size = $item->getAttribute('count') || 1;
 
+                my $base = decode_type_name_ref($item, -force_type => 'enum-type') || 'unsigned';
+
                 emit_comment $item;
-                emit "unsigned ", $name, " : ", $size, ";", get_comment($item);
+                emit $base, " ", $name, " : ", $size, ";", get_comment($item);
             }
         } "struct ", " bits;";
 
