@@ -163,7 +163,8 @@
         <enum-item name='YOUTH'/>
     </enum-type>
 
-    <struct-type type-name='language_word' instance-vector='$global.world.raws.language_words'>
+    <struct-type type-name='language_word'
+                 instance-vector='$global.world.raws.language.words'>
         <stl-string name='word'/>
 
         <code-helper name='describe'>$.word</code-helper>
@@ -177,7 +178,8 @@
         <df-flagarray name='flags' index-enum='language_word_flags'/>
     </struct-type>
 
-    <struct-type type-name='language_translation' instance-vector='$global.world.raws.translations'>
+    <struct-type type-name='language_translation'
+                 instance-vector='$global.world.raws.language.translations'>
         <stl-string name='name'/>
 
         <code-helper name='describe'>$.name</code-helper>
@@ -185,12 +187,13 @@
         <stl-vector name='unknown1' comment='empty'/>
         <stl-vector name='unknown2' comment='empty'/>
 
-        <stl-vector name='words' index-refers-to='$global.world.raws.language_words[$]'>
+        <stl-vector name='words' index-refers-to='$global.world.raws.language.words[$]'>
             <pointer type-name='stl-string'/>
         </stl-vector>
     </struct-type>
 
-    <struct-type type-name='language_symbol'>
+    <struct-type type-name='language_symbol'
+                 instance-vector='$global.world.raws.language.symbols'>
         <stl-string name='name'/>
 
         <stl-vector name='unknown' comment='empty'/>
@@ -219,8 +222,9 @@
         <code-helper name='describe'>
           (when $.has_name
             (let* ((nick $.nickname)
-                   (language $global.world.raws.translations[$.language])
-                   (english $global.world.raws.language_words)
+                   (lraw $global.world.raws.language)
+                   (language $lraw.translations[$.language])
+                   (english $lraw.words)
                    (fname $.first_name)
                    (lwords $language.words))
               (flet ((get-words (start end)
