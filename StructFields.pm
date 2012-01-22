@@ -9,7 +9,7 @@ BEGIN {
     our $VERSION = 1.00;
     our @ISA     = qw(Exporter);
     our @EXPORT  = qw(
-        *in_struct_body &with_struct_block
+        *in_struct_body *in_union_body &with_struct_block
         &get_struct_fields &get_struct_field_type
         &emit_struct_fields
         &find_subfield
@@ -29,11 +29,13 @@ use Bitfield;
 # MISC
 
 our $in_struct_body = 0;
+our $in_union_body = 0;
 
 sub with_struct_block(&$;$%) {
     my ($blk, $tag, $name, %flags) = @_;
-    
-    my $kwd = (is_attr_true($tag,'is-union') ? "union" : "struct");
+
+    my $is_union = is_attr_true($tag,'is-union');
+    my $kwd = ($is_union ? "union" : "struct");
     my $exp = $flags{-export} ? $export_prefix : '';
     my $prefix = $kwd.' '.$exp.($name ? $name.' ' : '');
 
@@ -42,6 +44,7 @@ sub with_struct_block(&$;$%) {
     emit_block {
         local $_;
         local $in_struct_body = 1;
+        local $in_union_body = ($in_union_body || $is_union);
         if ($flags{-no_anon}) {
             $blk->();
         } else {
@@ -114,6 +117,7 @@ sub get_struct_field_type($;%) {
     my $subtype = $tag->getAttribute('ld:subtype');
     my $prefix;
     my $suffix = '';
+    my $type_def = undef;
 
     if ($prefix = $tag->getAttribute('ld:typedef-name')) {
         $prefix = fully_qualified_name($tag,$prefix) unless $flags{-local};
@@ -138,14 +142,16 @@ sub get_struct_field_type($;%) {
             $prefix = primitive_type_name($subtype);
         }
     } elsif ($meta eq 'global') {
-        my $tname = $tag->getAttribute('type-name');
-        register_ref $tname, !$flags{-weak};
+        my $tname = $tag->getAttribute('type-name')
+            or die "Global field without type-name";
+        $type_def = register_ref($tname, !$flags{-weak});
         $prefix = $main_namespace.'::'.$tname;
     } elsif ($meta eq 'compound') {
         die "Unnamed compound in global mode: ".$tag->toString."\n" unless $flags{-local};
 
         $prefix = ensure_name undef;
         $tag->setAttribute('ld:typedef-name', $prefix) if $in_struct_body;
+        $type_def = $tag;
 
         $subtype ||= 'compound';
         if ($subtype eq 'enum') {
@@ -183,11 +189,15 @@ sub get_struct_field_type($;%) {
     }
 
     if ($subtype && $flags{-local} && $subtype eq 'enum') {
-        my $base = get_primitive_base($tag, 'int32_t');
-        unless ($base eq 'int32_t') {
-            if ($flags{-rettype} || $flags{-funcarg}) {
+        $type_def or die "Enum without a type definition";
+        my $def_base = get_primitive_base($type_def,'int32_t');
+        my $base = get_primitive_base($tag, $def_base);
+
+        unless ($base eq $def_base) {
+            if ($flags{-rettype} || $flags{-funcarg} || $in_union_body) {
                 $prefix = $base;
             } else {
+                $tag->setAttribute('ld:enum-size-forced', 'true') if $in_struct_body;
                 $prefix = "enum_field<$prefix,$base>";
             }
         }
@@ -300,10 +310,10 @@ sub emit_struct_fields($$;%) {
     my @fields = get_struct_fields($tag);
     &render_struct_field($_) for @fields;
 
-    my @unions = $tag->findnodes('ancestor-or-self::ld:field[@is-union="true"]');
-    return if @unions;
+    return if $in_union_body;
 
     local $in_struct_body = 0;
+    local $in_union_body = 0;
 
     my $want_ctor = 0;
     my $ctor_args = '';

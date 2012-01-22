@@ -204,6 +204,10 @@ sub register_ref($;$) {
         } else {
             $weak_refs{$ref}++;
         }
+
+        return $type;
+    } else {
+        return undef;
     }
 }
 

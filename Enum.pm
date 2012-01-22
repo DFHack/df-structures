@@ -25,6 +25,8 @@ sub render_enum_core($$) {
     my $base = 0;
     my $count = 0;
 
+    my $base_type = get_primitive_base($tag, 'int32_t');
+
     emit_comment $tag, -attr => 1;
 
     emit_block {
@@ -42,7 +44,7 @@ sub render_enum_core($$) {
         }
 
         $lines[-1] =~ s/,$//;
-    } "enum $name ", ";";
+    } "enum $name : $base_type ", ";";
 
     return ($base, $count);
 }
