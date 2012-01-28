@@ -43,7 +43,11 @@ sub render_bitfield_core {
                 my $name = ensure_name $item->getAttribute('name');
                 my $size = $item->getAttribute('count') || 1;
 
-                my $base = decode_type_name_ref($item, -force_type => 'enum-type') || 'unsigned';
+                my $base = 'unsigned char';
+                $base = 'unsigned short' if $size > 8;
+                $base = 'unsigned' if $size > 16;
+
+                $base = decode_type_name_ref($item, -force_type => 'enum-type') || $base;
 
                 emit_comment $item;
                 emit $base, " ", $name, " : ", $size, ";", get_comment($item);
