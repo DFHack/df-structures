@@ -43,14 +43,19 @@ sub render_bitfield_core {
                 my $name = ensure_name $item->getAttribute('name');
                 my $size = $item->getAttribute('count') || 1;
 
-                my $base = 'unsigned char';
-                $base = 'unsigned short' if $size > 8;
-                $base = 'unsigned' if $size > 16;
+                my $fbase = 'unsigned';
 
-                $base = decode_type_name_ref($item, -force_type => 'enum-type') || $base;
+                if ($size == 1) {
+                    $fbase = 'bool';
+                } elsif ($base ne 'uint32_t' && $base ne 'int32_t') {
+                    $fbase = 'unsigned short' if $size <= 16;
+                    $fbase = 'unsigned char' if $size <= 8;
+                }
+
+                $fbase = decode_type_name_ref($item, -force_type => 'enum-type') || $fbase;
 
                 emit_comment $item;
-                emit $base, " ", $name, " : ", $size, ";", get_comment($item);
+                emit $fbase, " ", $name, " : ", $size, ";", get_comment($item);
             }
         } "struct ", " bits;";
 
