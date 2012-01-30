@@ -226,7 +226,8 @@ sub decode_type_name_ref($;%) {
         register_ref $tname, !$flags{-weak};
         die "Cannot use type $tname as $attr here: $tag\n"
             if ($force_type && $force_type ne $types{$tname}->getAttribute('ld:meta'));
-        return $main_namespace.'::'.$tname;
+        my $rtype = $main_namespace.'::'.$tname;
+        return wantarray ? ($rtype, $types{$tname}) : $rtype;
     }
 }
 

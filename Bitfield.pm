@@ -22,6 +22,7 @@ use Common;
 sub render_bitfield_core {
     my ($name, $tag) = @_;
 
+    my $bitfield_name = $name;
     my $base = get_primitive_base($tag);
     my @fields = $tag->findnodes('child::ld:field');
 
@@ -43,16 +44,16 @@ sub render_bitfield_core {
                 my $name = ensure_name $item->getAttribute('name');
                 my $size = $item->getAttribute('count') || 1;
 
-                my $fbase = 'unsigned';
+                my $fbase = $base;
+                my ($etn, $ettag) = decode_type_name_ref($item, -force_type => 'enum-type');
 
-                if ($size == 1) {
-                    $fbase = 'bool';
-                } elsif ($base ne 'uint32_t' && $base ne 'int32_t') {
-                    $fbase = 'unsigned short' if $size <= 16;
-                    $fbase = 'unsigned char' if $size <= 8;
+                if ($etn) {
+                    my $ebase = get_primitive_base($ettag, 'int32_t');
+                    unless ($ebase eq $base) {
+                        die "Bitfield item $name of $bitfield_name has a different base type: $ebase.\n";
+                    }
+                    $fbase = $etn;
                 }
-
-                $fbase = decode_type_name_ref($item, -force_type => 'enum-type') || $fbase;
 
                 emit_comment $item;
                 emit $fbase, " ", $name, " : ", $size, ";", get_comment($item);
