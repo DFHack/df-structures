@@ -67,6 +67,7 @@
       (setf (garbage-word-of *memory*) #xd2d2d2d2)))
 
 (reload)
+(resume)
 
 (defun ctor-addresses ()
   (let ((section (find-section-by-name (main-image-of (executable-of *process*)) ".ctors")))
