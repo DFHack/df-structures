@@ -209,21 +209,25 @@
             <stl-vector name='unk34e' type-name='pointer' comment='empty'/>
         </compound>
 
-        <stl-vector name='positions'>
-            <pointer type-name='entity_position'/>
-        </stl-vector>
-        <stl-vector name='site_positions' comment=''>
-            <pointer type-name='entity_position'/>
-        </stl-vector>
-        <stl-vector name='conquered_site_positions' comment=''>
-            <pointer type-name='entity_position'/>
-        </stl-vector>
+        <compound name='positions'>
+            <stl-vector name='own'>
+                <pointer type-name='entity_position'/>
+            </stl-vector>
+            <stl-vector name='site'>
+                <pointer type-name='entity_position'/>
+            </stl-vector>
+            <stl-vector name='conquered_site'>
+                <pointer type-name='entity_position'/>
+            </stl-vector>
 
-        <int32_t name='next_position_id'/>
-        <stl-vector name='position_assignment'>
-            <pointer type-name='entity_position_assignment'/>
-        </stl-vector>
-        <int32_t name='next_position_assignment_id'/>
+            <int32_t name='next_position_id'/>
+
+            <stl-vector name='assignments'>
+                <pointer type-name='entity_position_assignment'/>
+            </stl-vector>
+
+            <int32_t name='next_assignment_id'/>
+        </compound>
 
         <compound name='unknown1c'>
             <stl-vector name='unk38' type-name='pointer'/>
@@ -260,7 +264,9 @@
             </static-array>
 
             <static-array name='unk6' count='25'>
-                <stl-vector type-name='pointer'/>
+                <stl-vector>
+                    <pointer type-name='entity_position_assignment'/>
+                </stl-vector>
             </static-array>
 
             <static-array name='unk6b' count='6'>
@@ -334,7 +340,7 @@
         <enum-item name='QUEST_GIVER'/>
     </enum-type>
 
-    <struct-type type-name='entity_position'>
+    <struct-type type-name='entity_position' key-field='id'>
         <stl-string name='code'/>
         <int32_t name='id'/>
 
@@ -396,14 +402,16 @@
         <int32_t name='demand_max'/>
     </struct-type>
 
-    <struct-type type-name='entity_position_assignment'>
+    <struct-type type-name='entity_position_assignment' key-field='id'>
         <int32_t name='id'/>
         <int32_t name='histfig' ref-target='historical_figure'/>
-        <int32_t name='position_id' comment='position within relevant entity'/>
+        <int32_t name='position_id'
+                 refers-to='(find-by-id $$._global._parent._global.positions.own $id $)'
+                 comment='position within relevant entity'/>
         <df-flagarray name='flags'/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
+        <int32_t init-value='-1'/>
+        <int32_t init-value='-1'/>
+        <int32_t init-value='-1'/>
     </struct-type>
 </data-definition>
 
