@@ -260,7 +260,7 @@ sub render_field_init($$) {
 
     return unless ($name || $prefix =~ /\]$/);
 
-    my $val = $field->getAttribute('init-value');    
+    my $val = $field->getAttribute('init-value');
     my $assign = 0;
 
     if ($meta eq 'number' || $meta eq 'pointer') {
@@ -268,21 +268,25 @@ sub render_field_init($$) {
         my $signed_ref =
             !is_attr_true($field,'ld:unsigned') &&
             ($field->getAttribute('ref-target') || $field->getAttribute('refers-to'));
-        $val ||= ($signed_ref ? '-1' : 0);
+        $val = ($signed_ref ? '-1' : 0) unless defined $val;
     } elsif ($meta eq 'bytes') {
         emit "memset($fname, 0, sizeof($fname));";
     } elsif ($meta eq 'global' || $meta eq 'compound') {
         return unless $subtype;
 
-        if ($subtype eq 'bitfield' && $val) {
+        if ($subtype eq 'bitfield' && defined $val) {
             emit $fname, '.whole = ', $val;
         } elsif ($subtype eq 'enum') {
             $assign = 1;
             if ($meta eq 'global') {
                 my $tname = $field->getAttribute('type-name');
-                $val = ($val ? $main_namespace.'::enums::'.$tname.'::'.$val : "ENUM_FIRST_ITEM($tname)");
+                if (defined $val) {
+                    $val = $main_namespace.'::enums::'.$tname.'::'.$val;
+                } else {
+                    $val = "ENUM_FIRST_ITEM($tname)";
+                }
             } else {
-                $val ||= $field->findvalue('enum-item[1]/@name');
+                $val = $field->findvalue('enum-item[1]/@name') unless defined $val;
             }
         }
     } elsif ($meta eq 'static-array') {
