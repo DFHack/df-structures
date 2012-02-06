@@ -52,6 +52,8 @@ sub render_enum_core($$) {
 sub render_enum_tables($$$$) {
     my ($name,$tag,$base,$count) = @_;
 
+    my $base_type = get_primitive_base($tag, 'int32_t');
+
     # Enumerate enum attributes
 
     my %aidx = ('key' => 0);
@@ -110,7 +112,9 @@ sub render_enum_tables($$$$) {
     emit "const $name _last_item_of_$name = ($name)", ($base+$count-1), ";";
 
     emit_block {
-        emit "return (value >= _first_item_of_$name && value <= _last_item_of_$name);";
+        # Cast the enum to integer in order to avoid GCC assuming the value range is correct.
+        emit "$base_type ivalue = ($base_type)value;";
+        emit "return (ivalue >= $base && ivalue <= ",($base+$count-1),");";
     } "inline bool is_valid($name value) ";
 
     for (my $i = 0; $i < @anames; $i++) {
