@@ -18,6 +18,7 @@ use Common;
 
 use Enum;
 use Bitfield;
+use StructFields;
 use StructType;
 
 my $input_dir = $ARGV[0] || '.';
@@ -40,12 +41,13 @@ for my $fn (sort { $a cmp $b } glob "$input_dir/df.*.xml") {
     local $filename = $fn;
     my $doc = $parser->parse_file($filename);
     $doc = $_->transform($doc) for @transforms;
-    
+
     push @documents, $doc;
     add_type_to_hash $_ foreach $doc->findnodes('/ld:data-definition/ld:global-type');
+    add_global_to_hash $_ foreach $doc->findnodes('/ld:data-definition/ld:global-object');
 }
 
-# Generate text representations
+# Generate type text representations
 
 my %type_handlers = (
     'enum-type' => \&render_enum_type,
@@ -54,65 +56,69 @@ my %type_handlers = (
     'struct-type' => \&render_struct_type,
 );
 
-my %type_data;
-
 for my $name (sort { $a cmp $b } keys %types) {
     local $typename = $name;
     local $filename = $type_files{$typename};
-    local %weak_refs;
-    local %strong_refs;
 
     eval {
         my $type = $types{$typename};
         my $meta = $type->getAttribute('ld:meta') or die "Null meta";
 
         # Emit the actual type definition
-        my @code = with_emit {
-            with_anon {
-                my $handler = $type_handlers{$meta} or die "Unknown type meta: $meta\n";
-                $handler->($type);
-            };
-        } 2;
-
-        delete $weak_refs{$name};
-        delete $strong_refs{$name};
-        
-        # Add wrapping
-        my @all = with_emit {
-            my $def = type_header_def($typename);
-            emit "#ifndef $def";
-            emit "#define $def";
-
-            for my $strong (sort { $a cmp $b } keys %strong_refs) {
-                my $sdef = type_header_def($strong);
-                emit "#ifndef $sdef";
-                emit "#include \"$strong.h\"";
-                emit "#endif";            
-            }
-
-            emit_block {
-                for my $weak (sort { $a cmp $b } keys %weak_refs) {
-                    next if $strong_refs{$weak};
-                    my $ttype = $types{$weak};
-                    my $tstr = 'struct';
-                    $tstr = 'enum' if $ttype->nodeName eq 'enum-type';
-                    $tstr = 'union' if $ttype->nodeName eq 'bitfield-type';
-                    $tstr = 'union' if ($ttype->nodeName eq 'struct-type' && is_attr_true($ttype,'is-union'));
-                    emit $tstr, ' ', $weak, ';';
-                }
-
-                push @lines, @code;
-            } "namespace $main_namespace ";
-
-            emit "#endif";
-        };
-        
-        $type_data{$typename} = \@all;
+        with_header_file {
+            my $handler = $type_handlers{$meta} or die "Unknown type meta: $meta\n";
+            $handler->($type);
+        } $typename;
     };
     if ($@) {
         print 'Error: '.$@."Type $typename in $filename ignored\n";
     }
 }
+
+# Generate globals
+
+with_header_file {
+    my @items;
+
+    emit_block {
+        emit "void InitGlobals();";
+
+        for my $name (sort { $a cmp $b } keys %globals) {
+            local $typename = $name;
+            local $filename = $global_files{$typename};
+
+            eval {
+                my $tag = $globals{$typename};
+                with_anon {
+                    my $prefix = get_container_item_type($tag, -weak => 1, -void => 'void');
+                    emit_comment $tag;
+                    emit 'extern ', $export_prefix, $prefix, ' *', $name, ';', get_comment($tag);
+
+                    push @items, [ $prefix, $name ];
+                } "T_$name";
+            };
+            if ($@) {
+                print 'Error: '.$@."Global $typename in $filename failed\n";
+            }
+        }
+    } "namespace global ";
+
+    with_emit_static {
+        emit_block {
+            for my $item (@items) {
+                emit $item->[0], ' *', $item->[1], ' = NULL;';
+            }
+
+            emit_block {
+                emit "INIT_GLOBAL_FUNCTION_PREFIX";
+
+                for my $item (@items) {
+                    emit "INIT_GLOBAL_FUNCTION_ITEM(", $item->[0], ', ', $item->[1], ");";
+                }
+            } "void InitGlobals() ";
+        } "namespace global ";
+    };
+} 'global_objects';
 
 # Write output files
 
@@ -132,10 +138,10 @@ mkdir $output_dir;
     local $, = "\n";
     local $\ = "\n";
 
-    for my $name (keys %type_data) {
+    for my $name (keys %header_data) {
         open FH, ">$output_dir/$name.h";
         print FH "/* THIS FILE WAS GENERATED. DO NOT EDIT. */";
-        print FH @{$type_data{$name}};
+        print FH @{$header_data{$name}};
         close FH;
     }
 

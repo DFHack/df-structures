@@ -10,6 +10,7 @@ BEGIN {
     our @ISA     = qw(Exporter);
     our @EXPORT  = qw(
         *in_struct_body *in_union_body &with_struct_block
+        &get_container_item_type
         &get_struct_fields &get_struct_field_type
         &emit_struct_fields
         &find_subfield

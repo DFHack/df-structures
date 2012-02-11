@@ -10,16 +10,18 @@ BEGIN {
     our @ISA     = qw(Exporter);
     our @EXPORT  = qw(
         $main_namespace $export_prefix
-        %types %type_files *typename *filename
+        %types %type_files %globals %global_files *typename *filename
 
         &parse_address &check_bad_attrs &check_name
-        &is_attr_true &type_header_def &add_type_to_hash
+        &is_attr_true &type_header_def &add_type_to_hash &add_global_to_hash
 
         *lines *indentation &with_emit &emit &indent &outdent &emit_block
 
         &is_primitive_type &primitive_type_name &get_primitive_base
 
         *weak_refs *strong_refs &register_ref &decode_type_name_ref
+
+        *cur_header_name %header_data &with_header_file
 
         %static_lines %static_includes &with_emit_static
 
@@ -41,6 +43,9 @@ our $export_prefix = '';
 
 our %types;
 our %type_files;
+
+our %globals;
+our %global_files;
 
 # Misc XML analysis
 
@@ -97,6 +102,20 @@ sub add_type_to_hash($) {
     check_bad_attrs $type;
     $types{$name} = $type;
     $type_files{$name} = $filename;
+}
+
+sub add_global_to_hash($) {
+    my ($type) = @_;
+
+    my $name = $type->getAttribute('name')
+        or die "Global without a name in $filename\n";
+
+    die "Duplicate definition of global $name in $filename\n" if $globals{$name};
+
+    local $typename = $name;
+    check_bad_attrs $type;
+    $globals{$name} = $type;
+    $global_files{$name} = $filename;
 }
 
 # Text generation with indentation
@@ -231,6 +250,60 @@ sub decode_type_name_ref($;%) {
     }
 }
 
+# Include file generation
+
+our $cur_header_name;
+our %header_data;
+
+sub with_header_file(&$) {
+    my ($handler, $header_name) = @_;
+
+    local $cur_header_name = $header_name;
+
+    local %weak_refs;
+    local %strong_refs;
+
+    # Emit the actual type definition
+    my @code = with_emit {
+        &with_anon($handler);
+    } 2;
+
+    delete $weak_refs{$header_name};
+    delete $strong_refs{$header_name};
+
+    # Add wrapping
+    my @all = with_emit {
+        my $def = type_header_def($header_name);
+        emit "#ifndef $def";
+        emit "#define $def";
+
+        for my $strong (sort { $a cmp $b } keys %strong_refs) {
+            my $sdef = type_header_def($strong);
+            emit "#ifndef $sdef";
+            emit "#include \"$strong.h\"";
+            emit "#endif";
+        }
+
+        emit_block {
+            for my $weak (sort { $a cmp $b } keys %weak_refs) {
+                next if $strong_refs{$weak};
+                my $ttype = $types{$weak};
+                my $tstr = 'struct';
+                $tstr = 'enum' if $ttype->nodeName eq 'enum-type';
+                $tstr = 'union' if $ttype->nodeName eq 'bitfield-type';
+                $tstr = 'union' if ($ttype->nodeName eq 'struct-type' && is_attr_true($ttype,'is-union'));
+                emit $tstr, ' ', $weak, ';';
+            }
+
+            push @lines, @code;
+        } "namespace $main_namespace ";
+
+        emit "#endif";
+    };
+
+    $header_data{$header_name} = \@all;
+}
+
 # Static file output
 
 our %static_lines;
@@ -240,7 +313,7 @@ sub with_emit_static(&;$) {
     my ($blk, $tag) = @_;
     my @inner = &with_emit($blk,2) or return;
     $tag ||= '';
-    $static_includes{$tag}{$typename}++;
+    $static_includes{$tag}{$cur_header_name}++ if $cur_header_name;
     push @{$static_lines{$tag}}, @inner;
 }
 
