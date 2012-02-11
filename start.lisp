@@ -94,8 +94,12 @@
       (export-csv stream context :globals? t))))
 
 (defun make-csv ()
-  (write-csv (make-instance 'type-context :os-type $windows) "windows/all.csv" "windows/globals.csv")
-  (write-csv (make-instance 'type-context :os-type $linux) "linux/all.csv" "linux/globals.csv"))
+  (write-csv (make-instance 'type-context :os-type $windows
+                            :executable-hashes '((#x4D90764F . 0)))
+             "windows/all.csv" "windows/globals.csv")
+  (write-csv (make-instance 'type-context :os-type $linux
+                            :executable-hashes '(("fc15065c4d1977ca019c6dad220413d1" . 0)))
+             "linux/all.csv" "linux/globals.csv"))
 
 (defun browse-list (start)
   (browse (loop for node = $start.next then $node.next
