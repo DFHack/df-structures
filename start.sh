@@ -1,4 +1,4 @@
 #!/bin/bash
 exec $0-core \
     --load start.lisp --eval '(in-package :work)' \
-    --eval '(browse $global.*)'
+    --eval '(browse @global.*)'

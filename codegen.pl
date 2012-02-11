@@ -36,7 +36,7 @@ my @transforms =
     ('lower-1.xslt', 'lower-2.xslt');
 my @documents;
 
-for my $fn (sort { $a cmp $b } glob "$input_dir/*.xml") {
+for my $fn (sort { $a cmp $b } glob "$input_dir/df.*.xml") {
     local $filename = $fn;
     my $doc = $parser->parse_file($filename);
     $doc = $_->transform($doc) for @transforms;
