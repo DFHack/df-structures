@@ -279,6 +279,17 @@
             </xsl:call-template>
         </xsl:copy>
     </xsl:template>
+
+    <!-- Global objects: treat as container fields -->
+    <xsl:template match='global-object'>
+        <ld:global-object>
+            <xsl:attribute name='ld:level'>0</xsl:attribute>
+            <xsl:apply-templates select='@*'/>
+            <xsl:call-template name='container'>
+                <xsl:with-param name='level' select="1"/>
+            </xsl:call-template>
+        </ld:global-object>
+    </xsl:template>
 </xsl:stylesheet>
 
 <!--
