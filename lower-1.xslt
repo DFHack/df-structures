@@ -237,7 +237,7 @@
     </xsl:template>
 
     <!-- Misc containers: meta='container' subtype='$tag' -->
-    <xsl:template match='stl-vector|df-flagarray|stl-bit-vector'>
+    <xsl:template match='stl-vector|stl-bit-vector|df-flagarray|df-array'>
         <xsl:param name='level' select='-1'/>
         <ld:field ld:meta='container'>
             <xsl:attribute name='ld:level'><xsl:value-of select='$level'/></xsl:attribute>

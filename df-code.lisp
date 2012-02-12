@@ -6,7 +6,12 @@
   ()
   (:default-initargs :type-name $flag-bit))
 
+(def (class* eas) df-array (array-item data-field concrete-item)
+  ())
+
 (in-package :cl-linux-debug.data-info)
+
+;; df-flagarray implementation
 
 (defmethod compute-effective-fields ((type df-flagarray))
   (list
@@ -18,6 +23,25 @@
   (let ((s $ref.start) (e $ref.size))
     (awhen (and s e)
       (values (start-address-of s) (* 8 e)))))
+
+;; df-array implementation
+
+(defmethod compute-effective-fields ((type df-array))
+  (list
+   (make-instance 'pointer :name $start)
+   (make-instance 'int16_t :name $size)))
+
+(defmethod array-base-dimensions ((type df-array) ref)
+  (let ((s $ref.start) (e $ref.size))
+    (awhen (and s e)
+      (values (start-address-of s) e))))
+
+(defmethod build-set-array-base-dimensions (context (node df-array) offset ctx ptr-var cnt-var)
+  `(let* ((start ,(access-walker-int ctx offset 4))
+          (size ,(access-walker-int ctx (+ offset 4) 2)))
+     (declare (type uint32 start size))
+     (when (< size most-positive-fixnum)
+       (setf ,ptr-var start ,cnt-var size))))
 
 (in-package :cl-linux-debug.data-xml)
 

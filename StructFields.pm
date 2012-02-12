@@ -87,6 +87,10 @@ my %custom_container_handlers = (
         my $type = decode_type_name_ref($_, -attr_name => 'index-enum', -force_type => 'enum-type') || 'int';
         return "BitArray<$type>";
     },
+    'df-array' => sub {
+        my $item = get_container_item_type($_, -void => 'void*');
+        return "DfArray<$item >";
+    },
 );
 
 sub emit_typedef($$) {
