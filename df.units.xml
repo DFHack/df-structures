@@ -254,7 +254,7 @@
         </compound>
 
         <uint16_t name='caste' ref-target='caste_raw' aux-value='$$.race'/>
-        <uint8_t name='sex'/>
+        <int8_t name='sex' comment='-1 n/a, 0 female, 1 male'/>
 
         <int32_t name='id'/>
 
@@ -677,19 +677,26 @@
     <struct-type type-name='unit_inventory_item'>
         <pointer name='item' type-name='item'/>
 
-        <code-helper name='describe'>(describe-obj $.item)</code-helper>
+        <code-helper name='describe'>$.mode (describe-obj $.item)</code-helper>
 
         <enum base-type='int16_t' name='mode'>
             <enum-item name='Carried'/>
-            <enum-item name='Weapon'/>
+            <enum-item name='Weapon' comment='also shield, crutch'/>
             <enum-item name='Worn'/>
-            <enum-item name='Flask' value='4'/>
-            <enum-item name='Sewn' value='9'/>
+            <enum-item name='InBody'/>
+            <enum-item name='Flask' comment='attached to clothing'/>
+            <enum-item name='WrappedAround' comment='e.g. bandage'/>
+            <enum-item name='StuckIn'/>
+            <enum-item name='Unk7'/>
+            <enum-item name='Shouldered'/>
+            <enum-item name='SewnInto'/>
         </enum>
 
-        <int16_t name='body_part_id'/>
-        <int32_t/>
-        <int32_t init-value='-1'/>
+        <int16_t name='body_part_id'
+                 refers-to='$$._global._parent._global.body.body_plan.body_parts[$]'/>
+
+        <int32_t comment='always 0'/>
+        <int32_t init-value='-1' comment='-1 unless suture'/>
     </struct-type>
 
     <struct-type type-name='unit_spatter'>
@@ -701,7 +708,8 @@
         <int16_t name="unk_c"/>
 
         <int32_t name="unk_10"/>
-        <int16_t name="unk_14"/>
+        <int16_t name='body_part_id'
+                 refers-to='$$._global._parent._global.body.body_plan.body_parts[$]'/>
         <int16_t name="unk_16"/>
     </struct-type>
 
@@ -784,7 +792,7 @@
         <compound name='name' type-name='language_name'/>
 
         <uint32_t name='race' ref-target='creature_raw'/>
-        <uint8_t name='sex'/>
+        <int8_t name='sex' comment='-1 n/a, 0 female, 1 male'/>
         <uint16_t name='caste' ref-target='caste_raw' aux-value='$$.race'/>
 
         <code-helper name='describe'>
