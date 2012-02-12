@@ -70,8 +70,22 @@ sub get_container_item_type($;%) {
 
 my %atable = ( 1 => 'char', 2 => 'short', 4 => 'int' );
 
+our $cur_init_field = '';
+our $cur_init_value = undef;
+sub add_simple_init($);
+
 my %custom_primitive_handlers = (
     'stl-string' => sub { return "std::string"; },
+);
+
+my %custom_primitive_inits = (
+    'stl-string' => sub {
+        if (defined $cur_init_value) {
+            $cur_init_value =~ s/\\/\\\\/g;
+            $cur_init_value =~ s/\"/\\\"/g;
+            add_simple_init "\"$cur_init_value\"";
+        }
+    },
 );
 
 my %custom_container_handlers = (
@@ -90,6 +104,16 @@ my %custom_container_handlers = (
     'df-array' => sub {
         my $item = get_container_item_type($_, -void => 'void*');
         return "DfArray<$item >";
+    },
+);
+
+my %custom_container_inits = (
+    'df-flagarray' => sub {
+        if (defined $cur_init_value) {
+            add_simple_init $cur_init_value;
+        } elsif (my $ienum = $_->getAttribute('index-enum')) {
+            add_simple_init "ENUM_LAST_ITEM($ienum)";
+        }
     },
 );
 
@@ -242,73 +266,89 @@ sub render_struct_field($) {
 
 our @simple_inits;
 our $in_union = 0;
+our $up_init_field = '';
 
-sub render_field_init($$) {
-    my ($field, $prefix) = @_;
+sub add_simple_init($) {
+    my ($value) = @_;
+
+    if ($up_init_field || $in_union) {
+        emit "$cur_init_field = $value;";
+    } else {
+        push @simple_inits, "$cur_init_field($value)";
+    }
+}
+
+sub render_field_init($) {
+    my ($field) = @_;
     local $_;
 
     my $meta = $field->getAttribute('ld:meta');
     my $subtype = $field->getAttribute('ld:subtype');
     my $name = $field->getAttribute('name') || $field->getAttribute('ld:anon-name');
-    my $fname = ($prefix && $name ? $prefix.'.'.$name : ($name||$prefix));
+
+    local $up_init_field = $cur_init_field;
+    local $cur_init_field = ($up_init_field && $name ? $up_init_field.'.'.$name : ($name||$up_init_field));
 
     my $is_struct = $meta eq 'compound' && !$subtype;
     my $is_union = ($is_struct && is_attr_true($field, 'is-union'));
+
     local $in_union = $in_union || $is_union;
 
     if (is_attr_true($field, 'ld:anon-compound') || ($in_union && $is_struct))
     {
         my @fields = $is_union ? $field->findnodes('ld:field[1]') : get_struct_fields($field);
-        &render_field_init($_, $fname) for @fields;
+        &render_field_init($_) for @fields;
         return;
     }
 
-    return unless ($name || $prefix =~ /\]$/);
+    return unless ($name || $up_init_field =~ /\]$/);
 
-    my $val = $field->getAttribute('init-value');
-    my $assign = 0;
+    local $cur_init_value = $field->getAttribute('init-value');
 
     if ($meta eq 'number' || $meta eq 'pointer') {
-        $assign = 1;
-        my $signed_ref =
-            !is_attr_true($field,'ld:unsigned') &&
-            ($field->getAttribute('ref-target') || $field->getAttribute('refers-to'));
-        $val = ($signed_ref ? '-1' : 0) unless defined $val;
+        unless (defined $cur_init_value) {
+            my $signed_ref =
+                !is_attr_true($field,'ld:unsigned') &&
+                ($field->getAttribute('ref-target') || $field->getAttribute('refers-to'));
+            $cur_init_value = ($signed_ref ? '-1' : 0);
+        }
+        add_simple_init $cur_init_value;
     } elsif ($meta eq 'bytes') {
-        emit "memset($fname, 0, sizeof($fname));";
+        emit "memset($cur_init_field, 0, sizeof($cur_init_field));";
     } elsif ($meta eq 'global' || $meta eq 'compound') {
         return unless $subtype;
 
-        if ($subtype eq 'bitfield' && defined $val) {
-            emit $fname, '.whole = ', $val;
+        if ($subtype eq 'bitfield' && defined $cur_init_value) {
+            emit $cur_init_field, '.whole = ', $cur_init_value;
         } elsif ($subtype eq 'enum') {
-            $assign = 1;
             if ($meta eq 'global') {
                 my $tname = $field->getAttribute('type-name');
-                if (defined $val) {
-                    $val = $main_namespace.'::enums::'.$tname.'::'.$val;
+                if (defined $cur_init_value) {
+                    $cur_init_value = $main_namespace.'::enums::'.$tname.'::'.$cur_init_value;
                 } else {
-                    $val = "ENUM_FIRST_ITEM($tname)";
+                    $cur_init_value = "ENUM_FIRST_ITEM($tname)";
                 }
             } else {
-                $val = $field->findvalue('enum-item[1]/@name') unless defined $val;
+                $cur_init_value = $field->findvalue('enum-item[1]/@name')
+                    unless defined $cur_init_value;
             }
+            add_simple_init $cur_init_value;
         }
     } elsif ($meta eq 'static-array') {
         my $idx = ensure_name undef;
         my $count = $field->getAttribute('count')||0;
         emit_block {
-            my $pfix = $fname."[$idx]";
-            render_field_init($_, $pfix) for $field->findnodes('ld:item');
+            local $cur_init_field = $cur_init_field."[$idx]";
+            render_field_init($_) for $field->findnodes('ld:item');
         } "for (int $idx = 0; $idx < $count; $idx++) ", "", -auto => 1;
-    }
-
-    if ($assign) {
-        if ($prefix || $in_union) {
-            emit "$fname = $val;";
-        } else {
-            push @simple_inits, "$name($val)";
-        }
+    } elsif ($meta eq 'primitive') {
+        local $_ = $field;
+        my $handler = $custom_primitive_inits{$subtype};
+        $handler->($field, $cur_init_value) if $handler;
+    } elsif ($meta eq 'container') {
+        local $_ = $field;
+        my $handler = $custom_container_inits{$subtype};
+        $handler->($field, $cur_init_value) if $handler;
     }
 }
 
@@ -337,7 +377,7 @@ sub emit_struct_fields($$;%) {
                 push @simple_inits, "$flags{-inherits}(_id)" if $flags{-inherits};
                 emit "_identity.adjust_vtable(this, _id);";
             }
-            render_field_init($_, '') for @fields;
+            render_field_init($_) for @fields;
         };
         if (@simple_inits || @ctor_lines) {
             $want_ctor = 1;
