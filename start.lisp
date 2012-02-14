@@ -95,10 +95,10 @@
 
 (defun make-csv ()
   (write-csv (make-instance 'type-context :os-type $windows
-                            :executable-hashes '((#x4D90764F . 0)))
+                            :executable-hashes '((#x4F391A33 . 0)))
              "windows/all.csv" "windows/globals.csv")
   (write-csv (make-instance 'type-context :os-type $linux
-                            :executable-hashes '(("fc15065c4d1977ca019c6dad220413d1" . 0)))
+                            :executable-hashes '(("a42a074afa7e14bb4ee0484a000d88bd" . 0)))
              "linux/all.csv" "linux/globals.csv"))
 
 (defun browse-list (start)
