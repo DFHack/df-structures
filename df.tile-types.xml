@@ -1,0 +1,2463 @@
+<data-definition>
+    <enum-type type-name='tiletype_shape_basic' comment='Basic tile shape (not in DF)'>
+        <enum-item name='None' value='-1'/>
+        <enum-item name='Open'/>
+        <enum-item name='Floor'/>
+        <enum-item name='Ramp'/>
+        <enum-item name='Wall'/>
+        <enum-item name='Stair'/>
+    </enum-type>
+
+    <enum-type type-name='tiletype_shape' comment='Tile shape (not in DF)'>
+        <enum-attr name='caption'/>
+        <enum-attr name='basic_shape' type-name='tiletype_shape_basic' default-value='None'/>
+        <enum-attr name='passable_low' type-name='bool' default-value='false' comment='tile is missing a floor'/>
+        <enum-attr name='passable_high' type-name='bool' default-value='false' comment='tile is missing a roof'/>
+        <enum-attr name='passable_flow' type-name='bool' default-value='true' comment='tile is non-solid'/>
+
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='EMPTY'>
+            <item-attr name='basic_shape' value='Open'/>
+            <item-attr name='passable_low' value='true'/>
+            <item-attr name='passable_high' value='true'/>
+            <item-attr name='passable_flow' value='true'/>
+        </enum-item>
+        <enum-item name='FLOOR'>
+            <item-attr name='basic_shape' value='Floor'/>
+            <item-attr name='passable_high' value='true'/>
+            <item-attr name='passable_flow' value='true'/>
+        </enum-item>
+        <enum-item name='BOULDER'>
+            <item-attr name='basic_shape' value='Floor'/>
+            <item-attr name='passable_high' value='true'/>
+            <item-attr name='passable_flow' value='true'/>
+        </enum-item>
+        <enum-item name='PEBBLES'>
+            <item-attr name='basic_shape' value='Floor'/>
+            <item-attr name='passable_high' value='true'/>
+            <item-attr name='passable_flow' value='true'/>
+        </enum-item>
+        <enum-item name='WALL'>
+            <item-attr name='basic_shape' value='Wall'/>
+        </enum-item>
+        <enum-item name='FORTIFICATION'>
+            <item-attr name='basic_shape' value='Wall'/>
+            <item-attr name='passable_flow' value='true'/>
+        </enum-item>
+        <enum-item name='STAIR_UP'>
+            <item-attr name='basic_shape' value='Stair'/>
+            <item-attr name='passable_high' value='true'/>
+            <item-attr name='passable_flow' value='true'/>
+        </enum-item>
+        <enum-item name='STAIR_DOWN'>
+            <item-attr name='basic_shape' value='Stair'/>
+            <item-attr name='passable_low' value='true'/>
+            <item-attr name='passable_high' value='true'/>
+            <item-attr name='passable_flow' value='true'/>
+        </enum-item>
+        <enum-item name='STAIR_UPDOWN'>
+            <item-attr name='basic_shape' value='Stair'/>
+            <item-attr name='passable_low' value='true'/>
+            <item-attr name='passable_high' value='true'/>
+            <item-attr name='passable_flow' value='true'/>
+        </enum-item>
+        <enum-item name='RAMP'>
+            <item-attr name='caption' value='ramps have no direction'/>
+            <item-attr name='basic_shape' value='Ramp'/>
+            <item-attr name='passable_high' value='true'/>
+            <item-attr name='passable_flow' value='true'/>
+        </enum-item>
+        <enum-item name='RAMP_TOP'>
+            <item-attr name='caption' value='used for pathing?'/>
+            <item-attr name='basic_shape' value='Open'/>
+            <item-attr name='passable_low' value='true'/>
+            <item-attr name='passable_high' value='true'/>
+            <item-attr name='passable_flow' value='true'/>
+        </enum-item>
+        <enum-item name='BROOK_BED'>
+            <item-attr name='caption' value='mineable, water-passable rock on the bottom of a brook'/>
+            <item-attr name='basic_shape' value='Wall'/>
+            <item-attr name='passable_flow' value='true'/>
+        </enum-item>
+        <enum-item name='BROOK_TOP'>
+            <item-attr name='caption' value='water-passable floor on top of BROOK_BED tiles'/>
+            <item-attr name='basic_shape' value='Floor'/>
+            <item-attr name='passable_high' value='true'/>
+            <item-attr name='passable_flow' value='true'/>
+        </enum-item>
+        <enum-item name='RIVER_BED'>
+            <item-attr name='caption' value="It's a riverbed. Basically a floor that doesn't get muddy."/>
+            <item-attr name='basic_shape' value='Floor'/>
+            <item-attr name='passable_high' value='true'/>
+            <item-attr name='passable_flow' value='true'/>
+        </enum-item>
+        <enum-item name='POOL'>
+            <item-attr name='caption' value="A pool. Gathers water while it's raining."/>
+            <item-attr name='basic_shape' value='Floor'/>
+            <item-attr name='passable_high' value='true'/>
+            <item-attr name='passable_flow' value='true'/>
+        </enum-item>
+        <enum-item name='TREE'>
+            <item-attr name='basic_shape' value='Wall'/>
+        </enum-item>
+        <enum-item name='SAPLING'>
+            <item-attr name='basic_shape' value='Floor'/>
+            <item-attr name='passable_high' value='true'/>
+            <item-attr name='passable_flow' value='true'/>
+        </enum-item>
+        <enum-item name='SHRUB'>
+            <item-attr name='basic_shape' value='Floor'/>
+            <item-attr name='passable_high' value='true'/>
+            <item-attr name='passable_flow' value='true'/>
+        </enum-item>
+        <enum-item name='ENDLESS_PIT'>
+            <item-attr name='caption' value='a fake endless pit'/>
+            <item-attr name='basic_shape' value='Open'/>
+            <item-attr name='passable_high' value='true'/>
+            <item-attr name='passable_flow' value='true'/>
+        </enum-item>
+    </enum-type>
+
+    <enum-type type-name='tiletype_material' comment='Tile material (not in DF)'>
+        <enum-attr name='caption'/>
+
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='AIR'>
+            <item-attr name='caption' value='empty'/>
+        </enum-item>
+        <enum-item name='SOIL'>
+            <item-attr name='caption' value='ordinary soil. material depends on geology'/>
+        </enum-item>
+        <enum-item name='STONE'>
+            <item-attr name='caption' value='ordinary layer stone. material depends on geology'/>
+        </enum-item>
+        <enum-item name='FEATURE'>
+            <item-attr name='caption' value='map special stone. used for things like hell, curious structures, or adamantine tubes. material depends on local/global special'/>
+        </enum-item>
+        <enum-item name='LAVA_STONE'>
+            <item-attr name='caption' value='lava stone created by mixing magma and water'/>
+        </enum-item>
+        <enum-item name='MINERAL'>
+            <item-attr name='caption' value='vein stone. material depends on mineral veins present'/>
+        </enum-item>
+        <enum-item name='FROZEN_LIQUID'>
+            <item-attr name='caption' value='frozen liquid. material depends on ice vein present (which also indicates what was on the tile before it froze)'/>
+        </enum-item>
+        <enum-item name='CONSTRUCTION'>
+            <item-attr name='caption' value='material depends on the construction present'/>
+        </enum-item>
+        <enum-item name='GRASS_LIGHT'>
+            <item-attr name='caption' value='light grass'/>
+        </enum-item>
+        <enum-item name='GRASS_DARK'>
+            <item-attr name='caption' value='dark grass'/>
+        </enum-item>
+        <enum-item name='GRASS_DRY'>
+            <item-attr name='caption' value='dry grass'/>
+        </enum-item>
+        <enum-item name='GRASS_DEAD'>
+            <item-attr name='caption' value='dead grass'/>
+        </enum-item>
+        <enum-item name='HFS'>
+            <item-attr name='caption' value='the stuff glowing barriers/floors and eerie pits are made of - this makes them different from ordinary walls/floors and chasms'/>
+        </enum-item>
+        <enum-item name='CAMPFIRE'>
+            <item-attr name='caption' value='human armies make them when they siege. original tile is lost?'/>
+        </enum-item>
+        <enum-item name='FIRE'>
+            <item-attr name='caption' value='burning grass'/>
+        </enum-item>
+        <enum-item name='ASHES'>
+            <item-attr name='caption' value='what remains from a fire'/>
+        </enum-item>
+        <enum-item name='MAGMA'>
+            <item-attr name='caption' value='material for semi-molten rock and magma flow tiles'/>
+        </enum-item>
+        <enum-item name='DRIFTWOOD'>
+            <item-attr name='caption' value='driftwood. normally shows up on beaches'/>
+        </enum-item>
+    </enum-type>
+
+    <enum-type type-name='tiletype_variant' comment='Cosmetic tile variant (not in DF)'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='VAR_1'/>
+        <enum-item name='VAR_2'/>
+        <enum-item name='VAR_3'/>
+        <enum-item name='VAR_4'/>
+    </enum-type>
+
+    <enum-type type-name='tiletype_special' comment='Functional tile variant (not in DF)'>
+        <enum-attr name='caption'/>
+
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='NORMAL'>
+            <item-attr name='caption' value='default for all tiles, nothing special about it'/>
+        </enum-item>
+        <enum-item name='RIVER_SOURCE'>
+            <item-attr name='caption' value='river source, when it exists on a map'/>
+        </enum-item>
+        <enum-item name='WATERFALL'>
+            <item-attr name='caption' value='waterfall from nowhere, used by cave rivers back in 40d'/>
+        </enum-item>
+        <enum-item name='SMOOTH'>
+            <item-attr name='caption' value='smooth walls and floors, including constructions'/>
+        </enum-item>
+        <enum-item name='FURROWED'>
+            <item-attr name='caption' value='furrowed soil, left by roads/farms and removing constructions'/>
+        </enum-item>
+        <enum-item name='WET'>
+            <item-attr name='caption' value='wet soil, found on beaches'/>
+        </enum-item>
+        <enum-item name='DEAD'>
+            <item-attr name='caption' value='dead, used by plants'/>
+        </enum-item>
+        <enum-item name='WORN_1'>
+            <item-attr name='caption' value='partially (25%) mined walls'/>
+        </enum-item>
+        <enum-item name='WORN_2'>
+            <item-attr name='caption' value='partially (50%) mined walls'/>
+        </enum-item>
+        <enum-item name='WORN_3'>
+            <item-attr name='caption' value='partially (75%) mined walls'/>
+        </enum-item>
+    </enum-type>
+
+
+    <enum-type type-name='tiletype' base-type='int16_t'>
+        -- Declare attributes:
+
+        <enum-attr name='caption'/>
+        <enum-attr name='shape' type-name='tiletype_shape' default-value='NONE'/>
+        <enum-attr name='material' type-name='tiletype_material' default-value='NONE'/>
+        <enum-attr name='variant' type-name='tiletype_variant' default-value='NONE'/>
+        <enum-attr name='special' type-name='tiletype_special' default-value='NONE'/>
+        <enum-attr name='direction' default-value='--------'/>
+
+        -- 0x000
+
+        <enum-item name='Void'>
+            <item-attr name='caption' value='void'/>
+        </enum-item>
+        <enum-item name='RampTop'>
+            <item-attr name='caption' value='ramp top'/>
+            <item-attr name='shape' value='RAMP_TOP'/>
+            <item-attr name='material' value='AIR'/>
+        </enum-item>
+        <enum-item name='MurkyPool'>
+            <item-attr name='caption' value='murky pool'/>
+            <item-attr name='shape' value='POOL'/>
+            <item-attr name='material' value='SOIL'/>
+        </enum-item>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+
+        -- 0x010
+
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item name='Driftwood'>
+            <item-attr name='caption' value='driftwood'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='DRIFTWOOD'/>
+        </enum-item>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+
+        <enum-item name='Tree'>
+            <item-attr name='caption' value='tree'/>
+            <item-attr name='shape' value='TREE'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='FrozenStairUD'>
+            <item-attr name='caption' value='ice stair up/down'/>
+            <item-attr name='shape' value='STAIR_UPDOWN'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+        </enum-item>
+        <enum-item name='FrozenStairD'>
+            <item-attr name='caption' value='ice stair down'/>
+            <item-attr name='shape' value='STAIR_DOWN'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+        </enum-item>
+        <enum-item name='FrozenStairU'>
+            <item-attr name='caption' value='ice stair up'/>
+            <item-attr name='shape' value='STAIR_UP'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+        </enum-item>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+
+        -- 0x020
+
+        <enum-item name='OpenSpace'>
+            <item-attr name='caption' value='open space'/>
+            <item-attr name='shape' value='EMPTY'/>
+            <item-attr name='material' value='AIR'/>
+        </enum-item>
+        <enum-item/>
+        <enum-item name='Shrub'>
+            <item-attr name='caption' value='shrub'/>
+            <item-attr name='shape' value='SHRUB'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='Chasm'>
+            <item-attr name='caption' value='chasm'/>
+            <item-attr name='shape' value='ENDLESS_PIT'/>
+            <item-attr name='material' value='AIR'/>
+        </enum-item>
+        <enum-item name='LavaStairUD'>
+            <item-attr name='caption' value='obsidian stair up/down'/>
+            <item-attr name='shape' value='STAIR_UPDOWN'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+        </enum-item>
+        <enum-item name='LavaStairD'>
+            <item-attr name='caption' value='obsidian stair down'/>
+            <item-attr name='shape' value='STAIR_DOWN'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+        </enum-item>
+        <enum-item name='LavaStairU'>
+            <item-attr name='caption' value='obsidian stair up'/>
+            <item-attr name='shape' value='STAIR_UP'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+        </enum-item>
+        <enum-item name='SoilStairUD'>
+            <item-attr name='caption' value='soil stair up/down'/>
+            <item-attr name='shape' value='STAIR_UPDOWN'/>
+            <item-attr name='material' value='SOIL'/>
+        </enum-item>
+
+        <enum-item name='SoilStairD'>
+            <item-attr name='caption' value='soil stair down'/>
+            <item-attr name='shape' value='STAIR_DOWN'/>
+            <item-attr name='material' value='SOIL'/>
+        </enum-item>
+        <enum-item name='SoilStairU'>
+            <item-attr name='caption' value='soil stair up'/>
+            <item-attr name='shape' value='STAIR_UP'/>
+            <item-attr name='material' value='SOIL'/>
+        </enum-item>
+        <enum-item name='EeriePit'>
+            <item-attr name='caption' value='eerie pit'/>
+            <item-attr name='shape' value='ENDLESS_PIT'/>
+            <item-attr name='material' value='HFS'/>
+        </enum-item>
+        <enum-item name='StoneFloorSmooth'>
+            <item-attr name='caption' value='smooth stone floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+        </enum-item>
+        <enum-item name='LavaFloorSmooth'>
+            <item-attr name='caption' value='smooth obsidian floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+        </enum-item>
+        <enum-item name='FeatureFloorSmooth'>
+            <item-attr name='caption' value='smooth featstone floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='special' value='SMOOTH'/>
+        </enum-item>
+        <enum-item name='MineralFloorSmooth'>
+            <item-attr name='caption' value='smooth vein floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='special' value='SMOOTH'/>
+        </enum-item>
+        <enum-item name='FrozenFloorSmooth'>
+            <item-attr name='caption' value='smooth ice floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+            <item-attr name='special' value='SMOOTH'/>
+        </enum-item>
+
+        -- 0x030
+
+        <enum-item/>
+        <enum-item name='Grass1StairUD'>
+            <item-attr name='caption' value='light grass stair up/down'/>
+            <item-attr name='shape' value='STAIR_UPDOWN'/>
+            <item-attr name='material' value='GRASS_LIGHT'/>
+        </enum-item>
+        <enum-item name='Grass1StairD'>
+            <item-attr name='caption' value='light grass stair down'/>
+            <item-attr name='shape' value='STAIR_DOWN'/>
+            <item-attr name='material' value='GRASS_LIGHT'/>
+        </enum-item>
+        <enum-item name='Grass1StairU'>
+            <item-attr name='caption' value='light grass stair up'/>
+            <item-attr name='shape' value='STAIR_UP'/>
+            <item-attr name='material' value='GRASS_LIGHT'/>
+        </enum-item>
+        <enum-item name='Grass2StairUD'>
+            <item-attr name='caption' value='dark grass stair up/down'/>
+            <item-attr name='shape' value='STAIR_UPDOWN'/>
+            <item-attr name='material' value='GRASS_DARK'/>
+        </enum-item>
+        <enum-item name='Grass2StairD'>
+            <item-attr name='caption' value='dark grass stair down'/>
+            <item-attr name='shape' value='STAIR_DOWN'/>
+            <item-attr name='material' value='GRASS_DARK'/>
+        </enum-item>
+        <enum-item name='Grass2StairU'>
+            <item-attr name='caption' value='dark grass stair up'/>
+            <item-attr name='shape' value='STAIR_UP'/>
+            <item-attr name='material' value='GRASS_DARK'/>
+        </enum-item>
+        <enum-item name='StoneStairUD'>
+            <item-attr name='caption' value='stone stair up/down'/>
+            <item-attr name='shape' value='STAIR_UPDOWN'/>
+            <item-attr name='material' value='STONE'/>
+        </enum-item>
+
+        <enum-item name='StoneStairD'>
+            <item-attr name='caption' value='stone stair down'/>
+            <item-attr name='shape' value='STAIR_DOWN'/>
+            <item-attr name='material' value='STONE'/>
+        </enum-item>
+        <enum-item name='StoneStairU'>
+            <item-attr name='caption' value='stone stair up'/>
+            <item-attr name='shape' value='STAIR_UP'/>
+            <item-attr name='material' value='STONE'/>
+        </enum-item>
+        <enum-item name='MineralStairUD'>
+            <item-attr name='caption' value='vein stair up/down'/>
+            <item-attr name='shape' value='STAIR_UPDOWN'/>
+            <item-attr name='material' value='MINERAL'/>
+        </enum-item>
+        <enum-item name='MineralStairD'>
+            <item-attr name='caption' value='vein stair down'/>
+            <item-attr name='shape' value='STAIR_DOWN'/>
+            <item-attr name='material' value='MINERAL'/>
+        </enum-item>
+        <enum-item name='MineralStairU'>
+            <item-attr name='caption' value='vein stair up'/>
+            <item-attr name='shape' value='STAIR_UP'/>
+            <item-attr name='material' value='MINERAL'/>
+        </enum-item>
+        <enum-item name='FeatureStairUD'>
+            <item-attr name='caption' value='featstone stair up/down'/>
+            <item-attr name='shape' value='STAIR_UPDOWN'/>
+            <item-attr name='material' value='FEATURE'/>
+        </enum-item>
+        <enum-item name='FeatureStairD'>
+            <item-attr name='caption' value='featstone stair down'/>
+            <item-attr name='shape' value='STAIR_DOWN'/>
+            <item-attr name='material' value='FEATURE'/>
+        </enum-item>
+        <enum-item name='FeatureStairU'>
+            <item-attr name='caption' value='featstone stair up'/>
+            <item-attr name='shape' value='STAIR_UP'/>
+            <item-attr name='material' value='FEATURE'/>
+        </enum-item>
+
+        -- 0x040
+
+        <enum-item/>
+        <enum-item name='StoneFortification'>
+            <item-attr name='caption' value='stone fortification'/>
+            <item-attr name='shape' value='FORTIFICATION'/>
+            <item-attr name='material' value='STONE'/>
+        </enum-item>
+        <enum-item/>
+        <enum-item name='Campfire'>
+            <item-attr name='caption' value='campfire'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='CAMPFIRE'/>
+        </enum-item>
+        <enum-item/>
+        <enum-item/>
+        <enum-item name='Fire'>
+            <item-attr name='caption' value='fire'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='FIRE'/>
+        </enum-item>
+        <enum-item/>
+
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item name='StonePillar'>
+            <item-attr name='caption' value='stone pillar'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+        </enum-item>
+
+        -- 0x050
+
+        <enum-item name='LavaPillar'>
+            <item-attr name='caption' value='obsidian pillar'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+        </enum-item>
+        <enum-item name='FeaturePillar'>
+            <item-attr name='caption' value='featstone pillar'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='special' value='SMOOTH'/>
+        </enum-item>
+        <enum-item name='MineralPillar'>
+            <item-attr name='caption' value='vein pillar'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='special' value='SMOOTH'/>
+        </enum-item>
+        <enum-item name='FrozenPillar'>
+            <item-attr name='caption' value='ice pillar'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+            <item-attr name='special' value='SMOOTH'/>
+        </enum-item>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+
+        <enum-item/>
+        <enum-item name='Waterfall'>
+            <item-attr name='caption' value='waterfall'/>
+            <item-attr name='shape' value='RIVER_BED'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='special' value='WATERFALL'/>
+        </enum-item>
+        <enum-item name='RiverSource'>
+            <item-attr name='caption' value='river source'/>
+            <item-attr name='shape' value='RIVER_BED'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='special' value='RIVER_SOURCE'/>
+        </enum-item>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+
+        -- 0x060
+
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+
+        -- 0x070
+
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+
+        -- 0x080
+
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+
+        -- 0x090
+
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+
+        -- 0x0A0
+
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+
+        -- 0x0B0
+
+        <enum-item name='StoneWallWorn1'>
+            <item-attr name='caption' value='worn 1 stone wall'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='special' value='WORN_1'/>
+        </enum-item>
+        <enum-item name='StoneWallWorn2'>
+            <item-attr name='caption' value='worn 2 stone wall'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='special' value='WORN_2'/>
+        </enum-item>
+        <enum-item name='StoneWallWorn3'>
+            <item-attr name='caption' value='worn 3 stone wall'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='special' value='WORN_3'/>
+        </enum-item>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+
+        -- 0x0C0
+
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+
+        -- 0x0D0
+
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item name='StoneWall'>
+            <item-attr name='caption' value='stone wall'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+
+        -- 0x0E0
+
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item name='Sapling'>
+            <item-attr name='caption' value='sapling'/>
+            <item-attr name='shape' value='SAPLING'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+
+        <enum-item/>
+        <enum-item name='GrassDryRamp'>
+            <item-attr name='caption' value='dry grass ramp'/>
+            <item-attr name='shape' value='RAMP'/>
+            <item-attr name='material' value='GRASS_DRY'/>
+        </enum-item>
+        <enum-item name='GrassDeadRamp'>
+            <item-attr name='caption' value='dead grass ramp'/>
+            <item-attr name='shape' value='RAMP'/>
+            <item-attr name='material' value='GRASS_DEAD'/>
+        </enum-item>
+        <enum-item name='GrassLightRamp'>
+            <item-attr name='caption' value='light grass ramp'/>
+            <item-attr name='shape' value='RAMP'/>
+            <item-attr name='material' value='GRASS_LIGHT'/>
+        </enum-item>
+        <enum-item name='GrassDarkRamp'>
+            <item-attr name='caption' value='dark grass ramp'/>
+            <item-attr name='shape' value='RAMP'/>
+            <item-attr name='material' value='GRASS_DARK'/>
+        </enum-item>
+        <enum-item name='StoneRamp'>
+            <item-attr name='caption' value='stone ramp'/>
+            <item-attr name='shape' value='RAMP'/>
+            <item-attr name='material' value='STONE'/>
+        </enum-item>
+        <enum-item name='LavaRamp'>
+            <item-attr name='caption' value='obsidian ramp'/>
+            <item-attr name='shape' value='RAMP'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+        </enum-item>
+        <enum-item name='FeatureRamp'>
+            <item-attr name='caption' value='featstone ramp'/>
+            <item-attr name='shape' value='RAMP'/>
+            <item-attr name='material' value='FEATURE'/>
+        </enum-item>
+
+        -- 0x0F0
+
+        <enum-item name='MineralRamp'>
+            <item-attr name='caption' value='vein ramp'/>
+            <item-attr name='shape' value='RAMP'/>
+            <item-attr name='material' value='MINERAL'/>
+        </enum-item>
+        <enum-item name='SoilRamp'>
+            <item-attr name='caption' value='soil ramp'/>
+            <item-attr name='shape' value='RAMP'/>
+            <item-attr name='material' value='SOIL'/>
+        </enum-item>
+        <enum-item name='Ashes1'>
+            <item-attr name='caption' value='ashes'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='ASHES'/>
+            <item-attr name='variant' value='VAR_1'/>
+        </enum-item>
+        <enum-item name='Ashes2'>
+            <item-attr name='caption' value='ashes'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='ASHES'/>
+            <item-attr name='variant' value='VAR_2'/>
+        </enum-item>
+        <enum-item name='Ashes3'>
+            <item-attr name='caption' value='ashes'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='ASHES'/>
+            <item-attr name='variant' value='VAR_3'/>
+        </enum-item>
+        <enum-item name='FrozenRamp'>
+            <item-attr name='caption' value='ice ramp'/>
+            <item-attr name='shape' value='RAMP'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+        </enum-item>
+        <enum-item/>
+        <enum-item/>
+
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+
+        -- 0x100
+
+        <enum-item/>
+        <enum-item/>
+        <enum-item name='FrozenFloor2'>
+            <item-attr name='caption' value='ice floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+            <item-attr name='variant' value='VAR_2'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='FrozenFloor3'>
+            <item-attr name='caption' value='ice floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+            <item-attr name='variant' value='VAR_3'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='FrozenFloor4'>
+            <item-attr name='caption' value='ice floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+            <item-attr name='variant' value='VAR_4'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='FurrowedSoil'>
+            <item-attr name='caption' value='furrowed soil'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='special' value='FURROWED'/>
+        </enum-item>
+        <enum-item name='FrozenFloor'>
+            <item-attr name='caption' value='ice floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+            <item-attr name='variant' value='VAR_1'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='SemiMoltenRock'>
+            <item-attr name='caption' value='semi-molten rock'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='MAGMA'/>
+        </enum-item>
+
+        <enum-item name='MagmaFlow'>
+            <item-attr name='caption' value='magma flow'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='MAGMA'/>
+        </enum-item>
+        <enum-item name='SoilWall'>
+            <item-attr name='caption' value='soil wall'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='SOIL'/>
+        </enum-item>
+        <enum-item name='GlowingBarrier'>
+            <item-attr name='caption' value='glowing barrier'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='HFS'/>
+        </enum-item>
+        <enum-item name='GlowingFloor'>
+            <item-attr name='caption' value='glowing floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='HFS'/>
+        </enum-item>
+        <enum-item/>
+        <enum-item name='LavaWallSmoothRD2'>
+            <item-attr name='caption' value='smooth obsidian wall RD2'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--SS--E-'/>
+        </enum-item>
+        <enum-item name='LavaWallSmoothR2D'>
+            <item-attr name='caption' value='smooth obsidian wall R2D'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--S---EE'/>
+        </enum-item>
+        <enum-item name='LavaWallSmoothR2U'>
+            <item-attr name='caption' value='smooth obsidian wall R2U'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-----EE'/>
+        </enum-item>
+
+        -- 0x110
+
+        <enum-item name='LavaWallSmoothRU2'>
+            <item-attr name='caption' value='smooth obsidian wall RU2'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='NN----E-'/>
+        </enum-item>
+        <enum-item name='LavaWallSmoothL2U'>
+            <item-attr name='caption' value='smooth obsidian wall L2U'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N---WW--'/>
+        </enum-item>
+        <enum-item name='LavaWallSmoothLU2'>
+            <item-attr name='caption' value='smooth obsidian wall LU2'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='NN--W---'/>
+        </enum-item>
+        <enum-item name='LavaWallSmoothL2D'>
+            <item-attr name='caption' value='smooth obsidian wall L2D'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--S-WW--'/>
+        </enum-item>
+        <enum-item name='LavaWallSmoothLD2'>
+            <item-attr name='caption' value='smooth obsidian wall LD2'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--SSW---'/>
+        </enum-item>
+        <enum-item name='LavaWallSmoothLRUD'>
+            <item-attr name='caption' value='smooth obsidian wall LRUD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-S-W-E-'/>
+        </enum-item>
+        <enum-item name='LavaWallSmoothRUD'>
+            <item-attr name='caption' value='smooth obsidian wall RUD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-S---E-'/>
+        </enum-item>
+        <enum-item name='LavaWallSmoothLRD'>
+            <item-attr name='caption' value='smooth obsidian wall LRD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--S-W-E-'/>
+        </enum-item>
+
+        <enum-item name='LavaWallSmoothLRU'>
+            <item-attr name='caption' value='smooth obsidian wall LRU'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N---W-E-'/>
+        </enum-item>
+        <enum-item name='LavaWallSmoothLUD'>
+            <item-attr name='caption' value='smooth obsidian wall LUD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-S-W---'/>
+        </enum-item>
+        <enum-item name='LavaWallSmoothRD'>
+            <item-attr name='caption' value='smooth obsidian wall RD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--S---E-'/>
+        </enum-item>
+        <enum-item name='LavaWallSmoothRU'>
+            <item-attr name='caption' value='smooth obsidian wall RU'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-----E-'/>
+        </enum-item>
+        <enum-item name='LavaWallSmoothLU'>
+            <item-attr name='caption' value='smooth obsidian wall LU'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N---W---'/>
+        </enum-item>
+        <enum-item name='LavaWallSmoothLD'>
+            <item-attr name='caption' value='smooth obsidian wall LD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--S-W---'/>
+        </enum-item>
+        <enum-item name='LavaWallSmoothUD'>
+            <item-attr name='caption' value='smooth obsidian wall UD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-S-----'/>
+        </enum-item>
+        <enum-item name='LavaWallSmoothLR'>
+            <item-attr name='caption' value='smooth obsidian wall LR'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='----W-E-'/>
+        </enum-item>
+
+        -- 0x120
+
+        <enum-item name='FeatureWallSmoothRD2'>
+            <item-attr name='caption' value='smooth featstone wall RD2'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--SS--E-'/>
+        </enum-item>
+        <enum-item name='FeatureWallSmoothR2D'>
+            <item-attr name='caption' value='smooth featstone wall R2D'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--S---EE'/>
+        </enum-item>
+        <enum-item name='FeatureWallSmoothR2U'>
+            <item-attr name='caption' value='smooth featstone wall R2U'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-----EE'/>
+        </enum-item>
+        <enum-item name='FeatureWallSmoothRU2'>
+            <item-attr name='caption' value='smooth featstone wall RU2'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='NN----E-'/>
+        </enum-item>
+        <enum-item name='FeatureWallSmoothL2U'>
+            <item-attr name='caption' value='smooth featstone wall L2U'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N---WW--'/>
+        </enum-item>
+        <enum-item name='FeatureWallSmoothLU2'>
+            <item-attr name='caption' value='smooth featstone wall LU2'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='NN--W---'/>
+        </enum-item>
+        <enum-item name='FeatureWallSmoothL2D'>
+            <item-attr name='caption' value='smooth featstone wall L2D'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--S-WW--'/>
+        </enum-item>
+        <enum-item name='FeatureWallSmoothLD2'>
+            <item-attr name='caption' value='smooth featstone wall LD2'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--SSW---'/>
+        </enum-item>
+
+        <enum-item name='FeatureWallSmoothLRUD'>
+            <item-attr name='caption' value='smooth featstone wall LRUD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-S-W-E-'/>
+        </enum-item>
+        <enum-item name='FeatureWallSmoothRUD'>
+            <item-attr name='caption' value='smooth featstone wall RUD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-S---E-'/>
+        </enum-item>
+        <enum-item name='FeatureWallSmoothLRD'>
+            <item-attr name='caption' value='smooth featstone wall LRD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--S-W-E-'/>
+        </enum-item>
+        <enum-item name='FeatureWallSmoothLRU'>
+            <item-attr name='caption' value='smooth featstone wall LRU'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N---W-E-'/>
+        </enum-item>
+        <enum-item name='FeatureWallSmoothLUD'>
+            <item-attr name='caption' value='smooth featstone wall LUD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-S-W---'/>
+        </enum-item>
+        <enum-item name='FeatureWallSmoothRD'>
+            <item-attr name='caption' value='smooth featstone wall RD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--S---E-'/>
+        </enum-item>
+        <enum-item name='FeatureWallSmoothRU'>
+            <item-attr name='caption' value='smooth featstone wall RU'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-----E-'/>
+        </enum-item>
+        <enum-item name='FeatureWallSmoothLU'>
+            <item-attr name='caption' value='smooth featstone wall LU'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N---W---'/>
+        </enum-item>
+
+        -- 0x130
+
+        <enum-item name='FeatureWallSmoothLD'>
+            <item-attr name='caption' value='smooth featstone wall LD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--S-W---'/>
+        </enum-item>
+        <enum-item name='FeatureWallSmoothUD'>
+            <item-attr name='caption' value='smooth featstone wall UD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-S-----'/>
+        </enum-item>
+        <enum-item name='FeatureWallSmoothLR'>
+            <item-attr name='caption' value='smooth featstone wall LR'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='----W-E-'/>
+        </enum-item>
+        <enum-item name='StoneWallSmoothRD2'>
+            <item-attr name='caption' value='smooth stone wall RD2'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--SS--E-'/>
+        </enum-item>
+        <enum-item name='StoneWallSmoothR2D'>
+            <item-attr name='caption' value='smooth stone wall R2D'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--S---EE'/>
+        </enum-item>
+        <enum-item name='StoneWallSmoothR2U'>
+            <item-attr name='caption' value='smooth stone wall R2U'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-----EE'/>
+        </enum-item>
+        <enum-item name='StoneWallSmoothRU2'>
+            <item-attr name='caption' value='smooth stone wall RU2'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='NN----E-'/>
+        </enum-item>
+        <enum-item name='StoneWallSmoothL2U'>
+            <item-attr name='caption' value='smooth stone wall L2U'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N---WW--'/>
+        </enum-item>
+
+        <enum-item name='StoneWallSmoothLU2'>
+            <item-attr name='caption' value='smooth stone wall LU2'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='NN--W---'/>
+        </enum-item>
+        <enum-item name='StoneWallSmoothL2D'>
+            <item-attr name='caption' value='smooth stone wall L2D'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--S-WW--'/>
+        </enum-item>
+        <enum-item name='StoneWallSmoothLD2'>
+            <item-attr name='caption' value='smooth stone wall LD2'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--SSW---'/>
+        </enum-item>
+        <enum-item name='StoneWallSmoothLRUD'>
+            <item-attr name='caption' value='smooth stone wall LRUD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-S-W-E-'/>
+        </enum-item>
+        <enum-item name='StoneWallSmoothRUD'>
+            <item-attr name='caption' value='smooth stone wall RUD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-S---E-'/>
+        </enum-item>
+        <enum-item name='StoneWallSmoothLRD'>
+            <item-attr name='caption' value='smooth stone wall LRD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--S-W-E-'/>
+        </enum-item>
+        <enum-item name='StoneWallSmoothLRU'>
+            <item-attr name='caption' value='smooth stone wall LRU'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N---W-E-'/>
+        </enum-item>
+        <enum-item name='StoneWallSmoothLUD'>
+            <item-attr name='caption' value='smooth stone wall LUD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-S-W---'/>
+        </enum-item>
+
+        -- 0x140
+
+        <enum-item name='StoneWallSmoothRD'>
+            <item-attr name='caption' value='smooth stone wall RD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--S---E-'/>
+        </enum-item>
+        <enum-item name='StoneWallSmoothRU'>
+            <item-attr name='caption' value='smooth stone wall RU'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-----E-'/>
+        </enum-item>
+        <enum-item name='StoneWallSmoothLU'>
+            <item-attr name='caption' value='smooth stone wall LU'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N---W---'/>
+        </enum-item>
+        <enum-item name='StoneWallSmoothLD'>
+            <item-attr name='caption' value='smooth stone wall LD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--S-W---'/>
+        </enum-item>
+        <enum-item name='StoneWallSmoothUD'>
+            <item-attr name='caption' value='smooth stone wall UD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-S-----'/>
+        </enum-item>
+        <enum-item name='StoneWallSmoothLR'>
+            <item-attr name='caption' value='smooth stone wall LR'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='----W-E-'/>
+        </enum-item>
+        <enum-item name='LavaFortification'>
+            <item-attr name='caption' value='obsidian fortification'/>
+            <item-attr name='shape' value='FORTIFICATION'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+        </enum-item>
+        <enum-item name='FeatureFortification'>
+            <item-attr name='caption' value='featstone fortification'/>
+            <item-attr name='shape' value='FORTIFICATION'/>
+            <item-attr name='material' value='FEATURE'/>
+        </enum-item>
+
+        <enum-item name='LavaWallWorn1'>
+            <item-attr name='caption' value='worn 1 obsidian wall'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='special' value='WORN_1'/>
+        </enum-item>
+        <enum-item name='LavaWallWorn2'>
+            <item-attr name='caption' value='worn 2 obsidian wall'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='special' value='WORN_2'/>
+        </enum-item>
+        <enum-item name='LavaWallWorn3'>
+            <item-attr name='caption' value='worn 3 obsidian wall'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='special' value='WORN_3'/>
+        </enum-item>
+        <enum-item name='LavaWall'>
+            <item-attr name='caption' value='obsidian wall'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='FeatureWallWorn1'>
+            <item-attr name='caption' value='worn 1 featstone wall'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='special' value='WORN_1'/>
+        </enum-item>
+        <enum-item name='FeatureWallWorn2'>
+            <item-attr name='caption' value='worn 2 featstone wall'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='special' value='WORN_2'/>
+        </enum-item>
+        <enum-item name='FeatureWallWorn3'>
+            <item-attr name='caption' value='worn 3 featstone wall'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='special' value='WORN_3'/>
+        </enum-item>
+        <enum-item name='FeatureWall'>
+            <item-attr name='caption' value='featstone wall'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+
+        -- 0x150
+
+        <enum-item name='StoneFloor1'>
+            <item-attr name='caption' value='stone floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='variant' value='VAR_1'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='StoneFloor2'>
+            <item-attr name='caption' value='stone floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='variant' value='VAR_2'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='StoneFloor3'>
+            <item-attr name='caption' value='stone floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='variant' value='VAR_3'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='StoneFloor4'>
+            <item-attr name='caption' value='stone floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='variant' value='VAR_4'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='LavaFloor1'>
+            <item-attr name='caption' value='obsidian floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='variant' value='VAR_1'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='LavaFloor2'>
+            <item-attr name='caption' value='obsidian floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='variant' value='VAR_2'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='LavaFloor3'>
+            <item-attr name='caption' value='obsidian floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='variant' value='VAR_3'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='LavaFloor4'>
+            <item-attr name='caption' value='obsidian floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='variant' value='VAR_4'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+
+        <enum-item name='FeatureFloor1'>
+            <item-attr name='caption' value='featstone floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='variant' value='VAR_1'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='FeatureFloor2'>
+            <item-attr name='caption' value='featstone floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='variant' value='VAR_2'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='FeatureFloor3'>
+            <item-attr name='caption' value='featstone floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='variant' value='VAR_3'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='FeatureFloor4'>
+            <item-attr name='caption' value='featstone floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='variant' value='VAR_4'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='GrassDarkFloor1'>
+            <item-attr name='caption' value='dark grass'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='GRASS_DARK'/>
+            <item-attr name='variant' value='VAR_1'/>
+        </enum-item>
+        <enum-item name='GrassDarkFloor2'>
+            <item-attr name='caption' value='dark grass'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='GRASS_DARK'/>
+            <item-attr name='variant' value='VAR_2'/>
+        </enum-item>
+        <enum-item name='GrassDarkFloor3'>
+            <item-attr name='caption' value='dark grass'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='GRASS_DARK'/>
+            <item-attr name='variant' value='VAR_3'/>
+        </enum-item>
+        <enum-item name='GrassDarkFloor4'>
+            <item-attr name='caption' value='dark grass'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='GRASS_DARK'/>
+            <item-attr name='variant' value='VAR_4'/>
+        </enum-item>
+
+        -- 0x160
+
+        <enum-item name='SoilFloor1'>
+            <item-attr name='caption' value='soil floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='variant' value='VAR_1'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='SoilFloor2'>
+            <item-attr name='caption' value='soil floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='variant' value='VAR_2'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='SoilFloor3'>
+            <item-attr name='caption' value='soil floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='variant' value='VAR_3'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='SoilFloor4'>
+            <item-attr name='caption' value='soil floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='variant' value='VAR_4'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='SoilWetFloor1'>
+            <item-attr name='caption' value='wet soil floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='variant' value='VAR_1'/>
+            <item-attr name='special' value='WET'/>
+        </enum-item>
+        <enum-item name='SoilWetFloor2'>
+            <item-attr name='caption' value='wet soil floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='variant' value='VAR_2'/>
+            <item-attr name='special' value='WET'/>
+        </enum-item>
+        <enum-item name='SoilWetFloor3'>
+            <item-attr name='caption' value='wet soil floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='variant' value='VAR_3'/>
+            <item-attr name='special' value='WET'/>
+        </enum-item>
+        <enum-item name='SoilWetFloor4'>
+            <item-attr name='caption' value='wet soil floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='variant' value='VAR_4'/>
+            <item-attr name='special' value='WET'/>
+        </enum-item>
+
+        <enum-item name='FrozenFortification'>
+            <item-attr name='caption' value='ice fortification'/>
+            <item-attr name='shape' value='FORTIFICATION'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+        </enum-item>
+        <enum-item name='FrozenWallWorn1'>
+            <item-attr name='caption' value='worn 1 ice wall'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+            <item-attr name='special' value='WORN_1'/>
+        </enum-item>
+        <enum-item name='FrozenWallWorn2'>
+            <item-attr name='caption' value='worn 2 ice wall'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+            <item-attr name='special' value='WORN_2'/>
+        </enum-item>
+        <enum-item name='FrozenWallWorn3'>
+            <item-attr name='caption' value='worn 3 ice wall'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+            <item-attr name='special' value='WORN_3'/>
+        </enum-item>
+        <enum-item name='FrozenWall'>
+            <item-attr name='caption' value='ice wall'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='RiverN'>
+            <item-attr name='caption' value='river N'/>
+            <item-attr name='shape' value='RIVER_BED'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='direction' value='N'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='RiverS'>
+            <item-attr name='caption' value='river S'/>
+            <item-attr name='shape' value='RIVER_BED'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='direction' value='S'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='RiverE'>
+            <item-attr name='caption' value='river E'/>
+            <item-attr name='shape' value='RIVER_BED'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='direction' value='E'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+
+        -- 0x170
+
+        <enum-item name='RiverW'>
+            <item-attr name='caption' value='river W'/>
+            <item-attr name='shape' value='RIVER_BED'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='direction' value='W'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='RiverNW'>
+            <item-attr name='caption' value='river NW'/>
+            <item-attr name='shape' value='RIVER_BED'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='direction' value='NW'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='RiverNE'>
+            <item-attr name='caption' value='river NE'/>
+            <item-attr name='shape' value='RIVER_BED'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='direction' value='NE'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='RiverSW'>
+            <item-attr name='caption' value='river SW'/>
+            <item-attr name='shape' value='RIVER_BED'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='direction' value='SW'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='RiverSE'>
+            <item-attr name='caption' value='river SE'/>
+            <item-attr name='shape' value='RIVER_BED'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='direction' value='SE'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='BrookN'>
+            <item-attr name='caption' value='brook bed N'/>
+            <item-attr name='shape' value='BROOK_BED'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='direction' value='N'/>
+        </enum-item>
+        <enum-item name='BrookS'>
+            <item-attr name='caption' value='brook bed S'/>
+            <item-attr name='shape' value='BROOK_BED'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='direction' value='S'/>
+        </enum-item>
+        <enum-item name='BrookE'>
+            <item-attr name='caption' value='brook bed E'/>
+            <item-attr name='shape' value='BROOK_BED'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='direction' value='E'/>
+        </enum-item>
+
+        <enum-item name='BrookW'>
+            <item-attr name='caption' value='brook bed W'/>
+            <item-attr name='shape' value='BROOK_BED'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='direction' value='W'/>
+        </enum-item>
+        <enum-item name='BrookNW'>
+            <item-attr name='caption' value='brook bed NW'/>
+            <item-attr name='shape' value='BROOK_BED'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='direction' value='NW'/>
+        </enum-item>
+        <enum-item name='BrookNE'>
+            <item-attr name='caption' value='brook bed NE'/>
+            <item-attr name='shape' value='BROOK_BED'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='direction' value='NE'/>
+        </enum-item>
+        <enum-item name='BrookSW'>
+            <item-attr name='caption' value='brook bed SW'/>
+            <item-attr name='shape' value='BROOK_BED'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='direction' value='SW'/>
+        </enum-item>
+        <enum-item name='BrookSE'>
+            <item-attr name='caption' value='brook bed SE'/>
+            <item-attr name='shape' value='BROOK_BED'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='direction' value='SE'/>
+        </enum-item>
+        <enum-item name='BrookTop'>
+            <item-attr name='caption' value='brook top'/>
+            <item-attr name='shape' value='BROOK_TOP'/>
+            <item-attr name='material' value='SOIL'/>
+        </enum-item>
+        <enum-item/>
+        <enum-item/>
+
+        -- 0x180
+
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item name='GrassDryFloor1'>
+            <item-attr name='caption' value='dry grass'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='GRASS_DRY'/>
+            <item-attr name='variant' value='VAR_1'/>
+        </enum-item>
+        <enum-item name='GrassDryFloor2'>
+            <item-attr name='caption' value='dry grass'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='GRASS_DRY'/>
+            <item-attr name='variant' value='VAR_2'/>
+        </enum-item>
+        <enum-item name='GrassDryFloor3'>
+            <item-attr name='caption' value='dry grass'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='GRASS_DRY'/>
+            <item-attr name='variant' value='VAR_3'/>
+        </enum-item>
+        <enum-item name='GrassDryFloor4'>
+            <item-attr name='caption' value='dry grass'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='GRASS_DRY'/>
+            <item-attr name='variant' value='VAR_4'/>
+        </enum-item>
+        <enum-item name='TreeDead'>
+            <item-attr name='caption' value='dead tree'/>
+            <item-attr name='shape' value='TREE'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='special' value='DEAD'/>
+        </enum-item>
+
+        <enum-item name='SaplingDead'>
+            <item-attr name='caption' value='dead sapling'/>
+            <item-attr name='shape' value='SAPLING'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='special' value='DEAD'/>
+        </enum-item>
+        <enum-item name='ShrubDead'>
+            <item-attr name='caption' value='dead shrub'/>
+            <item-attr name='shape' value='SHRUB'/>
+            <item-attr name='material' value='SOIL'/>
+            <item-attr name='special' value='DEAD'/>
+        </enum-item>
+        <enum-item name='GrassDeadFloor1'>
+            <item-attr name='caption' value='dead grass'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='GRASS_DEAD'/>
+            <item-attr name='variant' value='VAR_1'/>
+        </enum-item>
+        <enum-item name='GrassDeadFloor2'>
+            <item-attr name='caption' value='dead grass'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='GRASS_DEAD'/>
+            <item-attr name='variant' value='VAR_2'/>
+        </enum-item>
+        <enum-item name='GrassDeadFloor3'>
+            <item-attr name='caption' value='dead grass'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='GRASS_DEAD'/>
+            <item-attr name='variant' value='VAR_3'/>
+        </enum-item>
+        <enum-item name='GrassDeadFloor4'>
+            <item-attr name='caption' value='dead grass'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='GRASS_DEAD'/>
+            <item-attr name='variant' value='VAR_4'/>
+        </enum-item>
+        <enum-item name='GrassLightFloor1'>
+            <item-attr name='caption' value='light grass'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='GRASS_LIGHT'/>
+            <item-attr name='variant' value='VAR_1'/>
+        </enum-item>
+        <enum-item name='GrassLightFloor2'>
+            <item-attr name='caption' value='light grass'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='GRASS_LIGHT'/>
+            <item-attr name='variant' value='VAR_2'/>
+        </enum-item>
+
+        -- 0x190
+
+        <enum-item name='GrassLightFloor3'>
+            <item-attr name='caption' value='light grass'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='GRASS_LIGHT'/>
+            <item-attr name='variant' value='VAR_3'/>
+        </enum-item>
+        <enum-item name='GrassLightFloor4'>
+            <item-attr name='caption' value='light grass'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='GRASS_LIGHT'/>
+            <item-attr name='variant' value='VAR_4'/>
+        </enum-item>
+        <enum-item name='StoneBoulder'>
+            <item-attr name='caption' value='boulder'/>
+            <item-attr name='shape' value='BOULDER'/>
+            <item-attr name='material' value='STONE'/>
+        </enum-item>
+        <enum-item name='LavaBoulder'>
+            <item-attr name='caption' value='obsidian boulder'/>
+            <item-attr name='shape' value='BOULDER'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+        </enum-item>
+        <enum-item name='FeatureBoulder'>
+            <item-attr name='caption' value='featstone boulder'/>
+            <item-attr name='shape' value='BOULDER'/>
+            <item-attr name='material' value='FEATURE'/>
+        </enum-item>
+        <enum-item name='StonePebbles1'>
+            <item-attr name='caption' value='stone pebbles'/>
+            <item-attr name='shape' value='PEBBLES'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='variant' value='VAR_1'/>
+        </enum-item>
+        <enum-item name='StonePebbles2'>
+            <item-attr name='caption' value='stone pebbles'/>
+            <item-attr name='shape' value='PEBBLES'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='variant' value='VAR_2'/>
+        </enum-item>
+        <enum-item name='StonePebbles3'>
+            <item-attr name='caption' value='stone pebbles'/>
+            <item-attr name='shape' value='PEBBLES'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='variant' value='VAR_3'/>
+        </enum-item>
+
+        <enum-item name='StonePebbles4'>
+            <item-attr name='caption' value='stone pebbles'/>
+            <item-attr name='shape' value='PEBBLES'/>
+            <item-attr name='material' value='STONE'/>
+            <item-attr name='variant' value='VAR_4'/>
+        </enum-item>
+        <enum-item name='LavaPebbles1'>
+            <item-attr name='caption' value='obsidian pebbles'/>
+            <item-attr name='shape' value='PEBBLES'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='variant' value='VAR_1'/>
+        </enum-item>
+        <enum-item name='LavaPebbles2'>
+            <item-attr name='caption' value='obsidian pebbles'/>
+            <item-attr name='shape' value='PEBBLES'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='variant' value='VAR_2'/>
+        </enum-item>
+        <enum-item name='LavaPebbles3'>
+            <item-attr name='caption' value='obsidian pebbles'/>
+            <item-attr name='shape' value='PEBBLES'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='variant' value='VAR_3'/>
+        </enum-item>
+        <enum-item name='LavaPebbles4'>
+            <item-attr name='caption' value='obsidian pebbles'/>
+            <item-attr name='shape' value='PEBBLES'/>
+            <item-attr name='material' value='LAVA_STONE'/>
+            <item-attr name='variant' value='VAR_4'/>
+        </enum-item>
+        <enum-item name='FeaturePebbles1'>
+            <item-attr name='caption' value='featstone pebbles'/>
+            <item-attr name='shape' value='PEBBLES'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='variant' value='VAR_1'/>
+        </enum-item>
+        <enum-item name='FeaturePebbles2'>
+            <item-attr name='caption' value='featstone pebbles'/>
+            <item-attr name='shape' value='PEBBLES'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='variant' value='VAR_2'/>
+        </enum-item>
+        <enum-item name='FeaturePebbles3'>
+            <item-attr name='caption' value='featstone pebbles'/>
+            <item-attr name='shape' value='PEBBLES'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='variant' value='VAR_3'/>
+        </enum-item>
+
+        -- 0x1A0
+
+        <enum-item name='FeaturePebbles4'>
+            <item-attr name='caption' value='featstone pebbles'/>
+            <item-attr name='shape' value='PEBBLES'/>
+            <item-attr name='material' value='FEATURE'/>
+            <item-attr name='variant' value='VAR_4'/>
+        </enum-item>
+        <enum-item name='MineralWallSmoothRD2'>
+            <item-attr name='caption' value='smooth vein wall RD2'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--SS--E-'/>
+        </enum-item>
+        <enum-item name='MineralWallSmoothR2D'>
+            <item-attr name='caption' value='smooth vein wall R2D'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--S---EE'/>
+        </enum-item>
+        <enum-item name='MineralWallSmoothR2U'>
+            <item-attr name='caption' value='smooth vein wall R2U'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-----EE'/>
+        </enum-item>
+        <enum-item name='MineralWallSmoothRU2'>
+            <item-attr name='caption' value='smooth vein wall RU2'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='NN----E-'/>
+        </enum-item>
+        <enum-item name='MineralWallSmoothL2U'>
+            <item-attr name='caption' value='smooth vein wall L2U'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N---WW--'/>
+        </enum-item>
+        <enum-item name='MineralWallSmoothLU2'>
+            <item-attr name='caption' value='smooth vein wall LU2'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='NN--W---'/>
+        </enum-item>
+        <enum-item name='MineralWallSmoothL2D'>
+            <item-attr name='caption' value='smooth vein wall L2D'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--S-WW--'/>
+        </enum-item>
+
+        <enum-item name='MineralWallSmoothLD2'>
+            <item-attr name='caption' value='smooth vein wall LD2'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--SSW---'/>
+        </enum-item>
+        <enum-item name='MineralWallSmoothLRUD'>
+            <item-attr name='caption' value='smooth vein wall LRUD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-S-W-E-'/>
+        </enum-item>
+        <enum-item name='MineralWallSmoothRUD'>
+            <item-attr name='caption' value='smooth vein wall RUD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-S---E-'/>
+        </enum-item>
+        <enum-item name='MineralWallSmoothLRD'>
+            <item-attr name='caption' value='smooth vein wall LRD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--S-W-E-'/>
+        </enum-item>
+        <enum-item name='MineralWallSmoothLRU'>
+            <item-attr name='caption' value='smooth vein wall LRU'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N---W-E-'/>
+        </enum-item>
+        <enum-item name='MineralWallSmoothLUD'>
+            <item-attr name='caption' value='smooth vein wall LUD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-S-W---'/>
+        </enum-item>
+        <enum-item name='MineralWallSmoothRD'>
+            <item-attr name='caption' value='smooth vein wall RD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--S---E-'/>
+        </enum-item>
+        <enum-item name='MineralWallSmoothRU'>
+            <item-attr name='caption' value='smooth vein wall RU'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-----E-'/>
+        </enum-item>
+
+        -- 0x1B0
+
+        <enum-item name='MineralWallSmoothLU'>
+            <item-attr name='caption' value='smooth vein wall LU'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N---W---'/>
+        </enum-item>
+        <enum-item name='MineralWallSmoothLD'>
+            <item-attr name='caption' value='smooth vein wall LD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--S-W---'/>
+        </enum-item>
+        <enum-item name='MineralWallSmoothUD'>
+            <item-attr name='caption' value='smooth vein wall UD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-S-----'/>
+        </enum-item>
+        <enum-item name='MineralWallSmoothLR'>
+            <item-attr name='caption' value='smooth vein wall LR'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='----W-E-'/>
+        </enum-item>
+        <enum-item name='MineralFortification'>
+            <item-attr name='caption' value='vein fortification'/>
+            <item-attr name='shape' value='FORTIFICATION'/>
+            <item-attr name='material' value='MINERAL'/>
+        </enum-item>
+        <enum-item name='MineralWallWorn1'>
+            <item-attr name='caption' value='worn 1 vein wall'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='special' value='WORN_1'/>
+        </enum-item>
+        <enum-item name='MineralWallWorn2'>
+            <item-attr name='caption' value='worn 2 vein wall'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='special' value='WORN_2'/>
+        </enum-item>
+        <enum-item name='MineralWallWorn3'>
+            <item-attr name='caption' value='worn 3 vein wall'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='special' value='WORN_3'/>
+        </enum-item>
+
+        <enum-item name='MineralWall'>
+            <item-attr name='caption' value='vein wall'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='MineralFloor1'>
+            <item-attr name='caption' value='vein floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='variant' value='VAR_1'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='MineralFloor2'>
+            <item-attr name='caption' value='vein floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='variant' value='VAR_2'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='MineralFloor3'>
+            <item-attr name='caption' value='vein floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='variant' value='VAR_3'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='MineralFloor4'>
+            <item-attr name='caption' value='vein floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='variant' value='VAR_4'/>
+            <item-attr name='special' value='NORMAL'/>
+        </enum-item>
+        <enum-item name='MineralBoulder'>
+            <item-attr name='caption' value='vein boulder'/>
+            <item-attr name='shape' value='BOULDER'/>
+            <item-attr name='material' value='MINERAL'/>
+        </enum-item>
+        <enum-item name='MineralPebbles1'>
+            <item-attr name='caption' value='vein pebbles'/>
+            <item-attr name='shape' value='PEBBLES'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='variant' value='VAR_1'/>
+        </enum-item>
+        <enum-item name='MineralPebbles2'>
+            <item-attr name='caption' value='vein pebbles'/>
+            <item-attr name='shape' value='PEBBLES'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='variant' value='VAR_2'/>
+        </enum-item>
+
+        -- 0x1C0
+
+        <enum-item name='MineralPebbles3'>
+            <item-attr name='caption' value='vein pebbles'/>
+            <item-attr name='shape' value='PEBBLES'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='variant' value='VAR_3'/>
+        </enum-item>
+        <enum-item name='MineralPebbles4'>
+            <item-attr name='caption' value='vein pebbles'/>
+            <item-attr name='shape' value='PEBBLES'/>
+            <item-attr name='material' value='MINERAL'/>
+            <item-attr name='variant' value='VAR_4'/>
+        </enum-item>
+        <enum-item name='FrozenWallSmoothRD2'>
+            <item-attr name='caption' value='smooth ice wall RD2'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--SS--E-'/>
+        </enum-item>
+        <enum-item name='FrozenWallSmoothR2D'>
+            <item-attr name='caption' value='smooth ice wall R2D'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--S---EE'/>
+        </enum-item>
+        <enum-item name='FrozenWallSmoothR2U'>
+            <item-attr name='caption' value='smooth ice wall R2U'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-----EE'/>
+        </enum-item>
+        <enum-item name='FrozenWallSmoothRU2'>
+            <item-attr name='caption' value='smooth ice wall RU2'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='NN----E-'/>
+        </enum-item>
+        <enum-item name='FrozenWallSmoothL2U'>
+            <item-attr name='caption' value='smooth ice wall L2U'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N---WW--'/>
+        </enum-item>
+        <enum-item name='FrozenWallSmoothLU2'>
+            <item-attr name='caption' value='smooth ice wall LU2'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='NN--W---'/>
+        </enum-item>
+
+        <enum-item name='FrozenWallSmoothL2D'>
+            <item-attr name='caption' value='smooth ice wall L2D'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--S-WW--'/>
+        </enum-item>
+        <enum-item name='FrozenWallSmoothLD2'>
+            <item-attr name='caption' value='smooth ice wall LD2'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--SSW---'/>
+        </enum-item>
+        <enum-item name='FrozenWallSmoothLRUD'>
+            <item-attr name='caption' value='smooth ice wall LRUD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-S-W-E-'/>
+        </enum-item>
+        <enum-item name='FrozenWallSmoothRUD'>
+            <item-attr name='caption' value='smooth ice wall RUD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-S---E-'/>
+        </enum-item>
+        <enum-item name='FrozenWallSmoothLRD'>
+            <item-attr name='caption' value='smooth ice wall LRD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--S-W-E-'/>
+        </enum-item>
+        <enum-item name='FrozenWallSmoothLRU'>
+            <item-attr name='caption' value='smooth ice wall LRU'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N---W-E-'/>
+        </enum-item>
+        <enum-item name='FrozenWallSmoothLUD'>
+            <item-attr name='caption' value='smooth ice wall LUD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-S-W---'/>
+        </enum-item>
+        <enum-item name='FrozenWallSmoothRD'>
+            <item-attr name='caption' value='smooth ice wall RD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--S---E-'/>
+        </enum-item>
+
+        -- 0x1D0
+
+        <enum-item name='FrozenWallSmoothRU'>
+            <item-attr name='caption' value='smooth ice wall RU'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-----E-'/>
+        </enum-item>
+        <enum-item name='FrozenWallSmoothLU'>
+            <item-attr name='caption' value='smooth ice wall LU'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N---W---'/>
+        </enum-item>
+        <enum-item name='FrozenWallSmoothLD'>
+            <item-attr name='caption' value='smooth ice wall LD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--S-W---'/>
+        </enum-item>
+        <enum-item name='FrozenWallSmoothUD'>
+            <item-attr name='caption' value='smooth ice wall UD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-S-----'/>
+        </enum-item>
+        <enum-item name='FrozenWallSmoothLR'>
+            <item-attr name='caption' value='smooth ice wall LR'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='FROZEN_LIQUID'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='----W-E-'/>
+        </enum-item>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+
+        -- 0x1E0
+
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item name='ConstructedFloor'>
+            <item-attr name='caption' value='constructed floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+            <item-attr name='special' value='SMOOTH'/>
+        </enum-item>
+        <enum-item name='ConstructedFortification'>
+            <item-attr name='caption' value='constructed fortification'/>
+            <item-attr name='shape' value='FORTIFICATION'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+        </enum-item>
+        <enum-item name='ConstructedPillar'>
+            <item-attr name='caption' value='constructed pillar'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+            <item-attr name='special' value='SMOOTH'/>
+        </enum-item>
+
+        -- 0x1F0
+
+        <enum-item name='ConstructedWallRD2'>
+            <item-attr name='caption' value='constructed wall RD2'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--SS--E-'/>
+        </enum-item>
+        <enum-item name='ConstructedWallR2D'>
+            <item-attr name='caption' value='constructed wall R2D'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--S---EE'/>
+        </enum-item>
+        <enum-item name='ConstructedWallR2U'>
+            <item-attr name='caption' value='constructed wall R2U'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-----EE'/>
+        </enum-item>
+        <enum-item name='ConstructedWallRU2'>
+            <item-attr name='caption' value='constructed wall RU2'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='NN----E-'/>
+        </enum-item>
+        <enum-item name='ConstructedWallL2U'>
+            <item-attr name='caption' value='constructed wall L2U'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N---WW--'/>
+        </enum-item>
+        <enum-item name='ConstructedWallLU2'>
+            <item-attr name='caption' value='constructed wall LU2'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='NN--W---'/>
+        </enum-item>
+        <enum-item name='ConstructedWallL2D'>
+            <item-attr name='caption' value='constructed wall L2D'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--S-WW--'/>
+        </enum-item>
+        <enum-item name='ConstructedWallLD2'>
+            <item-attr name='caption' value='constructed wall LD2'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--SSW---'/>
+        </enum-item>
+
+        <enum-item name='ConstructedWallLRUD'>
+            <item-attr name='caption' value='constructed wall LRUD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-S-W-E-'/>
+        </enum-item>
+        <enum-item name='ConstructedWallRUD'>
+            <item-attr name='caption' value='constructed wall RUD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-S---E-'/>
+        </enum-item>
+        <enum-item name='ConstructedWallLRD'>
+            <item-attr name='caption' value='constructed wall LRD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--S-W-E-'/>
+        </enum-item>
+        <enum-item name='ConstructedWallLRU'>
+            <item-attr name='caption' value='constructed wall LRU'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N---W-E-'/>
+        </enum-item>
+        <enum-item name='ConstructedWallLUD'>
+            <item-attr name='caption' value='constructed wall LUD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-S-W---'/>
+        </enum-item>
+        <enum-item name='ConstructedWallRD'>
+            <item-attr name='caption' value='constructed wall RD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--S---E-'/>
+        </enum-item>
+        <enum-item name='ConstructedWallRU'>
+            <item-attr name='caption' value='constructed wall RU'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-----E-'/>
+        </enum-item>
+        <enum-item name='ConstructedWallLU'>
+            <item-attr name='caption' value='constructed wall LU'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N---W---'/>
+        </enum-item>
+
+        -- 0x200
+
+        <enum-item name='ConstructedWallLD'>
+            <item-attr name='caption' value='constructed wall LD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='--S-W---'/>
+        </enum-item>
+        <enum-item name='ConstructedWallUD'>
+            <item-attr name='caption' value='constructed wall UD'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='N-S-----'/>
+        </enum-item>
+        <enum-item name='ConstructedWallLR'>
+            <item-attr name='caption' value='constructed wall LR'/>
+            <item-attr name='shape' value='WALL'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+            <item-attr name='special' value='SMOOTH'/>
+            <item-attr name='direction' value='----W-E-'/>
+        </enum-item>
+        <enum-item name='ConstructedStairUD'>
+            <item-attr name='caption' value='constructed stair up/down'/>
+            <item-attr name='shape' value='STAIR_UPDOWN'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+        </enum-item>
+        <enum-item name='ConstructedStairD'>
+            <item-attr name='caption' value='constructed stair down'/>
+            <item-attr name='shape' value='STAIR_DOWN'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+        </enum-item>
+        <enum-item name='ConstructedStairU'>
+            <item-attr name='caption' value='constructed stair up'/>
+            <item-attr name='shape' value='STAIR_UP'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+        </enum-item>
+        <enum-item name='ConstructedRamp'>
+            <item-attr name='caption' value='constructed ramp'/>
+            <item-attr name='shape' value='RAMP'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+        </enum-item>
+    </enum-type>
+</data-definition>
+
+<!--
+Local Variables:
+indent-tabs-mode: nil
+nxml-child-indent: 4
+End:
+-->
