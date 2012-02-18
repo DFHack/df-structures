@@ -27,9 +27,7 @@
             (symbol-name-of it))))
 
 (defun is-stack-var? (arg)
-  (when (and (typep arg 'x86-argument-memory)
-             (eq (x86-argument-memory-base-reg arg) :esp)
-             (null (x86-argument-memory-index-reg arg)))
+  (when (x86-argument-matches? arg :base-reg :esp :index-reg nil)
     (x86-argument-memory-displacement arg)))
 
 (defun collect-ctor-globals (address)
@@ -73,71 +71,125 @@
        nconc (collect-ctor-globals addr))))
 
 (defun scan-linux-destructor (address)
-  (let* ((region (find-region-by-address (executable-of *process*) address))
-         (vector (data-bytes-of region))
-         (offset (start-offset-of region))
-         (unwinds (region-unwind-table (origin-of region))))
-    (let ((reg-state nil)
-          (stack-top nil)
-          (del-one (get-function-addrs "_ZdlPv"))
-          (del-arr (get-function-addrs "_ZdaPv"))
-          (del-str (get-function-addrs "_ZNSsD1Ev")))
-      (labels ((emit-call (cmd name)
-                 (format t "~X: call ~A (~A)~%"
+  (with-bytes-for-ref (vector offset *memory* 16 address)
+    (let* ((region (find-region-by-address (executable-of *process*) address))
+           (length nil)
+           (cur-cfa 4)
+           (push-depth 0)
+           (unwinds nil)
+           (reg-state nil)
+           (stack-top nil)
+           (del-one (get-function-addrs "_ZdlPv"))
+           (del-arr (get-function-addrs "_ZdaPv"))
+           (del-str (get-function-addrs "_ZNSsD1Ev")))
+      (when region
+        (setf vector (data-bytes-of region)
+              offset (start-offset-of region)
+              address (start-address-of region)
+              length (or (length-of region) length)
+              unwinds (region-unwind-table (origin-of region))))
+      (labels ((get-callee-name (addr)
+                 (cond ((member addr del-one)
+                        "delete")
+                       ((member addr del-arr)
+                        "delete[]")
+                       ((member addr del-str)
+                        "~string")
+                       (t
+                        (describe-function addr))))
+               (emit-call (cmd name)
+                 (format t "~X: call ~A: ~A~%"
                          (x86-instruction-address cmd)
                          name stack-top))
                (get-reg (reg)
                  (if reg
                      (or (assoc-value reg-state reg) "?")
-                     nil)))
+                     nil))
+               (invalidate-reg (arg)
+                 (when (and (typep arg 'x86-argument-register)
+                            (x86-argument-access-write? arg))
+                   (setf (assoc-value reg-state (x86-argument-register-id arg)) nil)))
+               (invalidate (cmd)
+                 (invalidate-reg (x86-instruction-argument1 cmd))
+                 (invalidate-reg (x86-instruction-argument2 cmd))))
         (disassemble-iter (cmd vector
-                               :start offset :base-address (start-address-of region)
-                               :end (aif (length-of region) (+ offset it))
+                               :start offset :base-address address
+                               :end (if length (+ offset length))
                                :errorp nil)
-          (case (x86-instruction-mnemonic cmd)
-            (:ret (return))
-            (:jmp
-             (let ((addr (x86-instruction-addr-value cmd)))
-               (unless (<= 0 (- addr (start-address-of region))
-                           (or (length-of region) 16384))
-                 (emit-call cmd (describe-function addr))
-                 (return))))
-            (:call
-             (let ((addr (x86-instruction-addr-value cmd)))
-               (cond ((member addr del-one)
-                      (emit-call cmd "delete"))
-                     ((member addr del-arr)
-                      (emit-call cmd "delete[]"))
-                     ((member addr del-str)
-                      (emit-call cmd "~string"))
-                     (t
-                      (emit-call cmd (describe-function addr))))))
-            ((:mov :lea)
-             (let ((arg1 (x86-instruction-argument1 cmd))
-                   (arg2 (x86-instruction-argument2 cmd)))
-               (let ((val (acond ((is-stack-var? arg2)
-                                  (let ((unwind (lookup-chunk unwinds (x86-instruction-address cmd))))
-                                    (when (and unwind (= it (unwind-state-cfa unwind)))
-                                      "object")))
-                                 ((typep arg2 'x86-argument-register)
-                                  (get-reg (x86-argument-register-id arg2)))
-                                 ((typep arg2 'x86-argument-memory)
-                                  (let ((val
-                                         (if (and (null (x86-argument-memory-index-reg arg2))
-                                                  (= (x86-argument-memory-displacement arg2) 0))
-                                             (get-reg (x86-argument-memory-base-reg arg2))
-                                             (format nil "~@[~A+~]~{~A*~A+~}0x~X"
-                                                     (get-reg (x86-argument-memory-base-reg arg2))
-                                                     (awhen (get-reg (x86-argument-memory-index-reg arg2))
-                                                       (list it (x86-argument-memory-scale arg2)))
-                                                     (x86-argument-memory-displacement arg2)))))
-                                    (if (eq (x86-instruction-mnemonic cmd) :lea)
-                                        val
-                                        (concatenate 'string "[" val "]"))))
-                                 ((typep arg2 'x86-argument-constant)
-                                  (format nil "0x~X" (x86-instruction-immediate cmd))))))
+          (let ((opcode (x86-instruction-mnemonic cmd))
+                (arg1 (x86-instruction-argument1 cmd))
+                (arg2 (x86-instruction-argument2 cmd))
+                (addr (x86-instruction-addr-value cmd))
+                (imm (x86-instruction-immediate cmd)))
+            (case opcode
+              (:ret (return))
+              ;; Track stack frame changes
+              (:push
+               (incf cur-cfa 4)
+               (incf push-depth))
+              (:pop
+               (decf cur-cfa 4)
+               (decf push-depth)
+               (setf stack-top nil)
+               (invalidate cmd))
+              ((:sub :add)
+               (when (and (x86-argument-matches? arg1 :reg-id :esp)
+                          (typep arg2 'x86-argument-constant))
+                 (incf cur-cfa (if (eq opcode :sub) imm (- imm))))
+               (invalidate cmd))
+              ;; Bail out on tail-call
+              (:jmp
+               (unless (and (<= address addr)
+                            (or (and length (< (- addr address) length))
+                                (= cur-cfa 4)))
+                 (emit-call cmd (get-callee-name addr))
+                 (return)))
+              ;; Log calls
+              (:call
+               (emit-call cmd (get-callee-name addr)))
+              ;; Save move and lea arithmetic
+              ((:mov :lea)
+               (let ((val
+                      (typecase arg2
+                        (x86-argument-register
+                         (get-reg (x86-argument-register-id arg2)))
+                        (x86-argument-constant
+                         (format nil "0x~X" imm))
+                        (x86-argument-memory
+                         (aif (is-stack-var? arg2)
+                              (let ((unwind (when unwinds
+                                              (lookup-chunk unwinds (x86-instruction-address cmd)))))
+                                (when (if unwind
+                                          (= it (unwind-state-cfa unwind))
+                                          (= it cur-cfa))
+                                  "this"))
+                              (let* ((base (x86-argument-memory-base-reg arg2))
+                                     (disp (x86-argument-memory-displacement arg2))
+                                     (idx (x86-argument-memory-index-reg arg2))
+                                     (val
+                                      (cond (base
+                                             (format nil "~A~{+~A*~A~}~@[~A~]"
+                                                     (get-reg base)
+                                                     (when idx
+                                                       (list (get-reg idx)
+                                                             (x86-argument-memory-scale arg2)))
+                                                     (when (/= disp 0)
+                                                       (format-hex-offset disp :force-sign? t))))
+                                            (idx
+                                             (format nil "~@[~A+~]~A*~A~@[~A~]"
+                                                     (get-reg base)
+                                                     (get-reg idx) (x86-argument-memory-scale arg2)
+                                                     (when (/= disp 0)
+                                                       (format-hex-offset disp :force-sign? t))))
+                                            (t
+                                             (format-hex-offset disp)))))
+                                (if (eq opcode :lea)
+                                    val
+                                    (concatenate 'string "[" val "]"))))))))
                  (acond ((is-stack-var? arg1)
                          (when (= it 0)
                            (setf stack-top val)))
                         ((typep arg1 'x86-argument-register)
-                         (setf (assoc-value reg-state (x86-argument-register-id arg1)) val))))))))))))
+                         (setf (assoc-value reg-state (x86-argument-register-id arg1)) val)))))
+              ;;
+              (otherwise (invalidate cmd)))))))))
