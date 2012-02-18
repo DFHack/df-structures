@@ -47,16 +47,17 @@
                          (let ((cmstr (format nil "~{ctor ~A; ~}dtor ~A"
                                               (mapcar #'describe-function ctors)
                                               (describe-function dtor-addr))))
-                           (when globals
+                           (when (and globals (null (size-of (first globals))))
                              (let ((size (- obj-addr (offset-of (first globals)))))
                                (when (> size 0)
                                  (setf (size-of (first globals)) size))))
-                           (push (make-instance 'global-object
-                                                :name (cl-linux-debug.data-info::get-$-field
-                                                       (format nil "obj_~X" obj-addr))
-                                                :offset obj-addr
-                                                :comment (make-instance 'comment :content cmstr))
-                                 globals)
+                           (when obj-addr
+                             (push (make-instance 'global-object
+                                                  :name (cl-linux-debug.data-info::get-$-field
+                                                         (format nil "obj_~X" obj-addr))
+                                                  :offset obj-addr
+                                                  :comment (make-instance 'comment :content cmstr))
+                                   globals))
                            (setf dtor-addr nil obj-addr nil ctors nil))
                          (push addr ctors))))
             (:mov (when (typep (x86-instruction-argument2 cmd) 'x86-argument-constant)
