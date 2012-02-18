@@ -73,7 +73,7 @@
 (reload)
 (resume)
 
-(open-annotations "v0.34.01.lst")
+(open-annotations "v0.34.02.lst")
 
 (defun write-csv (context filename gfilename)
   (let ((*known-types* (remove-if-not #'consp *known-types* :key #'car))
@@ -87,10 +87,10 @@
 
 (defun make-csv ()
   (write-csv (make-instance 'type-context :os-type $windows
-                            :executable-hashes '((#x4F391A33 . 0)))
+                            :executable-hashes '((#x4F3F88BC . 0)))
              "windows/all.csv" "windows/globals.csv")
   (write-csv (make-instance 'type-context :os-type $linux
-                            :executable-hashes '(("a42a074afa7e14bb4ee0484a000d88bd" . 0)))
+                            :executable-hashes '(("f4fc83475f9fdaa645f3217c57458235" . 0)))
              "linux/all.csv" "linux/globals.csv"))
 
 (defun browse-list (start)
