@@ -73,6 +73,8 @@
 (reload)
 (resume)
 
+(open-annotations "v0.34.01.lst")
+
 (defun write-csv (context filename gfilename)
   (let ((*known-types* (remove-if-not #'consp *known-types* :key #'car))
         (*known-globals* nil)
@@ -97,3 +99,9 @@
              collect $node.item)))
 
 (load "disasm.lisp")
+
+(defun reset-state-annotation ()
+  (annotate-all *memory* :status :unchecked
+                :filter @$(and (typep $ '(or struct-compound-item enum-field))
+                               (name-of $))
+                :namespace nil))
