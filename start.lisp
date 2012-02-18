@@ -105,3 +105,7 @@
                 :filter @$(and (typep $ '(or struct-compound-item enum-field))
                                (name-of $))
                 :namespace nil))
+
+(defun browse-dataseg ()
+  (let ((img (main-image-of (executable-of *process*))))
+    (browse-addr (start-address-of (find-section-by-name img ".data")))))
