@@ -106,6 +106,60 @@
                 </code-helper>
             </stl-bit-vector>
         </pointer>
+
+        <pointer comment='v0.34.01'>
+            <stl-vector name="unk_0"/>
+            <int32_t name="unk_10"/>
+            <stl-vector name="unk_14"/>
+        </pointer>
+
+        <pointer name='curse' comment='v0.34.01'>
+            <stl-vector name="curses">
+                <pointer/>
+            </stl-vector>
+            <stl-vector name="interaction_effects">
+                <pointer/>
+            </stl-vector>
+            <stl-vector name="unk_20"/>
+            <pointer name="unk_30"/>
+            <int32_t name="unk_34"/>
+            <int32_t name="unk_38"/>
+            <int32_t name="unk_3c"/>
+            <int8_t name="unk_40"/>
+            <stl-string name="name"/>
+            <stl-string name="name_plural"/>
+            <stl-string name="name_adjective"/>
+            <int32_t name='race' ref-target='creature_raw'/>
+            <int16_t name='caste' ref-target='caste_raw' aux-value='$$.race'/>
+            <stl-vector name="unk_a0"/>
+            <stl-vector name="unk_b0"/>
+            <stl-vector name="unk_c0">
+                <int32_t/>
+            </stl-vector>
+            <int32_t name="unk_d0"/>
+            <int32_t name="unk_d4"/>
+            <int32_t name="unk_d8"/>
+            <int32_t name="unk_dc"/>
+            <stl-string name="unk_e0"/>
+            <int32_t name="unk_fc"/>
+        </pointer>
+
+        <pointer comment='v0.34.01'/>
+
+        <pointer name='disguise' comment='v0.34.01'>
+            <stl-vector name="unk_0">
+                <pointer>
+                    <int32_t name='entity_id' ref-target='historical_entity'/>
+                    <int32_t name="year"/>
+                    <int32_t name="year_time"/>
+                    <int32_t name="unk_c"/>
+                </pointer>
+            </stl-vector>
+            <int32_t name="cur_identity" ref-target='assumed_identity'/>
+            <stl-vector name="unk_14">
+                <int32_t ref-target='assumed_identity'/>
+            </stl-vector>
+        </pointer>
     </struct-type>
 
     <struct-type type-name='historical_figure' instance-vector='$global.world.history.figures' key-field='id'>
@@ -119,9 +173,9 @@
         <int32_t name='appeared_year'/>
         <int32_t name='born_year'/>
         <int32_t name='born_seconds'/>
+        <int32_t name='curse_year' comment='v0.34.01'/>
+        <int32_t name='curse_seconds' comment='v0.34.01'/>
 
-        <int32_t comment='v0.34.01, appear to match addition to unit.relations'/>
-        <int32_t comment='v0.34.01'/>
         <int32_t comment='v0.34.01'/>
         <int32_t comment='v0.34.01'/>
 
@@ -172,6 +226,27 @@
             </pointer>
             <int32_t name="unk_10"/>
         </compound>
+    </struct-type>
+
+    <struct-type type-name='assumed_identity'
+                 instance-vector='$global.world.assumed_identities.all' key-field='id'>
+        dtor 0x8C17FA0
+
+        <int32_t name='id'/>
+        <compound name='name' type-name='language_name'/>
+
+        <code-helper name='describe'>
+            (describe-obj $.name)
+            (awhen (find-creature $.race)
+              (fmt "~:(~A ~A~)" $it.caste[$.caste].caste_id $it.creature_id))
+        </code-helper>
+
+        <int32_t name='race' ref-target='creature_raw'/>
+        <int16_t name='caste' ref-target='caste_raw' aux-value='$$.race'/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t name='birth_year' comment='the fake one, that is'/>
+        <int32_t name='birth_second'/>
     </struct-type>
 
     <enum-type type-name='history_event_type'>
