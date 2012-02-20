@@ -349,6 +349,8 @@ sub fully_qualified_name($$;$) {
     for my $parent ($tag->findnodes('ancestor::*')) {
         if ($parent->nodeName eq 'ld:global-type') {
             push @names, $parent->getAttribute('type-name');
+        } elsif ($parent->nodeName eq 'ld:global-object') {
+            push @names, 'global';
         } elsif (my $n = $parent->getAttribute('ld:typedef-name')) {
             push @names, $n;
         }

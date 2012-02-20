@@ -86,6 +86,7 @@ with_header_file {
         for my $name (sort { $a cmp $b } keys %globals) {
             local $typename = $name;
             local $filename = $global_files{$typename};
+            local $in_struct_body = 1;
 
             eval {
                 my $tag = $globals{$typename};
