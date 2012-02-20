@@ -1,54 +1,117 @@
 <data-definition>
+    <enum-type type-name='weather_type' base-type='int8_t'>
+        <enum-item name='None'/>
+        <enum-item name='Rain'/>
+        <enum-item name='Snow'/>
+    </enum-type>
+
     -- .data
 
-    <global-object name='cursor' type-name='cursor'/>
-    <global-object name='selection_rect' type-name='selection_rect'/>
+    <!-- Cursor: to find, look in the non-bss .data segment -->
+    <global-object name='cursor'>
+        <int32_t name='x'/>
+        <int32_t name='y'/>
+        <int32_t name='z'/>
+    </global-object>
+
+    <!-- Designation selection rect: to find, look just after cursor for six -30000 values. -->
+    <global-object name='selection_rect'>
+        <int32_t name='start_x'/>
+        <int32_t name='start_y'/>
+        <int32_t name='start_z'/>
+        <int32_t name='end_x'
+                 comment='only valid for an instant while its being completed'/>
+        <int32_t name='end_y'/>
+        <int32_t name='end_z'/>
+    </global-object>
+
+    <global-object name='control_mode' type-name='int32_t'/>
+    <global-object name='game_mode' type-name='int32_t'/>
 
     -- .bss compound
 
-    <global-object name='gps' type-name='graphic'/>
-
-    <global-object name='ui' type-name='ui'/>
-    <global-object name='gview' type-name='interface'/>
-    <global-object name='world' type-name='world'/>
-    <global-object name='init' type-name='init'/>
-    <global-object name='d_init' type-name='d_init'/>
     <global-object name='announcements' type-name='announcements'/>
 
-    <global-object name='ui_sidebar_menus' type-name='ui_sidebar_menus'/>
-    <global-object name='ui_build_selector' type-name='ui_build_selector'/>
-    <global-object name='ui_look_list' type-name='ui_look_list'/>
-
+    <!-- To find: with world, place cursor over unit, and trace pointers to unit -->
     <global-object name='cursor_unit_list'>
-        <!-- Actually preceeded by 64K of bytes in the same object. -->
-        <stl-vector>
+        <padding size='65536'/>
+        <stl-vector name='units'>
             <pointer type-name='unit'/>
         </stl-vector>
     </global-object>
+
+    <global-object name='d_init' type-name='d_init'/>
+    <global-object name='gps' type-name='graphic'/>
+
+    <!-- To find: search for strings in the welcome or textview screen, then trace pointers -->
+    <global-object name='gview' type-name='interface'/>
+
+    <global-object name='init' type-name='init'/>
+
+    <!-- To find: create squad, enter the 's' menu, trace pointers to squad -->
+    <global-object name='ui' type-name='ui'/>
+
+    <!-- To find: start creating a building, trace the build material item pointers -->
+    <global-object name='ui_build_selector' type-name='ui_build_selector'/>
+
+    <!-- To find: place loo'k' cursor over a unit, trace pointers to unit -->
+    <global-object name='ui_look_list' type-name='ui_look_list'/>
+
+    <!-- To find: select a unit in 'v'iew, open inventory page, trace unit.inventory.* pointers -->
+    <global-object name='ui_sidebar_menus' type-name='ui_sidebar_menus'/>
+
+    <!-- To find: search for unit nickname, backtrace pointers to find the main unit list. -->
+    <global-object name='world' type-name='world'/>
 
     -- .bss primitive
 
     <global-object name='cur_year' type-name='int32_t'/>
     <global-object name='cur_year_tick' type-name='int32_t'/>
 
+    <global-object name='current_weather'>
+        <static-array count='5'>
+            <static-array count='5'>
+                <enum base-type='int8_t' type-name='weather_type'/>
+            </static-array>
+        </static-array>
+    </global-object>
+
+    <!-- To find: create a job, search for value == the next job id -->
     <global-object name='job_next_id' type-name='int32_t'/>
 
-    <global-object name='ui_workshop_job_cursor'>
-        <int32_t refers-to='$global.world.selected_building.jobs[$]'/>
-    </global-object>
-    <global-object name='ui_workshop_in_add' type-name='bool'/>
+    <global-object name='pause_state' type-name='bool'/>
+
+    <!-- To find: open building i't'ems, move list highlight around, search for changes -->
     <global-object name='ui_building_item_cursor'>
         <int32_t/>
     </global-object>
 
-    <global-object name='ui_selected_unit'>
-        <int32_t refers-to='$global.world.units.other[0][$]'/>
-    </global-object>
-    <global-object name='ui_unit_view_mode' type-name='ui_unit_view_mode'/>
-
+    <!-- To find: enter loo'k' mode, move list highlight around, search for changes -->
     <global-object name='ui_look_cursor'>
         <int32_t refers-to='$global.ui_look_list.items[$]'/>
     </global-object>
+
+    <!-- To find: enter unit 'v'iew mode, move to a point with multiple units
+         within range, toggle them by pressing 'v', search for changes. -->
+    <global-object name='ui_selected_unit'>
+        <int32_t refers-to='$global.world.units.other[0][$]'/>
+    </global-object>
+
+    <!-- To find: enter unit 'v'iew mode, switch pages, search for changes -->
+    <global-object name='ui_unit_view_mode' type-name='ui_unit_view_mode'/>
+
+    <!-- To find: enter 'q'uery, add jobs, see which bool changes between
+         the main query page and selecting job to add. -->
+    <global-object name='ui_workshop_in_add' type-name='bool'/>
+
+    <!-- To find: enter 'q'uery, move the job list highlight, search for changes. -->
+    <global-object name='ui_workshop_job_cursor'>
+        <int32_t refers-to='$global.world.selected_building.jobs[$]'/>
+    </global-object>
+
+    <global-object name='window_x' type-name='int32_t'/>
+    <global-object name='window_y' type-name='int32_t'/>
+    <global-object name='window_z' type-name='int32_t'/>
 </data-definition>
 
 <!--
