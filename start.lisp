@@ -109,3 +109,20 @@
 (defun browse-dataseg ()
   (let ((img (main-image-of (executable-of *process*))))
     (browse-addr (start-address-of (find-section-by-name img ".data")))))
+
+(defun prompt (fmt &rest args)
+  (apply #'format t fmt args)
+  (finish-output *standard-output*)
+  (read))
+
+(defun find-changes ()
+  (let ((info (begin-find-changes *memory*)))
+    (loop for cmd = (prompt "~S~%Enter 0/1/2/done/abort: " info)
+       do (case cmd
+            (0 (update-find-changes info *memory* :unchanged))
+            (1 (update-find-changes info *memory* :changed-back))
+            (2 (update-find-changes info *memory* :changed-again))
+            (abort (return))
+            (done
+             (browse (get-found-changes info *memory*))
+             (return))))))
