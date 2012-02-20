@@ -34,29 +34,33 @@
     </struct-type>
 
     <struct-type type-name='historical_figure_info'>
-        <pointer name="unk_0">
+        <pointer name="spheres">
             <stl-vector>
-                <int16_t/>
+                <enum base-type='int16_t' type-name='sphere_type'/>
             </stl-vector>
         </pointer>
 
-        <pointer name="unk_4">
-            <stl-vector name="unk_0">
-                <int16_t/>
+        <pointer name="skills">
+            <stl-vector name="skills">
+                <enum base-type='int16_t' type-name='job_skill'/>
             </stl-vector>
-            <stl-vector name="unk_10">
+            <stl-vector name="points" index-refers-to='$$._parent.skills[$]'>
                 <int32_t/>
             </stl-vector>
-            <stl-vector name="unk_20"/>
-            <stl-vector name="unk_30"/>
+            <stl-vector name="unk_20">
+                <int16_t/>
+            </stl-vector>
+            <stl-vector name="unk_30">
+                <int32_t/>
+            </stl-vector>
             <stl-vector name="unk_40" type-name='int16_t'/>
             <stl-vector name="unk_50" type-name='int16_t'/>
             <int16_t name="unk_60"/>
         </pointer>
 
-        <pointer name="unk_8">
+        <pointer name="pets">
             <stl-vector>
-                <int16_t/>
+                <int16_t ref-target='creature_raw'/>
             </stl-vector>
         </pointer>
 
@@ -71,6 +75,7 @@
             <stl-vector name="unk_4c">
                 <int16_t/>
             </stl-vector>
+            <stl-vector name="unk_5c" comment='v0.34.01'/>
         </pointer>
 
         <pointer name="masterpieces">
@@ -148,10 +153,14 @@
             <int32_t name="unk_fc"/>
         </pointer>
 
-        <pointer comment='v0.34.01'/>
+        <pointer name='books' comment='v0.34.01'>
+            <stl-vector>
+                <pointer type-name='artifact_record'/>
+            </stl-vector>
+        </pointer>
 
-        <pointer name='disguise' comment='v0.34.01'>
-            <stl-vector name="unk_0">
+        <pointer name='reputation' comment='v0.34.01'>
+            <stl-vector name="entity">
                 <pointer>
                     <int32_t name='entity_id' ref-target='historical_entity'/>
                     <int32_t name="year"/>
@@ -413,9 +422,9 @@
     </class-type>
 
     <class-type type-name='history_event_created_sitest' inherits-from='history_event'>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
+        <int32_t name='civ_id' ref-target='historical_entity'/>
+        <int32_t name='group_id' ref-target='historical_entity'/>
+        <int32_t name='site_id' ref-target='world_site'/>
     </class-type>
 
     <class-type type-name='history_event_hist_figure_diedst' inherits-from='history_event'>
@@ -440,15 +449,15 @@
     </class-type>
 
     <class-type type-name='history_event_add_hf_entity_linkst' inherits-from='history_event'>
-        <int32_t/>
-        <int32_t/>
+        <int32_t name='entity_id' ref-target='historical_entity'/>
+        <int32_t name='histfig' ref-target='historical_figure'/>
         <int32_t/>
         <int32_t/>
     </class-type>
 
     <class-type type-name='history_event_remove_hf_entity_linkst' inherits-from='history_event'>
-        <int32_t/>
-        <int32_t/>
+        <int32_t name='entity_id' ref-target='historical_entity'/>
+        <int32_t name='histfig' ref-target='historical_figure'/>
         <int32_t/>
         <int32_t/>
     </class-type>
@@ -646,9 +655,9 @@
     </class-type>
 
     <class-type type-name='history_event_add_hf_hf_linkst' inherits-from='history_event'>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
+        <int32_t name='histfig1' ref-target='historical_figure'/>
+        <int32_t name='histfig2' ref-target='historical_figure'/>
+        <enum base-type='int32_t' name='type' type-name='histfig_hf_link_type'/>
     </class-type>
 
     <class-type type-name='history_event_remove_hf_hf_linkst' inherits-from='history_event'>
@@ -747,18 +756,17 @@
         <int32_t name='histfig' ref-target='historical_figure'/>
         <int16_t/>
         <int32_t/>
+        <int32_t name='site' ref-target='world_site'/>
         <int32_t name='region' ref-target='world_region'/>
         <int32_t/>
-        <int16_t/>
-        <int16_t/>
-        <int32_t comment='0.34.01'/>
+        <compound name='region_pos' type-name='coord2d'/>
     </class-type>
 
     <class-type type-name='history_event_change_hf_jobst' inherits-from='history_event'>
-        <int32_t/>
-        <int16_t/>
-        <int16_t/>
-        <int32_t/>
+        <int32_t name='histfig' ref-target='historical_figure'/>
+        <enum base-type='int16_t' name='new_job' type-name='profession'/>
+        <enum base-type='int16_t' name='old_job' type-name='profession' comment='maybe'/>
+        <int32_t name='site' ref-target='world_site'/>
         <int32_t/>
         <int32_t/>
     </class-type>
@@ -859,7 +867,7 @@
     <class-type type-name='history_event_creature_devouredst' inherits-from='history_event'>
         <int32_t/>
         <int32_t comment='uninitialized'/>
-        <int32_t comment='uninitialized'/>
+        <int16_t comment='uninitialized'/>
         <int32_t/>
         <int32_t/>
         <int32_t/>
@@ -877,12 +885,16 @@
         <int16_t/>
         <int16_t/>
         <int16_t/>
-        <int16_t/>
+        <int8_t/>
     </class-type>
 
     <class-type type-name='history_event_hist_figure_simple_battle_eventst' inherits-from='history_event'>
-        <stl-vector/>
-        <stl-vector/>
+        <stl-vector name='side1'>
+            <int32_t ref-target='historical_figure'/>
+        </stl-vector>
+        <stl-vector name='side2'>
+            <int32_t ref-target='historical_figure'/>
+        </stl-vector>
         <int32_t/>
         <int32_t/>
         <int32_t/>
@@ -915,18 +927,23 @@
     </class-type>
 
     <class-type type-name='history_event_hist_figure_travelst' inherits-from='history_event'>
-        <stl-vector/>
+        <stl-vector name='figures'>
+            <int32_t ref-target='historical_figure'/>
+        </stl-vector>
         <int32_t/>
         <int32_t/>
         <int32_t/>
         <int32_t/>
-        <int16_t/>
-        <int16_t/>
+        <compound name='region_pos' type-name='coord2d'/>
     </class-type>
 
     <class-type type-name='history_event_hist_figure_new_petst' inherits-from='history_event'>
-        <stl-vector/>
-        <stl-vector/>
+        <stl-vector name='figures'>
+            <int32_t ref-target='historical_figure'/>
+        </stl-vector>
+        <stl-vector name='pets'>
+            <int16_t ref-target='creature_raw'/>
+        </stl-vector>
         <int32_t/>
         <int32_t/>
         <int32_t/>
