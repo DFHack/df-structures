@@ -113,16 +113,34 @@
 (defun prompt (fmt &rest args)
   (apply #'format t fmt args)
   (finish-output *standard-output*)
-  (read))
+  (with-simple-restart (continue "Ignore parse error")
+    (read-from-string (concatenate 'string "(" (read-line) ")"))))
 
 (defun find-changes ()
-  (let ((info (begin-find-changes *memory*)))
-    (loop for cmd = (prompt "~S~%Enter 0/1/2/done/abort: " info)
-       do (case cmd
-            (0 (update-find-changes info *memory* :unchanged))
-            (1 (update-find-changes info *memory* :changed-back))
-            (2 (update-find-changes info *memory* :changed-again))
-            (abort (return))
-            (done
-             (browse (get-found-changes info *memory*))
-             (return))))))
+  (refresh)
+  (prompt "Make the first change and press enter...")
+  (let ((info (begin-find-changes *memory*))
+        (found nil))
+    (loop for cmd = (prompt "~S~%Enter 0-~A/+ delta/new/done/abort: "
+                            info (1- (length (value-sets-of info))))
+       do (with-simple-restart (continue "Ignore error")
+            (if (numberp (first cmd))
+                ;; Return to a previous state
+                (update-find-changes info :state (first cmd))
+                (case (first cmd)
+                  ;; Known increment to a previous value
+                  (+ (update-find-changes info
+                                          :increment (or (second cmd) 1)
+                                          :state (third cmd)))
+                  ;; Completely new value
+                  ((n new) (update-find-changes info))
+                  ;; Quit
+                  (abort
+                   (return))
+                  (done
+                   (setf found (get-found-changes info))
+                   (return))))))
+    (refresh)
+    (if found
+        (browse found)
+        (format t "No changes found.~%"))))
