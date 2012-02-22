@@ -39,6 +39,36 @@
         <enum-item/>
     </enum-type>
 
+    <struct-type type-name='death_info'
+                 instance-vector='$global.world.deaths.all' key-field='id'>
+        dtor 0x8C1AE10
+
+        <int32_t name='id'/>
+        <int32_t name="unk_4"/>
+
+        <stl-vector name="unk_8">
+            <int32_t ref-target='unit'/>
+        </stl-vector>
+
+        <int32_t name="victim" ref-target='unit'/>
+        <int32_t name="killer" ref-target='unit'/>
+        <int32_t name="crime_id" ref-target='criminal_case'/>
+
+        <int32_t name='site' ref-target='world_site'/>
+        <int32_t name='entity' ref-target='historical_entity'/>
+
+        <int32_t name='event_year'/>
+        <int32_t name='event_time'/>
+
+        <bitfield name='flags'>
+            <flag-bit name='announced_missing'/>
+            <flag-bit name='discovered'/>
+        </bitfield>
+
+        <int16_t name="death_cause"
+                 comment='drained of blood, etc - a switch key'/>
+    </struct-type>
+
     <struct-type type-name='criminal_case'
                  instance-vector='$global.world.criminal_cases.all' key-field='id'>
         dtor 0x8C166D0
@@ -64,13 +94,19 @@
         <int32_t name='convicted' ref-target='unit'/>
         <int32_t name='victim' ref-target='unit'/>
 
-        <int32_t/>
-        <int32_t/>
+        <bitfield name='flags'>
+            <flag-bit name='sentenced'/>
+            <flag-bit name='discovered'/>
+            <flag-bit name='needs_trial'
+                      comment='i.e. the player chooses whom to convict'/>
+        </bitfield>
+
+        <int32_t name='death_id' ref-target='death_info'/>
 
         <int32_t name='event_year'/>
         <int32_t name='event_time'/>
-        <int32_t name='solved_year'/>
-        <int32_t name='solved_time'/>
+        <int32_t name='discovered_year'/>
+        <int32_t name='discovered_time'/>
 
         <int32_t name='site' ref-target='world_site'/>
         <int32_t name='entity' ref-target='historical_entity'/>
@@ -489,12 +525,12 @@
             </stl-vector>
         </compound>
 
-        <compound name='unk_52d44' comment='v0.34.01'>
+        <compound name='deaths' comment='v0.34.01'>
             <stl-vector name='all'>
-                <pointer/> dtor 0x8C1AE10
+                <pointer type-name='death_info'/>
             </stl-vector>
             <stl-vector name='bad' has-bad-pointers='true'>
-                <pointer/>
+                <pointer type-name='death_info'/>
             </stl-vector>
         </compound>
 
