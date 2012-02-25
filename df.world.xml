@@ -413,9 +413,9 @@
             </static-array>
         </compound>
 
-        -- Unknown
+        -- Adventure quests
 
-        <padding name='unk_14618' size='12' comment='linked list'/>
+        <compound name='quests' type-name='quest_list_link'/>
 
         -- Unknown
 
@@ -819,36 +819,88 @@
 
         <int32_t name="unk_192cc4"/>
 
-        <compound name='unk_192cc8'>
-            <stl-vector/>
-            <stl-vector/>
+        <compound name='arena_spawn'>
+            <stl-vector name='race'>
+                <int16_t ref-target='creature_raw'/>
+            </stl-vector>
+            <stl-vector name='caste'>
+                <int16_t ref-target='caste_raw' aux-value='$$._parent.race[$._key]'/>
+            </stl-vector>
 
-            <padding size='4'/>
+            <int32_t name='type' refers-to='$$._parent.caste[$].ref-target'/>
 
-            <static-array count='105' comment='true array'>
-                <stl-vector type-name='pointer'/>
+            <static-array name='item_types' count='105' comment='true array'>
+                <stl-vector>
+                    <pointer>
+                        <enum base-type='int16_t' name='item_type' type-name='item_type'/>
+                        <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
+
+                        <int16_t name='mattype' ref-target='material' aux-value='$$.matindex'/>
+                        <int32_t name='matindex'/>
+
+                        <bool/>
+                    </pointer>
+                </stl-vector>
             </static-array>
 
             <stl-vector/>
             <stl-vector/>
             <stl-vector/>
 
-            <static-array count='7'>
-                <stl-vector/>
-            </static-array>
+            <compound name='equipment'>
+                <stl-vector name='skills'>
+                    <enum base-type='int16_t' type-name='job_skill'/>
+                </stl-vector>
+                <stl-vector name='skill_levels' type-name='int32_t'
+                            index-refers-to='$$._parent.skills[$]'/>
 
-            <padding size='8'/>
+                <stl-vector name='item_types'>
+                    <enum base-type='int16_t' type-name='item_type'/>
+                </stl-vector>
+                <stl-vector name='item_subtypes'>
+                    <int16_t refers-to='(item-subtype-target $$._parent._parent.item_types[$$._key] $)'/>
+                </stl-vector>
+                <compound name='item_materials' type-name='material_vec_ref'/>
+                <stl-vector name='item_counts' type-name='int32_t'/>
+            </compound>
 
-            <stl-vector/>
-            <stl-vector comment='v0.34.01'/>
+            <int32_t name='side'/>
+            <int32_t name='interaction' refers-to='$$._parent.interactions[$]'/>
+
+            <stl-vector name='interactions' type-name='pointer' comment='v0.34.01'/>
+            <stl-vector name='creature_cnt' type-name='int32_t'
+                        index-refers-to='(find-instance $creature_raw $)'/>
         </compound>
 
         <compound name='unk_19325c'>
-            <static-array count='3'>
-                <stl-vector type-name='pointer'/>
-            </static-array>
+            <stl-vector>
+                <pointer>
+                    <int32_t/>
+                    <int32_t/>
+                    <int16_t/>
+                    <int32_t/>
+                    <int32_t/>
+                    <int32_t/>
+                </pointer>
+            </stl-vector>
+            <stl-vector>
+                <pointer>
+                    <int32_t/>
+                    <int32_t/>
+                </pointer>
+            </stl-vector>
+            <stl-vector>
+                <pointer>
+                    <int16_t/>
+                    <int32_t/>
+                    <int32_t/>
+                    <int32_t/>
+                </pointer>
+            </stl-vector>
 
-            <padding size='12'/>
+            <int32_t/>
+            <int32_t/>
+            <int32_t/>
         </compound>
     </struct-type>
 </data-definition>

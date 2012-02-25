@@ -122,3 +122,6 @@
                   ($PANTS $defs.pants)
                   ($FOOD $defs.food))))
     $table[subtype]))
+
+(defun name-has-substring? (name substring)
+  (some @$(search substring $) (describe-obj name)))
