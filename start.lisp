@@ -68,12 +68,12 @@
 
 ;; disable the known object walk to speed up xml loading
 ;; use when updating for a new version
-;(setf (enumerate-known-objects? *memory*) nil)
+(setf (enumerate-known-objects? *memory*) nil)
 
 (reload)
 (resume)
 
-(open-annotations "v0.34.02.lst")
+(open-annotations "v0.34.03.lst")
 
 (defun write-csv (context filename gfilename)
   (let ((*known-types* (remove-if-not #'consp *known-types* :key #'car))
@@ -87,10 +87,10 @@
 
 (defun make-csv ()
   (write-csv (make-instance 'type-context :os-type $windows
-                            :executable-hashes '((#x4F3F88BC . 0)))
+                            :executable-hashes '((#x4F4CD85B . 0)))
              "windows/all.csv" "windows/globals.csv")
   (write-csv (make-instance 'type-context :os-type $linux
-                            :executable-hashes '(("f4fc83475f9fdaa645f3217c57458235" . 0)))
+                            :executable-hashes '(("5502e97b11f528f124b01bdc87182101" . 0)))
              "linux/all.csv" "linux/globals.csv"))
 
 (defun browse-list (start)
@@ -103,7 +103,8 @@
 (defun reset-state-annotation ()
   (annotate-all *memory* :status :unchecked
                 :filter @$(and (typep $ '(or struct-compound-item enum-field))
-                               (name-of $))
+                               (or (name-of $)
+                                   (is-contained-item? $)))
                 :namespace nil))
 
 (defun browse-dataseg ()
