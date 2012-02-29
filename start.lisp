@@ -68,12 +68,12 @@
 
 ;; disable the known object walk to speed up xml loading
 ;; use when updating for a new version
-(setf (enumerate-known-objects? *memory*) nil)
+;(setf (enumerate-known-objects? *memory*) nil)
 
 (reload)
 (resume)
 
-(open-annotations "v0.34.03.lst")
+(open-annotations "v0.34.04.lst")
 
 (defun write-csv (context filename gfilename)
   (let ((*known-types* (remove-if-not #'consp *known-types* :key #'car))
@@ -87,10 +87,10 @@
 
 (defun make-csv ()
   (write-csv (make-instance 'type-context :os-type $windows
-                            :executable-hashes '((#x4F4CD85B . 0)))
+                            :executable-hashes '((#x4F4D9726 . 0)))
              "windows/all.csv" "windows/globals.csv")
   (write-csv (make-instance 'type-context :os-type $linux
-                            :executable-hashes '(("5502e97b11f528f124b01bdc87182101" . 0)))
+                            :executable-hashes '(("6c11a27ce580429168eaed73a8471d79" . 0)))
              "linux/all.csv" "linux/globals.csv"))
 
 (defun browse-list (start)
@@ -106,6 +106,19 @@
                                (or (name-of $)
                                    (is-contained-item? $)))
                 :namespace nil))
+
+(defun check-struct-sizes (&key annotate?)
+  (unless (eq (os-type-of *memory*) $windows)
+    (error "Only the WINE version has precise heap chunk sizes."))
+  (multiple-value-bind (correct faulty)
+      (verify-object-sizes *memory*)
+    (browse faulty)
+    (when annotate?
+      (dolist (ref correct)
+        (let ((type (memory-object-ref-type ref)))
+          (when (eq (type-annotation type :status) :unchecked)
+            (setf (type-annotation type :status) :aligned))))
+      (save-annotations))))
 
 (defun browse-dataseg ()
   (let ((img (main-image-of (executable-of *process*))))
