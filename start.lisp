@@ -68,7 +68,7 @@
 
 ;; disable the known object walk to speed up xml loading
 ;; use when updating for a new version
-(setf (enumerate-known-objects? *memory*) nil)
+;(setf (enumerate-known-objects? *memory*) nil)
 
 (reload)
 (resume)
@@ -106,6 +106,19 @@
                                (or (name-of $)
                                    (is-contained-item? $)))
                 :namespace nil))
+
+(defun check-struct-sizes (&key annotate?)
+  (unless (eq (os-type-of *memory*) $windows)
+    (error "Only the WINE version has precise heap chunk sizes."))
+  (multiple-value-bind (correct faulty)
+      (verify-object-sizes *memory*)
+    (browse faulty)
+    (when annotate?
+      (dolist (ref correct)
+        (let ((type (memory-object-ref-type ref)))
+          (when (eq (type-annotation type :status) :unchecked)
+            (setf (type-annotation type :status) :aligned))))
+      (save-annotations))))
 
 (defun browse-dataseg ()
   (let ((img (main-image-of (executable-of *process*))))
