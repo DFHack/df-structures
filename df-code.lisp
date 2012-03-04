@@ -9,6 +9,9 @@
 (def (class* eas) df-array (array-item data-field concrete-item)
   ())
 
+(def (class* eas) df-linked-list (sequence-item data-field concrete-item)
+  ())
+
 (in-package :cl-linux-debug.data-info)
 
 ;; df-flagarray implementation
@@ -42,6 +45,19 @@
             (size ,(u/field-int node $size 2)))
        (when (< size most-positive-fixnum)
          (setf ,ptr-var start ,cnt-var size)))))
+
+;; df-linked-list implementation
+
+(defmethod compute-effective-fields ((type df-linked-list))
+  (assert (type-name-of type))
+  (list
+   (make-instance 'compound :name $head :type-name (type-name-of type))))
+
+(defmethod sequence-content-items ((type df-linked-list) ref)
+  (loop for cur = $ref.head.next then $cur.next
+     while (valid-ref? cur)
+     collect @cur.item into items
+     finally (return (coerce items 'vector))))
 
 (in-package :cl-linux-debug.data-xml)
 

@@ -109,6 +109,10 @@ my %custom_container_handlers = (
         my $item = get_container_item_type($_, -void => 'void*');
         return "DfArray<$item >";
     },
+    'df-linked-list' => sub {
+        my $item = get_container_item_type($_);
+        return $item; # Just use the link type
+    },
 );
 
 my %custom_container_inits = (
