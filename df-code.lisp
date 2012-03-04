@@ -37,11 +37,11 @@
       (values (start-address-of s) e))))
 
 (defmethod build-set-array-base-dimensions (context (node df-array) offset ctx ptr-var cnt-var)
-  `(let* ((start ,(access-walker-int ctx offset 4))
-          (size ,(access-walker-int ctx (+ offset 4) 2)))
-     (declare (type uint32 start size))
-     (when (< size most-positive-fixnum)
-       (setf ,ptr-var start ,cnt-var size))))
+  (with-walker-utils (u ctx offset)
+    `(let* ((start ,(u/field-int node $start 4))
+            (size ,(u/field-int node $size 2)))
+       (when (< size most-positive-fixnum)
+         (setf ,ptr-var start ,cnt-var size)))))
 
 (in-package :cl-linux-debug.data-xml)
 

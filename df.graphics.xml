@@ -35,6 +35,131 @@
 
         <pointer type-name='uint8_t' name='screen_limit'/>
     </struct-type>
+
+    <struct-type type-name='enabler'>
+        <bool name='fullscreen'/>
+
+        <stl-deque name='overridden_grid_sizes'>
+            <int32_t/>
+            <int32_t/>
+        </stl-deque>
+
+        <pointer name='renderer'/>
+
+        <int32_t name='calculated_fps'/>
+        <int32_t name='calculated_gfps'/>
+        <stl-deque name='frame_timings' type-name='int32_t'/>
+        <stl-deque name='gframe_timings' type-name='int32_t'/>
+        <int32_t name='frame_sum'/>
+        <int32_t name='gframe_sum'/>
+        <int32_t name='frame_last'/>
+        <int32_t name='gframe_last'/>
+        <s-float name='fps'/>
+        <s-float name='gfps'/>
+        <s-float name='fps_per_gfps'/>
+        <uint32_t name='last_tick'/>
+        <s-float name='outstanding_frames'/>
+        <s-float name='outstanding_gframes'/>
+
+        <uint32_t name='async_frames'/>
+        <bool name='async_paused'/>
+
+        <compound name='async_tobox'>
+            <pointer name='sem'/>
+            <stl-deque name='queue'>
+                <enum name='cmd'>
+                    <enum-item name='pause'/>
+                    <enum-item name='start'/>
+                    <enum-item name='render'/>
+                    <enum-item name='inc'/>
+                    <enum-item name='set_fps'/>
+                </enum>
+                <int32_t name='val'/>
+            </stl-deque>
+            <pointer name='sem_fill'/>
+        </compound>
+
+        <compound name='async_frombox'>
+            <pointer name='sem'/>
+            <stl-deque name='queue'>
+                <enum name='msg'>
+                    <enum-item name='quit'/>
+                    <enum-item name='complete'/>
+                    <enum-item name='set_fps'/>
+                    <enum-item name='set_gfps'/>
+                    <enum-item name='push_resize'/>
+                    <enum-item name='pop_resize'/>
+                    <enum-item name='reset_textures'/>
+                </enum>
+                <compound is-union='true'>
+                    <int32_t name='fps'/>
+                    <compound>
+                        <int32_t name='x'/>
+                        <int32_t name='y'/>
+                    </compound>
+                </compound>
+            </stl-deque>
+            <pointer name='sem_fill'/>
+        </compound>
+
+        <compound name='async_zoom'>
+            <pointer name='sem'/>
+            <stl-deque name='queue'>
+                <enum>
+                    <enum-item name='zoom_in'/>
+                    <enum-item name='zoom_out'/>
+                    <enum-item name='zoom_reset'/>
+                    <enum-item name='zoom_fullscreen'/>
+                    <enum-item name='zoom_resetgrid'/>
+                </enum>
+            </stl-deque>
+            <pointer name='sem_fill'/>
+        </compound>
+
+        <pointer name='async_fromcomplete'/>
+
+        <uint32_t name='renderer_threadid'/>
+
+        <stl-string name='command_line'/>
+        <static-array name='ccolor' count='16'>
+            <static-array count='3' type-name='s-float'/>
+        </static-array>
+
+        <bitfield name='flag'>
+            <flag-bit name='render'/>
+            <flag-bit name='maxfps'/>
+        </bitfield>
+
+        <int8_t name='mouse_lbut'/>
+        <int8_t name='mouse_rbut'/>
+        <int8_t name='mouse_lbut_down'/>
+        <int8_t name='mouse_rbut_down'/>
+        <int8_t name='mouse_lbut_lift'/>
+        <int8_t name='mouse_rbut_lift'/>
+        <int8_t name='tracking_on'/>
+
+        <compound name='textures'>
+            <stl-vector type-name='pointer' name='raws'/>
+            <bool name='uploaded'/>
+            <uint32_t name='gl_catalog'/>
+            <pointer name='gl_texpos'/>
+        </compound>
+
+        <int32_t name='sync'/>
+
+        <stl-vector type-name='pointer' name='text_system'/>
+
+        <compound name='simticks'>
+            <pointer name='sem'/>
+            <int32_t name='value'/>
+        </compound>
+        <compound name='gputicks'>
+            <pointer name='sem'/>
+            <int32_t name='value'/>
+        </compound>
+
+        <uint32_t name='clock'/>
+    </struct-type>
 </data-definition>
 
 <!--

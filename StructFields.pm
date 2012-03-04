@@ -94,6 +94,10 @@ my %custom_container_handlers = (
         $item = 'char' if $item eq 'bool';
         return "std::vector<$item >";
     },
+    'stl-deque' => sub {
+        my $item = get_container_item_type($_, -void => 'void*');
+        return "std::deque<$item >";
+    },
     'stl-bit-vector' => sub {
         return "std::vector<bool>";
     },
