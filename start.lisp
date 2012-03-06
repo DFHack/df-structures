@@ -73,7 +73,7 @@
 (reload)
 (resume)
 
-(open-annotations "v0.34.04.lst")
+(open-annotations "v0.34.05.lst")
 
 (defun write-csv (context filename gfilename)
   (let ((*known-types* (remove-if-not #'consp *known-types* :key #'car))
@@ -87,10 +87,10 @@
 
 (defun make-csv ()
   (write-csv (make-instance 'type-context :os-type $windows
-                            :executable-hashes '((#x4F4D9726 . 0)))
+                            :executable-hashes '((#x4F55F23E . 0)))
              "windows/all.csv" "windows/globals.csv")
   (write-csv (make-instance 'type-context :os-type $linux
-                            :executable-hashes '(("6c11a27ce580429168eaed73a8471d79" . 0)))
+                            :executable-hashes '(("b53b4cfc6587023eda5322bb28011b1c" . 0)))
              "linux/all.csv" "linux/globals.csv"))
 
 (defun browse-list (start)
@@ -105,7 +105,8 @@
                 :filter @$(and (typep $ '(or struct-compound-item enum-field))
                                (or (name-of $)
                                    (is-contained-item? $)))
-                :namespace nil))
+                :namespace nil)
+  (save-annotations))
 
 (defun check-struct-sizes (&key annotate?)
   (unless (eq (os-type-of *memory*) $windows)
