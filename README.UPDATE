@@ -20,3 +20,25 @@ STAGE 1. RESET
 
   Commit.
 
+STAGE 2. LINUX COMPOUND GLOBALS
+
+  Globals gps, enabler, gview and init are in the export table
+  for linking with libgraphics, so they are immediately available
+  in (browse @global.*).
+
+  Run (list-globals/linux), paste the results in linux/df.globals.xml,
+  and immediately compare it to the old version from source control.
+  The order of the globals is quite stable, so if sizes look similar,
+  they can be guessed immediately.
+
+  The .bss compound section should be done except for 'announcements'.
+
+  Run (browse-dataseg). The first three -30000 are cursor. Following
+  group of 6 are selection_rect. After that, at 16-aligned addresses
+  are control_mode and game_mode. Tab the game ui to the most common
+  two-pane mode, scroll to the end and find 0x30200. Within this dword
+  ui_menu_width is byte 1, ui_area_map_width is byte 2.
+
+  (reload), (browse @global.*), look at the most important globals
+  for misalignment. If found, fix it and delete old tables from
+  symbols.xml.
