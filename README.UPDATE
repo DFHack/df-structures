@@ -42,3 +42,55 @@ STAGE 2. LINUX COMPOUND GLOBALS
   (reload), (browse @global.*), look at the most important globals
   for misalignment. If found, fix it and delete old tables from
   symbols.xml.
+
+STAGE 3. Linux primitive globals
+
+  Unpause the game for a moment to let various structures be initialized.
+
+  1. cur_year / cur_year_tick
+
+    (find-changes); step with dot; Enter; step; +; step; +; step; +; done
+
+    look at values in bss, there will be cur_year_tick, and
+    cur_year is 32 bytes before that.
+
+  2. job_next_id / ui_workshop_job_cursor / ui_workshop_in_add
+
+    Find a workshop without jobs; (find-changes); add job; Enter;
+    add job; +; add job; +; done
+
+    Finds job_next_id and ui_workshop_job_cursor, the distinction is obvious.
+    After ui_workshop_job_cursor is the ui_workshop_in_add bool - change the
+    state in game and F5.
+
+  3. ui_building_item_cursor
+
+    Find a cluttered workshop, t; (find-changes); move cursor down; Enter;
+    cursor down; +; cursor down; +; done
+
+  4. ui_look_cursor
+
+    Likewise, but with a cluttered tile and k.
+
+  5. ui_selected_unit
+
+    Find a place with many nearby units; (find-changes); v; Enter; v; new;
+    ...; when returned to origin, 0; 1; 2...; done
+
+  6. ui_unit_view_mode
+
+    Select unit, page Gen; (find-changes); Inv; Enter; Prf; +; Wnd; +; done
+
+  7. window_x, window_y, window_z
+
+    Use k, move window view to upper left corner, then the cursor to bottom
+    right as far as it can go without moving the view.
+
+    (find-changes); Shift-RightDown; Enter; Shift-RightDown; + 10;
+    Shift-RightDown; + 10; done
+
+    Finds cursor and two variables in bss. Z is just after them.
+
+  8. pause_state
+
+    (find-changes); toggle pause; Enter; toggle; 0; toggle; 1; etc; done
