@@ -16,7 +16,7 @@
 
 ;; df-flagarray implementation
 
-(defmethod compute-effective-fields ((type df-flagarray))
+(defmethod compute-effective-fields (context (type df-flagarray))
   (list
    (make-instance 'pointer :name $start)
    (make-instance 'int32_t :name $size)))
@@ -29,7 +29,7 @@
 
 ;; df-array implementation
 
-(defmethod compute-effective-fields ((type df-array))
+(defmethod compute-effective-fields (context (type df-array))
   (list
    (make-instance 'pointer :name $start)
    (make-instance 'int16_t :name $size)))
@@ -48,7 +48,7 @@
 
 ;; df-linked-list implementation
 
-(defmethod compute-effective-fields ((type df-linked-list))
+(defmethod compute-effective-fields (context (type df-linked-list))
   (assert (type-name-of type))
   (list
    (make-instance 'compound :name $head :type-name (type-name-of type))))
