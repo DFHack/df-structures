@@ -75,6 +75,9 @@
 
 (open-annotations "v0.34.05.lst")
 
+(defparameter *windows-timestamp* #x4F55F23E)
+(defparameter *linux-hash* "b53b4cfc6587023eda5322bb28011b1c")
+
 (defun write-csv (context filename gfilename)
   (let ((*known-types* (remove-if-not #'consp *known-types* :key #'car))
         (*known-globals* nil)
@@ -87,10 +90,10 @@
 
 (defun make-csv ()
   (write-csv (make-instance 'type-context :os-type $windows
-                            :executable-hashes '((#x4F55F23E . 0)))
+                            :executable-hashes (list (cons *windows-timestamp* 0)))
              "windows/all.csv" "windows/globals.csv")
   (write-csv (make-instance 'type-context :os-type $linux
-                            :executable-hashes '(("b53b4cfc6587023eda5322bb28011b1c" . 0)))
+                            :executable-hashes (list (cons *linux-hash* 0)))
              "linux/all.csv" "linux/globals.csv"))
 
 (defun browse-list (start)
