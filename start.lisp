@@ -73,10 +73,9 @@
 (reload)
 (resume)
 
-(open-annotations "v0.34.05.lst")
+(load "version.lisp")
 
-(defparameter *windows-timestamp* #x4F55F23E)
-(defparameter *linux-hash* "b53b4cfc6587023eda5322bb28011b1c")
+(open-annotations (concatenate 'string *df-version-str* ".lst"))
 
 (defun write-csv (context filename gfilename)
   (let ((*known-types* (remove-if-not #'consp *known-types* :key #'car))

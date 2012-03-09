@@ -115,19 +115,10 @@ system "touch '$version.lst'";
 
 # Lisp
 
-open FH, 'start.lisp' or die "Can't open start.lisp.\n";
-my @startlines = <FH>;
-close FH;
-
-open FH, '>start.lisp' or die "Can't write start.lisp.\n";
-for $_ (@startlines) {
-    if (/^(\s*\(open-annotations\s+\")[^\"]+(\"\s*\)\s*)$/) {
-        $_ = $1."$version.lst".$2;
-    } elsif (/^(\s*\(defparameter\s+\*windows-timestamp\*\s+\#x)[0-9a-fA-F]+(\s*\)\s*)$/) {
-        $_ = $1.$timestamp.$2;
-    } elsif (/^(\s*\(defparameter\s+\*linux-hash\*\s+\")[0-9a-fA-F]+(\"\s*\)\s*)$/) {
-        $_ = $1.$md5_hash.$2;
-    }
-    print FH $_;
-}
+open FH, '>version.lisp' or die "Can't write version.lisp.\n";
+print FH <<END;
+(defparameter *df-version-str* "$version")
+(defparameter *windows-timestamp* #x$timestamp)
+(defparameter *linux-hash* "$md5_hash")
+END
 close FH;
