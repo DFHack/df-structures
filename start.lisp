@@ -132,6 +132,9 @@
   (let ((img (main-image-of (executable-of *process*))))
     (browse-addr (start-address-of (find-section-by-name img ".data")))))
 
+(defun object-stats ()
+  (malloc-object-stats *memory*))
+
 (defun prompt (fmt &rest args)
   (apply #'format t fmt args)
   (finish-output *standard-output*)
