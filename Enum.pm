@@ -19,6 +19,8 @@ use XML::LibXML;
 
 use Common;
 
+sub render_enum_tables($$$$);
+
 sub render_enum_core($$) {
     my ($name,$tag) = @_;
 
@@ -46,8 +48,14 @@ sub render_enum_core($$) {
         $lines[-1] =~ s/,$//;
     } "enum $name : $base_type ", ";";
 
+    if (defined $base) {
+        render_enum_tables $name, $tag, $base, $count;
+    }
+
     return ($base, $count);
 }
+
+my $list_entry_id = 0;
 
 sub render_enum_tables($$$$) {
     my ($name,$tag,$base,$count) = @_;
@@ -56,15 +64,15 @@ sub render_enum_tables($$$$) {
 
     # Enumerate enum attributes
 
-    my %aidx = ('key' => 0);
-    my @anames = ('key');
-    my @avals = ('NULL');
-    my @atypes = ('const char*');
-    my @atnames = (undef);
-    my @aprefix = ('');
-    my @is_list = (undef);
+    my %aidx = ('key' => -1);
+    my @anames = ();
+    my @avals = ();
+    my @atypes = ();
+    my @atnames = ();
+    my @aprefix = ();
+    my @is_list = ();
 
-    my @use_key = (0);
+    my @use_key = ();
     my @use_list = ();
 
     for my $attr ($tag->findnodes('child::enum-attr')) {
@@ -73,10 +81,6 @@ sub render_enum_tables($$$$) {
         my $def = $attr->getAttribute('default-value');
 
         my $base_tname = ($type && $type =~ /::(.*)$/ ? $1 : '');
-        if ($base_tname eq $typename) {
-            $type = $base_tname;
-            $base_tname = '';
-        }
 
         die "Duplicate attribute $name.\n" if exists $aidx{$name};
 
@@ -95,107 +99,127 @@ sub render_enum_tables($$$$) {
             push @avals, (defined $def ? "\"$def\"" : 'NULL');
             push @aprefix, '';
         }
-        
+
         if (is_attr_true($attr, 'is-list')) {
             push @use_list, $#anames;
             $is_list[-1] = $atypes[-1];
             $atypes[-1] = "enum_list_attr<$atypes[-1]>";
-            $avals[-1] = $atypes[-1].'()';
+            $avals[-1] = "{ 0, NULL }";
         } elsif (is_attr_true($attr, 'use-key-name')) {
             push @use_key, $#anames;
         }
     }
 
-    # Emit accessor function prototypes
+    # Emit traits
 
-    emit "const $name _first_item_of_$name = ($name)$base;";
-    emit "const $name _last_item_of_$name = ($name)", ($base+$count-1), ";";
+    my $full_name = fully_qualified_name($tag, $name, 1);
+    my $traits_name = 'enum_traits<'.$full_name.'>';
 
-    emit_block {
-        # Cast the enum to integer in order to avoid GCC assuming the value range is correct.
-        emit "$base_type ivalue = ($base_type)value;";
-        emit "return (ivalue >= $base && ivalue <= ",($base+$count-1),");";
-    } "inline bool is_valid($name value) ";
-
-    for (my $i = 0; $i < @anames; $i++) {
-        emit "${export_prefix}$atypes[$i] get_$anames[$i]($name value);";
-    }
-
-    # Emit implementation
-
-    with_emit_static {
+    with_emit_traits {
         emit_block {
+            emit "typedef $base_type base_type;";
+            emit "typedef $full_name enum_type;";
+            emit "static const base_type first_item_value = $base;";
+            emit "static const base_type last_item_value = ", ($base+$count-1), ";";
             emit_block {
-                # Emit the entry type
+                # Cast the enum to integer in order to avoid GCC assuming the value range is correct.
+                emit "return (base_type(value) >= first_item_value && ",
+                             "base_type(value) <= last_item_value);";
+            } "static inline bool is_valid(enum_type value) ";
+            emit "static const enum_type first_item = (enum_type)first_item_value;";
+            emit "static const enum_type last_item = (enum_type)last_item_value;";
+            emit "static const char *const key_table[", $count, "];";
+            if (@anames) {
                 emit_block {
                     for (my $i = 0; $i < @anames; $i++) {
                         emit "$atypes[$i] $anames[$i];";
                     }
-                } "struct _info_entry ", ";";
+                } "struct attr_entry_type ", ";";
+                emit "static const attr_entry_type attr_table[", $count, "+1];";
+                emit "static const attr_entry_type &attrs(enum_type value);";
+            }
+        } "template<> struct ${export_prefix}$traits_name ", ";";
+    };
 
-                my $list_entry_id;
-                my @table_entries;
-                
-                my $fmt_val = sub {
-                    my ($idx, $value) = @_;
-                    if ($atnames[$idx]) {
-                        return $aprefix[$idx].$value;
+    # Emit implementation
+
+    with_emit_static {
+        # Emit keys
+
+        emit_block {
+            for my $item ($tag->findnodes('child::enum-item')) {
+                if (my $name = $item->getAttribute('name')) {
+                    emit '"'.$name.'",'
+                } else {
+                    emit 'NULL,';
+                }
+            }
+            $lines[-1] =~ s/,$//;
+        } "const char *const ${traits_name}::key_table[${count}] = ", ";";
+
+        # Emit attrs
+
+        if (@anames) {
+            my @table_entries;
+
+            my $fmt_val = sub {
+                my ($idx, $value) = @_;
+                if ($atnames[$idx]) {
+                    return $aprefix[$idx].$value;
+                } else {
+                    return "\"$value\"";
+                }
+            };
+
+            for my $item ($tag->findnodes('child::enum-item')) {
+                my $tag = $item->nodeName;
+
+                # Assemble item-specific attr values
+                my @evals = @avals;
+                my $name = $item->getAttribute('name');
+                if ($name) {
+                    $evals[$_] = $fmt_val->($_, $name) for @use_key;
+                }
+
+                my @list;
+
+                for my $attr ($item->findnodes('child::item-attr')) {
+                    my $name = $attr->getAttribute('name') or die "Unnamed item-attr.\n";
+                    my $value = $attr->getAttribute('value') or die "No-value item-attr.\n";
+                    my $idx = $aidx{$name};
+                    (defined $idx && $idx >= 0) or die "Unknown item-attr: $name\n";
+
+                    if ($is_list[$idx]) {
+                        push @{$list[$idx]}, $fmt_val->($idx, $value);
                     } else {
-                        return "\"$value\"";
+                        $evals[$idx] = $fmt_val->($idx, $value);
                     }
-                };
-
-                for my $item ($tag->findnodes('child::enum-item')) {
-                    my $tag = $item->nodeName;
-                    
-                    # Assemble item-specific attr values
-                    my @evals = @avals;
-                    my $name = $item->getAttribute('name');
-                    if ($name) {
-                        $evals[$_] = $fmt_val->($_, $name) for @use_key;
-                    }
-
-                    my @list;
-
-                    for my $attr ($item->findnodes('child::item-attr')) {
-                        my $name = $attr->getAttribute('name') or die "Unnamed item-attr.\n";
-                        my $value = $attr->getAttribute('value') or die "No-value item-attr.\n";
-                        my $idx = $aidx{$name} or die "Unknown item-attr: $name\n";
-
-                        if ($is_list[$idx]) {
-                            push @{$list[$idx]}, $fmt_val->($idx, $value);
-                        } else {
-                            $evals[$idx] = $fmt_val->($idx, $value);
-                        }
-                    }
-
-                    for my $idx (@use_list) {
-                        my @items = @{$list[$idx]||[]};
-                        my $ptr = 'NULL';
-                        if (@items) {
-                            my $id = $list_entry_id++;
-                            $ptr = "_list_items_${id}";
-                            emit "static const $is_list[$idx] ${ptr}[] = { ", join(', ', @items), ' };';
-                        }
-                        $evals[$idx] = "{ ".scalar(@items).', '.$ptr.' }';
-                    }
-
-                    push @table_entries, "{ ".join(', ',@evals)." },";
                 }
 
-                # Emit the info table
-                emit_block {
-                    emit $_ for @table_entries;
-                    $lines[-1] =~ s/,$//;
-                } "static const _info_entry _info[] = ", ";";
-
-                for (my $i = 0; $i < @anames; $i++) {
-                    emit_block {
-                        emit "return is_valid(value) ? _info[value - $base].$anames[$i] : $avals[$i];";
-                    } "$atypes[$i] get_$anames[$i]($name value) ";
+                for my $idx (@use_list) {
+                    my @items = @{$list[$idx]||[]};
+                    my $ptr = 'NULL';
+                    if (@items) {
+                        my $id = $list_entry_id++;
+                        $ptr = "_list_items_${id}";
+                        emit "static const $is_list[$idx] ${ptr}[] = { ", join(', ', @items), ' };';
+                    }
+                    $evals[$idx] = "{ ".scalar(@items).', '.$ptr.' }';
                 }
-            } "namespace $name ";
-        } "namespace enums ";
+
+                push @table_entries, "{ ".join(', ',@evals)." },";
+            }
+
+            # Emit the info table
+            emit_block {
+                emit $_ for @table_entries;
+                emit "{ ", join(', ',@avals), " }";
+            } "const ${traits_name}::attr_entry_type ${traits_name}::attr_table[${count}+1] = ", ";";
+
+            emit_block {
+                emit "return is_valid(value) ? attr_table[value - first_item_value] : attr_table[$count];";
+            } "const ${traits_name}::attr_entry_type& ${traits_name}::attrs(enum_type value) ";
+        }
     } 'enums';
 }
 
@@ -206,9 +230,7 @@ sub render_enum_type {
         emit_block {
             my ($base,$count) = render_enum_core($typename,$tag);
 
-            if (defined $base) {
-                render_enum_tables($typename,$tag,$base,$count);
-            } else {
+            unless (defined $base) {
                 print STDERR "Warning: complex enum: $typename\n";
             }
         } "namespace $typename ";
