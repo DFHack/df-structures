@@ -21,6 +21,7 @@ BEGIN {
 
         *weak_refs *strong_refs &register_ref &decode_type_name_ref
 
+        &with_capture_traits &with_emit_traits
         *cur_header_name %header_data &with_header_file
 
         %static_lines %static_includes &with_emit_static
@@ -250,6 +251,27 @@ sub decode_type_name_ref($;%) {
     }
 }
 
+# Trait generation
+
+our @trait_lines;
+our $trait_indent = 2;
+
+sub with_capture_traits(&) {
+    my ($blk) = @_;
+
+    local $trait_indent = $indentation;
+    local @trait_lines = ();
+
+    $blk->();
+
+    push @lines, @trait_lines;
+}
+
+sub with_emit_traits(&) {
+    my ($blk) = @_;
+    push @trait_lines, &with_emit($blk,$trait_indent);
+}
+
 # Include file generation
 
 our $cur_header_name;
@@ -265,7 +287,9 @@ sub with_header_file(&$) {
 
     # Emit the actual type definition
     my @code = with_emit {
-        &with_anon($handler);
+        with_capture_traits {
+            &with_anon($handler);
+        };
     } 2;
 
     delete $weak_refs{$header_name};
