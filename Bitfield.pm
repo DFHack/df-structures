@@ -61,7 +61,7 @@ sub render_bitfield_core {
     } "union $name ", ";";
 
     my $full_name = fully_qualified_name($tag, $name, 1);
-    my $traits_name = 'bitfield_traits<'.$full_name.'>';
+    my $traits_name = 'traits<'.$full_name.'>';
 
     with_emit_traits {
         emit_block {
@@ -69,7 +69,11 @@ sub render_bitfield_core {
             emit "typedef $full_name bitfield_type;";
             emit "static const int bit_count = sizeof(base_type)*8;";
             emit "static const bitfield_item_info bits[bit_count];";
-        } "template<> struct ${export_prefix}$traits_name ", ";";
+        } "template<> struct ${export_prefix}bitfield_$traits_name ", ";";
+        emit_block {
+            emit "static bitfield_identity identity;";
+            emit "static bitfield_identity *get() { return &identity; }";
+        } "template<> struct ${export_prefix}identity_$traits_name ", ";";
     };
 
     with_emit_static {
@@ -84,7 +88,12 @@ sub render_bitfield_core {
             }
 
             $lines[-1] =~ s/,$//;
-        } "const bitfield_item_info ${traits_name}::bits[bit_count] = ", ";";
+        } "const bitfield_item_info bitfield_${traits_name}::bits[bit_count] = ", ";";
+
+        emit "bitfield_identity identity_${traits_name}::identity(",
+             "sizeof($full_name), NULL, ",
+             type_identity_reference($tag,-parent => 1), ', ',
+             "\"$name\", bitfield_${traits_name}::bit_count, bitfield_${traits_name}::bits);";
     } 'enums';
 }
 

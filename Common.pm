@@ -24,11 +24,11 @@ BEGIN {
         &with_capture_traits &with_emit_traits
         *cur_header_name %header_data &with_header_file
 
-        %static_lines %static_includes &with_emit_static
+        %static_lines %static_includes &static_include_type &with_emit_static
 
         &ensure_name &with_anon
 
-        &fully_qualified_name
+        &fully_qualified_name &type_identity_reference
         &get_comment &emit_comment
     );
     our %EXPORT_TAGS = ( ); # eg: TAG => [ qw!name1 name2! ],
@@ -330,13 +330,19 @@ sub with_header_file(&$) {
 
 # Static file output
 
+our $cur_static;
 our %static_lines;
 our %static_includes;
 
+sub static_include_type($) {
+    $static_includes{$cur_static}{$_[0]}++;
+}
+
 sub with_emit_static(&;$) {
     my ($blk, $tag) = @_;
-    my @inner = &with_emit($blk,2) or return;
     $tag ||= '';
+    local $cur_static = $tag;
+    my @inner = &with_emit($blk,2) or return;
     $static_includes{$tag}{$cur_header_name}++ if $cur_header_name;
     push @{$static_lines{$tag}}, @inner;
 }
@@ -379,7 +385,59 @@ sub fully_qualified_name($$;$) {
             push @names, $n;
         }
     }
-    return join('::',@names,$name);
+    push @names, $name if defined $name;
+    return join('::',@names);
+}
+
+sub type_identity_reference($%) {
+    my ($tag, %flags) = @_;
+
+    return 'NULL' unless $tag;
+
+    my $name = $tag->nodeName;
+
+    if ($flags{-parent}) {
+        while (defined $tag) {
+            $tag = $tag->parentNode;
+            last unless $tag;
+            $name = $tag->nodeName;
+            if ($name eq 'ld:data-definition') {
+                $tag = undef;
+                last;
+            }
+            last if $name eq 'ld:global-type';
+            last if $name eq 'ld:global-object';
+            last if $tag->getAttribute('ld:typedef-name');
+        }
+
+        return 'NULL' unless $tag;
+    }
+
+    return '&global::_identity' if $name eq 'ld:global-object';
+
+    my $meta = $tag->getAttribute('ld:meta');
+    my $subtype = $tag->getAttribute('ld:subtype')||'';
+
+    my $tname;
+    if ($name eq 'ld:global-type') {
+        $tname = $tag->getAttribute('type-name');
+    } elsif ($meta eq 'compound') {
+        $tname = $tag->getAttribute('ld:typedef-name')
+    } else {
+        return undef if $flags{-allow_complex};
+    }
+    $tname or die "No type name: ".$tag->toString();
+
+    my $fqn = fully_qualified_name($tag, $tname, 1);
+
+    if ($meta eq 'enum-type' || $subtype eq 'enum' ||
+        $meta eq 'bitfield-type' || $subtype eq 'bitfield' ||
+        is_attr_true($tag, 'ld:in-union'))
+    {
+        return 'TID('.$fqn.')';
+    } else {
+        return '&'.$fqn.'::_identity';
+    }
 }
 
 # Comments

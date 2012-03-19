@@ -198,17 +198,6 @@ sub render_struct_type {
         emit_find_instance($tag);
 
         if ($has_methods || $custom_methods) {
-            if ($is_class) {
-                emit "static class_virtual_identity<$typename> _identity;";
-                with_emit_static {
-                    emit "class_virtual_identity<$typename> ${typename}::_identity(",
-                         "\"$typename\",",
-                         ($original_name ? "\"$original_name\"" : 'NULL'), ',',
-                         ($inherits ? "&${inherits}::_identity" : 'NULL'),
-                         ");";
-                };
-            }
-
             if ($custom_methods) {
                 local $indentation = 0;
                 emit '#include "custom/', $typename, '.methods.inc"';
