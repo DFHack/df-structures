@@ -76,7 +76,7 @@ sub render_enum_tables($$$$) {
             emit "enum_identity identity_${traits_name}::identity(",
                     "sizeof($full_name), NULL, ",
                     type_identity_reference($tag,-parent => 1), ', ',
-                    "\"$name\", 0, -1, NULL);";
+                    "\"$name\", TID($base_type), 0, -1, NULL);";
         } 'enums';
         return;
     }
@@ -240,7 +240,8 @@ sub render_enum_tables($$$$) {
         emit "enum_identity identity_${traits_name}::identity(",
                 "sizeof($full_name), NULL, ",
                 type_identity_reference($tag,-parent => 1), ', ',
-                "\"$name\", $base, ", ($base+$count-1), ", enum_${traits_name}::key_table);";
+                "\"$name\", TID($base_type), $base, ",
+                ($base+$count-1), ", enum_${traits_name}::key_table);";
     } 'enums';
 }
 
