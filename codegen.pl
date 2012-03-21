@@ -79,9 +79,11 @@ for my $name (sort { $a cmp $b } keys %types) {
 
 with_header_file {
     my @items;
+    my @fields;
 
     emit_block {
         emit "void InitGlobals();";
+        emit "extern global_identity _identity;";
 
         for my $name (sort { $a cmp $b } keys %globals) {
             local $typename = $name;
@@ -96,6 +98,7 @@ with_header_file {
                     emit 'extern ', $export_prefix, $prefix, ' *', $name, ';', get_comment($tag);
 
                     push @items, [ $prefix, $name ];
+                    push @fields, $tag->findnodes('ld:item');
                 } "T_$name";
             };
             if ($@) {
@@ -103,6 +106,11 @@ with_header_file {
             }
         }
     } "namespace global ";
+
+    with_emit_static {
+        my $ftable = render_field_metadata(undef, 'global', @fields);
+        emit "global_identity global::_identity($ftable);";
+    } 'fields';
 
     with_emit_static {
         emit_block {

@@ -48,9 +48,7 @@ sub render_enum_core($$) {
         $lines[-1] =~ s/,$//;
     } "enum $name : $base_type ", ";";
 
-    if (defined $base) {
-        render_enum_tables $name, $tag, $base, $count;
-    }
+    render_enum_tables $name, $tag, $base, $count;
 
     return ($base, $count);
 }
@@ -60,7 +58,28 @@ my $list_entry_id = 0;
 sub render_enum_tables($$$$) {
     my ($name,$tag,$base,$count) = @_;
 
+    my $is_global = $tag->nodeName eq 'ld:global-type';
     my $base_type = get_primitive_base($tag, 'int32_t');
+
+    my $full_name = fully_qualified_name($tag, $name, 1);
+    my $traits_name = 'traits<'.$full_name.'>';
+
+    with_emit_traits {
+        emit_block {
+            emit "static enum_identity identity;";
+            emit "static enum_identity *get() { return &identity; }";
+        } "template<> struct ${export_prefix}identity_$traits_name ", ";";
+    };
+
+    unless (defined $base) {
+        with_emit_static {
+            emit "enum_identity identity_${traits_name}::identity(",
+                    "sizeof($full_name), NULL, ",
+                    type_identity_reference($tag,-parent => 1), ', ',
+                    "\"$name\", TID($base_type), 0, -1, NULL);";
+        } 'enums';
+        return;
+    }
 
     # Enumerate enum attributes
 
@@ -112,9 +131,6 @@ sub render_enum_tables($$$$) {
 
     # Emit traits
 
-    my $full_name = fully_qualified_name($tag, $name, 1);
-    my $traits_name = 'enum_traits<'.$full_name.'>';
-
     with_emit_traits {
         emit_block {
             emit "typedef $base_type base_type;";
@@ -138,7 +154,7 @@ sub render_enum_tables($$$$) {
                 emit "static const attr_entry_type attr_table[", $count, "+1];";
                 emit "static const attr_entry_type &attrs(enum_type value);";
             }
-        } "template<> struct ${export_prefix}$traits_name ", ";";
+        } "template<> struct ${export_prefix}enum_$traits_name ", ";";
     };
 
     # Emit implementation
@@ -155,7 +171,7 @@ sub render_enum_tables($$$$) {
                 }
             }
             $lines[-1] =~ s/,$//;
-        } "const char *const ${traits_name}::key_table[${count}] = ", ";";
+        } "const char *const enum_${traits_name}::key_table[${count}] = ", ";";
 
         # Emit attrs
 
@@ -214,12 +230,18 @@ sub render_enum_tables($$$$) {
             emit_block {
                 emit $_ for @table_entries;
                 emit "{ ", join(', ',@avals), " }";
-            } "const ${traits_name}::attr_entry_type ${traits_name}::attr_table[${count}+1] = ", ";";
+            } "const enum_${traits_name}::attr_entry_type enum_${traits_name}::attr_table[${count}+1] = ", ";";
 
             emit_block {
                 emit "return is_valid(value) ? attr_table[value - first_item_value] : attr_table[$count];";
-            } "const ${traits_name}::attr_entry_type& ${traits_name}::attrs(enum_type value) ";
+            } "const enum_${traits_name}::attr_entry_type& enum_${traits_name}::attrs(enum_type value) ";
         }
+
+        emit "enum_identity identity_${traits_name}::identity(",
+                "sizeof($full_name), NULL, ",
+                type_identity_reference($tag,-parent => 1), ', ',
+                "\"$name\", TID($base_type), $base, ",
+                ($base+$count-1), ", enum_${traits_name}::key_table);";
     } 'enums';
 }
 
