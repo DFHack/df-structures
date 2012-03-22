@@ -74,7 +74,7 @@ sub render_enum_tables($$$$) {
     unless (defined $base) {
         with_emit_static {
             emit "enum_identity identity_${traits_name}::identity(",
-                    "sizeof($full_name), NULL, ",
+                    "sizeof($full_name), ",
                     type_identity_reference($tag,-parent => 1), ', ',
                     "\"$name\", TID($base_type), 0, -1, NULL);";
         } 'enums';
@@ -238,7 +238,7 @@ sub render_enum_tables($$$$) {
         }
 
         emit "enum_identity identity_${traits_name}::identity(",
-                "sizeof($full_name), NULL, ",
+                "sizeof($full_name), ",
                 type_identity_reference($tag,-parent => 1), ', ',
                 "\"$name\", TID($base_type), $base, ",
                 ($base+$count-1), ", enum_${traits_name}::key_table);";
