@@ -567,7 +567,7 @@ sub emit_struct_fields($$;%) {
             }
             render_field_init($_) for @fields;
         };
-        if (@simple_inits || @ctor_lines) {
+        if (1) { #@simple_inits || @ctor_lines) {
             $want_ctor = 1;
             my $full_name = get_struct_field_type($tag);
             emit $full_name,'::',$name,"($ctor_args)";
