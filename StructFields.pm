@@ -38,7 +38,7 @@ sub with_struct_block(&$;$%) {
 
     my $is_union = is_attr_true($tag,'is-union');
     my $kwd = ($is_union ? "union" : "struct");
-    my $exp = $flags{-export} ? $export_prefix : '';
+    my $exp = $export_prefix; #$flags{-export} ? $export_prefix : '';
     my $prefix = $kwd.' '.$exp.($name ? $name.' ' : '');
 
     emit_comment $tag, -attr => 1;
