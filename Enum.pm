@@ -76,7 +76,7 @@ sub render_enum_tables($$$$) {
             emit "enum_identity identity_${traits_name}::identity(",
                     "sizeof($full_name), ",
                     type_identity_reference($tag,-parent => 1), ', ',
-                    "\"$name\", TID($base_type), 0, -1, NULL);";
+                    "\"$name\", TID($base_type), 0, -1, NULL, NULL, NULL);";
         } 'enums';
         return;
     }
@@ -93,6 +93,8 @@ sub render_enum_tables($$$$) {
 
     my @use_key = ();
     my @use_list = ();
+
+    my @field_meta = ();
 
     for my $attr ($tag->findnodes('child::enum-attr')) {
         my $name = $attr->getAttribute('name') or die "Unnamed enum-attr.\n";
@@ -119,11 +121,14 @@ sub render_enum_tables($$$$) {
             push @aprefix, '';
         }
 
+        push @field_meta, [ "FLD(PRIMITIVE, $name)", "identity_traits<$atypes[-1]>::get()" ];
+
         if (is_attr_true($attr, 'is-list')) {
             push @use_list, $#anames;
             $is_list[-1] = $atypes[-1];
             $atypes[-1] = "enum_list_attr<$atypes[-1]>";
             $avals[-1] = "{ 0, NULL }";
+            $field_meta[-1] = [ "FLD(CONTAINER, $name)", "identity_traits<$atypes[-1]>::get()" ];
         } elsif (is_attr_true($attr, 'use-key-name')) {
             push @use_key, $#anames;
         }
@@ -150,6 +155,7 @@ sub render_enum_tables($$$$) {
                     for (my $i = 0; $i < @anames; $i++) {
                         emit "$atypes[$i] $anames[$i];";
                     }
+                    emit "static struct_identity _identity;";
                 } "struct attr_entry_type ", ";";
                 emit "static const attr_entry_type attr_table[", $count, "+1];";
                 emit "static const attr_entry_type &attrs(enum_type value);";
@@ -174,6 +180,9 @@ sub render_enum_tables($$$$) {
         } "const char *const enum_${traits_name}::key_table[${count}] = ", ";";
 
         # Emit attrs
+
+        my $atable_ptr = 'NULL';
+        my $atable_meta = 'NULL';
 
         if (@anames) {
             my @table_entries;
@@ -226,22 +235,40 @@ sub render_enum_tables($$$$) {
                 push @table_entries, "{ ".join(', ',@evals)." },";
             }
 
+            my $entry_type = "enum_${traits_name}::attr_entry_type";
+
             # Emit the info table
             emit_block {
                 emit $_ for @table_entries;
                 emit "{ ", join(', ',@avals), " }";
-            } "const enum_${traits_name}::attr_entry_type enum_${traits_name}::attr_table[${count}+1] = ", ";";
+            } "const $entry_type enum_${traits_name}::attr_table[${count}+1] = ", ";";
 
             emit_block {
                 emit "return is_valid(value) ? attr_table[value - first_item_value] : attr_table[$count];";
-            } "const enum_${traits_name}::attr_entry_type& enum_${traits_name}::attrs(enum_type value) ";
+            } "const $entry_type & enum_${traits_name}::attrs(enum_type value) ";
+
+            # Emit the info table metadata
+            with_emit_static {
+                my $ftable = generate_field_table {
+                    @field_defs = @field_meta;
+                } $entry_type;
+
+                emit "struct_identity ${entry_type}::_identity(",
+                        "sizeof($entry_type), NULL, ",
+                        type_identity_reference($tag), ', ',
+                        "\"_attr_entry_type\", NULL, $ftable);";
+            } 'fields';
+
+            $atable_ptr = "enum_${traits_name}::attr_table";
+            $atable_meta = "&${entry_type}::_identity";
         }
 
         emit "enum_identity identity_${traits_name}::identity(",
                 "sizeof($full_name), ",
                 type_identity_reference($tag,-parent => 1), ', ',
                 "\"$name\", TID($base_type), $base, ",
-                ($base+$count-1), ", enum_${traits_name}::key_table);";
+                ($base+$count-1), ", enum_${traits_name}::key_table,
+                $atable_ptr, $atable_meta);";
     } 'enums';
 }
 

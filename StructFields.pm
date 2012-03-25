@@ -462,15 +462,13 @@ sub render_field_metadata($$\@\%) {
     local $in_union_body = 0;
 
     local $_;
-    local @field_defs;
     local $full_typename = $full_name;
-
-    my $ftable_name = $full_name.'_fields';
-    $ftable_name =~ s/::/_doT_Dot_/g;
 
     my $FLD = ($full_name eq 'global' ? 'GFLD' : 'FLD');
 
-    with_anon {
+    static_include_type $_ for keys %weak_refs;
+
+    return generate_field_table {
         render_field_metadata_rec($_, $FLD) for @$fields;
 
         for my $vmtag (@{$info->{vmethods}||[]}) {
@@ -480,20 +478,7 @@ sub render_field_metadata($$\@\%) {
         for my $name (@{$info->{statics}||[]}) {
             push @field_defs, [ "METHOD(CLASS_METHOD, $name)" ];
         }
-    } 'T_'.$ftable_name;
-
-    return 'NULL' unless @field_defs;
-
-    static_include_type $_ for keys %weak_refs;
-
-    emit "#define CUR_STRUCT $full_name";
-    emit_block {
-        emit '{ ', join(', ', @$_), ' },' for @field_defs;
-        emit "{ FLD_END }";
-    } "static const struct_field_info ${ftable_name}[] = ", ";";
-    emit "#undef CUR_STRUCT";
-
-    return $ftable_name;
+    } $full_name;
 }
 
 sub emit_struct_fields($$;%) {
