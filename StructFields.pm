@@ -455,8 +455,8 @@ sub render_field_metadata_rec($$) {
     }
 }
 
-sub render_field_metadata($$\@) {
-    my ($tag, $full_name, $fields) = @_;
+sub render_field_metadata($$\@\%) {
+    my ($tag, $full_name, $fields, $info) = @_;
 
     local $in_struct_body = 0;
     local $in_union_body = 0;
@@ -472,6 +472,11 @@ sub render_field_metadata($$\@) {
 
     with_anon {
         render_field_metadata_rec($_, $FLD) for @$fields;
+
+        for my $vmtag (@{$info->{vmethods}||[]}) {
+            my $name = $vmtag->getAttribute('name');
+            push @field_defs, [ "METHOD(OBJ_METHOD, $name)" ] if $name;
+        }
     } 'T_'.$ftable_name;
 
     return 'NULL' unless @field_defs;
@@ -498,6 +503,7 @@ sub emit_struct_fields($$;%) {
     &render_struct_field($_) for @fields;
 
     my $full_name = fully_qualified_name($tag, $name, 1);
+    my %info;
 
     if ($in_union_body) {
         my $traits_name = 'identity_traits<'.$full_name.'>';
@@ -510,7 +516,7 @@ sub emit_struct_fields($$;%) {
         };
 
         with_emit_static {
-            my $ftable = render_field_metadata $tag, $full_name, @fields;
+            my $ftable = render_field_metadata $tag, $full_name, @fields, %info;
             emit "struct_identity ${traits_name}::identity(",
                     "sizeof($full_name), &allocator_fn<${full_name}>, ",
                     type_identity_reference($tag,-parent => 1), ', ',
@@ -529,31 +535,12 @@ sub emit_struct_fields($$;%) {
 
     my $is_global = $tag->nodeName eq 'ld:global-type';
     my $inherits = $flags{-inherits};
+    my $original_name = $tag->getAttribute('original-name');
 
     if ($flags{-class}) {
-        my $original_name = $tag->getAttribute('original-name');
-
         emit "static virtual_identity _identity;";
-        with_emit_static {
-            my $ftable = render_field_metadata $tag, $full_name, @fields;
-            emit "virtual_identity ${full_name}::_identity(",
-                    "sizeof($full_name), &allocator_fn<${full_name}>, ",
-                    "\"$name\",",
-                    ($original_name ? "\"$original_name\"" : 'NULL'), ',',
-                    ($inherits ? "&${inherits}::_identity" : 'NULL'), ',',
-                    "$ftable);";
-        } 'fields';
     } else {
         emit "static struct_identity _identity;";
-        with_emit_static {
-            my $ftable = render_field_metadata $tag, $full_name, @fields;
-            emit "struct_identity ${full_name}::_identity(",
-                    "sizeof($full_name), &allocator_fn<${full_name}>, ",
-                    type_identity_reference($tag,-parent => 1), ', ',
-                    "\"$name\",",
-                    ($inherits ? "&${inherits}::_identity" : 'NULL'), ',',
-                    "$ftable);";
-        } 'fields';
     }
 
     with_emit_static {
@@ -581,6 +568,30 @@ sub emit_struct_fields($$;%) {
     if ($want_ctor) {
         emit "$name($ctor_args$ctor_arg_init);";
     }
+
+    %info = $flags{-addmethods}->($tag) if $flags{-addmethods};
+
+    with_emit_static {
+        my $ftable = render_field_metadata $tag, $full_name, @fields, %info;
+
+        if ($flags{-class}) {
+            my $alloc_fn = $info{nodtor} ? 'allocator_nodel_fn' : 'allocator_fn';
+
+            emit "virtual_identity ${full_name}::_identity(",
+                    "sizeof($full_name), &${alloc_fn}<${full_name}>, ",
+                    "\"$name\",",
+                    ($original_name ? "\"$original_name\"" : 'NULL'), ',',
+                    ($inherits ? "&${inherits}::_identity" : 'NULL'), ',',
+                    "$ftable);";
+        } else {
+            emit "struct_identity ${full_name}::_identity(",
+                    "sizeof($full_name), &allocator_fn<${full_name}>, ",
+                    type_identity_reference($tag,-parent => 1), ', ',
+                    "\"$name\",",
+                    ($inherits ? "&${inherits}::_identity" : 'NULL'), ',',
+                    "$ftable);";
+        }
+    } 'fields';
 }
 
 1;

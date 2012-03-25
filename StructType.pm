@@ -120,6 +120,7 @@ sub render_virtual_methods {
 
     # Ensure there is a destructor to avoid warnings
     my $dtor_idx = $name_index{$dtor_id};
+    my $no_dtor = !defined $dtor_idx;
     unless (defined $dtor_idx) {
         for (my $i = 0; $i <= $#vtable; $i++) {
             next if $vtable[$i]->getAttribute('name');
@@ -131,6 +132,8 @@ sub render_virtual_methods {
         push @vtable, undef;
         $dtor_idx = $#vtable;
     }
+
+    my @our_vmethods;
 
     # Generate the methods
     my $min_id = $starts[-1];
@@ -147,7 +150,9 @@ sub render_virtual_methods {
             $is_anon = 0 if $name;
         }
 
-        my $rq_mode = $is_anon ? 'protected' : 'public';            
+        push @our_vmethods, $method unless ($is_anon || $is_destructor);
+
+        my $rq_mode = $is_anon ? 'protected' : 'public';
         unless ($rq_mode eq $cur_mode) {
             $cur_mode = $rq_mode;
             outdent { emit "$cur_mode:"; }
@@ -173,6 +178,8 @@ sub render_virtual_methods {
                  get_comment($method);
         } "anon_vmethod_$idx";
     }
+
+    return ($no_dtor, \@our_vmethods);
 }
 
 sub render_struct_type {
@@ -194,21 +201,31 @@ sub render_struct_type {
     }
 
     with_struct_block {
-        emit_struct_fields($tag, $typename, -class => $is_class, -inherits => $inherits);
-        emit_find_instance($tag);
+        my $vmethod_emit = sub {
+            my %info;
 
-        if ($has_methods || $custom_methods) {
-            if ($custom_methods) {
-                local $indentation = 0;
-                emit '#include "custom/', $typename, '.methods.inc"';
+            emit_find_instance($tag);
+
+            if ($has_methods || $custom_methods) {
+                if ($custom_methods) {
+                    local $indentation = 0;
+                    emit '#include "custom/', $typename, '.methods.inc"';
+                }
+
+                if ($is_class) {
+                    my ($no_dtor, $vmethods) = render_virtual_methods $tag;
+                    $info{nodtor} = $no_dtor;
+                    $info{vmethods} = $vmethods;
+                } elsif (!$custom_methods) {
+                    emit "~",$typename,"() {}";
+                }
             }
 
-            if ($is_class) {
-                render_virtual_methods $tag;
-            } elsif (!$custom_methods) {
-                emit "~",$typename,"() {}";
-            }
-        }
+            return %info;
+        };
+
+        emit_struct_fields($tag, $typename, -class => $is_class, -inherits => $inherits,
+                            -addmethods => $vmethod_emit);
     } $tag, "$typename$ispec", -export => 1;
 }
 

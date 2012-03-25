@@ -108,7 +108,8 @@ with_header_file {
     } "namespace global ";
 
     with_emit_static {
-        my $ftable = render_field_metadata(undef, 'global', @fields);
+        my %info;
+        my $ftable = render_field_metadata(undef, 'global', @fields, %info);
         emit "global_identity global::_identity($ftable);";
     } 'fields';
 
