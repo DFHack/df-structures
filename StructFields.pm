@@ -477,6 +477,9 @@ sub render_field_metadata($$\@\%) {
             my $name = $vmtag->getAttribute('name');
             push @field_defs, [ "METHOD(OBJ_METHOD, $name)" ] if $name;
         }
+        for my $name (@{$info->{statics}||[]}) {
+            push @field_defs, [ "METHOD(CLASS_METHOD, $name)" ];
+        }
     } 'T_'.$ftable_name;
 
     return 'NULL' unless @field_defs;

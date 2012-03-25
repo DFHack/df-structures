@@ -35,8 +35,8 @@ sub translate_lookup($) {
     return $expr;
 }
 
-sub emit_find_instance {
-    my ($tag) = @_;
+sub emit_find_instance(\%$) {
+    my ($rinfo, $tag) = @_;
 
     my $keyfield = $tag->getAttribute('key-field');
     my $keyfield_tag = find_subfield $tag, $keyfield;
@@ -84,6 +84,8 @@ sub emit_find_instance {
                 }
             } "$typename *${typename}::find($keytype id_) ";
         };
+
+        push @{$rinfo->{statics}}, 'find';
     }
 }
 
@@ -204,7 +206,7 @@ sub render_struct_type {
         my $vmethod_emit = sub {
             my %info;
 
-            emit_find_instance($tag);
+            emit_find_instance(%info, $tag);
 
             if ($has_methods || $custom_methods) {
                 if ($custom_methods) {
