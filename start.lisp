@@ -24,6 +24,9 @@
 
 (load "df-code.lisp")
 
+;; Load the symbol tables for os type detection
+(load-data-definition (merge-pathnames #P"symbols.xml" #.*load-truename*))
+
 (defvar *process* (start-debug (progn (format t "Enter process ID:~%") (read))))
 (defvar *memory* (make-memory-mirror *process* 'object-memory-mirror))
 
@@ -32,9 +35,9 @@
 (defun reload ()
   (dolist (i (directory (merge-pathnames #P"*.xml" #.*load-truename*)))
     (register-data-definition *memory* i))
-  (let ((subdir (case (os-type-of *memory*)
-                  ($windows #P"windows/*.xml")
-                  (otherwise #P"linux/*.xml"))))
+  (let ((subdir (typecase (os-context-of *memory*)
+                  (os-context/windows #P"windows/*.xml")
+                  (t #P"linux/*.xml"))))
     (dolist (i (directory (merge-pathnames subdir #.*load-truename*)))
       (register-data-definition *memory* i)))
   (check-refresh-context *memory*))
@@ -59,7 +62,7 @@
                             :any-prefix? any-prefix?
                             :any-suffix? any-suffix?)))
 
-(if (eq (os-type-of *memory*) $windows)
+(if (typep (os-context-of *memory*) 'os-context/windows)
     (progn
       (pushnew 11 (ignored-signals-of *process*))
       (setf (garbage-word-of *memory*) #x33333333))
@@ -81,6 +84,7 @@
   (let ((*known-types* (remove-if-not #'consp *known-types* :key #'car))
         (*known-globals* nil)
         (*memory* context))
+    (check-refresh-context context)
     (reload)
     (with-open-file (stream filename :direction :output :if-exists :supersede)
       (export-csv stream context))
@@ -88,10 +92,10 @@
       (export-csv stream context :globals? t))))
 
 (defun make-csv ()
-  (write-csv (make-instance 'type-context :os-type $windows
+  (write-csv (make-instance 'type-context ;:os-type $windows
                             :executable-hashes (list (cons *windows-timestamp* 0)))
              "windows/all.csv" "windows/globals.csv")
-  (write-csv (make-instance 'type-context :os-type $linux
+  (write-csv (make-instance 'type-context ;:os-type $linux
                             :executable-hashes (list (cons *linux-hash* 0)))
              "linux/all.csv" "linux/globals.csv"))
 
@@ -116,7 +120,7 @@
   (save-annotations))
 
 (defun check-struct-sizes (&key annotate?)
-  (unless (eq (os-type-of *memory*) $windows)
+  (unless (typep (os-context-of *memory*) 'os-context/windows)
     (error "Only the WINE version has precise heap chunk sizes."))
   (multiple-value-bind (correct faulty)
       (verify-object-sizes *memory*)
