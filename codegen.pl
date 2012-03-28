@@ -130,53 +130,80 @@ with_header_file {
     };
 } 'global_objects';
 
+
+sub replace_file {
+    my ($filename, $new) = @_;
+    if (-e $filename) {
+        open FH, "<$filename";
+        my $old = do { local $/; <FH> };
+        close FH;
+        if ($old eq $new) {
+            return;
+        }
+    }
+    open FH, ">$filename";
+    do { local $\; print FH $new };
+    close FH;
+}
+
 # Write output files
 
 mkdir $output_dir;
 
 {
-    # Delete the old files
+    my %files;
+    # Get a list of all the existing files
     for my $name (glob "$output_dir/*.h") {
-        unlink $name;
+        $files{$name} = 1;
     }
     for my $name (glob "$output_dir/static*.inc") {
-        unlink $name;
+        $files{$name} = 1;
     }
-    unlink "$output_dir/codegen.out.xml";
+    $files{"$output_dir/codegen.out.xml"} = 1;
 
     # Write out the headers
     local $, = "\n";
     local $\ = "\n";
 
+    my $data;
+
     for my $name (keys %header_data) {
-        open FH, ">$output_dir/$name.h";
-        print FH "/* THIS FILE WAS GENERATED. DO NOT EDIT. */";
-        print FH @{$header_data{$name}};
-        close FH;
+        $data = "/* THIS FILE WAS GENERATED. DO NOT EDIT. */\n";
+        $data .= join("\n", @{$header_data{$name}})."\n";
+        replace_file("$output_dir/$name.h", $data);
+        $files{"$output_dir/$name.h"} = 0;
     }
 
     # Write out the static file
     for my $tag (keys %static_lines) {
-        my $name = $output_dir.'/static'.($tag?'.'.$tag:'').'.inc';
-        open FH, ">$name";
-        print FH "/* THIS FILE WAS GENERATED. DO NOT EDIT. */";
+        $data = "/* THIS FILE WAS GENERATED. DO NOT EDIT. */\n";
         for my $name (sort { $a cmp $b } keys %{$static_includes{$tag}}) {
-            print FH "#include \"$name.h\"";
+            $data .= "#include \"$name.h\"\n";
         }
-        print FH "namespace $main_namespace {";
-        print FH @{$static_lines{$tag}};
-        print FH '}';
-        close FH;
+        $data .= "namespace $main_namespace {\n";
+        $data .= join("\n", @{$static_lines{$tag}})."\n";
+        $data .= '}\n';
+
+        my $name = $output_dir.'/static'.($tag?'.'.$tag:'').'.inc';
+        replace_file($name, $data);
+        $files{$name} = 0;
     }
 
     # Write an xml file with all types
-    open FH, ">$output_dir/codegen.out.xml";
-    print FH '<ld:data-definition xmlns:ld="http://github.com/peterix/dfhack/lowered-data-definition">';
+    $data = '<ld:data-definition xmlns:ld="http://github.com/peterix/dfhack/lowered-data-definition">'."\n";
     for my $doc (@documents) {
         for my $node ($doc->documentElement()->findnodes('*')) {
-            print FH '    '.$node->toString();
+            $data .= '    '.$node->toString()."\n";
         }
     }
-    print FH '</ld:data-definition>';
-    close FH;
+    $data .= '</ld:data-definition>'."\n";
+    replace_file("$output_dir/codegen.out.xml", $data);
+    $files{"$output_dir/codegen.out.xml"} = 0;
+
+    for my $name (keys %files) {
+        if ($files{$name} == 1) {
+            print("File $name was present but not generated - deleting\n");
+            unlink($name);
+        }
+    }
 }
