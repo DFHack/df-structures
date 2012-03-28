@@ -182,7 +182,7 @@ mkdir $output_dir;
         }
         $data .= "namespace $main_namespace {\n";
         $data .= join("\n", @{$static_lines{$tag}})."\n";
-        $data .= '}\n';
+        $data .= '}'."\n";
 
         my $name = $output_dir.'/static'.($tag?'.'.$tag:'').'.inc';
         replace_file($name, $data);
