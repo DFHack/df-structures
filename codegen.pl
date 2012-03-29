@@ -189,15 +189,18 @@ mkdir $output_dir;
         $files{$name} = 0;
     }
 
-    # Write an xml file with all types
-    $data = '<ld:data-definition xmlns:ld="http://github.com/peterix/dfhack/lowered-data-definition">'."\n";
+    # Write an xml file with all types.
+    # Always do it, so that its date could be used in make to
+    # determine if the script had been run after inputs changed.
+    open FH, ">$output_dir/codegen.out.xml";
+    print FH '<ld:data-definition xmlns:ld="http://github.com/peterix/dfhack/lowered-data-definition">';
     for my $doc (@documents) {
         for my $node ($doc->documentElement()->findnodes('*')) {
-            $data .= '    '.$node->toString()."\n";
+            print FH '    '.$node->toString();
         }
     }
-    $data .= '</ld:data-definition>'."\n";
-    replace_file("$output_dir/codegen.out.xml", $data);
+    print FH '</ld:data-definition>';
+    close FH;
     $files{"$output_dir/codegen.out.xml"} = 0;
 
     for my $name (keys %files) {
