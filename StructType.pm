@@ -80,7 +80,7 @@ sub emit_find_instance(\%$) {
                 if ($keyfield) {
                     emit "return binsearch_in_vector(vec_, id_);";
                 } else {
-                    emit "return (id_ >= 0 && id_ < vec_.size()) ? vec_[id_] : NULL;";
+                    emit "return (size_t(id_) < vec_.size()) ? vec_[id_] : NULL;";
                 }
             } "$typename *${typename}::find($keytype id_) ";
         };
