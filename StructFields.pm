@@ -57,11 +57,13 @@ sub with_struct_block(&$;$%) {
 
 # FIELD TYPE
 
+our %container_flags;
+
 sub get_container_item_type($;%) {
     my ($tag, %flags) = @_;
     my @items = $tag->findnodes('ld:item');
     if (@items) {
-        return get_struct_field_type($items[0], -local => $in_struct_body, %flags);
+        return get_struct_field_type($items[0], -local => $in_struct_body, %container_flags, %flags);
     } elsif ($flags{-void}) {
         return $flags{-void};
     } else {
@@ -156,6 +158,10 @@ sub get_struct_field_type($;%) {
     my $prefix;
     my $suffix = '';
     my $type_def = undef;
+
+    local %container_flags = %flags;
+    delete $container_flags{-weak};
+    delete $container_flags{-void};
 
     if ($prefix = $tag->getAttribute('ld:typedef-name')) {
         $prefix = fully_qualified_name($tag,$prefix) unless $flags{-local};
