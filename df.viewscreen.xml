@@ -11,7 +11,7 @@
         <pointer name='parent' type-name='viewscreen'/>
         <enum base-type='int8_t' name='breakdown_level' type-name='interface_breakdown_types'/>
         <int8_t name='option_key_pressed'/>
-        
+
         <virtual-methods>
             <vmethod name='feed'> <pointer name='events'/> </vmethod>
             <vmethod name='logic'/>
@@ -56,6 +56,27 @@
         <int8_t name='first_movie_write'/>
         <stl-string name='movie_file'/>
     </struct-type>
+
+    <class-type type-name='layer_object' original-name='layer_objectst'>
+        <bool name='enabled'/>
+        <bool name='bright'/>
+    </class-type>
+
+    <class-type type-name='layer_object_listst' inherits-from='layer_object'>
+        <int32_t name='cursor'/>
+        <int32_t name='num_entries'/>
+        <int32_t name='x1'/>
+        <int32_t name='y1'/>
+        <int32_t name='page_size'/>
+        <int32_t name='x2'/>
+        <int32_t name='y2'/>
+        <int32_t/>
+        <int32_t/>
+        <bool/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+    </class-type>
 
     <class-type type-name='viewscreen_titlest' inherits-from='viewscreen'>
         <static-string name='str_histories' size='256'/>
@@ -183,6 +204,196 @@
         <padding name="unk_20" size="8"/>
         <int32_t name="cur_side"/>
         <int32_t name="cur_interaction" refers-to='$global.world.arena_spawn.interactions[$]'/>
+    </class-type>
+
+    <class-type type-name='viewscreen_layer_militaryst' inherits-from='viewscreen'>
+        <stl-vector name="layer_objects">
+            <pointer type-name='layer_object'/>
+        </stl-vector>
+
+        <compound name='squads'>
+            <stl-vector name="list">
+                <pointer type-name='squad'/>
+            </stl-vector>
+            <stl-vector name="leader_positions">
+                <pointer type-name="entity_position"/>
+            </stl-vector>
+            <stl-vector name="leader_assignments">
+                <pointer type-name="entity_position_assignment"/>
+            </stl-vector>
+            <stl-bit-vector name='can_appoint'/>
+        </compound>
+
+        <compound name='positions'>
+            <stl-vector name="assigned">
+                <pointer type-name='unit'/>
+            </stl-vector>
+            <stl-vector name="skill">
+                <enum base-type='int16_t' type-name='job_skill'/>
+            </stl-vector>
+            <stl-vector name="unk_84" type-name='int32_t'/>
+            <stl-vector name="candidates">
+                <pointer type-name='unit'/>
+            </stl-vector>
+        </compound>
+
+        <enum name="page">
+            <enum-item name='Positions'/>
+            <enum-item name='Alerts'/>
+            <enum-item name='Equip'/>
+            <enum-item name='Uniforms'/>
+            <enum-item name='Supplies'/>
+            <enum-item name='Ammunition'/>
+        </enum>
+
+        <int32_t name="num_squads"/>
+        <int32_t name="num_soldiers"/>
+        <int32_t name="num_active"/>
+
+        <compound name='squad_members'>
+            <stl-vector name="profession">
+                <enum base-type='int16_t' type-name='profession'/>
+            </stl-vector>
+            <stl-vector name="count" type-name='int32_t'/>
+            <stl-vector name="max_count" type-name='int32_t'/>
+        </compound>
+
+        <bool name="in_create_squad"/>
+        <bool name="in_new_squad"/>
+        <bool name='unk_e6'/>
+
+        <stl-vector name="captain_positions">
+            <pointer type-name='entity_position'/>
+        </stl-vector>
+        <pointer name='new_position' type-name='entity_position'/>
+
+        <bool name="unk_fc"/>
+        <bool name='in_rename_alert'/>
+        <bool name='in_delete_alert'/>
+
+        <stl-vector name="alert_squads">
+            <pointer type-name='squad'/>
+        </stl-vector>
+
+        <compound name='equip'>
+            <enum name='mode'>
+                <enum-item name='Customize'/>
+                <enum-item name='Uniform'/>
+                <enum-item name='Priority'/>
+            </enum>
+            <stl-vector name="squads">
+                <pointer type-name='squad'/>
+            </stl-vector>
+            <stl-vector name="units">
+                <pointer type-name='unit'/>
+            </stl-vector>
+            <stl-vector name="specific_items">
+                <pointer type-name='item'/>
+            </stl-vector>
+            <int32_t name='prio_in_move' refers-to='$$._parent.squads[$]'/>
+
+            <compound name='assigned'>
+                <stl-vector name="spec">
+                    <pointer type-name='squad_uniform_spec'/>
+                </stl-vector>
+                <stl-vector name="category">
+                    <enum base-type='int16_t' type-name='uniform_category'/>
+                </stl-vector>
+                <stl-vector name="index" type-name='int32_t'
+                            comment='spec in category vector'/>
+            </compound>
+            <stl-vector name="unk_178"/>
+            <pointer name="edit_spec" type-name='squad_uniform_spec'/>
+
+            <stl-vector name="uniforms">
+                <pointer type-name='entity_uniform'/>
+            </stl-vector>
+            <compound name='uniform'>
+                <stl-vector name="type">
+                    <enum base-type='int16_t' type-name='item_type'/>
+                </stl-vector>
+                <stl-vector name="subtype">
+                    <int16_t refers-to='(item-subtype-target $$._parent._parent.type[$$._key] $)'/>
+                </stl-vector>
+                <stl-vector name="category">
+                    <enum base-type='int16_t' type-name='uniform_category'/>
+                </stl-vector>
+                <stl-vector name="index" type-name='int16_t'/>
+                <stl-vector name="info">
+                    <pointer type-name='entity_uniform_item'/>
+                </stl-vector>
+            </compound>
+
+            <enum name='edit_mode'>
+                <enum-item name='Armor'/>
+                <enum-item name='Helm'/>
+                <enum-item name='Legs'/>
+                <enum-item name='Gloves'/>
+                <enum-item name='Boots'/>
+                <enum-item name='Shield'/>
+                <enum-item name='Weapon'/>
+                <enum-item name='Material'/>
+                <enum-item name='Color'/>
+                <enum-item name='SpecificArmor'/>
+                <enum-item name='SpecificHelm'/>
+                <enum-item name='SpecificLegs'/>
+                <enum-item name='SpecificGloves'/>
+                <enum-item name='SpecificBoots'/>
+                <enum-item name='SpecificShield'/>
+                <enum-item name='SpecificWeapon'/>
+            </enum>
+            <padding name="unk_1ec" size="4"/>
+            <compound name='add_item'>
+                <stl-vector name="type">
+                    <enum base-type='int16_t' type-name='item_type'/>
+                </stl-vector>
+                <stl-vector name="subtype">
+                    <int16_t refers-to='(item-subtype-target $$._parent._parent.type[$$._key] $)'/>
+                </stl-vector>
+                <stl-vector name="unk_214"/>
+                <stl-bit-vector name="foreign"/>
+            </compound>
+            <compound name='material'>
+                <stl-vector name="generic">
+                    <enum base-type='int16_t' type-name='uniform_material_class'/>
+                </stl-vector>
+                <compound name='specific' type-name='material_vec_ref'/>
+            </compound>
+            <compound name='color'>
+                <stl-vector name="id">
+                    <int32_t ref-target='descriptor_color'/>
+                </stl-vector>
+                <stl-bit-vector name='dye'/>
+            </compound>
+            <bool name='in_name_uniform'/>
+        </compound>
+
+        <compound name='ammo'>
+            <stl-vector name="squads">
+                <pointer type-name='squad' comment='null for hunters'/>
+            </stl-vector>
+            <bool name='in_add_item'/>
+            <bool name='in_set_material'/>
+            <compound name='add_item'>
+                <stl-vector name="type">
+                    <enum base-type='int16_t' type-name='item_type'/>
+                </stl-vector>
+                <stl-vector name="subtype">
+                    <int16_t refers-to='(item-subtype-target $$._parent._parent.type[$$._key] $)'/>
+                </stl-vector>
+                <stl-bit-vector name="foreign"/>
+            </compound>
+            <compound name='material'>
+                <stl-vector name="generic">
+                    <enum base-type='int16_t' type-name='uniform_material_class'/>
+                </stl-vector>
+                <compound name='specific' type-name='material_vec_ref'/>
+            </compound>
+        </compound>
+
+        <stl-vector name="supplies_squads">
+            <pointer type-name='squad'/>
+        </stl-vector>
     </class-type>
 
     <class-type type-name='viewscreen_dungeonmodest' inherits-from='viewscreen'>
