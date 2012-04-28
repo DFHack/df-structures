@@ -85,7 +85,7 @@
         <compound name='flags' type-name='building_flags'/>
 
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
-        <int32_t name='mat_index'/>
+        <int32_t name='mat_index' init-value='-1'/>
 
         <compound name='room'>
             <pointer name='extents' type-name='uint8_t' is-array='true'>
@@ -130,8 +130,8 @@
             </pointer>
         </stl-vector>
 
-        <int32_t comment='v0.34.01'/>
-        <int32_t comment='v0.34.01'/>
+        <int32_t init-value='-1' comment='v0.34.01'/>
+        <int32_t init-value='-1' comment='v0.34.01'/>
 
         <virtual-methods>
             <vmethod ret-type='int32_t' name='getCustomType'/>
@@ -156,7 +156,7 @@
             <vmethod ret-type='bool' name='isUnpowered' comment='from magma OR machine power'/>
             <vmethod ret-type='bool'/>
 
-            -- 10
+            -- 11
 
             <vmethod/>
             <vmethod/>
@@ -172,7 +172,7 @@
                 <ret-type><pointer type-name='workshop_profile'/></ret-type>
             </vmethod>
 
-            -- 20
+            -- 21
 
             <vmethod name='getMachineInfo'>
                 <ret-type><pointer type-name='machine_info'/></ret-type>
@@ -185,14 +185,14 @@
             <vmethod ret-type='int16_t' name='getSubtype'/>
 
             <vmethod name='setSubtype'> <int16_t name='subtype'/> </vmethod>
-            <vmethod ret-type='bool'/>
+            <vmethod ret-type='bool' name='isActual'/>
             <vmethod ret-type='bool'/>
             <vmethod/>
             <vmethod ret-type='bool'/>
 
-            -- 30
+            -- 31
 
-            <vmethod/>
+            <vmethod name='setMaterialAmount'> <int32_t/> </vmethod>
             <vmethod name='setBuildStage'> <int16_t name='stage'/> </vmethod>
             <vmethod ret-type='int32_t' name='getBuildStage'/>
             <vmethod ret-type='int32_t' name='getMaxBuildStage'/>
@@ -202,11 +202,11 @@
             <vmethod ret-type='bool'/>
             <vmethod ret-type='bool'/>
             <vmethod/>
-            <vmethod/>
+            <vmethod ret-type='int32_t' name='getRoomValue'> <pointer type-name='unit'/> </vmethod>
 
-            -- 40
+            -- 41
 
-            <vmethod/>
+            <vmethod ret-type='int32_t' name='getPersonalValue'> <pointer type-name='unit'/> </vmethod>
             <vmethod ret-type='bool'/>
             <vmethod/>
             <vmethod name='queueDestroy' comment='same as querying and pressing X'/>
@@ -218,13 +218,13 @@
             <vmethod name='getNameColor'/>
             <vmethod name='initFarmSeasons'/>
 
-            -- 50
+            -- 51
 
             <vmethod name='initBurialFlags'/>
             <vmethod name='clearBurialFlags'/>
             <vmethod name='clearBurialFlags2'/>
             <vmethod/>
-            <vmethod ret-type='bool'/>
+            <vmethod ret-type='bool' name='needsDesign'/>
 
             <vmethod ret-type='bool'><int16_t/></vmethod>
             <vmethod ret-type='bool'/>
@@ -232,7 +232,7 @@
             <vmethod ret-type='bool'/>
             <vmethod ret-type='bool' name='isRoom'/>
 
-            -- 60
+            -- 61
 
             <vmethod ret-type='bool'/>
             <vmethod/>
@@ -243,13 +243,13 @@
             </vmethod>
             <vmethod ret-type='bool'/>
 
-            <vmethod/>
-            <vmethod/>
-            <vmethod/>
+            <vmethod name='categorize' comment='Add to world.buildings.other.*'> <bool/> </vmethod>
+            <vmethod name='uncategorize' comment='Remove from world.buildings.other.*'/>
+            <vmethod ret-type='int32_t' name='getBaseValue'/>
             <vmethod name='setMachineState'> <int32_t name='new_state' comment='1 = active/open, 0 = inactive/closed'/> </vmethod>
             <vmethod/>
 
-            -- 70
+            -- 71
 
             <vmethod/>
             <vmethod/>
@@ -260,10 +260,10 @@
             <vmethod/>
             <vmethod/>
             <vmethod/>
-            <vmethod ret-type='bool'/>
+            <vmethod ret-type='bool' name='isForbidden'/>
             <vmethod ret-type='bool'/>
 
-            -- 80
+            -- 81
 
             <vmethod/>
             <vmethod/>
@@ -280,7 +280,7 @@
             <vmethod><int32_t/><int32_t/></vmethod>
             <vmethod/>
 
-            -- 90
+            -- 91
 
             <vmethod is-destructor='true'/>
         </virtual-methods>
@@ -423,16 +423,16 @@
 
     <struct-type type-name='building_design'>
         <int32_t name='architect' ref-target='historical_figure'/>
-        <int32_t name='unk2' comment='-1'/>
+        <int32_t name='unk2' init-value='-1'/>
         <int16_t name='unk3'/>
         <int32_t name='builder1' ref-target='historical_figure'/>
-        <int32_t name='unk5' comment='-1'/>
+        <int32_t name='unk5' init-value='-1'/>
         <int16_t name='unk6'/>
         <int16_t name='build_timer1' comment='+1 per 10 frames while building'/>
         <int32_t name='builder2' ref-target='historical_figure'/>
         <int16_t name='build_timer2'/>
-        <int16_t name='unk8b'/>
-        <int16_t name='unk9'/>
+        <enum base-type='int16_t' name='quality1' type-name='item_quality'/>
+        <enum base-type='int16_t' name='quality2' type-name='item_quality'/>
         <bitfield name='flags' base-type='uint32_t'>
             <flag-bit name='rough' comment='rough gabbro road'/>
             <flag-bit name='built'/>
@@ -594,7 +594,7 @@
             <enum-item name='Up'/>
             <enum-item name='Down'/>
         </enum>
-        <int32_t/>
+        <int32_t name='material_amount'/>
     </class-type>
 
     <class-type type-name='building_cabinetst' inherits-from='building_actual'>
@@ -657,7 +657,7 @@
         <static-array name='plant_id' count='4'>
             <int16_t ref-target='plant_raw'/>
         </static-array>
-        <int32_t/>
+        <int32_t name='material_amount'/>
         <int32_t name='seasonal_fertilize'/>
         <int8_t/>
         <int32_t name='current_fertilization'/>
@@ -716,11 +716,11 @@
     </class-type>
 
     <class-type type-name='building_road_dirtst' inherits-from='building_roadst'>
-        <int32_t/>
+        <int32_t name='material_amount'/>
     </class-type>
 
     <class-type type-name='building_road_pavedst' inherits-from='building_roadst'>
-        <int32_t/>
+        <int32_t name='material_amount'/>
         <int16_t name='terrain_purge_timer'/>
     </class-type>
 
