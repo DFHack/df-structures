@@ -336,7 +336,7 @@ sub render_field_init($) {
         return unless $subtype;
 
         if ($subtype eq 'bitfield' && defined $cur_init_value) {
-            emit $cur_init_field, '.whole = ', $cur_init_value;
+            emit $cur_init_field, '.whole = ', $cur_init_value, ';';
         } elsif ($subtype eq 'enum') {
             if ($meta eq 'global') {
                 my $tname = $field->getAttribute('type-name');

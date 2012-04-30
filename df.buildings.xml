@@ -174,6 +174,14 @@
         <flag-bit name='pet_passable'/>
     </bitfield-type>
 
+    <bitfield-type type-name='gate_flags' base-type='uint16_t'>
+        <flag-bit name='closed'/>
+        <flag-bit name='closing'/>
+        <flag-bit name='opening'/>
+        <flag-bit/>
+        <flag-bit name='has_support' comment='bridge'/>
+    </bitfield-type>
+
     <struct-type type-name='building_extents'>
         <pointer name='extents' type-name='uint8_t' is-array='true'>
             <comment>0 - not room; 1 in stockpile; 2 wall; 3 inner; 4 distance boundary.</comment>
@@ -413,7 +421,7 @@
             <pointer type-name='building_stockpilest'/>
         </stl-vector>
 
-        <int32_t name='stockpile_number'/>
+        <int32_t name='stockpile_number' init-value='-1'/>
     </class-type>
 
     -- zone --
@@ -428,13 +436,13 @@
             <flag-bit name='buckets'/>
             <flag-bit name='soap'/>
         </bitfield>
-        <int32_t name='max_splints'/>
-        <int32_t name='max_thread'/>
-        <int32_t name='max_cloth'/>
-        <int32_t name='max_crutches'/>
-        <int32_t name='max_plaster'/>
-        <int32_t name='max_buckets'/>
-        <int32_t name='max_soap'/>
+        <int32_t name='max_splints' init-value='5'/>
+        <int32_t name='max_thread' init-value='75000'/>
+        <int32_t name='max_cloth' init-value='50000'/>
+        <int32_t name='max_crutches' init-value='5'/>
+        <int32_t name='max_plaster' init-value='750'/>
+        <int32_t name='max_buckets' init-value='2'/>
+        <int32_t name='max_soap' init-value='750'/>
         <int32_t name='cur_splints'/>
         <int32_t name='cur_thread'/>
         <int32_t name='cur_cloth'/>
@@ -492,13 +500,16 @@
             <flag-bit name='clay'/>
             <flag-bit name='animal_training'/>
         </bitfield>
-        <int32_t comment='-1'/>
-        <int32_t comment='-1'/>
-        <int32_t comment='-1'/>
-        <int32_t comment='-1'/>
-        <int32_t name='zone_num'/>
+        <int32_t init-value='-1'/>
+        <int32_t init-value='-1'/>
+        <int32_t init-value='-1'/>
+        <int32_t init-value='-1'/>
+        <int32_t name='zone_num' init-value='-1'/>
         <int32_t/>
-        <int32_t name='pit_flags' comment='1 = is pond'/>
+        <bitfield name='pit_flags' base-type='uint32_t'>
+            <flag-bit/>
+            <flag-bit name='is_pond'/>
+        </bitfield>
         <int16_t/>
         <compound type-name='hospital_supplies' name='hospital'/>
     </class-type>
@@ -606,7 +617,7 @@
             <int32_t ref-target='unit'/>
         </stl-vector>
         <int32_t name="min_level"/>
-        <int32_t name="max_level"/>
+        <int32_t name="max_level" init-value='3000'/>
     </struct-type>
 
     <class-type type-name='building_workshopst' inherits-from='building_actual'>
@@ -621,7 +632,7 @@
     -- misc --
 
     <class-type type-name='building_animaltrapst' inherits-from='building_actual'>
-        <int16_t name='bait_type'/>
+        <int16_t name='bait_type' init-value='-1'/>
         <int16_t name='timer'/>
     </class-type>
 
@@ -645,20 +656,12 @@
     </class-type>
 
     <class-type type-name='building_bars_verticalst' inherits-from='building_actual'>
-        <bitfield name='flags' base-type='int16_t'>
-            <flag-bit name='closed'/>
-            <flag-bit name='closing'/>
-            <flag-bit name='opening'/>
-        </bitfield>
+        <compound name='gate_flags' type-name='gate_flags' init-value='1'/>
         <int8_t name='timer'/>
     </class-type>
 
     <class-type type-name='building_bars_floorst' inherits-from='building_actual'>
-        <bitfield name='flags' base-type='int16_t'>
-            <flag-bit name='closed'/>
-            <flag-bit name='closing'/>
-            <flag-bit name='opening'/>
-        </bitfield>
+        <compound name='gate_flags' type-name='gate_flags' init-value='1'/>
         <int8_t name='timer'/>
     </class-type>
 
@@ -679,18 +682,12 @@
     <class-type type-name='building_boxst' inherits-from='building_actual'>
         <int16_t/>
         <stl-vector/>
-        <int32_t/>
-        <int32_t/>
+        <int32_t init-value='-1'/>
+        <int32_t init-value='-1'/>
     </class-type>
 
     <class-type type-name='building_bridgest' inherits-from='building_actual'>
-        <bitfield name='flags' base-type='int16_t'>
-            <flag-bit name='closed'/>
-            <flag-bit name='closing'/>
-            <flag-bit name='opening'/>
-            <flag-bit/>
-            <flag-bit name='unk'/>
-        </bitfield>
+        <compound name='gate_flags' type-name='gate_flags' init-value='1'/>
         <int8_t name='timer'/>
         <enum name='direction' base-type='int8_t'>
             <enum-item name='Retracting' value='-1'/>
@@ -705,8 +702,8 @@
     <class-type type-name='building_cabinetst' inherits-from='building_actual'>
         <int16_t/>
         <stl-vector/>
-        <int32_t/>
-        <int32_t/>
+        <int32_t init-value='-1'/>
+        <int32_t init-value='-1'/>
     </class-type>
 
     <class-type type-name='building_cagest' inherits-from='building_actual'>
@@ -716,6 +713,7 @@
         <stl-vector name='assigned_vermin'>
             <int32_t ref-target='item'/>
         </stl-vector>
+        <int16_t/>
         <int16_t/>
     </class-type>
 
@@ -754,7 +752,7 @@
     </class-type>
 
     <class-type type-name='building_doorst' inherits-from='building_actual'>
-        <compound name='flags' type-name='door_flags'/>
+        <compound name='flags' type-name='door_flags' init-value='0x50'/>
         <int16_t name='close_timer'/>
     </class-type>
 
@@ -764,46 +762,34 @@
         </static-array>
         <int32_t name='material_amount'/>
         <int32_t name='seasonal_fertilize'/>
-        <int8_t/>
+        <int8_t init-value='-1'/>
         <int32_t name='current_fertilization'/>
         <int32_t name='max_fertilization'/>
-        <int16_t name='terrain_purge_timer'/>
+        <int16_t name='terrain_purge_timer' init-value='500'/>
     </class-type>
 
     <class-type type-name='building_floodgatest' inherits-from='building_actual'>
-        <bitfield name='flags' base-type='int16_t'>
-            <flag-bit name='closed'/>
-            <flag-bit name='closing'/>
-            <flag-bit name='opening'/>
-        </bitfield>
+        <compound name='gate_flags' type-name='gate_flags' init-value='1'/>
         <int8_t name='timer'/>
     </class-type>
 
     <class-type type-name='building_grate_floorst' inherits-from='building_actual'>
-        <bitfield name='flags' base-type='int16_t'>
-            <flag-bit name='closed'/>
-            <flag-bit name='closing'/>
-            <flag-bit name='opening'/>
-        </bitfield>
+        <compound name='gate_flags' type-name='gate_flags' init-value='1'/>
         <int8_t name='timer'/>
     </class-type>
 
     <class-type type-name='building_grate_wallst' inherits-from='building_actual'>
-        <bitfield name='flags' base-type='int16_t'>
-            <flag-bit name='closed'/>
-            <flag-bit name='closing'/>
-            <flag-bit name='opening'/>
-        </bitfield>
+        <compound name='gate_flags' type-name='gate_flags' init-value='1'/>
         <int8_t name='timer'/>
     </class-type>
 
     <class-type type-name='building_hatchst' inherits-from='building_actual'>
-        <compound name='flags' type-name='door_flags'/>
+        <compound name='flags' type-name='door_flags' init-value='0x50'/>
         <int16_t name='close_timer'/>
     </class-type>
 
     <class-type type-name='building_hivest' inherits-from='building_actual'>
-        <int32_t/>
+        <int32_t init-value='3'/>
         <int32_t/>
         <int32_t/>
         <int32_t/>
@@ -826,7 +812,7 @@
 
     <class-type type-name='building_road_pavedst' inherits-from='building_roadst'>
         <int32_t name='material_amount'/>
-        <int16_t name='terrain_purge_timer'/>
+        <int16_t name='terrain_purge_timer' init-value='500'/>
     </class-type>
 
     <enum-type type-name='shop_type' base-type='int16_t'>
@@ -839,7 +825,7 @@
     <class-type type-name='building_shopst' inherits-from='building_actual'>
         <int32_t name='has_owner'/>
         <int32_t name='owner' comment='type uncertain - not a unit ID or unit pointer'/>
-        <bitfield name='flags' base-type='int16_t'>
+        <bitfield name='flags' base-type='int16_t' init-value='1'>
             <flag-bit name='for_sale'/>
         </bitfield>
         <enum base-type='int16_t' name="type" type-name='shop_type'/>
@@ -909,6 +895,23 @@
         <enum-item name="WeaponTrap"/>
     </enum-type>
 
+    <struct-type type-name='pressure_plate_info'>
+        <int32_t name='unit_min' init-value='50000'/>
+        <int32_t name='unit_max' init-value='200000'/>
+        <int8_t name='water_min' init-value='1'/>
+        <int8_t name='water_max' init-value='7'/>
+        <int8_t name='magma_min' init-value='1'/>
+        <int8_t name='magma_max' init-value='7'/>
+
+        <bitfield name='flags' init-value='0x10'>
+            <flag-bit name='units'/>
+            <flag-bit name='water'/>
+            <flag-bit name='magma'/>
+            <flag-bit name='citizens'/>
+            <flag-bit name='resets'/>
+        </bitfield>
+    </struct-type>
+
     <class-type type-name='building_trapst' inherits-from='building_actual'>
         <enum base-type='int16_t' name='trap_type' type-name='trap_type'/>
         <int8_t name='state' comment='1 = pulled, tripped/needs reloading'/>
@@ -921,27 +924,15 @@
         <stl-vector type-name='int32_t'/>
         <stl-vector type-name='int32_t'/>
         <int32_t/>
-        <int32_t/>
-        <compound name='trap_info'>
-            <int32_t/>
-            <int32_t/>
-            <int8_t/>
-            <int8_t/>
-            <int8_t/>
-            <int8_t/>
-            <int32_t/>
-        </compound>
+        <int32_t init-value='3000'/>
+        <compound name='plate_info' type-name='pressure_plate_info'/>
     </class-type>
 
     <class-type type-name='building_wagonst' inherits-from='building_actual'>
     </class-type>
 
     <class-type type-name='building_weaponst' inherits-from='building_actual'>
-        <bitfield name='flags' base-type='int16_t'>
-            <flag-bit name='closed'/>
-            <flag-bit name='closing'/>
-            <flag-bit name='opening'/>
-        </bitfield>
+        <compound name='gate_flags' type-name='gate_flags' init-value='1'/>
         <int8_t name='timer'/>
     </class-type>
 
@@ -957,7 +948,7 @@
             <pointer type-name='building_squad_use'/>
         </stl-vector>
 
-        <int32_t name='unk_d0'/>
+        <int32_t name='unk_d0' init-value='-1'/>
     </class-type>
 
     <class-type type-name='building_wellst' inherits-from='building_actual'>
