@@ -243,8 +243,8 @@
             </pointer>
         </stl-vector>
 
-        <int32_t init-value='-1' comment='v0.34.01'/>
-        <int32_t init-value='-1' comment='v0.34.01'/>
+        <int32_t name='world_data_id' init-value='-1' comment='v0.34.01'/>
+        <int32_t name='world_data_subid' init-value='-1' comment='v0.34.01'/>
 
         <virtual-methods>
             <vmethod ret-type='int32_t' name='getCustomType'/>
@@ -252,28 +252,30 @@
             <vmethod name='countHospitalSupplies'>
                 <pointer name='supplies' type-name='hospital_supplies'/>
             </vmethod>
-            <vmethod/>
+            <vmethod name='detachWorldData' comment='?'/>
             <vmethod><pointer><stl-vector/></pointer></vmethod>
             <vmethod name='moveBuilding'>
-                <int16_t name='x'/>
-                <int16_t name='y'/>
-                <int16_t name='z'/>
+                <int16_t name='delta_x'/>
+                <int16_t name='delta_y'/>
+                <int16_t name='delta_z'/>
             </vmethod>
 
-            <vmethod/>
+            <vmethod name='initOccupancy'>
+                <int32_t name='abs_x'/> <int32_t name='abs_y'/>
+            </vmethod>
             <vmethod>
                 <int32_t/>
                 <int16_t/>
             </vmethod>
             <vmethod ret-type='bool'/>
             <vmethod ret-type='bool' name='isUnpowered' comment='from magma OR machine power'/>
-            <vmethod ret-type='bool'/>
+            <vmethod ret-type='bool' name='canCollapse'/>
 
             -- 11
 
-            <vmethod/>
-            <vmethod/>
-            <vmethod ret-type='bool'/>
+            <vmethod ret-type='uint32_t' name='getPassableOccupancy'/>
+            <vmethod ret-type='uint32_t' name='getImpassableOccupancy'/>
+            <vmethod ret-type='bool' name='isPowerSource'/>
             <vmethod/>
             <vmethod/>
 
@@ -311,10 +313,12 @@
             <vmethod ret-type='int32_t' name='getMaxBuildStage'/>
             <vmethod/>
 
-            <vmethod ret-type='bool'/>
-            <vmethod ret-type='bool'/>
-            <vmethod ret-type='bool'/>
-            <vmethod/>
+            <vmethod ret-type='bool' name='useOccupancy'/>
+            <vmethod ret-type='bool' name='isActual2'/>
+            <vmethod ret-type='bool' name='useExtentShape'/>
+            <vmethod name='updateOccupancy'>
+                <int32_t name='abs_x'/> <int32_t name='abs_y'/>
+            </vmethod>
             <vmethod ret-type='int32_t' name='getRoomValue'> <pointer type-name='unit'/> </vmethod>
 
             -- 41
@@ -323,7 +327,9 @@
             <vmethod ret-type='bool'/>
             <vmethod/>
             <vmethod name='queueDestroy' comment='same as querying and pressing X'/>
-            <vmethod/>
+            <vmethod ret-type='bool' name='isImpassableTile'>
+                <int32_t name='rel_x'/> <int32_t name='rel_y'/>
+            </vmethod>
 
             <vmethod/>
             <vmethod/>
@@ -341,14 +347,14 @@
 
             <vmethod ret-type='bool'><int16_t/></vmethod>
             <vmethod ret-type='bool'/>
-            <vmethod ret-type='bool'/>
-            <vmethod ret-type='bool'/>
-            <vmethod ret-type='bool' name='isRoom'/>
+            <vmethod ret-type='bool' name='isCoffin'/>
+            <vmethod ret-type='bool' name='canBeRoom'/>
+            <vmethod ret-type='bool' name='canMakeRoom' comment='false if already, or cannot be'/>
 
             -- 61
 
-            <vmethod ret-type='bool'/>
-            <vmethod/>
+            <vmethod ret-type='bool' name='isJusticeRestraint'/>
+            <vmethod name='detachRestrainedUnit'> <pointer type-name='unit'/> </vmethod>
             <vmethod name='write_file'> <pointer comment='file_compressorst'/> </vmethod>
             <vmethod name='read_file'>
                 <pointer comment='file_compressorst'/>
@@ -374,24 +380,31 @@
             <vmethod/>
             <vmethod/>
             <vmethod ret-type='bool' name='isForbidden'/>
-            <vmethod ret-type='bool'/>
+            <vmethod ret-type='bool' name='isHidden'/>
 
             -- 81
 
-            <vmethod/>
+            <vmethod ret-type='bool' name='isVisibleInUI'
+                     comment='not hidden, or hide/unhide UI mode'/>
             <vmethod/>
             <vmethod/>
             <vmethod name='drawBuilding'>
                 <pointer/>
                 <pointer/>
             </vmethod>
-            <vmethod/>
+            <vmethod name='setSquadUse'>
+                <int32_t name='squad'/> <uint32_t comment='squad_use_flags.whole'/>
+            </vmethod>
 
-            <vmethod><ret-type><pointer><stl-vector/></pointer></ret-type></vmethod>
-            <vmethod ret-type='int32_t'/>
-            <vmethod ret-type='int32_t'/>
-            <vmethod><int32_t/><int32_t/></vmethod>
-            <vmethod/>
+            <vmethod name='getSquads'>
+                <ret-type>
+                    <pointer><stl-vector><pointer type-name='building_squad_use'/></stl-vector></pointer>
+                </ret-type>
+            </vmethod>
+            <vmethod name='getSpecificSquad' ret-type='int32_t'/>
+            <vmethod name='getSpecificPosition' ret-type='int32_t'/>
+            <vmethod name='setSpecificSquadPos'><int32_t/><int32_t/></vmethod>
+            <vmethod name='clearSpecificSquad'/>
 
             -- 91
 
@@ -681,9 +694,11 @@
 
     <class-type type-name='building_boxst' inherits-from='building_actual'>
         <int16_t/>
-        <stl-vector/>
-        <int32_t init-value='-1'/>
-        <int32_t init-value='-1'/>
+        <stl-vector name='squads'>
+            <pointer type-name='building_squad_use'/>
+        </stl-vector>
+        <int32_t name='specific_squad' ref-target='squad'/>
+        <int32_t name='specific_position' init-value='-1'/>
     </class-type>
 
     <class-type type-name='building_bridgest' inherits-from='building_actual'>
@@ -701,9 +716,11 @@
 
     <class-type type-name='building_cabinetst' inherits-from='building_actual'>
         <int16_t/>
-        <stl-vector/>
-        <int32_t init-value='-1'/>
-        <int32_t init-value='-1'/>
+        <stl-vector name='squads'>
+            <pointer type-name='building_squad_use'/>
+        </stl-vector>
+        <int32_t name='specific_squad' ref-target='squad'/>
+        <int32_t name='specific_position' init-value='-1'/>
     </class-type>
 
     <class-type type-name='building_cagest' inherits-from='building_actual'>
@@ -947,8 +964,7 @@
         <stl-vector name='squads'>
             <pointer type-name='building_squad_use'/>
         </stl-vector>
-
-        <int32_t name='unk_d0' init-value='-1'/>
+        <int32_t name='specific_squad' ref-target='squad'/>
     </class-type>
 
     <class-type type-name='building_wellst' inherits-from='building_actual'>
