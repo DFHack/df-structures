@@ -162,6 +162,8 @@
         <flag-bit name='room_collision' comment='major intersection with another room?'/>
         <flag-bit/>
         <flag-bit name='justice'/>
+        <flag-bit name='almost_deleted' comment='when requesting delete while in_update'/>
+        <flag-bit name='in_update'/>
     </bitfield-type>
 
     <bitfield-type type-name='door_flags' base-type='uint16_t'>
@@ -178,7 +180,7 @@
         <flag-bit name='closed'/>
         <flag-bit name='closing'/>
         <flag-bit name='opening'/>
-        <flag-bit/>
+        <flag-bit name='collapsing' comment='?; bridge'/>
         <flag-bit name='has_support' comment='bridge'/>
     </bitfield-type>
 
@@ -253,7 +255,9 @@
                 <pointer name='supplies' type-name='hospital_supplies'/>
             </vmethod>
             <vmethod name='detachWorldData' comment='?'/>
-            <vmethod><pointer><stl-vector/></pointer></vmethod>
+            <vmethod name='getUsers'>
+                <ret-type><pointer type-name='building_users'/></ret-type>
+            </vmethod>
             <vmethod name='moveBuilding'>
                 <int16_t name='delta_x'/>
                 <int16_t name='delta_y'/>
@@ -263,11 +267,11 @@
             <vmethod name='initOccupancy'>
                 <int32_t name='abs_x'/> <int32_t name='abs_y'/>
             </vmethod>
-            <vmethod>
-                <int32_t/>
+            <vmethod name='setFillTimer'>
+                <enum base-type='int32_t' type-name='job_type'/>
                 <int16_t/>
             </vmethod>
-            <vmethod ret-type='bool'/>
+            <vmethod ret-type='bool' name='isOnFire'/>
             <vmethod ret-type='bool' name='isUnpowered' comment='from magma OR machine power'/>
             <vmethod ret-type='bool' name='canCollapse'/>
 
@@ -276,13 +280,13 @@
             <vmethod ret-type='uint32_t' name='getPassableOccupancy'/>
             <vmethod ret-type='uint32_t' name='getImpassableOccupancy'/>
             <vmethod ret-type='bool' name='isPowerSource'/>
-            <vmethod/>
-            <vmethod/>
+            <vmethod name='updateFromWeather'/>
+            <vmethod name='updateTemperature'/>
 
-            <vmethod/>
-            <vmethod/>
-            <vmethod ret-type='bool'/>
-            <vmethod ret-type='bool'/>
+            <vmethod name='updateItems'/>
+            <vmethod name='updateTempFromTile'><uint16_t name='temp'/><bool/><bool/></vmethod>
+            <vmethod ret-type='bool' name='isNormalFurniture'/>
+            <vmethod ret-type='bool' name='isFarmPlot'/>
             <vmethod name='getWorkshopProfile'>
                 <ret-type><pointer type-name='workshop_profile'/></ret-type>
             </vmethod>
@@ -295,15 +299,17 @@
             <vmethod name='getPowerInfo'>
                 <pointer name='power_info' type-name='power_info'/>
             </vmethod>
-            <vmethod/>
+            <vmethod ret-type='bool' name='canConnectToMachine'>
+                <pointer type-name='machine_tile_set'/>
+            </vmethod>
             <vmethod ret-type='building_type' name='getType'/>
             <vmethod ret-type='int16_t' name='getSubtype'/>
 
             <vmethod name='setSubtype'> <int16_t name='subtype'/> </vmethod>
             <vmethod ret-type='bool' name='isActual'/>
-            <vmethod ret-type='bool'/>
-            <vmethod/>
-            <vmethod ret-type='bool'/>
+            <vmethod ret-type='bool' name='isCoffin2'/>
+            <vmethod name='updateAction'/>
+            <vmethod ret-type='bool' name='isStatueOrRestraint'/>
 
             -- 31
 
@@ -311,11 +317,12 @@
             <vmethod name='setBuildStage'> <int16_t name='stage'/> </vmethod>
             <vmethod ret-type='int32_t' name='getBuildStage'/>
             <vmethod ret-type='int32_t' name='getMaxBuildStage'/>
-            <vmethod/>
+            <vmethod ret-type='int32_t' name='getArchitectureValue'
+                     comment='bridge: material*10 rough, material*30 smooth'/>
 
-            <vmethod ret-type='bool' name='useOccupancy'/>
+            <vmethod ret-type='bool' name='isSettingOccupancy'/>
             <vmethod ret-type='bool' name='isActual2'/>
-            <vmethod ret-type='bool' name='useExtentShape'/>
+            <vmethod ret-type='bool' name='isExtentShaped'/>
             <vmethod name='updateOccupancy'>
                 <int32_t name='abs_x'/> <int32_t name='abs_y'/>
             </vmethod>
@@ -324,15 +331,20 @@
             -- 41
 
             <vmethod ret-type='int32_t' name='getPersonalValue'> <pointer type-name='unit'/> </vmethod>
-            <vmethod ret-type='bool'/>
-            <vmethod/>
+            <vmethod ret-type='bool' name='canBeRoom'/>
+            <vmethod ret-type='int32_t' name='getConstructionValue'
+                     comment='bridge: material*10'/>
             <vmethod name='queueDestroy' comment='same as querying and pressing X'/>
             <vmethod ret-type='bool' name='isImpassableTile'>
                 <int32_t name='rel_x'/> <int32_t name='rel_y'/>
             </vmethod>
 
-            <vmethod/>
-            <vmethod/>
+            <vmethod ret-type='int32_t' name='getFreeCapacity'>
+                <bool name='exclude_in_room'/> <bool name='subtract_pending_jobs'/>
+            </vmethod>
+            <vmethod ret-type='bool' name='canStoreItem'>
+                <pointer type-name='item'/> <bool name='subtract_pending_jobs'/>
+            </vmethod>
             <vmethod name='getName'> <pointer type-name='stl-string' name='name'/> </vmethod>
             <vmethod name='getNameColor'/>
             <vmethod name='initFarmSeasons'/>
@@ -342,13 +354,15 @@
             <vmethod name='initBurialFlags'/>
             <vmethod name='clearBurialFlags'/>
             <vmethod name='clearBurialFlags2'/>
-            <vmethod/>
+            <vmethod ret-type='int32_t' name='getClutterLevel' comment='1..10'/>
             <vmethod ret-type='bool' name='needsDesign'/>
 
-            <vmethod ret-type='bool'><int16_t/></vmethod>
-            <vmethod ret-type='bool'/>
+            <vmethod ret-type='bool' name='canUseForMood'>
+                <enum base-type='int16_t' type-name='job_type'/>
+            </vmethod>
+            <vmethod ret-type='bool' name='canBeRoomSubset'/>
             <vmethod ret-type='bool' name='isCoffin'/>
-            <vmethod ret-type='bool' name='canBeRoom'/>
+            <vmethod ret-type='bool' name='canUseSpouseRoom'/>
             <vmethod ret-type='bool' name='canMakeRoom' comment='false if already, or cannot be'/>
 
             -- 61
@@ -360,25 +374,26 @@
                 <pointer comment='file_compressorst'/>
                 <int32_t name='loadversion'/>
             </vmethod>
-            <vmethod ret-type='bool'/>
+            <vmethod ret-type='bool' name='isImpassableAtCreation'
+                     comment='the true set looks like things where the unit should stand aside'/>
 
             <vmethod name='categorize' comment='Add to world.buildings.other.*'> <bool/> </vmethod>
             <vmethod name='uncategorize' comment='Remove from world.buildings.other.*'/>
             <vmethod ret-type='int32_t' name='getBaseValue'/>
             <vmethod name='setMachineState'> <int32_t name='new_state' comment='1 = active/open, 0 = inactive/closed'/> </vmethod>
-            <vmethod/>
+            <vmethod name='checkAdvmodeLocked'/>
 
             -- 71
 
-            <vmethod/>
-            <vmethod/>
+            <vmethod name='drawAdvmodeUnlockUI'/>
+            <vmethod name='advmodeUnlock'><pointer/></vmethod>
             <vmethod ret-type='bool' name='needsMagma'/>
             <vmethod/>
             <vmethod/>
 
             <vmethod/>
             <vmethod/>
-            <vmethod/>
+            <vmethod name='fillSidebarMenu'/>
             <vmethod ret-type='bool' name='isForbidden'/>
             <vmethod ret-type='bool' name='isHidden'/>
 
@@ -523,7 +538,7 @@
             <flag-bit/>
             <flag-bit name='is_pond'/>
         </bitfield>
-        <int16_t/>
+        <int16_t name='fill_timer'/>
         <compound type-name='hospital_supplies' name='hospital'/>
     </class-type>
 
@@ -646,7 +661,7 @@
 
     <class-type type-name='building_animaltrapst' inherits-from='building_actual'>
         <int16_t name='bait_type' init-value='-1'/>
-        <int16_t name='timer'/>
+        <int16_t name='fill_timer'/>
     </class-type>
 
     <class-type type-name='building_archerytargetst' inherits-from='building_actual'>
@@ -678,6 +693,13 @@
         <int8_t name='timer'/>
     </class-type>
 
+    <struct-type type-name='building_users'>
+        <stl-vector name='unit'>
+            <int32_t ref-target='unit'/>
+        </stl-vector>
+        <stl-vector name='mode' type-name='int16_t'/>
+    </struct-type>
+
     <class-type type-name='building_bedst' inherits-from='building_actual'>
         <bitfield base-type='uint16_t'>
             <flag-bit name='barracks'/>
@@ -688,8 +710,7 @@
         </stl-vector>
         <int32_t name='specific_squad' ref-target='squad'/>
         <int32_t name='specific_position' init-value='-1'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int16_t'/>
+        <compound name='users' type-name='building_users'/>
     </class-type>
 
     <class-type type-name='building_boxst' inherits-from='building_actual'>
@@ -731,7 +752,7 @@
             <int32_t ref-target='item'/>
         </stl-vector>
         <int16_t/>
-        <int16_t/>
+        <int16_t name='fill_timer'/>
     </class-type>
 
     <class-type type-name='building_chainst' inherits-from='building_actual'>
@@ -742,8 +763,7 @@
 
     <class-type type-name='building_chairst' inherits-from='building_actual'>
         <int16_t/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int16_t'/>
+        <compound name='users' type-name='building_users'/>
     </class-type>
 
     <class-type type-name='building_coffinst' inherits-from='building_actual'>
@@ -867,7 +887,7 @@
             <enum-item name='FireAtWill'/>
         </enum>
         <int8_t name='fire_timer'/>
-        <int16_t name='unk_timer'/>
+        <int16_t name='fill_timer'/>
     </class-type>
 
     <class-type type-name='building_slabst' inherits-from='building_actual'>
@@ -886,14 +906,12 @@
         <bitfield name='flags' base-type='int16_t'>
             <flag-bit name='meeting_hall'/>
         </bitfield>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int16_t'/>
+        <compound name='users' type-name='building_users'/>
     </class-type>
 
     <class-type type-name='building_traction_benchst' inherits-from='building_actual'>
         <int16_t/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int16_t'/>
+        <compound name='users' type-name='building_users'/>
     </class-type>
 
     <class-type type-name='building_tradedepotst' inherits-from='building_actual'>
@@ -933,7 +951,7 @@
         <enum base-type='int16_t' name='trap_type' type-name='trap_type'/>
         <int8_t name='state' comment='1 = pulled, tripped/needs reloading'/>
         <int16_t name='unk_cc'/>
-        <int16_t name='unk_ce'/>
+        <int16_t name='fill_timer'/>
         <int16_t name='unk_d0'/>
         <stl-vector name='linked_mechanisms'>
             <pointer type-name='item'/>
