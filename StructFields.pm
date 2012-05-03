@@ -399,6 +399,7 @@ sub render_field_metadata_rec($$) {
 
     if (is_attr_true($field, 'ld:anon-compound'))
     {
+        local $in_union = $in_union || is_attr_true($field, 'is-union');
         my @fields = get_struct_fields($field);
         &render_field_metadata_rec($_, $FLD) for @fields;
         return;
@@ -435,7 +436,9 @@ sub render_field_metadata_rec($$) {
         }
     } elsif ($meta eq 'pointer') {
         my @items = $field->findnodes('ld:item');
-        my $count = is_attr_true($field, 'is-array') ? 1 : 0;
+        my $count = 0;
+        $count |= 1 if is_attr_true($field, 'is-array');
+        $count |= 2 if $in_union;
 
         push @field_defs, [ "${FLD}(POINTER, $name)", auto_identity_reference($items[0]), $count, $enum ];
     } elsif ($meta eq 'static-array') {
@@ -463,6 +466,8 @@ sub render_field_metadata_rec($$) {
 
 sub render_field_metadata($$\@\%) {
     my ($tag, $full_name, $fields, $info) = @_;
+
+    local $in_union = $in_union_body;
 
     local $in_struct_body = 0;
     local $in_union_body = 0;
