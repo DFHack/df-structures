@@ -314,10 +314,11 @@ sub with_header_file(&$) {
             for my $weak (sort { $a cmp $b } keys %weak_refs) {
                 next if $strong_refs{$weak};
                 my $ttype = $types{$weak};
+                my $meta = $ttype->getAttribute('ld:meta');
                 my $tstr = 'struct';
-                $tstr = 'enum' if $ttype->nodeName eq 'enum-type';
-                $tstr = 'union' if $ttype->nodeName eq 'bitfield-type';
-                $tstr = 'union' if ($ttype->nodeName eq 'struct-type' && is_attr_true($ttype,'is-union'));
+                $tstr = 'enum' if $meta eq 'enum-type';
+                $tstr = 'union' if $meta eq 'bitfield-type';
+                $tstr = 'union' if ($meta eq 'struct-type' && is_attr_true($ttype,'is-union'));
                 emit $tstr, ' ', $weak, ';';
             }
 
