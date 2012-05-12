@@ -27,8 +27,8 @@
 ;; Load the symbol tables for os type detection
 (load-data-definition (merge-pathnames #P"symbols.xml" #.*load-truename*))
 
-(defvar *process*)
-(defvar *memory*)
+(defvar *process* nil)
+(defvar *memory* nil)
 
 (define-symbol-macro global *memory*)
 
