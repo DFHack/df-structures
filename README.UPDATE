@@ -58,32 +58,53 @@ STAGE 3. Linux primitive globals
     look at values in bss, there will be cur_year_tick, and
     cur_year is 32 bytes before that.
 
+  1a. process_dig
+
+    Step the game one step. Designate a tile for digging.
+    Look after cur_year for an enabled boolean.
+
+  1b. process_jobs
+
+    Designate a building for construction. Look after process_dig.
+
   2. job_next_id / ui_workshop_job_cursor / ui_workshop_in_add
 
     Find a workshop without jobs; (find-changes); add job; Enter;
     add job; +; add job; +; done
-
     Finds job_next_id and ui_workshop_job_cursor, the distinction is obvious.
-    After ui_workshop_job_cursor is the ui_workshop_in_add bool - change the
-    state in game and F5.
+
+    Expected to be in the area after cur_year_tick.
+
+  2a. ui_workshop_in_add, ui_building_in_resize, ui_building_in_assign
+
+    Expected to be in the area after ui_workshop_job_cursor, in this order.
+    Change the relevant state in game and F5.
 
   3. ui_building_item_cursor
 
     Find a cluttered workshop, t; (find-changes); move cursor down; Enter;
     cursor down; +; cursor down; +; done
 
+    Expected to be right after ui_workshop_job_cursor.
+
   4. ui_look_cursor
 
     Likewise, but with a cluttered tile and k.
+
+    Expected to be in the area of the 124 byte global before ui.
 
   5. ui_selected_unit
 
     Find a place with many nearby units; (find-changes); v; Enter; v; new;
     ...; when returned to origin, 0; 1; 2...; done
 
+    Alternatively, look before ui_look_cursor.
+
   6. ui_unit_view_mode
 
     Select unit, page Gen; (find-changes); Inv; Enter; Prf; +; Wnd; +; done
+
+    Expected to be after ui_selected_unit.
 
   7. window_x, window_y, window_z
 
@@ -99,18 +120,11 @@ STAGE 3. Linux primitive globals
 
     (find-changes); toggle pause; Enter; toggle; 0; toggle; 1; etc; done
 
-  9. ui_building_in_assign
+    Expected to be in the area after ui_look_cursor.
 
-    Select a room, (find-changes); Assign, enter; Esc, 0; Assign, 1; repeat
+  9. current_weather
 
-  10. process_dig
-
-    Step the game one step. Designate a tile for digging.
-    Look around cur_year for an enabled boolean.
-
-  11. process_jobs
-
-    Designate a building for construction. Look around cur_year.
+    Subtract 0x1c from cur_year address. Obviously, a big hack.
 
 
 STAGE 4. Windows compound globals
