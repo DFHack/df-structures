@@ -68,8 +68,8 @@ sub emit_addr($\%$$;$) {
     }
 }
 
-sub generate_dt_ini($$$) {
-    my ($subdir, $checksum, $vbias) = @_;
+sub generate_dt_ini($$$$) {
+    my ($subdir, $version, $checksum, $vbias) = @_;
 
     my %globals;
     load_csv %globals, "$subdir/globals.csv";
@@ -86,6 +86,11 @@ sub generate_dt_ini($$$) {
     emit_addr 'dwarf_race_index',%globals,'ui','ui.race_id';
     emit_addr 'squad_vector',%globals,'world','world.squads.all',$vbias;
     emit_addr 'current_year',%globals,'cur_year','cur_year';
+
+    emit_addr 'cur_year_tick',%globals,'cur_year_tick','cur_year_tick';
+    emit_addr 'dwarf_civ_index',%globals,'ui','ui.civ_id';
+    emit_addr 'races_vector',%globals,'world','world.raws.creatures.all',$vbias;
+    emit_addr 'reactions_vector',%globals,'world','world.raws.reactions',$vbias;
 
     emit_header 'offsets';
     emit_addr 'word_table',%all,'language_translation','words';
@@ -111,11 +116,16 @@ sub generate_dt_ini($$$) {
     emit_addr 'race',%all,'unit','race';
     emit_addr 'flags1',%all,'unit','flags1';
     emit_addr 'flags2',%all,'unit','flags2';
+    emit_addr 'flags3',%all,'unit','flags3';
     emit_addr 'sex',%all,'unit','sex';
     emit_addr 'id',%all,'unit','id';
+    emit_addr 'animal_type',%all,'unit','training_level';
     emit_addr 'recheck_equipment',%all,'unit','military.pickup_flags';
+    emit_addr 'birth_year',%all,'unit','relations.birth_year';
     emit_addr 'current_job',%all,'unit','job.current_job';
     emit_addr 'physical_attrs',%all,'unit','body.physical_attrs';
+    emit_addr 'body_size',%all,'unit','body.body_app_modifiers',$vbias;
+    emit_addr 'curse',%all,'unit','curse.name';
     emit_addr 'turn_count',%all,'unit','curse.time_on_site';
     emit_addr 'souls',%all,'unit','status.souls',$vbias;
     emit_addr 'states',%all,'unit','status.misc_traits',$vbias;
@@ -124,6 +134,7 @@ sub generate_dt_ini($$$) {
     emit_addr 'squad_ref_id',%all,'unit','hist_figure_id';
 
     emit_header 'soul_details';
+    emit_addr 'mental_attrs',%all,'unit_soul','mental_attrs';
     emit_addr 'skills',%all,'unit_soul','skills',$vbias;
     emit_addr 'traits',%all,'unit_soul','traits';
 
@@ -180,9 +191,14 @@ size=2
 1\\value=0x00000080
 2\\name=from the Underworld. SPOOKY!
 2\\value=0x00040000
+
+[invalid_flags_3]
+size=1
+1\\name=a ghost
+1\\value=0x00001000
 __END__
     close OUT;
 }
 
-generate_dt_ini 'linux', substr($hash,0,8), 0;
-generate_dt_ini 'windows', $timestamp, -4;
+generate_dt_ini 'linux', $version, substr($hash,0,8), 0;
+generate_dt_ini 'windows', $version.' (graphics)', $timestamp, -4;
