@@ -123,8 +123,8 @@
             <pointer type-name='general_ref'/>
         </stl-vector>
 
-        <int32_t comment='v0.34.01'/>
-        <int32_t comment='v0.34.01'/>
+        <int32_t name='world_data_id' init-value='-1' comment='v0.34.01'/>
+        <int32_t name='world_data_subid' init-value='-1' comment='v0.34.01'/>
 
         <compound name='temp'>
             <int8_t name='unk1a'/>
@@ -172,9 +172,9 @@
             <vmethod ret-type='bool' name='subtractDimension'> <int32_t name='amount'/> </vmethod>
 
             <vmethod ret-type='bool' name='isFoodStorage'/>
-            <vmethod/>
-            <vmethod/>
-            <vmethod/>
+            <vmethod ret-type='bool' name='isTrackCart'/>
+            <vmethod ret-type='bool' name='isWheelbarrow'/>
+            <vmethod ret-type='int32_t' name='getVehicleID'/>
             <vmethod name='getStockpile'>
                 <ret-type><pointer type-name='item_stockpile_ref'/></ret-type>
             </vmethod>
@@ -296,8 +296,14 @@
             <vmethod ret-type='bool' name='isProcessableBarrel'/>
             <vmethod ret-type='bool' name='isEdiblePlant'/>
             <vmethod ret-type='bool' name='isEdibleRaw'> <int32_t name='hunger'/> </vmethod>
-            <vmethod/>
-            <vmethod/>
+            <vmethod ret-type='bool' name='isEdibleMeat'>
+                <comment>In item_foodst, requires MEAT or FISH ingredient.</comment>
+                <int32_t name='hunger'/>
+            </vmethod>
+            <vmethod ret-type='bool' name='isEdibleCorpse'>
+                <comment>In item_foodst, requires CORPSEPIECE, MEAT or FISH ingredient.</comment>
+                <int32_t name='hunger'/>
+            </vmethod>
 
             -- 95
 
@@ -306,12 +312,12 @@
             </vmethod>
             <vmethod name='categorize' comment='Add item to world.items.other.*'> <bool/> </vmethod>
             <vmethod name='uncategorize' comment='Remove item from world.items.other.*'/>
-            <vmethod/>
+            <vmethod ret-type='bool' name='isFurniture'> <bool name='empty'/> </vmethod>
             <vmethod ret-type='bool' name='isPressed'/>
-            <vmethod/>
+            <vmethod ret-type='bool' name='isCageOrTrap'/>
 
             <vmethod/>
-            <vmethod/>
+            <vmethod name='notifyLostMasterwork'/>
             <vmethod/>
             <vmethod/>
             <vmethod/>
@@ -864,7 +870,12 @@
         <pointer name='subtype' type-name='itemdef_foodst'/>
         <int32_t name='unk_94'/>
         <int16_t name='unk_98'/>
-        <stl-vector type-name='pointer' name='unk_9c'/>
+        <stl-vector name='ingredients'>
+            <pointer>
+                <int16_t/>
+                <enum base-type='int16_t' name='item_type' type-name='item_type'/>
+            </pointer>
+        </stl-vector>
         <int32_t name='rot_timer'/>
     </class-type>
 
