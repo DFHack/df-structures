@@ -68,8 +68,8 @@ sub emit_addr($\%$$;$) {
     }
 }
 
-sub generate_dt_ini($$$$) {
-    my ($subdir, $version, $checksum, $vbias) = @_;
+sub generate_dt_ini($$$$$) {
+    my ($subdir, $version, $checksum, $vbias, $ssize) = @_;
 
     my %globals;
     load_csv %globals, "$subdir/globals.csv";
@@ -107,6 +107,24 @@ sub generate_dt_ini($$$$) {
     emit_addr 'past_participle_verb',%all,'language_word','forms[VerbPassive]';
     emit_addr 'present_participle_verb',%all,'language_word','forms[VerbGerund]';
 
+    emit_header 'race_offsets';
+    emit_addr 'name_singular',%all,'creature_raw','name';
+    emit_addr 'name_plural',%all,'creature_raw','name',$ssize;
+    emit_addr 'adjective',%all,'creature_raw','name',$ssize*2;
+    emit_addr 'baby_name_singular',%all,'creature_raw','general_baby_name';
+    emit_addr 'baby_name_plural',%all,'creature_raw','general_baby_name',$ssize;
+    emit_addr 'child_name_singular',%all,'creature_raw','general_child_name';
+    emit_addr 'child_name_plural',%all,'creature_raw','general_child_name',$ssize;
+    emit_addr 'pref_string_vector',%all,'creature_raw','prefstring',$vbias;
+    emit_addr 'castes_vector',%all,'creature_raw','caste',$vbias;
+    emit_addr 'pop_ratio_vector',%all,'creature_raw','pop_ratio',$vbias;
+
+    emit_header 'caste_offsets';
+    emit_addr 'caste_name',%all,'caste_raw','caste_name';
+    emit_addr 'caste_descr',%all,'caste_raw','description';
+    emit_addr 'caste_phys_att_ranges',%all,'caste_raw','attributes.phys_att_range';
+    emit_addr 'caste_ment_att_ranges',%all,'caste_raw','attributes.ment_att_range';
+
     emit_header 'dwarf_offsets';
     emit_addr 'first_name',%all,'unit','name',lookup_addr(%all,'language_name','first_name');
     emit_addr 'nick_name',%all,'unit','name',lookup_addr(%all,'language_name','nickname');
@@ -117,11 +135,15 @@ sub generate_dt_ini($$$$) {
     emit_addr 'flags1',%all,'unit','flags1';
     emit_addr 'flags2',%all,'unit','flags2';
     emit_addr 'flags3',%all,'unit','flags3';
+    emit_addr 'caste',%all,'unit','caste';
     emit_addr 'sex',%all,'unit','sex';
     emit_addr 'id',%all,'unit','id';
     emit_addr 'animal_type',%all,'unit','training_level';
+    emit_addr 'civ',%all,'unit','civ_id';
     emit_addr 'recheck_equipment',%all,'unit','military.pickup_flags';
+    emit_addr 'mood',%all,'unit','mood';
     emit_addr 'birth_year',%all,'unit','relations.birth_year';
+    emit_addr 'birth_time',%all,'unit','relations.birth_time';
     emit_addr 'current_job',%all,'unit','job.current_job';
     emit_addr 'physical_attrs',%all,'unit','body.physical_attrs';
     emit_addr 'body_size',%all,'unit','body.body_app_modifiers',$vbias;
@@ -169,7 +191,7 @@ size=1
 size=0
 
 [invalid_flags_1]
-size=7
+size=9
 1\\name=a zombie
 1\\value=0x00001000
 2\\name=a skeleton
@@ -184,10 +206,14 @@ size=7
 6\\value=0x00080000
 7\\name=an invader or hostile
 7\\value=0x000C0000
+8\\name=a merchant escort
+8\\value=0x00000080
+9\\name="Dead, Jim."
+9\\value=0x00000002
 
 [invalid_flags_2]
 size=2
-1\\name="dead, Jim."
+1\\name="killed, Jim."
 1\\value=0x00000080
 2\\name=from the Underworld. SPOOKY!
 2\\value=0x00040000
@@ -200,5 +226,5 @@ __END__
     close OUT;
 }
 
-generate_dt_ini 'linux', $version, substr($hash,0,8), 0;
-generate_dt_ini 'windows', $version.' (graphics)', $timestamp, -4;
+generate_dt_ini 'linux', $version, substr($hash,0,8), 0, 4;
+generate_dt_ini 'windows', $version.' (graphics)', $timestamp, -4, 0x1C;
