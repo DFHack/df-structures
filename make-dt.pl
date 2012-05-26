@@ -162,7 +162,7 @@ sub generate_dt_ini($$$$$) {
 
     emit_header 'job_details';
     emit_addr 'id',%all,'job','job_type';
-    emit_addr 'on_break_flag',%all,'unit_misc_trait','OnBreak';
+    emit_addr 'on_break_flag',%all,'misc_trait_type','OnBreak';
     emit_addr 'sub_job_id',%all,'job','reaction_name';
 
     emit_header 'squad_offsets';
