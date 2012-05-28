@@ -83,6 +83,7 @@ sub generate_dt_ini($$$$$) {
     emit_addr 'translation_vector',%globals,'world','world.raws.language.translations',$vbias;
     emit_addr 'language_vector',%globals,'world','world.raws.language.words',$vbias;
     emit_addr 'creature_vector',%globals,'world','world.units.all',$vbias;
+    emit_addr 'active_creature_vector',%globals,'world','world.units.active',$vbias;
     emit_addr 'dwarf_race_index',%globals,'ui','ui.race_id';
     emit_addr 'squad_vector',%globals,'world','world.squads.all',$vbias;
     emit_addr 'current_year',%globals,'cur_year','cur_year';
