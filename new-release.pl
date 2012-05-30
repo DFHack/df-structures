@@ -18,9 +18,17 @@ my $path = $ARGV[1] || glob("~/Games/DF/");
 
 # Find the new md5 and timestamp
 
-my $md5_hash = `md5sum "$path/df_linux/libs/Dwarf_Fortress"`;
-$md5_hash =~ s/\s.*$//s;
-$md5_hash =~ /^[0-9a-fA-F]+$/ or die "Could not determine md5 hash\n";
+sub compute_md5($) {
+    my ($fn) = @_;
+
+    my $md5_hash = `md5sum "$fn"`;
+    $md5_hash =~ s/\s.*$//s;
+    $md5_hash =~ /^[0-9a-fA-F]+$/ or die "Could not determine md5 hash: $fn\n";
+    return lc $md5_hash;
+}
+
+my $md5_hash = compute_md5 "$path/df_linux/libs/Dwarf_Fortress";
+my $osx_md5 = compute_md5 "$path/df_osx/dwarfort.exe";
 
 my $timestamp;
 if (open FH, "winedump '$path/df_windows/Dwarf Fortress.exe'|") {
@@ -33,10 +41,9 @@ if (open FH, "winedump '$path/df_windows/Dwarf Fortress.exe'|") {
 }
 $timestamp or die "Could not find the timestamp.\n";
 
-$md5_hash = lc $md5_hash;
 $timestamp = lc $timestamp;
 
-print "New version $version, timestamp $timestamp hash $md5_hash\n";
+print "New version $version, timestamp $timestamp, hash $md5_hash, osx hash $osx_md5\n";
 
 # Load symbols
 
@@ -58,6 +65,10 @@ for $_ (@symlines) {
     }
 }
 
+# Generate next ids and vtables
+
+system "./make-scans.sh '$path'"
+
 # Patch symbols
 
 my @template;
@@ -73,6 +84,17 @@ for $_ (@symlines) {
 }
 @template or die "Could not find the symtable template\n";
 
+sub import_genfile($$$) {
+    my ($dir, $fn) = @_;
+    local *IFH;
+    if (open IFH, "${dir}/${fn}.txt") {
+        print FH "\n";
+        while (<IFH>) {
+            print FH "        $_";
+        }
+    }
+}
+
 open FH, '>symbols.xml' or die "Can't write symbols.\n";
 for $_ (@symlines) {
     if (/<!--\s*end windows\s*-->/) {
@@ -82,6 +104,9 @@ for $_ (@symlines) {
                 print FH "    <symbol-table name='$version SDL' os-type='windows'>\n";
             } elsif ($line =~ /<binary-timestamp/) {
                 print FH "        <binary-timestamp value='0x$timestamp'/>\n";
+            } elsif ($line =~ /^\s*generated (\S+)\s*$/) {
+                print FH $line;
+                import_genfile 'windows', $1;
             } else {
                 print FH $line;
             }
@@ -94,6 +119,24 @@ for $_ (@symlines) {
                 print FH "    <symbol-table name='$version linux' os-type='linux'>\n";
             } elsif ($line =~ /<md5-hash/) {
                 print FH "        <md5-hash value='$md5_hash'/>\n";
+            } elsif ($line =~ /^\s*generated (\S+)\s*$/) {
+                print FH $line;
+                import_genfile 'linux', $1;
+            } else {
+                print FH $line;
+            }
+        }
+        print FH "\n";
+    } elsif (/<!--\s*end osx\s*-->/) {
+        for my $line (@template) {
+            next if $line =~ /<binary-timestamp/;
+            if ($line =~ /<symbol-table name/) {
+                print FH "    <symbol-table name='$version osx' os-type='darwin'>\n";
+            } elsif ($line =~ /<md5-hash/) {
+                print FH "        <md5-hash value='$osx_md5'/>\n";
+            } elsif ($line =~ /^\s*generated (\S+)\s*$/) {
+                print FH $line;
+                import_genfile 'osx', $1;
             } else {
                 print FH $line;
             }
@@ -109,8 +152,10 @@ close FH;
 
 rename "linux/df.globals.xml", "linux/df.globals.xml-old";
 rename "windows/df.globals.xml", "windows/df.globals.xml-old";
+rename "osx/df.globals.xml", "osx/df.globals.xml-old";
 system "cp defs.xml-empty linux/df.globals.xml";
 system "cp defs.xml-empty windows/df.globals.xml";
+system "cp defs.xml-empty osx/df.globals.xml";
 system "touch '$version.lst'";
 
 # Lisp
@@ -120,5 +165,6 @@ print FH <<END;
 (defparameter *df-version-str* "$version")
 (defparameter *windows-timestamp* #x$timestamp)
 (defparameter *linux-hash* "$md5_hash")
+(defparameter *osx-hash* "$osx_md5")
 END
 close FH;
