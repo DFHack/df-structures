@@ -87,11 +87,12 @@ sub generate_dt_ini($$$$$) {
     emit_addr 'dwarf_race_index',%globals,'ui','ui.race_id';
     emit_addr 'squad_vector',%globals,'world','world.squads.all',$vbias;
     emit_addr 'current_year',%globals,'cur_year','cur_year';
-
     emit_addr 'cur_year_tick',%globals,'cur_year_tick','cur_year_tick';
     emit_addr 'dwarf_civ_index',%globals,'ui','ui.civ_id';
     emit_addr 'races_vector',%globals,'world','world.raws.creatures.all',$vbias;
     emit_addr 'reactions_vector',%globals,'world','world.raws.reactions',$vbias;
+    emit_addr 'historical_figures',%globals,'world','world.history.figures',$vbias;
+    emit_addr 'fake_identities',%globals,'world','world.assumed_identities.all',$vbias;
 
     emit_header 'offsets';
     emit_addr 'word_table',%all,'language_translation','words';
@@ -107,6 +108,9 @@ sub generate_dt_ini($$$$$) {
     emit_addr 'past_simple_verb',%all,'language_word','forms[VerbPast]';
     emit_addr 'past_participle_verb',%all,'language_word','forms[VerbPassive]';
     emit_addr 'present_participle_verb',%all,'language_word','forms[VerbGerund]';
+    emit_addr 'words',%all,'language_name','words';
+    emit_addr 'word_type',%all,'language_name','parts_of_speech';
+    emit_addr 'language_id',%all,'language_name','language';
 
     emit_header 'race_offsets';
     emit_addr 'name_singular',%all,'creature_raw','name';
@@ -126,6 +130,16 @@ sub generate_dt_ini($$$$$) {
     emit_addr 'caste_phys_att_ranges',%all,'caste_raw','attributes.phys_att_range';
     emit_addr 'caste_ment_att_ranges',%all,'caste_raw','attributes.ment_att_range';
 
+    emit_header 'hist_figure';
+    emit_addr 'hist_name',%all,'historical_figure','name';
+    emit_addr 'id',%all,'historical_figure','id';
+    emit_addr 'hist_fig_info',%all,'historical_figure','info';
+    emit_addr 'reputation',%all,'historical_figure_info','reputation';
+    emit_addr 'current_ident',%all,'historical_figure_info::anon13','cur_identity';
+    emit_addr 'fake_name',%all,'assumed_identity','name';
+    emit_addr 'fake_birth_year',%all,'assumed_identity','birth_year';
+    emit_addr 'fake_birth_time',%all,'assumed_identity','birth_second';
+
     emit_header 'dwarf_offsets';
     emit_addr 'first_name',%all,'unit','name',lookup_addr(%all,'language_name','first_name');
     emit_addr 'nick_name',%all,'unit','name',lookup_addr(%all,'language_name','nickname');
@@ -141,6 +155,8 @@ sub generate_dt_ini($$$$$) {
     emit_addr 'id',%all,'unit','id';
     emit_addr 'animal_type',%all,'unit','training_level';
     emit_addr 'civ',%all,'unit','civ_id';
+    emit_addr 'squad_id',%all,'unit','military.squad_index';
+    emit_addr 'squad_position',%all,'unit','military.squad_position';
     emit_addr 'recheck_equipment',%all,'unit','military.pickup_flags';
     emit_addr 'mood',%all,'unit','mood';
     emit_addr 'birth_year',%all,'unit','relations.birth_year';
@@ -155,8 +171,10 @@ sub generate_dt_ini($$$$$) {
     emit_addr 'labors',%all,'unit','status.labors';
     emit_addr 'happiness',%all,'unit','status.happiness';
     emit_addr 'squad_ref_id',%all,'unit','hist_figure_id';
+    emit_addr 'hist_id',%all,'unit','hist_figure_id';
 
     emit_header 'soul_details';
+    emit_addr 'name',%all,'unit_soul','name';
     emit_addr 'mental_attrs',%all,'unit_soul','mental_attrs';
     emit_addr 'skills',%all,'unit_soul','skills',$vbias;
     emit_addr 'traits',%all,'unit_soul','traits';
@@ -165,10 +183,14 @@ sub generate_dt_ini($$$$$) {
     emit_addr 'id',%all,'job','job_type';
     emit_addr 'on_break_flag',%all,'misc_trait_type','OnBreak';
     emit_addr 'sub_job_id',%all,'job','reaction_name';
+    emit_addr 'reaction',%all,'reaction','name';
+    emit_addr 'reaction_skill',%all,'reaction','skill';
 
     emit_header 'squad_offsets';
     emit_addr 'id',%all,'squad','id';
-    emit_addr 'name',%all,'squad','name',lookup_addr(%all,'language_name','words');
+    emit_addr 'name',%all,'squad','name';
+    emit_addr 'name_old',%all,'squad','name',lookup_addr(%all,'language_name','words');
+    emit_addr 'alias',%all,'squad','alias';
     emit_addr 'members',%all,'squad','positions',$vbias;
 
     my $body_str = join("\n",@lines);
