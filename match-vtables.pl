@@ -40,7 +40,7 @@ while (<N>) {
         $cur_class = $1;
         $vtable_addrs{$1} = hex $2;
         $addr_names{hex $2} = $1.'::_vtable';
-    } elsif (/<vtable-function addr='0x([0-9a-f]+)'/) {
+    } elsif (/<vtable-function index='\d+' addr='0x([0-9a-f]+)'/) {
         push @{$vmethod_addrs{$cur_class}}, hex $1;
     }
 }
@@ -80,12 +80,14 @@ for (;;) {
 
         my $vtname = vtable_name $class or next;
         my $vmaddrs = $vmethod_addrs{$vtname} || [];
+        my $num_vmaddrs = @$vmaddrs;
 
         my $vtclass = vtable_class $class or next;
         my $vmnames = $vtable_names{$vtclass} || [];
+        my $num_vmnames = @$vmnames;
 
-        if ($vtclass eq $class && @$vmaddrs != @$vmnames) {
-            print STDERR "VTable size mismatch: $class - expected @$vmnames, found @$vmaddrs\n";
+        if ($vtclass eq $class && $num_vmaddrs != $num_vmnames) {
+            print STDERR "VTable size mismatch: $class ($vtname) - expected $num_vmnames, found $num_vmaddrs\n";
         }
 
         for (my $i = 0; $i < @$vmaddrs; $i++) {
