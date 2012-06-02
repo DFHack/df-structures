@@ -62,7 +62,7 @@
         <uint16_t name='temperature_fraction'/>
         <int32_t name='size' comment='1-24=spatter, 25-49=smear, 50-* = coating'/>
         <int16_t name='unk' comment='-1'/>
-        <int16_t name='id'/>
+        <uint16_t name='flags'/>
     </struct-type>
 
     <enum-type type-name='item_quality' base-type='int16_t'>
@@ -327,7 +327,7 @@
             <vmethod/>
             <vmethod/>
             <vmethod/>
-            <vmethod/>
+            <vmethod ret-type='bool' name='isDamagedByHeat'/>
             <vmethod ret-type='bool' name='needTwoHandedWield'> <int32_t/> </vmethod>
 
             <vmethod name='splitStack'>
@@ -348,20 +348,43 @@
             <vmethod ret-type='bool' name='isLyeBearing'/>
             <vmethod ret-type='bool' name='isAnimalProduct'/>
             <vmethod/>
-            <vmethod/>
+            <vmethod ret-type='bool' name='addWear'>
+                <int32_t name='delta'/> <bool name='simple'/> <bool name='lose_masterwork'/>
+            </vmethod>
 
-            <vmethod/>
-            <vmethod/>
-            <vmethod/>
-            <vmethod/>
-            <vmethod/>
+            <vmethod ret-type='bool' name='incWearTimer'> <int32_t name='delta'/> </vmethod>
+            <vmethod ret-type='bool' name='checkWearDestroy'>
+                <bool name='simple'/> <bool name='lose_masterwork'/>
+            </vmethod>
+            <vmethod name='addContaminant'>
+                <int16_t name='mat_type'/> <int32_t name='mat_index'/>
+                <enum type-name='matter_state' base-type='int16_t' name='mat_state'/>
+                <uint16_t name='temp'/> <int32_t name='size'/>
+                <int16_t name='unk'/> <uint16_t name='flags'/>
+            </vmethod>
+            <vmethod name='removeContaminantByIdx'>
+                <int32_t name='index'/> <int32_t name='amount'/>
+            </vmethod>
+            <vmethod name='removeContaminant'>
+                <int16_t name='mat_type'/> <int32_t name='mat_index'/>
+                <int32_t name='amount'/>
+            </vmethod>
 
             -- 126
 
-            <vmethod/>
-            <vmethod/>
-            <vmethod/>
-            <vmethod/>
+            <vmethod name='tradeUnitContaminants'>
+                <pointer type-name='unit'/> <int16_t name='body_part_id'/>
+            </vmethod>
+            <vmethod name='tradeItemContaminants' comment='calls item.tIC2(this)'>
+                <pointer type-name='item'/>
+            </vmethod>
+            <vmethod name='tradeItemContaminants2'>
+                <pointer type-name='item_actual'/>
+            </vmethod>
+            <vmethod name='contaminateWound'>
+                <pointer type-name='unit'/> <pointer type-name='unit_wound'/>
+                <uint8_t name='shift'/> <int16_t name='body_part_id'/>
+            </vmethod>
             <vmethod name='write_file'> <pointer comment='file_compressorst'/> </vmethod>
 
             <vmethod name='read_file'>
@@ -395,13 +418,17 @@
             <vmethod/>
             <vmethod/>
             <vmethod/>
-            <vmethod/>
+            <vmethod ret-type='bool' name='updateTemperature'>
+                <uint16_t name='temp'/> <bool name='local'/>
+                <bool name='contained'/> <bool name='adjust'/>
+                <int32_t name='multiplier'/>
+            </vmethod>
 
-            <vmethod/>
-            <vmethod/>
-            <vmethod/>
-            <vmethod/>
-            <vmethod/>
+            <vmethod ret-type='bool' name='updateFromWeather'/>
+            <vmethod ret-type='bool' name='updateContaminants'/>
+            <vmethod ret-type='bool' name='checkTemperatureDamage'/>
+            <vmethod ret-type='bool' name='checkHeatColdDamage'/>
+            <vmethod ret-type='bool' name='checkMeltBoil'/>
 
             -- 156
 
@@ -447,7 +474,11 @@
             <vmethod ret-type='bool' name='isOrganicCloth'/>
 
             <vmethod/>
-            <vmethod/>
+            <vmethod name='coverWithContaminant' comment='also stops fire; used for rain'>
+                <int16_t name='mat_type'/> <int32_t name='mat_index'/>
+                <enum type-name='matter_state' base-type='int16_t' name='mat_state'/>
+                <uint16_t name='temperature'/>
+            </vmethod>
             <vmethod/>
             <vmethod ret-type='bool' name='isImproved'/>
             <vmethod name='getMagic'>
@@ -584,8 +615,8 @@
         <int16_t name='wear'/>
         <int32_t name='wear_timer' comment='counts up to 806400'/>
 
-        <int32_t name='unk3' init-value='-1'/>
         <int32_t init-value='-1' comment='v0.34.01'/>
+        <int32_t name='temp_updated_frame' init-value='-1'/>
     </class-type>
 
     -- CRAFTED ITEM
