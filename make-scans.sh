@@ -17,6 +17,7 @@ rm -f */vtables.txt */nextid.txt
 
 rscript scan_linux_vtable.rb "$DFPATH/df_linux/libs/Dwarf_Fortress" > linux/vtables.txt
 rscript scan_linux_vtable.rb --dumpfuncs "$DFPATH/df_linux/libs/Dwarf_Fortress" > linux/vtables-ext.txt
+rscript scan_win_vtable.rb "$DFPATH/df_windows/Dwarf Fortress.exe" > windows/vtables.txt
 
 rscript scan_nextid.rb "$DFPATH/df_linux/libs/Dwarf_Fortress" > linux/nextid.txt
 rscript scan_nextid.rb "$DFPATH/df_windows/Dwarf Fortress.exe" > windows/nextid.txt

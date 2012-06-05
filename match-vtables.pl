@@ -49,8 +49,9 @@ close N;
 my %subst = (
     proj => 'projectile'
 );
-my %rsubst;
-$rsubst{$subst{$_}} = $_ for keys %subst;
+my %rsubst = (
+    projectile => 'projst'
+);
 
 sub vtable_name($) {
     my ($class) = @_;
@@ -67,6 +68,8 @@ sub vtable_class($) {
     }
     return $class;
 }
+
+my %schecked;
 
 my %processed;
 for (;;) {
@@ -86,6 +89,8 @@ for (;;) {
         my $vmnames = $vtable_names{$vtclass} || [];
         my $num_vmnames = @$vmnames;
 
+        $schecked{$vtclass}++ if $vtclass eq $class;
+
         if ($vtclass eq $class && $num_vmaddrs != $num_vmnames) {
             print STDERR "VTable size mismatch: $class ($vtname) - expected $num_vmnames, found $num_vmaddrs\n";
         }
@@ -98,6 +103,10 @@ for (;;) {
         }
     }
     last unless $found;
+}
+
+for my $vt (keys %vtable_names) {
+    print STDERR "VTable size unchecked: $vt\n" unless $schecked{$vt};
 }
 
 sub prefix_class($) {
