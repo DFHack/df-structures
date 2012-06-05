@@ -67,7 +67,7 @@ for $_ (@symlines) {
 
 # Generate next ids and vtables
 
-system "./make-scans.sh '$path'"
+system "./make-scans.sh '$path'";
 
 # Patch symbols
 
@@ -84,9 +84,10 @@ for $_ (@symlines) {
 }
 @template or die "Could not find the symtable template\n";
 
-sub import_genfile($$$) {
+sub import_genfile($$) {
     my ($dir, $fn) = @_;
     local *IFH;
+    local $_;
     if (open IFH, "${dir}/${fn}.txt") {
         print FH "\n";
         while (<IFH>) {
