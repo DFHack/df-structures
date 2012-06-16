@@ -189,7 +189,7 @@ sub get_struct_field_type($;%) {
     } elsif ($meta eq 'global') {
         my $tname = $tag->getAttribute('type-name')
             or die "Global field without type-name";
-        $type_def = register_ref($tname, !$flags{-weak});
+        $type_def = register_ref($tname, !$flags{-weak} || ($subtype && $subtype eq 'enum'));
         $prefix = $main_namespace.'::'.$tname;
     } elsif ($meta eq 'compound') {
         die "Unnamed compound in global mode: ".$tag->toString."\n" unless $flags{-local};
