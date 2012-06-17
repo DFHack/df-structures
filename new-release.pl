@@ -89,9 +89,10 @@ sub import_genfile($$) {
     local *IFH;
     local $_;
     if (open IFH, "${dir}/${fn}.txt") {
-        print FH "\n";
-        while (<IFH>) {
-            print FH "        $_";
+        my @lines = <IFH>;
+        if (@lines) {
+            print FH "\n";
+            print FH "        $_" for @lines;
         }
     }
 }
