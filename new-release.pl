@@ -84,16 +84,20 @@ for $_ (@symlines) {
 }
 @template or die "Could not find the symtable template\n";
 
-sub import_genfile($$) {
-    my ($dir, $fn) = @_;
+sub import_genfile($$$;$) {
+    my ($dir, $fn, $pfix, $substl) = @_;
     local *IFH;
     local $_;
+    local @lines;
     if (open IFH, "${dir}/${fn}.txt") {
-        my @lines = <IFH>;
-        if (@lines) {
-            print FH "\n";
-            print FH "        $_" for @lines;
-        }
+        @lines = <IFH>;
+        close IFH;
+    }
+    if (@lines) {
+        print FH "\n" unless defined $substl;
+        print FH "$pfix$_" for @lines;
+    } else {
+        print FH $substl if defined $substl;
     }
 }
 
@@ -106,9 +110,9 @@ for $_ (@symlines) {
                 print FH "    <symbol-table name='$version SDL' os-type='windows'>\n";
             } elsif ($line =~ /<binary-timestamp/) {
                 print FH "        <binary-timestamp value='0x$timestamp'/>\n";
-            } elsif ($line =~ /^\s*generated (\S+)\s*$/) {
+            } elsif ($line =~ /^(\s*)generated (\S+)\s*$/) {
                 print FH $line;
-                import_genfile 'windows', $1;
+                import_genfile 'windows', $2, $1;
             } else {
                 print FH $line;
             }
@@ -121,9 +125,9 @@ for $_ (@symlines) {
                 print FH "    <symbol-table name='$version linux' os-type='linux'>\n";
             } elsif ($line =~ /<md5-hash/) {
                 print FH "        <md5-hash value='$md5_hash'/>\n";
-            } elsif ($line =~ /^\s*generated (\S+)\s*$/) {
+            } elsif ($line =~ /^(\s*)generated (\S+)\s*$/) {
                 print FH $line;
-                import_genfile 'linux', $1;
+                import_genfile 'linux', $2, $1;
             } else {
                 print FH $line;
             }
@@ -136,9 +140,9 @@ for $_ (@symlines) {
                 print FH "    <symbol-table name='$version osx' os-type='darwin'>\n";
             } elsif ($line =~ /<md5-hash/) {
                 print FH "        <md5-hash value='$osx_md5'/>\n";
-            } elsif ($line =~ /^\s*generated (\S+)\s*$/) {
+            } elsif ($line =~ /^(\s*)generated (\S+)\s*$/) {
                 print FH $line;
-                import_genfile 'osx', $1;
+                import_genfile 'osx', $2, $1;
             } else {
                 print FH $line;
             }
@@ -152,12 +156,30 @@ close FH;
 
 # Globals
 
-rename "linux/df.globals.xml", "linux/df.globals.xml-old";
-rename "windows/df.globals.xml", "windows/df.globals.xml-old";
-rename "osx/df.globals.xml", "osx/df.globals.xml-old";
-system "cp defs.xml-empty linux/df.globals.xml";
-system "cp defs.xml-empty windows/df.globals.xml";
-system "cp defs.xml-empty osx/df.globals.xml";
+sub copy_globals($) {
+    my ($dir) = @_;
+
+    local $_;
+
+    rename "$dir/df.globals.xml", "$dir/df.globals.xml-old";
+
+    open IN, 'defs.xml-empty';
+    open OUT, ">$dir/df.globals.xml";
+    while (<IN>) {
+        if (/(\s*)<!-- defs -->/) {
+            import_genfile $dir, 'ctors', $1, $_;
+        } else {
+            print OUT $_;
+        }
+    }
+    close IN;
+    close OUT;
+}
+
+copy_globals 'linux';
+copy_globals 'windows';
+copy_globals 'osx';
+
 system "touch '$version.lst'";
 
 # Lisp
