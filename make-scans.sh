@@ -26,4 +26,9 @@ rscript scan_ctors.rb "$LINUX_DF" > linux/ctors.txt
 rscript scan_win_vtable.rb "$DFPATH/df_windows/Dwarf Fortress.exe" > windows/vtables.txt
 rscript scan_nextid.rb "$DFPATH/df_windows/Dwarf Fortress.exe" > windows/nextid.txt
 
-rscript scan_nextid_osx.rb "$DFPATH/df_osx/dwarfort.exe" > osx/nextid.txt
+OSX_DF="$DFPATH/df_osx/dwarfort.exe"
+
+rscript scan_nextid_osx.rb "$OSX_DF" > osx/nextid.txt
+rscript scan_ctors_osx.rb "$OSX_DF" | \
+  perl -pe 's/(<global-object )(.*)(name=".*" offset=".*" size=".*")\/>/$1$3>\n    <comment>$2<\/comment>\n<\/global-object>/' > osx/ctors.txt
+./match-ctors.pl osx/ctors.txt osx/ctors-base.txt > osx/cglobals.txt
