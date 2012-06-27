@@ -412,7 +412,7 @@
             <vmethod name='getRelatedSiteIDs'>
                 <pointer name='vec'><stl-vector><int32_t ref-target='world_site'/></stl-vector></pointer>
             </vmethod>
-            <vmethod name='getRelatedSiteBuildingIDs'/>
+            <vmethod name='getRelatedSiteStructureIDs'/>
                 <pointer name='vec'><stl-vector><int32_t/></stl-vector></pointer>
                 <int32_t/>
             <vmethod name='getRelatedArtifactIDs'>
@@ -422,7 +422,7 @@
                 <pointer name='vec'><stl-vector><int32_t ref-target='world_region'/></stl-vector></pointer>
             </vmethod>
 
-            <vmethod name='getRelatedUndergroundRegionIDs'>
+            <vmethod name='getRelatedLayerIDs'>
                 <pointer name='vec'><stl-vector><int32_t ref-target='world_underground_region'/></stl-vector></pointer>
             </vmethod>
             <vmethod name='getRelatedEntityIDs'>
@@ -434,9 +434,9 @@
             <vmethod ret-type='bool' name='isRelatedToSiteID'>
                 <int32_t name='site' ref-target='world_site'/>
             </vmethod>
-            <vmethod ret-type='bool' name='isRelatedToSiteBuilding'>
+            <vmethod ret-type='bool' name='isRelatedToSiteStructure'>
                 <int32_t name='site' ref-target='world_site'/>
-                <int32_t name='building'/>
+                <int32_t name='structure'/>
             </vmethod>
 
             -- 20
@@ -447,7 +447,7 @@
             <vmethod ret-type='bool' name='isRelatedToRegionID'>
                 <int32_t name='region' ref-target='world_region'/>
             </vmethod>
-            <vmethod ret-type='bool' name='isRelatedToUndergroundRegionID'>
+            <vmethod ret-type='bool' name='isRelatedToLayerID'>
                 <int32_t name='region' ref-target='world_underground_region'/>
             </vmethod>
             <vmethod/>
@@ -521,34 +521,34 @@
 
         <int32_t name='site' ref-target='world_site'/>
         <int32_t name='region' ref-target='world_region'/>
-        <int32_t name='under_region' ref-target='world_underground_region'/>
+        <int32_t name='layer' ref-target='world_underground_region'/>
 
         <int16_t name='death_cause'/>
     </class-type>
 
     <class-type type-name='history_event_add_hf_entity_linkst' inherits-from='history_event'>
-        <int32_t name='entity_id' ref-target='historical_entity'/>
-        <int32_t name='hfid' ref-target='historical_figure'/>
+        <int32_t name='civ' ref-target='historical_entity'/>
+        <int32_t name='histfig' ref-target='historical_figure'/>
         <int32_t/>
         <int32_t/>
     </class-type>
 
     <class-type type-name='history_event_remove_hf_entity_linkst' inherits-from='history_event'>
-        <int32_t name='entity_id' ref-target='historical_entity'/>
-        <int32_t name='hfid' ref-target='historical_figure'/>
+        <int32_t name='civ' ref-target='historical_entity'/>
+        <int32_t name='histfig' ref-target='historical_figure'/>
         <int32_t/>
         <int32_t/>
     </class-type>
 
     <class-type type-name='history_event_first_contactst' inherits-from='history_event'>
-        <int32_t name='source' ref-target='historical_entity'/>
-        <int32_t name='destination' ref-target='historical_entity'/>
+        <int32_t name='contactor' ref-target='historical_entity'/>
+        <int32_t name='contacted' ref-target='historical_entity'/>
         <int32_t name='site' ref-target='world_site'/>
     </class-type>
 
     <class-type type-name='history_event_first_contact_failedst' inherits-from='history_event'>
-        <int32_t name='source' ref-target='historical_entity'/>
-        <int32_t name='destination' ref-target='historical_entity'/>
+        <int32_t name='contactor' ref-target='historical_entity'/>
+        <int32_t name='contacted' ref-target='historical_entity'/>
         <int32_t name='site' ref-target='world_site'/>
     </class-type>
 
@@ -649,10 +649,10 @@
 
     <class-type type-name='history_event_artifact_droppedst' inherits-from='history_event'>
         <int32_t name='artifact' ref-target='artifact_record'/>
-        <int32_t/>
+        <int32_t name='unit' ref-target='unit'/>
         <int32_t name='histfig' ref-target='historical_figure'/>
         <int32_t name='site' ref-target='world_site'/>
-        <df-flagarray name='flags'/>
+        <df-flagarray name='flags'/> 1=due to injury
     </class-type>
 
     <class-type type-name='history_event_reclaim_sitest' inherits-from='history_event'>
@@ -683,14 +683,14 @@
     <class-type type-name='history_event_entity_createdst' inherits-from='history_event'>
         <int32_t name='civ' ref-target='historical_entity'/>
         <int32_t name='site' ref-target='world_site'/>
-        <int32_t name='building'/>
+        <int32_t name='structure'/>
     </class-type>
 
     <class-type type-name='history_event_entity_actionst' inherits-from='history_event'>
         <int32_t name='civ' ref-target='historical_entity'/>
         <int32_t name='site' ref-target='world_site'/>
-        <int32_t name='building'/>
-        <int32_t/>
+        <int32_t name='structure'/>
+        <int32_t name='action'/>
     </class-type>
 
     <class-type type-name='history_event_entity_incorporatedst' inherits-from='history_event'>
@@ -703,20 +703,20 @@
         <int32_t name='civ' ref-target='historical_entity'/>
         <int32_t name='group' ref-target='historical_entity'/>
         <int32_t name='site' ref-target='world_site'/>
-        <int32_t name='building'/>
+        <int32_t name='structure'/>
     </class-type>
 
     <class-type type-name='history_event_replaced_buildingst' inherits-from='history_event'>
         <int32_t name='civ' ref-target='historical_entity'/>
         <int32_t name='group' ref-target='historical_entity'/>
         <int32_t name='site' ref-target='world_site'/>
-        <int32_t name='building_old'/>
-        <int32_t name='building_new'/>
+        <int32_t name='structure_old'/>
+        <int32_t name='structure_new'/>
     </class-type>
 
     <class-type type-name='history_event_add_hf_site_linkst' inherits-from='history_event'>
         <int32_t name='site' ref-target='world_site'/>
-        <int32_t name='building'/>
+        <int32_t name='structure'/>
         <int32_t name='histfig' ref-target='historical_figure'/>
         <int32_t name='civ' ref-target='historical_entity'/>
         <enum base-type='int32_t' name='type' type-name='histfig_site_link_type'/>
@@ -724,7 +724,7 @@
 
     <class-type type-name='history_event_remove_hf_site_linkst' inherits-from='history_event'>
         <int32_t name='site' ref-target='world_site'/>
-        <int32_t name='building'/>
+        <int32_t name='structure'/>
         <int32_t name='histfig' ref-target='historical_figure'/>
         <int32_t name='civ' ref-target='historical_entity'/>
         <enum base-type='int32_t' name='type' type-name='histfig_site_link_type'/>
@@ -745,7 +745,7 @@
     <class-type type-name='history_event_entity_razed_buildingst' inherits-from='history_event'>
         <int32_t name='civ' ref-target='historical_entity'/>
         <int32_t name='site' ref-target='world_site'/>
-        <int32_t name='building'/>
+        <int32_t name='structure'/>
     </class-type>
 
 
@@ -834,7 +834,7 @@
         <int32_t name='substate'/> wander/fled
         <int32_t name='site' ref-target='world_site'/>
         <int32_t name='region' ref-target='world_region'/>
-        <int32_t name='under_region' ref-target='world_underground_region'/>
+        <int32_t name='layer' ref-target='world_underground_region'/>
         <compound name='region_pos' type-name='coord2d'/>
     </class-type>
 
@@ -844,14 +844,14 @@
         <enum base-type='int16_t' name='old_job' type-name='profession'/>
         <int32_t name='site' ref-target='world_site'/>
         <int32_t name='region' ref-target='world_region'/>
-        <int32_t name='under_region' ref-target='world_underground_region'/>
+        <int32_t name='layer' ref-target='world_underground_region'/>
     </class-type>
 
     <class-type type-name='history_event_war_field_battlest' inherits-from='history_event'>
         <int32_t name='attacker_civ' ref-target='historical_entity'/>
         <int32_t name='defender_civ' ref-target='historical_entity'/>
         <int32_t name='region' ref-target='world_region'/>
-        <int32_t name='under_region' ref-target='world_underground_region'/>
+        <int32_t name='layer' ref-target='world_underground_region'/>
         <compound name='region_pos' type-name='coord2d'/>
         <int32_t name='attacker_hf' ref-target='historical_figure'/>
         <int32_t name='defender_hf' ref-target='historical_figure'/>
@@ -899,7 +899,7 @@
         <int32_t name='histfig' ref-target='historical_figure'/>
         <int32_t name='site' ref-target='world_site'/>
         <int32_t name='region' ref-target='world_region'/>
-        <int32_t name='under_region' ref-target='world_underground_region'/>
+        <int32_t name='layer' ref-target='world_underground_region'/>
         <compound name='region_pos' type-name='coord2d'/>
         <int16_t name='abuse_type'/> impaled, piled, flayed, hung, mutilated, animated
         <compound is-union='true'>
@@ -909,18 +909,18 @@
                 <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
                 <int32_t name='mat_index'/>
             </compound>
-            <int32_t name='building'/>
+            <int32_t name='structure'/>
             <int32_t name='pile_type'/> grisly mound, grotesque pillar, gruesome sculpture
         </compound>
     </class-type>
 
     <class-type type-name='history_event_hist_figure_abductedst' inherits-from='history_event'>
-        <int32_t name='victim' ref-target='historical_figure'/>
+        <int32_t name='target' ref-target='historical_figure'/>
         <int32_t name='snatcher' ref-target='historical_figure'/>
 
         <int32_t name='site' ref-target='world_site'/>
         <int32_t name='region' ref-target='world_region'/>
-        <int32_t name='under_region' ref-target='world_underground_region'/>
+        <int32_t name='layer' ref-target='world_underground_region'/>
     </class-type>
 
     <class-type type-name='history_event_item_stolenst' inherits-from='history_event'>
@@ -934,9 +934,9 @@
         <int32_t name='entity' ref-target='historical_entity'/>
         <int32_t name='histfig' ref-target='historical_figure'/>
         <int32_t name='site' ref-target='world_site'/>
-        <int32_t name='building'/>
+        <int32_t name='structure'/>
         <int32_t name='region' ref-target='world_region'/>
-        <int32_t name='under_region' ref-target='world_underground_region'/>
+        <int32_t name='layer' ref-target='world_underground_region'/>
 
         <compound name='region_pos' type-name='coord2d'/>
 
@@ -946,7 +946,7 @@
     <class-type type-name='history_event_hf_razed_buildingst' inherits-from='history_event'>
         <int32_t name='histfig' ref-target='historical_figure'/>
         <int32_t name='site' ref-target='world_site'/>
-        <int32_t name='building'/>
+        <int32_t name='structure'/>
     </class-type>
 
     <class-type type-name='history_event_creature_devouredst' inherits-from='history_event'>
@@ -957,7 +957,7 @@
         <int32_t name='entity' ref-target='historical_entity'/>
         <int32_t name='site' ref-target='world_site'/>
         <int32_t name='region' ref-target='world_region'/>
-        <int32_t name='under_region' ref-target='world_underground_region'/>
+        <int32_t name='layer' ref-target='world_underground_region'/>
     </class-type>
 
     <class-type type-name='history_event_hist_figure_woundedst' inherits-from='history_event'>
@@ -965,7 +965,7 @@
         <int32_t name='attacker' ref-target='historical_figure'/>
         <int32_t name='site' ref-target='world_site'/>
         <int32_t name='region' ref-target='world_region'/>
-        <int32_t name='under_region' ref-target='world_underground_region'/>
+        <int32_t name='layer' ref-target='world_underground_region'/>
         <int32_t/>
         <int16_t/>
         <int16_t name='body_part'/>
@@ -983,7 +983,7 @@
 
         <int32_t name='site' ref-target='world_site'/>
         <int32_t name='region' ref-target='world_region'/>
-        <int32_t name='under_region' ref-target='world_underground_region'/>
+        <int32_t name='layer' ref-target='world_underground_region'/>
 
         <int16_t name='subtype'/>
     </class-type>
@@ -1006,7 +1006,7 @@
         </stl-vector>
         <int32_t name='site' ref-target='world_site'/>
         <int32_t name='region' ref-target='world_region'/>
-        <int32_t name='under_region' ref-target='world_underground_region'/>
+        <int32_t name='layer' ref-target='world_underground_region'/>
     </class-type>
 
     <class-type type-name='history_event_hist_figure_reach_summitst' inherits-from='history_event'>
@@ -1014,7 +1014,7 @@
             <int32_t ref-target='historical_figure'/>
         </stl-vector>
         <int32_t name='region' ref-target='world_region'/>
-        <int32_t name='under_region' ref-target='world_underground_region'/>
+        <int32_t name='layer' ref-target='world_underground_region'/>
         <compound name='region_pos' type-name='coord2d'/>
     </class-type>
 
@@ -1024,7 +1024,7 @@
         </stl-vector>
         <int32_t name='site' ref-target='world_site'/>
         <int32_t name='region' ref-target='world_region'/>
-        <int32_t name='under_region' ref-target='world_underground_region'/>
+        <int32_t name='layer' ref-target='world_underground_region'/>
         <int32_t name='reason'/> journey, returned, escaped
         <compound name='region_pos' type-name='coord2d'/>
     </class-type>
@@ -1039,7 +1039,7 @@
 
         <int32_t name='site' ref-target='world_site'/>
         <int32_t name='region' ref-target='world_region'/>
-        <int32_t name='under_region' ref-target='world_underground_region'/>
+        <int32_t name='layer' ref-target='world_underground_region'/>
 
         <compound name='region_pos' type-name='coord2d'/>
     </class-type>
@@ -1071,7 +1071,7 @@
         <int32_t name='histfig' ref-target='historical_figure'/>
         <int32_t name='site' ref-target='world_site'/>
         <int32_t name='region' ref-target='world_region'/>
-        <int32_t name='under_region' ref-target='world_underground_region'/>
+        <int32_t name='layer' ref-target='world_underground_region'/>
         <enum base-type='int16_t' name='ghost_type' type-name='ghost_type'/>
         <int32_t name='again'/>
     </class-type>
@@ -1088,9 +1088,9 @@
         <int32_t name='histfig' ref-target='historical_figure'/>
         <int32_t name='action'/>
         <int32_t name='site' ref-target='world_site'/>
-        <int32_t name='building'/>
+        <int32_t name='structure'/>
         <int32_t name='region' ref-target='world_region'/>
-        <int32_t name='under_region' ref-target='world_underground_region'/>
+        <int32_t name='layer' ref-target='world_underground_region'/>
         <compound name='region_pos' type-name='coord2d'/>
     </class-type>
 
@@ -1098,17 +1098,17 @@
         <int32_t name='action'/>
         <int32_t name='histfig' ref-target='historical_figure'/>
         <int32_t name='site' ref-target='world_site'/>
-        <int32_t name='building'/>
+        <int32_t name='structure'/>
     </class-type>
 
     <class-type type-name='history_event_hf_does_interactionst' inherits-from='history_event'>
-        <int32_t name='target' ref-target='historical_figure'/>
         <int32_t name='attacker' ref-target='historical_figure'/>
+        <int32_t name='target' ref-target='historical_figure'/>
         <int32_t name='interaction' ref-target='interaction'/>
         <int32_t/>
         <int32_t name='site' ref-target='world_site'/>
         <int32_t name='region' ref-target='world_region'/>
-        <int32_t name='under_region' ref-target='world_underground_region'/>
+        <int32_t name='layer' ref-target='world_underground_region'/>
     </class-type>
 
     <class-type type-name='history_event_hf_confrontedst' inherits-from='history_event'>
@@ -1117,7 +1117,7 @@
         <stl-vector name='reasons' type-name='int32_t'/> murder, not aging
         <int32_t name='site' ref-target='world_site'/>
         <int32_t name='region' ref-target='world_region'/>
-        <int32_t name='under_region' ref-target='world_underground_region'/>
+        <int32_t name='layer' ref-target='world_underground_region'/>
         <compound name='region_pos' type-name='coord2d'/>
     </class-type>
 
