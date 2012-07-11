@@ -7,36 +7,6 @@
         <flag-bit/>
     </bitfield-type>
 
-    <struct-type type-name='world_population_ref'>
-        <int16_t name="region_x"/>
-        <int16_t name="region_y"/>
-        <int16_t name="feature_idx" init-value="-1"/>
-
-        <int32_t name='cave_id' ref-target='world_underground_region'/>
-
-        <int32_t name="unk_28" />
-
-        <int32_t name="population_idx">
-            <code-helper name='refers-to'>
-                (let* ((info $$._global)
-                       (wdata $global.world.world_data)
-                       (x $info.region_x)
-                       (y $info.region_y)
-                       (reg (or (when (/= $info.feature_idx -1)
-                                  (let* ((rip $wdata.unk_204[(floor x 16)][(floor y 16)])
-                                         (flst $rip.features.feature_init[(logand x 15)][(logand y 15)]))
-                                    $flst[$info.feature_idx].feature))
-                                (awhen $info.cave_id.ref-target
-                                  $it.feature_init.feature)
-                                (find-instance $world_region ;
-                                               $wdata.region_map[x][y].region_id))))
-                  $reg.population[$])
-            </code-helper>
-        </int32_t>
-
-        <int16_t name="unk_30" />
-    </struct-type>
-
     <struct-type type-name='vermin' instance-vector='$global.world.vermin.all'>
         <int16_t name='race' ref-target='creature_raw'/>
         <int16_t name='caste' ref-target='caste_raw' aux-value='$$.race'/>
