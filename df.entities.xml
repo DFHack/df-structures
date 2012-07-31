@@ -145,11 +145,24 @@
         <stl-vector name='nemesis_ids' type-name='int32_t' ref-target='historical_figure'/>
 
         <compound name='resources'>
-            <static-array name='unk8' count='15'>
-                <stl-vector type-name='int16_t'/>
-            </static-array>
+            <stl-vector name='digger_type' type-name='int16_t' ref-target='itemdef_weaponst'/>
+            <stl-vector name='weapon_type' type-name='int16_t' ref-target='itemdef_weaponst'/>
+            <stl-vector name='training_weapon_type' type-name='int16_t' ref-target='itemdef_weaponst'/>
+            <stl-vector name='armor_type' type-name='int16_t' ref-target='itemdef_armorst'/>
+            <stl-vector name='ammo_type' type-name='int16_t' ref-target='itemdef_ammost'/>
+            <stl-vector name='helm_type' type-name='int16_t' ref-target='itemdef_helmst'/>
+            <stl-vector name='gloves_type' type-name='int16_t' ref-target='itemdef_glovesst'/>
+            <stl-vector name='shoes_type' type-name='int16_t' ref-target='itemdef_shoesst'/>
+            <stl-vector name='pants_type' type-name='int16_t' ref-target='itemdef_pantsst'/>
+            <stl-vector name='shield_type' type-name='int16_t' ref-target='itemdef_shieldst'/>
+            <stl-vector name='trapcomp_type' type-name='int16_t' ref-target='itemdef_trapcompst'/>
+            <stl-vector name='toy_type' type-name='int16_t' ref-target='itemdef_toyst'/>
+            <stl-vector name='instrument_type' type-name='int16_t' ref-target='itemdef_instrumentst'/>
+            <stl-vector name='siegeammo_type' type-name='int16_t' ref-target='itemdef_siegeammost'/>
+            <stl-vector name='tool_type' type-name='int16_t' ref-target='itemdef_toolst'/>
 
-            <static-array name='metals' count='7' type-name='material_vec_ref'/>
+            <static-array name='metals' count='6' type-name='material_vec_ref'/>
+            <compound name='anvils' type-name='material_vec_ref'/>
 
             <compound name='organic'>
                 <compound name='leather' type-name='material_vec_ref'/>
@@ -159,16 +172,16 @@
                 <compound name='wood' type-name='material_vec_ref'/>
             </compound>
 
-            <static-array name='unk10' count='3'>
-                <stl-vector type-name='int32_t'/>
-            </static-array>
+            <stl-vector name='metals' type-name='int32_t' comment='bars'/>
+            <stl-vector name='stones' type-name='int32_t' comment='boulders and blocks'/>
+            <stl-vector name='gems' type-name='int32_t' comment='small and large cut'/>
 
             <compound name='refuse'>
                 <compound name='bone' type-name='material_vec_ref'/>
                 <compound name='shell' type-name='material_vec_ref'/>
-                <compound name='unk1' type-name='material_vec_ref'/>
-                <compound name='tooth' type-name='material_vec_ref'/>
-                <compound name='hoof' type-name='material_vec_ref'/>
+                <compound name='pearl' type-name='material_vec_ref'/>
+                <compound name='ivory' type-name='material_vec_ref'/>
+                <compound name='horn' type-name='material_vec_ref'/>
             </compound>
 
             <compound name='misc_mat'>
@@ -176,13 +189,13 @@
                 <compound name='glass' type-name='material_vec_ref'/>
                 <compound name='sand' type-name='material_vec_ref'/>
                 <compound name='clay' type-name='material_vec_ref'/>
-                <compound name='rock_bone_metal' type-name='material_vec_ref'/>
+                <compound name='crafts' type-name='material_vec_ref'/>
                 <compound name='unk4' type-name='material_vec_ref'/>
-                <compound name='wood' type-name='material_vec_ref'/>
-                <compound name='metal_leather' type-name='material_vec_ref'/>
-                <compound name='leather' type-name='material_vec_ref'/>
-                <compound name='leather2' type-name='material_vec_ref'/>
-                <compound name='metal' type-name='material_vec_ref'/>
+                <compound name='barrels' type-name='material_vec_ref' comment='also buckets, splints, and crutches'/>
+                <compound name='flasks' type-name='material_vec_ref'/>
+                <compound name='quivers' type-name='material_vec_ref'/>
+                <compound name='backpacks' type-name='material_vec_ref'/>
+                <compound name='cages' type-name='material_vec_ref'/>
                 <compound name='wood2' type-name='material_vec_ref' comment='v0.34.01'/>
                 <compound name='rock_metal' type-name='material_vec_ref' comment='v0.34.01'/>
                 <compound name='booze' type-name='material_vec_ref'/>
@@ -266,19 +279,31 @@
             <stl-vector name='meat_fish_recipes'>
                 <pointer>
                     <int16_t name='subtype' ref-target='itemdef_foodst'/>
-                    <stl-vector name='item_type' type-name='int16_t'/>
-                    <stl-vector name='item_subtype' type-name='int16_t'/>
-                    <stl-vector name='mat_type' type-name='int16_t'/>
-                    <stl-vector name='mat_index' type-name='int16_t'/>
+                    <stl-vector name='item_types'>
+                        <enum base-type='int16_t' type-name='item_type'/>
+                    </stl-vector>
+                    <stl-vector name='item_subtypes'>
+                        <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent._parent.item_types[$$._key] $)'/>
+                    </stl-vector>
+                    <stl-vector name='mat_types'>
+                        <int16_t ref-target='material' aux-value='$$._parent.mat_indices[$._key]'/>
+                    </stl-vector>
+                    <stl-vector name='mat_indices' type-name='int16_t'/>
                 </pointer>
             </stl-vector>
             <stl-vector name='other_recipes'>
                 <pointer>
                     <int16_t name='subtype' ref-target='itemdef_foodst'/>
-                    <stl-vector name='item_type' type-name='int16_t'/>
-                    <stl-vector name='item_subtype' type-name='int16_t'/>
-                    <stl-vector name='mat_type' type-name='int16_t'/>
-                    <stl-vector name='mat_index' type-name='int16_t'/>
+                    <stl-vector name='item_types'>
+                        <enum base-type='int16_t' type-name='item_type'/>
+                    </stl-vector>
+                    <stl-vector name='item_subtypes'>
+                        <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent._parent.item_types[$$._key] $)'/>
+                    </stl-vector>
+                    <stl-vector name='mat_types'>
+                        <int16_t ref-target='material' aux-value='$$._parent.mat_indices[$._key]'/>
+                    </stl-vector>
+                    <stl-vector name='mat_indices' type-name='int16_t'/>
                 </pointer>
             </stl-vector>
 
