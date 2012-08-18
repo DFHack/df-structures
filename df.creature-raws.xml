@@ -876,6 +876,26 @@
         <stl-vector type-name='pointer' comment='v0.34.01'/>
     </struct-type>
 
+    <enum-type type-name='creature_graphics_role'>
+        <enum-item name='DEFAULT'/>
+        <enum-item name='ADVENTURER'/>
+        <enum-item name='GUARD'/>
+        <enum-item name='ROYALGUARD'/>
+        <enum-item name='ANIMATED'/>
+        <enum-item name='GHOST'/>
+    </enum-type>
+
+    <struct-type type-name='creature_graphics_appointment' key-field='token'>
+        <stl-string name='token'/>
+
+        <static-array name='texpos' type-name='int32_t'
+                      count='6' index-enum='creature_graphics_role'/>
+        <static-array name='texpos_gs' type-name='int32_t'
+                      count='6' index-enum='creature_graphics_role'/>
+        <static-array name='add_color' type-name='bool'
+                      count='6' index-enum='creature_graphics_role'/>
+    </struct-type>
+
     <struct-type type-name='creature_raw' instance-vector='$global.world.raws.creatures.all'>
         <stl-string name='creature_id'/>
 
@@ -916,9 +936,50 @@
 
         <df-flagarray name='flags' index-enum='creature_raw_flags'/>
 
-        <padding name='stuff' size='6860'/>
+        <compound name='graphics'>
+            <static-array name='texpos' type-name='int32_t'
+                          count='6' index-enum='creature_graphics_role'/>
+            <static-array name='texpos_gs' type-name='int32_t'
+                          count='6' index-enum='creature_graphics_role'/>
 
-        <stl-vector name='unk5'/>
+            <static-array name='entity_link_texpos'
+                          count='6' index-enum='creature_graphics_role'>
+                <static-array count='13' type-name='int32_t' index-enum='histfig_entity_link_type'/>
+            </static-array>
+            <static-array name='entity_link_texpos_gs'
+                          count='6' index-enum='creature_graphics_role'>
+                <static-array count='13' type-name='int32_t' index-enum='histfig_entity_link_type'/>
+            </static-array>
+
+            <padding size='336'/>
+
+            <static-array name='profession_texpos'
+                          count='6' index-enum='creature_graphics_role'>
+                <static-array count='106' type-name='int32_t' index-enum='profession'/>
+            </static-array>
+            <static-array name='profession_texpos_gs'
+                          count='6' index-enum='creature_graphics_role'>
+                <static-array count='106' type-name='int32_t' index-enum='profession'/>
+            </static-array>
+
+            <static-array name='add_color' type-name='bool'
+                          count='6' index-enum='creature_graphics_role'/>
+
+            <static-array name='entity_link_add_color'
+                          count='6' index-enum='creature_graphics_role'>
+                <static-array count='13' type-name='bool' index-enum='histfig_entity_link_type'/>
+            </static-array>
+
+            <padding size='42'/>
+
+            <static-array name='profession_add_color'
+                          count='6' index-enum='creature_graphics_role'>
+                <static-array count='106' type-name='bool' index-enum='profession'/>
+            </static-array>
+
+            <stl-vector name='appointments' pointer-type='creature_graphics_appointment'/>
+        </compound>
+
         <stl-vector name='speech1' type-name='int8_t'/>
         <stl-vector name='speech2' type-name='int32_t'/>
         <stl-vector name='speech3'/>
