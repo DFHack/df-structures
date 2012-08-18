@@ -190,6 +190,15 @@ All fields support the following attributes:
     follows from the word random, such identifiers aren't
     stable, and shouldn't be used to access the field.
 
+``init-value``
+    Specifies the value that should be assigned to
+    the field by the constructor. By default the following
+    values are used:
+
+    * For enums: the first element of the enum.
+    * For signed integer fields with ``ref-target`` or ``refers-to``: -1.
+    * For other numeric fields, pointers and bitfields: 0.
+
 ``offset``, ``size``, ``alignment``
     Specifies the offset, size and alignment in bytes.
 
@@ -461,6 +470,10 @@ Standard containers
 ``<stl-deque name='id'.../>``
 
     Defines an ``std::deque<item>`` field.
+
+``<stl-set name='id'.../>``
+
+    Defines an ``std::set<item>`` field.
 
 ``<stl-bit-vector name='id'.../>``
 

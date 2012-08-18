@@ -17,6 +17,8 @@ rm -f */vtables.txt */nextid.txt
 
 LINUX_DF="$DFPATH/df_linux/libs/Dwarf_Fortress"
 
+./make-keybindings.pl < "$DFPATH/df_linux/g_src/keybindings.h" > df.keybindings.xml
+
 rscript scan_gcc_vtable.rb "$LINUX_DF" > linux/vtables.txt
 rscript scan_gcc_vtable.rb --dumpfuncs "$LINUX_DF" > linux/vtables-ext.txt
 rscript scan_nextid.rb "$LINUX_DF" > linux/nextid.txt

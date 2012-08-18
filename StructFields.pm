@@ -101,6 +101,10 @@ my %custom_container_handlers = (
         my $item = get_container_item_type($_, -void => 'void*');
         return "std::deque<$item >";
     },
+    'stl-set' => sub {
+        my $item = get_container_item_type($_, -void => 'void*');
+        return "std::set<$item >";
+    },
     'stl-bit-vector' => sub {
         return "std::vector<bool>";
     },
