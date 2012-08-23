@@ -93,6 +93,29 @@ sub generate_dt_ini($$$$$) {
     emit_addr 'reactions_vector',%globals,'world','world.raws.reactions',$vbias;
     emit_addr 'historical_figures',%globals,'world','world.history.figures',$vbias;
     emit_addr 'fake_identities',%globals,'world','world.assumed_identities.all',$vbias;
+    emit_addr 'historical_figures_vector',%globals,'world','world.history.figures',$vbias;
+    emit_addr 'fake_identities_vector',%globals,'world','world.assumed_identities.all',$vbias;
+    emit_addr 'fortress_entity',%globals,'ui','ui.main.fortress_entity';
+    emit_addr 'historical_entities_vector',%globals,'world','world.entities.all',$vbias;
+    emit_addr 'weapons_vector',%globals,'world','world.raws.itemdefs.weapons',$vbias;
+    emit_addr 'trap_vector',%globals,'world','world.raws.itemdefs.trapcomps',$vbias;
+    emit_addr 'toy_vector',%globals,'world','world.raws.itemdefs.toys',$vbias;
+    emit_addr 'tool_vector',%globals,'world','world.raws.itemdefs.tools',$vbias;
+    emit_addr 'instrument_vector',%globals,'world','world.raws.itemdefs.instruments',$vbias;
+    emit_addr 'armor_vector',%globals,'world','world.raws.itemdefs.armor',$vbias;
+    emit_addr 'ammo_vector',%globals,'world','world.raws.itemdefs.ammo',$vbias;
+    emit_addr 'siegeammo_vector',%globals,'world','world.raws.itemdefs.siege_ammo',$vbias;
+    emit_addr 'glove_vector',%globals,'world','world.raws.itemdefs.gloves',$vbias;
+    emit_addr 'shoe_vector',%globals,'world','world.raws.itemdefs.shoes',$vbias;
+    emit_addr 'shield_vector',%globals,'world','world.raws.itemdefs.shields',$vbias;
+    emit_addr 'helm_vector',%globals,'world','world.raws.itemdefs.helms',$vbias;
+    emit_addr 'pant_vector',%globals,'world','world.raws.itemdefs.pants',$vbias;
+    emit_addr 'food_vector',%globals,'world','world.raws.itemdefs.food',$vbias;
+    emit_addr 'colors_vector',%globals,'world','world.raws.language.colors',$vbias;
+    emit_addr 'shapes_vector',%globals,'world','world.raws.language.shapes',$vbias;
+    emit_addr 'base_materials',%globals,'world','world.raws.mat_table.builtin';
+    emit_addr 'inorganics_vector',%globals,'world','world.raws.inorganics',$vbias;
+    emit_addr 'plants_vector',%globals,'world','world.raws.plants.all',$vbias;
 
     emit_header 'offsets';
     emit_addr 'word_table',%all,'language_translation','words';
@@ -123,14 +146,28 @@ sub generate_dt_ini($$$$$) {
     emit_addr 'pref_string_vector',%all,'creature_raw','prefstring',$vbias;
     emit_addr 'castes_vector',%all,'creature_raw','caste',$vbias;
     emit_addr 'pop_ratio_vector',%all,'creature_raw','pop_ratio',$vbias;
+    emit_addr 'materials_vector',%all,'creature_raw','material',$vbias;
 
     emit_header 'caste_offsets';
     emit_addr 'caste_name',%all,'caste_raw','caste_name';
     emit_addr 'caste_descr',%all,'caste_raw','description';
     emit_addr 'caste_phys_att_ranges',%all,'caste_raw','attributes.phys_att_range';
     emit_addr 'caste_ment_att_ranges',%all,'caste_raw','attributes.ment_att_range';
+    emit_addr 'adult_size',%all,'caste_raw','misc.adult_size';
 
-    emit_header 'hist_figure';
+    emit_header 'hist_entity_offsets';
+    emit_addr 'squads',%all,'historical_entity','squads',$vbias;
+    emit_addr 'positions',%all,'historical_entity','positions.own',$vbias;
+    emit_addr 'assignments',%all,'historical_entity','positions.assignments',$vbias;
+    emit_addr 'assign_hist_id',%all,'entity_position_assignment','histfig';
+    emit_addr 'assign_position_id',%all,'entity_position_assignment','position_id';
+    emit_addr 'position_id',%all,'entity_position','id';
+    emit_addr 'position_name',%all,'entity_position','name';
+    emit_addr 'position_female_name',%all,'entity_position','name_female';
+    emit_addr 'position_male_name',%all,'entity_position','name_male';
+
+    emit_header 'hist_figure_offsets';
+    emit_addr 'hist_race',%all,'historical_figure','race';
     emit_addr 'hist_name',%all,'historical_figure','name';
     emit_addr 'id',%all,'historical_figure','id';
     emit_addr 'hist_fig_info',%all,'historical_figure','info';
@@ -139,6 +176,36 @@ sub generate_dt_ini($$$$$) {
     emit_addr 'fake_name',%all,'assumed_identity','name';
     emit_addr 'fake_birth_year',%all,'assumed_identity','birth_year';
     emit_addr 'fake_birth_time',%all,'assumed_identity','birth_second';
+
+    emit_header 'weapon_offsets';
+    emit_addr 'name_plural',%all,'itemdef_weaponst','name_plural';
+    emit_addr 'single_size',%all,'itemdef_weaponst','two_handed';
+    emit_addr 'multi_size',%all,'itemdef_weaponst','minimum_size';
+
+    emit_header 'material_offsets';
+    emit_addr 'solid_name',%all,'material_common','state_name[Solid]';
+    emit_addr 'liquid_name',%all,'material_common','state_name[Liquid]';
+    emit_addr 'gas_name',%all,'material_common','state_name[Gas]';
+    emit_addr 'powder_name',%all,'material_common','state_name[Powder]';
+    emit_addr 'paste_name',%all,'material_common','state_name[Paste]';
+    emit_addr 'pressed_name',%all,'material_common','state_name[Pressed]';
+    emit_addr 'inorganic_materials_vector',%all,'inorganic_raw','material';
+
+    emit_header 'plant_offsets';
+    emit_addr 'name',%all,'plant_raw','name';
+    emit_addr 'name_plural',%all,'plant_raw','name_plural';
+    emit_addr 'name_leaf_plural',%all,'plant_raw','leaves_plural';
+    emit_addr 'name_seed_plural',%all,'plant_raw','seed_plural';
+    emit_addr 'materials_vector',%all,'plant_raw','material',$vbias;
+
+    emit_header 'item_offsets';
+    emit_addr 'name_plural',%all,'itemdef_armorst','name_plural';
+    emit_addr 'adjective',%all,'itemdef_armorst','name_preplural';
+    emit_addr 'mat_name',%all,'itemdef_armorst','material_placeholder';
+
+    emit_header 'descriptor_offsets';
+    emit_addr 'color_name',%all,'descriptor_color','name';
+    emit_addr 'shape_name_plural',%all,'descriptor_shape','name_plural';
 
     emit_header 'dwarf_offsets';
     emit_addr 'first_name',%all,'unit','name',lookup_addr(%all,'language_name','first_name');
@@ -155,6 +222,7 @@ sub generate_dt_ini($$$$$) {
     emit_addr 'id',%all,'unit','id';
     emit_addr 'animal_type',%all,'unit','training_level';
     emit_addr 'civ',%all,'unit','civ_id';
+    emit_addr 'specific_refs',%all,'unit','specific_refs',$vbias;
     emit_addr 'squad_id',%all,'unit','military.squad_index';
     emit_addr 'squad_position',%all,'unit','military.squad_position';
     emit_addr 'recheck_equipment',%all,'unit','military.pickup_flags';
