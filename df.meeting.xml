@@ -85,9 +85,17 @@
                  comment='mostly, but not always, the index in activity.events'/>
         <int32_t name='activity_id' ref-target='activity_entry'/>
 
+        <code-helper name='find-instance'>
+            (let ((activity (find-instance $activity_entry $$)))
+              (find-by-id $activity.events $event_id $))
+        </code-helper>
+
         -- Guess:
         <int32_t name='subevent_id' comment='-1 unless subevent'/>
-        <int32_t name='num_subevents' comment='0 for ind.drill, 2 for all in training session'/>
+        <bitfield name='flags'>
+            <flag-bit name='expired' comment='to be removed from squad_position, anyway'/>
+            <flag-bit name='subevents' comment='for all in training session, but not ind.drill'/>
+        </bitfield>
 
         <stl-vector name='hist_figure_ids'>
             <int32_t ref-target='historical_figure'/>
@@ -128,7 +136,7 @@
 
             <vmethod/>
             <vmethod/>
-            <vmethod/>
+            <vmethod ret-type='bool' name='decUniformLock'/>
             <vmethod/>
             <vmethod name='setSkillDemoUnk5'>
                 <int16_t name='unk5'/>
@@ -151,7 +159,7 @@
             </vmethod>
             <vmethod/>
 
-            <vmethod/>
+            <vmethod ret-type='int16_t' name='getUniformType'/>
             <vmethod name='getName'>
                 <int32_t/>
                 <pointer type-name='stl-string' name='str'/>
@@ -187,7 +195,7 @@
 
     <class-type type-name='activity_event_ranged_practicest' inherits-from='activity_event'>
         <int32_t/>
-        <int32_t/>
+        <int32_t name='uniform_lock'/>
     </class-type>
 
     <class-type type-name='activity_event_sparringst' inherits-from='activity_event'>
