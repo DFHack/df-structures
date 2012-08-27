@@ -237,7 +237,19 @@
         <code-helper name='describe'>(describe-obj $.name)</code-helper>
 
         <int32_t name="index"/>
-        <int16_t name="unk_70"/>
+
+        <enum base-type='int16_t' name="type">
+            <enum-item name='Swamp'/>
+            <enum-item name='Desert'/>
+            <enum-item name='Jungle'/>
+            <enum-item name='Mountains'/>
+            <enum-item name='Ocean'/>
+            <enum-item name='Lake'/>
+            <enum-item name='Glacier'/>
+            <enum-item name='Tundra'/>
+            <enum-item name='Steppe'/>
+            <enum-item name='Hills'/>
+        </enum>
 
         <compound name='region_coords' type-name='coord2d_path'/>
 
@@ -273,11 +285,12 @@
             <int16_t/>
         </stl-vector>
 
-        <int32_t name="unk_1e4"/>
+        <int16_t name="unk_1e4"/>
+        <int16_t name="unk_1e6"/>
         <int16_t name="unk_1e8"/>
         <int16_t name="unk_1ec"/>
 
-        <stl-vector name="unk_1f0"/>
+        <stl-vector name="unk_1f0" type-name='int32_t'/>
         <padding name="unk_200" size="4"/>
 
         <int32_t name="mid_x"/>
@@ -296,14 +309,15 @@
 
         <int32_t name="index"/>
 
-        <int16_t name="unk_74"/>
-        <int16_t name="unk_76"/>
-        <int16_t name="unk_78"/>
+        <int16_t name="layer_depth" comment='0-2 caves, 3 magma sea, 4 hell'/>
+        <int16_t name="layer_depth_p1a" comment='+1'/>
+        <int16_t name="layer_depth_p1b"/>
         <int16_t name="unk_7a"/>
-        <int32_t name="unk_7c"/>
+        <int16_t name="unk_7c"/>
+        <int16_t name="unk_7e"/>
         <int16_t name="unk_80"/>
         <int16_t name="unk_82"/>
-        <int16_t name="unk_84"/>
+        <int16_t name="passage_density"/>
 
         <compound name='region_coords' type-name='coord2d_path'/>
         <stl-vector name="region_min_z" type-name='int16_t'/>
@@ -384,7 +398,8 @@
 
     <struct-type type-name='world_region_details'>
         <static-array count='17' name='biome'>
-            <static-array type-name='int8_t' count='17'/>
+            <static-array type-name='int8_t' count='17'
+                          comment='lower 4 bits: biome 1..9; |=0x30 if fort'/>
         </static-array>
         <static-array count='17' name='elevation'>
             <static-array type-name='int16_t' count='17'/>
@@ -436,10 +451,25 @@
 
         <static-array type-name='int8_t' count='256' name='unk11'/>
 
-        <static-array count='16' name='unk_objects'>
+        <static-array count='16' name='features'>
             <static-array count='16'>
                 <stl-vector>
-                    <pointer/>
+                    <pointer>
+                        <int16_t name="unk_0"/>
+                        <int32_t name="layer" ref-target='world_underground_region'/>
+                        <int32_t name="unk_8"/>
+                        <int16_t name='min_z'/>
+                        <int16_t name='max_z'/>
+                        <static-array count='12' type-name='int16_t' name='unk_c'/>
+                        <int32_t name="unk_28"/>
+                        <int16_t name="unk_2c"/>
+                        <df-flagarray name="unk_30"/>
+                        <static-array count='15' type-name='int16_t' name='unk_38'/>
+                        <int16_t name="top_layer_idx"
+                                 comment='topmost cave layer the feature reaches'/>
+                        <int16_t name="unk_58"/>
+                        <int16_t name="unk_5a"/>
+                    </pointer>
                 </stl-vector>
             </static-array>
         </static-array>
@@ -629,7 +659,7 @@
                 <compound name='name' type-name='language_name'/>
                 <compound name='pos' type-name='coord2d'/>
                 <df-flagarray name='flags'/>
-                <int16_t name="unk_78"/>
+                <int16_t name="height"/>
             </pointer>
         </stl-vector>
         <stl-vector name="rivers">
@@ -645,20 +675,20 @@
                 </stl-vector>
                 <df-flagarray name='flags'/>
                 <int16_t name="elevation" comment='~40 ocean -> ~100 plains -> ~200 mointains'/>
-                <int16_t name="wetness"/>
+                <int16_t name="rainfall"/>
                 <int16_t name="vegetation"/>
                 <int16_t name="temperature"/>
                 <int16_t name="evilness"/>
-                <int16_t name="hilliness"/>
-                <int16_t name="unk_2c"/>
+                <int16_t name="drainage"/>
+                <int16_t name="volcanism"/>
                 <int16_t name="savagery"/>
-                <int16_t name="unk_30"/>
-                <int16_t name="unk_32"/>
-                <int16_t name="unk_34"/>
-                <int16_t name="unk_36"/>
-                <int16_t name="unk_38"/>
-                <int16_t name="unk_3a"/>
-                <int16_t name="saltiness"/>
+                <int16_t name="unk_30" comment='3'/>
+                <int16_t name="unk_32" comment='0'/>
+                <int16_t name="unk_34" comment='0'/>
+                <int16_t name="unk_36" comment='0'/>
+                <int16_t name="unk_38" comment='0'/>
+                <int16_t name="unk_3a" comment='0-5000'/>
+                <int16_t name="salinity"/>
                 <compound name='unk_3e' type-name='coord'/>
                 <compound name='unk_44' type-name='coord'/>
                 <compound name='unk_4a' type-name='coord'/>
