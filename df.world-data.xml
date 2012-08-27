@@ -303,7 +303,12 @@
 
     <struct-type type-name='world_underground_region'
                  instance-vector='$global.world.world_data.underground_regions'>
-        <int16_t name='unk1'/>
+        <enum base-type='int16_t' name="type">
+            <enum-item name='Cavern'/>
+            <enum-item name='MagmaSea'/>
+            <enum-item name='Underworld'/>
+        </enum>
+
         <compound name='name' type-name='language_name'/>
         <code-helper name='describe'>(describe-obj $.name)</code-helper>
 
@@ -396,6 +401,42 @@
         </stl-vector>
     </struct-type>
 
+    <struct-type type-name='world_region_feature'>
+        <int16_t name='feature_idx'>
+            <code-helper name='refers-to'>
+                (let* ((info $$._parent._parent._global)
+                       (wdata $global.world.world_data)
+                       (x $info.pos.x)
+                       (y $info.pos.y))
+                  (when (/= $ -1)
+                    (let* ((rip $wdata.unk_204[(floor x 16)][(floor y 16)])
+                           (flst $rip.features.feature_init[(logand x 15)][(logand y 15)]))
+                      $flst[$])))
+            </code-helper>
+        </int16_t>
+        <int32_t name="layer" ref-target='world_underground_region'/>
+        <int32_t name="region_tile_idx">
+            <code-helper name='describe'>
+                (let ((l $$._parent.layer.ref-target))
+                  (when l
+                    (list (fmt "(~A,~A)-(~A:~A)"
+                               $l.region_coords.x[$] $l.region_coords.y[$]
+                               $l.region_min_z[$] $l.region_max_z[$]))))
+            </code-helper>
+        </int32_t>
+        <int16_t name='min_z'/>
+        <int16_t name='max_z'/>
+        <static-array count='12' type-name='int16_t' name='unk_c'/>
+        <int32_t name="unk_28"/>
+        <int16_t name="unk_2c"/>
+        <df-flagarray name="unk_30"/>
+        <static-array count='15' type-name='int16_t' name='unk_38'/>
+        <int16_t name="top_layer_idx"
+                    comment='topmost cave layer the feature reaches'/>
+        <int16_t name="unk_58"/>
+        <int16_t name="unk_5a"/>
+    </struct-type>
+
     <struct-type type-name='world_region_details'>
         <static-array count='17' name='biome'>
             <static-array type-name='int8_t' count='17'
@@ -453,24 +494,7 @@
 
         <static-array count='16' name='features'>
             <static-array count='16'>
-                <stl-vector>
-                    <pointer>
-                        <int16_t name="unk_0"/>
-                        <int32_t name="layer" ref-target='world_underground_region'/>
-                        <int32_t name="unk_8"/>
-                        <int16_t name='min_z'/>
-                        <int16_t name='max_z'/>
-                        <static-array count='12' type-name='int16_t' name='unk_c'/>
-                        <int32_t name="unk_28"/>
-                        <int16_t name="unk_2c"/>
-                        <df-flagarray name="unk_30"/>
-                        <static-array count='15' type-name='int16_t' name='unk_38'/>
-                        <int16_t name="top_layer_idx"
-                                 comment='topmost cave layer the feature reaches'/>
-                        <int16_t name="unk_58"/>
-                        <int16_t name="unk_5a"/>
-                    </pointer>
-                </stl-vector>
+                <stl-vector pointer-type='world_region_feature'/>
             </static-array>
         </static-array>
 
