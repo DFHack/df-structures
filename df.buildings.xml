@@ -406,7 +406,7 @@
             <vmethod name='categorize' comment='Add to world.buildings.other.*'> <bool/> </vmethod>
             <vmethod name='uncategorize' comment='Remove from world.buildings.other.*'/>
             <vmethod ret-type='int32_t' name='getBaseValue'/>
-            <vmethod name='setMachineState'> <int32_t name='new_state' comment='1 = active/open, 0 = inactive/closed'/> </vmethod>
+            <vmethod name='setTriggerState'> <int32_t name='new_state' comment='0 = active/open, 1 = inactive/closed'/> </vmethod>
             <vmethod name='checkAdvmodeLocked'/>
 
             -- 73
@@ -457,6 +457,21 @@
 
     -- stockpile --
 
+    <struct-type type-name='stockpile_links'>
+        <stl-vector name='give_to_pile'>
+            <pointer type-name='building'/>
+        </stl-vector>
+        <stl-vector name='take_from_pile'>
+            <pointer type-name='building'/>
+        </stl-vector>
+        <stl-vector name='give_to_workshop'>
+            <pointer type-name='building'/>
+        </stl-vector>
+        <stl-vector name='take_from_workshop'>
+            <pointer type-name='building'/>
+        </stl-vector>
+    </struct-type>
+
     <class-type type-name='building_stockpilest' inherits-from='building'>
         <compound type-name='stockpile_settings' name='settings'/>
 
@@ -473,18 +488,7 @@
         <stl-vector name='container_x' type-name='int16_t'/>
         <stl-vector name='container_y' type-name='int16_t'/>
 
-        <stl-vector name='give_to'>
-            <pointer type-name='building_stockpilest'/>
-        </stl-vector>
-        <stl-vector name='take_from'>
-            <pointer type-name='building_stockpilest'/>
-        </stl-vector>
-        <stl-vector name='give_to_workshop'>
-            <pointer type-name='building'/>
-        </stl-vector>
-        <stl-vector name='take_from_workshop'>
-            <pointer type-name='building'/>
-        </stl-vector>
+        <compound name='links' type-name='stockpile_links'/>
 
         <int32_t name='use_links_only'/>
         <int32_t name='stockpile_number' init-value='-1'/>
@@ -650,15 +654,7 @@
         <enum base-type='int16_t' name="type" type-name='furnace_type'/>
 
         <compound name='profile' type-name='workshop_profile'/>
-
-        <stl-vector name='give_to_pile' comment='v0.34.08'>
-            <pointer type-name='building_stockpilest'/>
-        </stl-vector>
-        <stl-vector name='take_from_pile' comment='v0.34.08'>
-            <pointer type-name='building_stockpilest'/>
-        </stl-vector>
-        <stl-vector name='unk14' comment='v0.34.08'/>
-        <stl-vector name='unk15' comment='v0.34.08'/>
+        <compound name='links' type-name='stockpile_links'/>
 
         <int32_t name="custom_type" ref-target='building_def'/>
     </class-type>
@@ -703,15 +699,7 @@
         <enum base-type='int16_t' name="type" type-name='workshop_type'/>
 
         <compound name='profile' type-name='workshop_profile'/>
-
-        <stl-vector name='give_to_pile' comment='v0.34.08'>
-            <pointer type-name='building_stockpilest'/>
-        </stl-vector>
-        <stl-vector name='take_from_pile' comment='v0.34.08'>
-            <pointer type-name='building_stockpilest'/>
-        </stl-vector>
-        <stl-vector name='unk14' comment='v0.34.08'/>
-        <stl-vector name='unk15' comment='v0.34.08'/>
+        <compound name='links' type-name='stockpile_links'/>
 
         <compound name='machine' type-name='machine_info'/>
 
@@ -812,14 +800,18 @@
         <stl-vector name='assigned_vermin'>
             <int32_t ref-target='item'/>
         </stl-vector>
-        <int16_t/>
+        <bitfield base-type='uint16_t' name='cage_flags'>
+            <flag-bit name='triggered'/>
+        </bitfield>
         <int16_t name='fill_timer'/>
     </class-type>
 
     <class-type type-name='building_chainst' inherits-from='building_actual'>
         <pointer name='assigned' type-name='unit'/>
         <pointer name='chained' type-name='unit'/>
-        <int16_t name='unk'/>
+        <bitfield base-type='uint16_t' name='chain_flags'>
+            <flag-bit name='triggered'/>
+        </bitfield>
     </class-type>
 
     <class-type type-name='building_chairst' inherits-from='building_actual'>
@@ -975,7 +967,9 @@
     </class-type>
 
     <class-type type-name='building_supportst' inherits-from='building_actual'>
-        <int16_t/>
+        <bitfield base-type='uint16_t' name='support_flags'>
+            <flag-bit name='triggered'/>
+        </bitfield>
     </class-type>
 
     <class-type type-name='building_tablest' inherits-from='building_actual'>
@@ -1029,22 +1023,21 @@
 
     <class-type type-name='building_trapst' inherits-from='building_actual'>
         <enum base-type='int16_t' name='trap_type' type-name='trap_type'/>
-        <int8_t name='state' comment='1 = pulled, tripped/needs reloading'/>
+        <uint8_t name='state' comment='!=0 = pulled, tripped/needs reloading'/>
         <int16_t name='ready_timeout' comment='plate not active if > 0'/>
         <int16_t name='fill_timer'/>
-        <int16_t name='unk_d0'/>
+        <bitfield base-type='uint16_t' name='stop_flags'>
+            <flag-bit name='disabled'/>
+            <flag-bit name='disabling'/>
+            <flag-bit name='enabling'/>
+        </bitfield>
         <stl-vector name='linked_mechanisms'>
             <pointer type-name='item'/>
         </stl-vector>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <int32_t/>
-        <int32_t init-value='3000'/>
+        <stl-vector name='unk1' type-name='int32_t'/>
 
-        <stl-vector name='unk12' comment='v0.34.08'/>
-        <stl-vector name='unk13' comment='v0.34.08'/>
-        <stl-vector name='unk14' comment='v0.34.08'/>
-        <stl-vector name='unk15' comment='v0.34.08'/>
+        <compound name='profile' type-name='workshop_profile'/>
+        <compound name='links' type-name='stockpile_links'/>
 
         <compound name='plate_info' type-name='pressure_plate_info'/>
 
@@ -1052,8 +1045,7 @@
         <int32_t name='use_dump' comment='v0.34.08'/>
         <int32_t name='dump_x_shift' comment='v0.34.08'/>
         <int32_t name='dump_y_shift' comment='v0.34.08'/>
-
-        <int8_t name='unk19' comment='v0.34.08'/>
+        <int8_t name='stop_trigger_timer' comment='v0.34.08'/>
     </class-type>
 
     <class-type type-name='building_wagonst' inherits-from='building_actual'>
