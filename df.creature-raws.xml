@@ -491,6 +491,30 @@
         </stl-vector>
     </struct-type>
 
+    <struct-type type-name='bp_appearance_modifier'>
+        <code-helper name='describe'> $.type </code-helper>
+        <enum type-name='appearance_modifier_type' base-type='int8_t' name='type'/>
+        <static-array type-name='int32_t' count='7' name='ranges'/>
+        <static-array type-name='int32_t' count='6' name='desc_range'/>
+        <int32_t/>
+        <int16_t/>
+        <int32_t comment='0'/>
+        <int32_t comment='10000'/>
+        <int32_t comment='0'/>
+        <int32_t comment='-1'/>
+        <int32_t name='importance'/>
+        <stl-string name='noun'/>
+        <int32_t name='single_plural'/>
+        <int32_t/>
+        <stl-vector name='body_parts'>
+            <int16_t refers-to='$$._global._parent._global.body_info.body_parts[$]'/>
+        </stl-vector>
+        <stl-vector name='tissue_layer'>
+            <int16_t refers-to='$$._parent._parent.body_parts[$$._key].refers-to.layers[$]'/>
+        </stl-vector>
+        <int32_t/>
+    </struct-type>
+
     <struct-type type-name='caste_clothing_item'>
         <int16_t name="body_part_id"/>
         <int32_t name="unk_4"/>
@@ -677,6 +701,7 @@
 
         <stl-vector name='body_appearance_modifiers'>
             <pointer>
+                <code-helper name='describe'> $.type </code-helper>
                 <enum type-name='appearance_modifier_type' base-type='int16_t' name='type'/>
                 <static-array type-name='int32_t' count='7' name='ranges'/>
                 <static-array type-name='int32_t' count='6' name='desc_range'/>
@@ -695,41 +720,29 @@
             </pointer>
         </stl-vector>
 
-        <stl-vector name='bp_appearance_modifiers'>
-            <pointer>
-                <enum type-name='appearance_modifier_type' base-type='int8_t' name='type'/>
-                <static-array type-name='int32_t' count='7' name='ranges'/>
-                <static-array type-name='int32_t' count='6' name='desc_range'/>
-                <int32_t/>
-                <int16_t/>
-                <int32_t comment='0'/>
-                <int32_t comment='10000'/>
-                <int32_t comment='0'/>
-                <int32_t comment='-1'/>
-                <int32_t name='importance'/>
-                <stl-string name='noun'/>
-                <int32_t name='single_plural'/>
-                <int32_t/>
-                <stl-vector name='body_parts'>
-                    <int16_t refers-to='$$._global.body_info.body_parts[$]'/>
-                </stl-vector>
-                <stl-vector name='tissue_layer'>
-                    <int16_t refers-to='$$._global.body_info.body_parts[$$._parent._parent.body_parts[$$._key]].layers[$]'/>
-                </stl-vector>
-                <int32_t/>
-            </pointer>
-        </stl-vector>
+        <compound name='bp_appearance'>
+            <stl-vector name='modifiers' pointer-type='bp_appearance_modifier'/>
 
-        <stl-vector name='unk_1184' type-name='int32_t'
-                    index-refers-to='$$._global.unk_1194[$].refers-to'/>
-        <stl-vector name='unk_1194'>
-            <int16_t refers-to='$$._global.body_info.body_parts[$]'/>
-        </stl-vector>
-        <stl-vector name='unk_11a4' type-name='int16_t'/>
+            <stl-vector name='modifier_idx' type-name='int32_t'
+                        refers-to='$$._parent._parent.modifiers[$]'
+                        index-refers-to='$$._parent.part_idx[$].refers-to'/>
+            <stl-vector name='part_idx' type-name='int16_t'
+                        refers-to='$$._global.body_info.body_parts[$]'/>
+            <stl-vector name='layer_idx' type-name='int16_t'
+                        refers-to='$$._parent._parent.part_idx[$$._key].refers-to.layers[$]'
+                        index-refers-to='$$._parent.part_idx[$].refers-to'/>
 
-        <stl-vector name='unk_11b4' type-name='int16_t'/>
-        <stl-vector name='unk_11c4' type-name='int16_t'/>
-        <stl-vector name='unk_11d4' type-name='int32_t'/>
+            -- Subset of modifiable layers, i.e. where layer_idx != -1
+            <stl-vector name='layers_part_idx' type-name='int16_t'
+                        refers-to='$$._global.body_info.body_parts[$]'/>
+            <stl-vector name='layers_layer_idx' type-name='int16_t'
+                        refers-to='$$._parent._parent.layers_part_idx[$$._key].refers-to.layers[$]'
+                        index-refers-to='$$._parent.part_idx[$].refers-to'/>
+            <stl-vector name='layers_list_idx' type-name='int32_t'
+                        refers-to='$$._parent._parent.part_idx[$].refers-to'
+                        index-refers-to='$$._parent.aux_part_idx[$].refers-to'/>
+        </compound>
+
         <stl-vector name='color_modifiers'>
             <pointer type-name='color_modifier_raw'/>
         </stl-vector>

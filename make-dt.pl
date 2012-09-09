@@ -231,7 +231,7 @@ sub generate_dt_ini($$$$$) {
     emit_addr 'birth_time',%all,'unit','relations.birth_time';
     emit_addr 'current_job',%all,'unit','job.current_job';
     emit_addr 'physical_attrs',%all,'unit','body.physical_attrs';
-    emit_addr 'body_size',%all,'unit','body.body_app_modifiers',$vbias;
+    emit_addr 'body_size',%all,'unit','appearance.body_modifiers',$vbias;
     emit_addr 'curse',%all,'unit','curse.name';
     emit_addr 'turn_count',%all,'unit','curse.time_on_site';
     emit_addr 'souls',%all,'unit','status.souls',$vbias;

@@ -91,7 +91,7 @@
     </bitfield-type>
 
     <bitfield-type type-name='unit_flags3' base-type='uint32_t'>
-        <flag-bit name='unk0' comment='Is 1 for new and dead creatures, periodicaly set to 0 for non-dead creatures.'/>
+        <flag-bit name='body_part_relsize_computed'/>
         <flag-bit name='unk1' comment='Is 1 for new creatures, periodically set to 0 for non-dead creatures.'/>
         <flag-bit name='unk2' comment='Is set to 1 every tick for non-dead creatures.'/>
         <flag-bit name='unk3' comment='Is periodically set to 0 for non-dead creatures.'/>
@@ -536,8 +536,9 @@
             <static-array type-name='unit_attribute' name='physical_attrs'
                           count='6' index-enum='physical_attribute_type'/>
 
-            <static-array type-name='int32_t' name='physical_attr_unk3'
-                          count='6' index-enum='physical_attribute_type'/>
+            <static-array type-name='int32_t' name='physical_attr_tissues'
+                          count='6' index-enum='physical_attribute_type'
+                          comment='seemingly amount of tissue matching attrs, i.e muscle, vascular etc'/>
 
             <uint32_t name='blood_max'/>
             <uint32_t name='blood_count'/> // 490
@@ -546,13 +547,17 @@
             <stl-vector name='spatters'>
                 <pointer type-name='unit_spatter'/>
             </stl-vector>
-
-            <stl-vector name='body_app_modifiers' type-name='uint32_t'/>
-            <stl-vector type-name='uint32_t' name='unk_4b8'/>
-            <uint32_t name='unk_4c8'/>
         </compound>
 
         <compound name='appearance'>
+            <stl-vector name='body_modifiers' type-name='int32_t'
+                        index-refers-to='$$._global.caste.ref-target.body_appearance_modifiers[$]'/>
+            <stl-vector name='bp_modifiers' type-name='int32_t'
+                        index-refers-to='$$._global.caste.ref-target.bp_appearance.modifier_idx[$].refers-to'/>
+
+            <uint32_t name='unk_4c8'/>
+
+            -- Something for bp_appearance.layers_*
             <stl-vector type-name='int16_t' name='unk_4cc'/>
             <stl-vector type-name='int32_t' name='unk_4dc'/>
             <stl-vector type-name='int32_t' name='unk_4ec'/>
@@ -611,8 +616,11 @@
             <uint32_t name='flash_period' comment='v0.34.01'/>
             <uint32_t name='flash_time2' comment='v0.34.01'/>
 
-            <stl-vector comment='v0.34.01'/>
-            <stl-vector name='appearance_change' type-name='int32_t' comment='v0.34.01'/>
+            <stl-vector name='maybe_body_appearance' type-name='int32_t'
+                        index-refers-to='$$._global.caste.ref-target.body_appearance_modifiers[$]'/>
+            <stl-vector name='bp_appearance' type-name='int32_t' comment='v0.34.01; guess!'
+                        index-refers-to='$$._global.caste.ref-target.bp_appearance.modifier_idx[$].refers-to'/>
+
             <uint32_t name='speed_add' comment='v0.34.01'/>
             <uint32_t name='speed_mul_percent' comment='v0.34.01'/>
 
@@ -826,7 +834,7 @@
 
             <stl-vector name='body_part_878' type-name='uint8_t'/>
             <stl-vector name='body_part_888' type-name='uint8_t'/>
-            <stl-vector name='body_part_898' type-name='uint32_t'/>
+            <stl-vector name='body_part_relsize' type-name='int32_t' comment='with modifiers'/>
             <stl-vector name='body_part_8a8' type-name='uint8_t'/>
             <stl-vector name='body_part_base_ins' type-name='uint16_t'/>
             <stl-vector name='body_part_clothing_ins' type-name='uint16_t'/>
