@@ -158,6 +158,31 @@
         <int32_t name="unk_11c"/>
     </struct-type>
 
+    <struct-type type-name='squad_schedule_order'>
+        <pointer name="order" type-name='squad_order'/>
+        <int32_t name="min_count"/>
+        <stl-vector name="unk_8">
+            <int32_t/>
+        </stl-vector>
+        <int32_t name="unk_18"/>
+    </struct-type>
+
+    <struct-type type-name='squad_schedule_entry'>
+        <stl-string name='name'/>
+
+        <int16_t name='sleep_mode' comment='0 room, 1 barrack will, 2 barrack need'/>
+        <int16_t name='uniform_mode' comment='0 uniformed, 1 civ clothes'/>
+
+        <stl-vector name='orders' pointer-type='squad_schedule_order'/>
+
+        <stl-vector name='order_assignments'>
+            -- weird change to pointer to int in v0.34.01
+            <pointer>
+                <int32_t refers-to='$$._parent._parent._parent.orders[$]'/>
+            </pointer>
+        </stl-vector>
+    </struct-type>
+
     <struct-type type-name='squad' key-field='id' instance-vector='$global.world.squads.all'>
         <int32_t name='id'/>
 
@@ -179,30 +204,7 @@
 
         <stl-vector name="schedule">
             <pointer>
-                <static-array count='12'>
-                    <stl-string name='name'/>
-
-                    <int16_t name='sleep_mode' comment='0 room, 1 barrack will, 2 barrack need'/>
-                    <int16_t name='uniform_mode' comment='0 uniformed, 1 civ clothes'/>
-
-                    <stl-vector name='orders'>
-                        <pointer>
-                            <pointer name="order" type-name='squad_order'/>
-                            <int32_t name="min_count"/>
-                            <stl-vector name="unk_8">
-                                <int32_t/>
-                            </stl-vector>
-                            <int32_t name="unk_18"/>
-                        </pointer>
-                    </stl-vector>
-
-                    <stl-vector name='order_assignments'>
-                        -- weird change to pointer to int in v0.34.01
-                        <pointer>
-                            <int32_t refers-to='$$._parent._parent._parent.orders[$]'/>
-                        </pointer>
-                    </stl-vector>
-                </static-array>
+                <static-array count='12' type-name='squad_schedule_entry'/>
             </pointer>
         </stl-vector>
 
