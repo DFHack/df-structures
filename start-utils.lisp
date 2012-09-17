@@ -90,16 +90,18 @@
 
 (load "disasm.lisp")
 
-(defun reset-state-annotation (&key mark-substructs?)
+(defun reset-state-annotation (&key mark-substructs? only-unset?)
   (annotate-all *memory* :status :unchecked
-                :filter @$(if mark-substructs?
-                              (and (typep $ '(or struct-compound-item enum-field))
-                                   (or (name-of $) (is-contained-item? $)))
-                              (or (and (typep $ 'enum-field)
-                                       (or (name-of $) (is-contained-item? $)))
-                                  (and (typep $ 'struct-compound-item)
-                                       (is-contained-item? $))
-                                  (typep $ 'global-type-definition)))
+                :filter @$(and (if mark-substructs?
+                                   (and (typep $ '(or struct-compound-item enum-field))
+                                        (or (name-of $) (is-contained-item? $)))
+                                   (or (and (typep $ 'enum-field)
+                                            (or (name-of $) (is-contained-item? $)))
+                                       (and (typep $ 'struct-compound-item)
+                                            (is-contained-item? $))
+                                       (typep $ 'global-type-definition)))
+                               (or (not only-unset?)
+                                   (null (type-annotation $ :status))))
                 :namespace nil)
   (save-annotations))
 

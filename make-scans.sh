@@ -26,6 +26,7 @@ rscript scan_ctors.rb "$LINUX_DF" > linux/ctors.txt
 ./match-ctors.pl linux/ctors.txt linux/ctors-base.txt > linux/cglobals.txt
 
 rscript scan_win_vtable.rb "$DFPATH/df_windows/Dwarf Fortress.exe" > windows/vtables.txt
+rscript scan_win_vtable.rb --dumpfuncs "$DFPATH/df_windows/Dwarf Fortress.exe" > windows/vtables-ext.txt
 rscript scan_nextid.rb "$DFPATH/df_windows/Dwarf Fortress.exe" > windows/nextid.txt
 
 OSX_DF="$DFPATH/df_osx/dwarfort.exe"
