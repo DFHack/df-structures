@@ -120,17 +120,12 @@ sub render_virtual_methods {
         }
     }
 
-    # Ensure there is a destructor to avoid warnings
     my $dtor_idx = $name_index{$dtor_id};
-    my $no_dtor = !defined $dtor_idx;
-    unless (defined $dtor_idx) {
-        for (my $i = 0; $i <= $#vtable; $i++) {
-            next if $vtable[$i]->getAttribute('name');
-            $name_index{$dtor_id} = $dtor_idx = $i;
-            last;
-        }
-    }
-    unless (defined $dtor_idx) {
+    my $no_dtor = 0;
+
+    # If the vtable is empty, conjure up a destructor
+    unless (@vtable) {
+        $no_dtor = 1;
         push @vtable, undef;
         $dtor_idx = $#vtable;
     }
