@@ -23,11 +23,16 @@ rscript scan_gcc_vtable.rb "$LINUX_DF" > linux/vtables.txt
 rscript scan_gcc_vtable.rb --dumpfuncs "$LINUX_DF" > linux/vtables-ext.txt
 rscript scan_nextid.rb "$LINUX_DF" > linux/nextid.txt
 rscript scan_ctors.rb "$LINUX_DF" > linux/ctors.txt
+rscript scan_standingorders.rb "$LINUX_DF" > linux/standingorders.txt
+
 ./match-ctors.pl linux/ctors.txt linux/ctors-base.txt > linux/cglobals.txt
 
-rscript scan_win_vtable.rb "$DFPATH/df_windows/Dwarf Fortress.exe" > windows/vtables.txt
-rscript scan_win_vtable.rb --dumpfuncs "$DFPATH/df_windows/Dwarf Fortress.exe" > windows/vtables-ext.txt
-rscript scan_nextid.rb "$DFPATH/df_windows/Dwarf Fortress.exe" > windows/nextid.txt
+WINDOWS_DF="$DFPATH/df_windows/Dwarf Fortress.exe"
+
+rscript scan_win_vtable.rb "$WINDOWS_DF"  > windows/vtables.txt
+rscript scan_win_vtable.rb --dumpfuncs "$WINDOWS_DF" > windows/vtables-ext.txt
+rscript scan_nextid.rb "$WINDOWS_DF" > windows/nextid.txt
+rscript scan_standingorders.rb "$WINDOWS_DF" > windows/standingorders.txt
 
 OSX_DF="$DFPATH/df_osx/dwarfort.exe"
 
@@ -35,4 +40,5 @@ rscript scan_gcc_vtable.rb "$OSX_DF" > osx/vtables.txt
 rscript scan_nextid_osx.rb "$OSX_DF" > osx/nextid.txt
 rscript scan_ctors_osx.rb "$OSX_DF" | \
   perl -pe 's/(<global-object )(.*)(name=".*" offset=".*" size=".*")\/>/$1$3>\n    <comment>$2<\/comment>\n<\/global-object>/' > osx/ctors.txt
+
 ./match-ctors.pl osx/ctors.txt osx/ctors-base.txt > osx/cglobals.txt
