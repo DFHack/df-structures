@@ -1262,7 +1262,10 @@
         <int32_t name="cursor"/>
 
         <stl-vector name="animal">
-            <pointer comment="unit or item"/>
+            <compound is-union='true'>
+                <pointer name='unit' type-name='unit'/>
+                <pointer name='item' type-name='item'/>     item_verminst
+            </compound>
         </stl-vector>
         <stl-vector name="is_vermin" type-name='bool'/>
         <stl-vector name="pet_info">
@@ -1619,23 +1622,25 @@
         <int8_t/>
     </class-type>
 
+    <enum-type type-name='viewscreen_unitlist_page' base-type='int32_t'>
+        <enum-item name='Citizens'/>
+        <enum-item name='Livestock'/>
+        <enum-item name='Others'/>
+        <enum-item name='Dead'/>
+    </enum-type>
+
     <class-type type-name='viewscreen_unitlistst' inherits-from='viewscreen'>
         <bool name="allow_zoom"/>
-        <enum base-type='int32_t' name="page">
-            <enum-item name='Citizens'/>
-            <enum-item name='Livestock'/>
-            <enum-item name='Others'/>
-            <enum-item name='Dead'/>
-        </enum>
-        <static-array name='cursor_pos' count='4'>
+        <enum base-type='int32_t' name='page' type-name='viewscreen_unitlist_page'/>
+        <static-array name='cursor_pos' count='4' index-enum='viewscreen_unitlist_page'>
             <int32_t refers-to='$$._global.units[$$._key][$]'/>
         </static-array>
-        <static-array name='jobs' count='4'>
+        <static-array name='jobs' count='4' index-enum='viewscreen_unitlist_page'>
             <stl-vector>
                 <pointer type-name='job'/>
             </stl-vector>
         </static-array>
-        <static-array name='units' count='4'>
+        <static-array name='units' count='4' index-enum='viewscreen_unitlist_page'>
             <stl-vector>
                 <pointer type-name="unit"/>
             </stl-vector>
