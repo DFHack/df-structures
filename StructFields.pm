@@ -167,6 +167,9 @@ sub get_struct_field_type($;%) {
     delete $container_flags{-weak};
     delete $container_flags{-void};
 
+    my $is_bytes = $meta eq 'bytes';
+    check_bad_attrs($tag, $is_bytes, $is_bytes && $subtype eq 'padding');
+
     if ($prefix = $tag->getAttribute('ld:typedef-name')) {
         $prefix = fully_qualified_name($tag,$prefix) unless $flags{-local};
         $type_def = $tag;
