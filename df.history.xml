@@ -598,14 +598,14 @@
     <class-type type-name='history_event_add_hf_entity_linkst' inherits-from='history_event'>
         <int32_t name='civ' ref-target='historical_entity'/>
         <int32_t name='histfig' ref-target='historical_figure'/>
-        <int32_t/>
+        <enum base-type='int32_t' name='link_type' type-name='histfig_entity_link_type'/>
         <int32_t/>
     </class-type>
 
     <class-type type-name='history_event_remove_hf_entity_linkst' inherits-from='history_event'>
         <int32_t name='civ' ref-target='historical_entity'/>
         <int32_t name='histfig' ref-target='historical_figure'/>
-        <int32_t/>
+        <enum base-type='int32_t' name='link_type' type-name='histfig_entity_link_type'/>
         <int32_t/>
     </class-type>
 
@@ -1036,8 +1036,8 @@
         <int32_t name='site' ref-target='world_site'/>
         <int32_t name='region' ref-target='world_region'/>
         <int32_t name='layer' ref-target='world_underground_region'/>
-        <int32_t/>
-        <int16_t/>
+        <int32_t name='victim_race' ref-target='creature_raw'/>
+        <int16_t name='victim_caste' ref-target='caste_raw' aux-value='$$.victim_race'/>
         <int16_t name='body_part'/>
         <int16_t name='injury_type'/>
         <int8_t name='part_lost'/>
@@ -1223,12 +1223,12 @@
 
     <class-type type-name='history_event_collection' original-name='history_event_collectionst'
                 instance-vector='$global.world.history.event_collections.all' key-field='id'>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
+        <stl-vector name='events' type-name='int32_t' ref-target='history_event'/>
+        <stl-vector name='collections' type-name='int32_t' ref-target='history_event_collection'/>
+        <int32_t name='start_year'/>
+        <int32_t name='end_year'/>
+        <int32_t name='start_seconds'/>
+        <int32_t name='end_seconds'/>
         <df-flagarray name='flags'/>
         <int32_t name='id'/>
         <virtual-methods>
@@ -1260,8 +1260,8 @@
 
     <class-type type-name='history_event_collection_warst' inherits-from='history_event_collection'>
         <compound type-name='language_name' name='name'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
+        <stl-vector name='attacker_civ' type-name='int32_t' ref-target='historical_entity'/>
+        <stl-vector name='defender_civ' type-name='int32_t' ref-target='historical_entity'/>
         <compound name='unk'>
             <stl-vector type-name='int16_t'/>
             <stl-vector type-name='int32_t'/>
@@ -1269,11 +1269,11 @@
             <stl-vector type-name='int32_t'/>
             <stl-vector type-name='int32_t'/>
             <int32_t/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <int32_t/>
+            <stl-vector name='ethics_unk1' type-name='int16_t'/>
+            <stl-vector name='disputed_ethics' type-name='ethic_type'/>
+            <stl-vector name='ethics_unk3' type-name='int32_t'/>
+            <stl-vector name='dispute_severities' type-name='int32_t'/>
+            <int32_t name='worst_severity'/>
             <stl-vector type-name='int16_t'/>
             <stl-vector type-name='int32_t'/>
             <stl-vector type-name='int32_t'/>
@@ -1283,106 +1283,113 @@
 
     <class-type type-name='history_event_collection_battlest' inherits-from='history_event_collection'>
         <compound type-name='language_name' name='name'/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int16_t/>
-        <int16_t/>
+        <int32_t name='parent_collection' ref-target='history_event_collection'/>
+        <int32_t name='region' ref-target='world_region'/>
+        <int32_t name='layer' ref-target='world_underground_region' comment='???'/>
+        <int32_t name='site' ref-target='world_site' comment='???'/>
+        <compound name='region_pos' type-name='coord2d'/>
+
         <stl-vector type-name='int32_t'/>
         <stl-vector type-name='int32_t'/>
+        <stl-vector name='attacker_hf' type-name='int32_t' ref-target='historical_figure'/>
+        <stl-vector name='defender_hf' type-name='int32_t' ref-target='historical_figure'/>
         <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
+
+        <stl-vector name='attacker_generic_unk1' type-name='int32_t'/>
+        <stl-vector name='attacker_generic_counts' type-name='int32_t'/>
+        <stl-vector name='attacker_generic_losses' type-name='int32_t'/>
+        <stl-vector name='attacker_generic_races' type-name='int32_t' ref-target='creature_raw'/>
+        <stl-vector name='attacker_generic_unk5' type-name='int32_t'/>
+
+        <stl-vector name='defender_generic_unk1' type-name='int32_t'/>
+        <stl-vector name='defender_generic_counts' type-name='int32_t'/>
+        <stl-vector name='defender_generic_losses' type-name='int32_t'/>
+        <stl-vector name='defender_generic_races' type-name='int32_t' ref-target='creature_raw'/>
+        <stl-vector name='defender_generic_unk5' type-name='int32_t'/>
+
         <int16_t comment='uninitialized'/>
     </class-type>
 
     <class-type type-name='history_event_collection_duelst' inherits-from='history_event_collection'>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int16_t/>
-        <int16_t/>
-        <int32_t/>
-        <int32_t/>
+        <int32_t name='parent_collection' ref-target='history_event_collection'/>
+        <int32_t name='region' ref-target='world_region' comment='???'/>
+        <int32_t name='layer' ref-target='world_underground_region' comment='???'/>
+        <int32_t name='site' ref-target='world_site'/>
+        <compound name='region_pos' type-name='coord2d'/>
+
+        <int32_t name='attacker_hf' ref-target='historical_figure'/>
+        <int32_t name='defender_hf' ref-target='historical_figure'/>
         <int32_t/>
         <int8_t/>
     </class-type>
 
     <class-type type-name='history_event_collection_site_conqueredst' inherits-from='history_event_collection'>
-        <int32_t/>
-        <int32_t/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
+        <int32_t name='parent_collection' ref-target='history_event_collection'/>
+        <int32_t name='site' ref-target='world_site'/>
+
+        <stl-vector name='attacker_civ' type-name='int32_t' ref-target='historical_entity'/>
+        <stl-vector name='defender_civ' type-name='int32_t' ref-target='historical_entity'/>
         <int16_t comment='uninitialized'/>
         <int32_t/>
     </class-type>
 
     <class-type type-name='history_event_collection_abductionst' inherits-from='history_event_collection'>
+        <int32_t name='parent_collection' ref-target='history_event_collection' comment='???'/>
+        <int32_t name='region' ref-target='world_region' comment='???'/>
+        <int32_t name='layer' ref-target='world_underground_region' comment='???'/>
+        <int32_t name='site' ref-target='world_site'/>
+        <compound name='region_pos' type-name='coord2d'/>
+
         <int32_t/>
         <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int16_t/>
-        <int16_t/>
-        <int32_t/>
-        <int32_t/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
+        <int32_t name='snatcher_hf' ref-target='historical_figure'/>
+        <int32_t name='victim_hf' ref-target='historical_figure'/>
         <stl-vector type-name='int32_t'/>
         <int32_t/>
     </class-type>
 
     <class-type type-name='history_event_collection_theftst' inherits-from='history_event_collection'>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int16_t/>
-        <int16_t/>
-        <int32_t/>
-        <int32_t/>
-        <stl-vector type-name='int32_t'/>
+        <int32_t name='parent_collection' ref-target='history_event_collection' comment='???'/>
+        <int32_t name='region' ref-target='world_region' comment='???'/>
+        <int32_t name='layer' ref-target='world_underground_region' comment='???'/>
+        <int32_t name='site' ref-target='world_site'/>
+        <compound name='region_pos' type-name='coord2d'/>
+
+        <int32_t name='thief_civ' ref-target='historical_entity'/>
+        <int32_t name='victim_civ' ref-target='historical_entity'/>
+
+        <stl-vector name='thief_hf' type-name='int32_t' ref-target='historical_figure'/>
+        <stl-vector name='stolen_item_types'><enum base-type='int16_t' type-name='item_type'/></stl-vector>
+        <stl-vector name='stolen_item_subtypes'><int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent._parent.stolen_item_types[$$._key] $)'/></stl-vector>
+        <stl-vector name='stolen_mat_types'><int16_t ref-target='material' aux-value='$$._parent.stolen_mat_indices[$._key]'/></stl-vector>
+        <stl-vector name='stolen_mat_indices' type-name='int32_t'/>
+        <stl-vector name='stolen_item_ids' ref-target='item'/>
+
+        <stl-vector type-name='int32_t'/> most likely the same format as above
         <stl-vector type-name='int16_t'/>
         <stl-vector type-name='int16_t'/>
         <stl-vector type-name='int16_t'/>
         <stl-vector type-name='int32_t'/>
         <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int16_t'/>
-        <stl-vector type-name='int16_t'/>
-        <stl-vector type-name='int16_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
+
         <stl-vector type-name='int32_t'/>
         <int32_t/>
     </class-type>
 
     <class-type type-name='history_event_collection_beast_attackst' inherits-from='history_event_collection'>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int16_t/>
-        <int16_t/>
-        <int32_t/>
-        <stl-vector type-name='int32_t'/>
+        <int32_t name='parent_collection' ref-target='history_event_collection' comment='???'/>
+        <int32_t name='region' ref-target='world_region' comment='???'/>
+        <int32_t name='layer' ref-target='world_underground_region' comment='???'/>
+        <int32_t name='site' ref-target='world_site'/>
+        <compound name='region_pos' type-name='coord2d'/>
+
+        <int32_t name='defender_civ' ref-target='historical_entity'/>
+        <stl-vector name='attacker_hf' type-name='int32_t' ref-target='historical_figure'/>
         <int32_t/>
     </class-type>
 
     <class-type type-name='history_event_collection_journeyst' inherits-from='history_event_collection'>
-        <stl-vector type-name='int32_t'/>
+        <stl-vector name='traveler_hf' type-name='int32_t' ref-target='historical_figure'/>
         <int32_t/>
     </class-type>
 
