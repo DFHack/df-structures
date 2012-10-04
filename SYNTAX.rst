@@ -619,3 +619,302 @@ Virtual method table addresses may be pre-initialized with ``<vtable-address>`` 
 It is allowed to specify addresses for objects and vtables that are otherwise
 not defined. Obviously, such values can only be used by directly quering the
 VersionInfo object in dfhack.
+
+================
+Lisp Integration
+================
+
+This XML file format was designed for use with the ``cl-linux-debug``
+Lisp tool, and has a number of aspects that closely integrate with
+its internals.
+
+For instance, when loaded by that tool, all XML tags are converted
+directly into instances of classes that exactly match the name of
+the tag, and when the documentation above mentions expressions, that
+refers to Lisp expressions within the context of that library.
+
+Reference expressions
+=====================
+
+In order to facilitate compact representation for long chains of
+dereferences that are commonly required when dealing with the data
+structures, ``cl-linux-debug`` defines a reader macro (i.e. basically
+a parser plugin) that adds a custom syntax for them. This syntax is
+triggered by special characters ``$`` and ``@``.
+
+Expressions written in that syntax expand into nested chains of
+calls to two generic functions named ``$`` and ``@``, which implement
+correspondingly r-value and l-value dereference of their first
+argument using the second.
+
+Dereference syntax
+------------------
+
+The reader macro understands the following syntactic patterns:
+
+* ``@``, ``$``, ``$$``, ``$$$``, ...
+
+  Lone ``@`` and sequences of ``$`` are parsed just as the ordinary lisp
+  parser would. This allows referring to the ``$`` and ``@`` functions,
+  and using sequences of ``$`` characters as implicit argument names.
+
+* ``$foo``
+
+  A case-sensitive identifier preceeded by the ``$`` character
+  is interned in the ``cl-linux-debug.field-names`` package as-is,
+  and returned as the parsing result. The identifier may consist
+  of letters, numbers, and ``-`` or ``_`` characters.
+
+  The symbol is exported from its package and defined as a symbol
+  macro expanding to ``'$foo``, and thus behaves as a case-sensitive
+  keyword (which however can be used as a lexical variable name).
+  All field & type names and other identifiers in the XML definitions
+  are loaded into memory as such symbols.
+
+* ``$foo:bar``
+
+  This expands into ``'($foo . $bar)``; such pairs of identifiers
+  are used in some special contexts.
+
+* ``$foo.bar``, ``@foo.bar``
+
+  These expressions expand to correspondingly ``($ foo '$bar)`` and
+  ``(@ foo '$bar)``, representing thus r-value or l-value dereference
+  of variable foo with literal key ``$bar``.
+
+  The name ``foo`` may only contain characters listed above, but is
+  otherwise separated and parsed with the regular lisp parser.
+
+* ``$foo.*``, ``$foo[*]``, ``$foo.@``, ``$foo[@]``, ``@foo.*`` ...
+
+  These expand to ``($ foo '*)``, ``($ foo '@)`` etc, thus effectively
+  being a special case of dereference via a literal field name.
+
+* ``$foo[expr]``, ``@foo[expr]``
+
+  These expressions expand to correspondingly ``($ foo expr)`` and ``(@ foo expr)``,
+  and are useful for accessing array elements.
+
+* ``$foo.xxx[yyy].zzz``
+
+  When dereference clauses are chained, they expand into nested calls to ``$`` and ``@``,
+  with the outermost depending on the first character, and all the inner ones being ``@``.
+
+  This example expands to: ``($ (@ (@ foo '$xxx) yyy) '$zzz)``.
+
+* ``@$$foo.bar``, ``$$$foo.bar``
+
+  When the expression contains multiple initial ``$`` characters, all but the first one
+  are prepended to the initial variable name.
+
+  These examples expand to ``(@ $$foo '$bar)`` and ``($ $$foo '$bar)``
+
+  **NOTE:** Only the ``$`` character may be used in this way; ``$@@foo.bar`` is invalid.
+
+* ``$.foo``, ``@$[bar]``, ...
+
+  If the expression contains no initial identifier, the initial ``$`` sequence is used
+  as one instead (after replacing ``@`` with ``$`` if necessary).
+
+  These examples expand to: ``($ $ '$foo)``, ``(@ $$ bar)``.
+
+  **NOTE:** Unlike the previous syntax pattern, this one uses *all* of the initial
+  ``$`` and ``@`` characters.
+
+* ``$(func arg arg...).bar``
+
+  If one initial ``$`` or ``@`` is immediately followed by parentheses, the contents of said
+  parentheses are parsed as ordinary lisp code and used instead of the initial variable.
+
+  The example expands to: ``($ (func arg arg...) '$bar)``
+
+* ``@$(foo bar baz)``
+
+  If an initial ``@`` is followed by one or more ``$`` characters and then parentheses,
+  it is parsed as a lambda expression (anonymous function) with one argument consisting
+  of those ``$`` characters.
+
+  This example expands to: ``(lambda ($) (foo bar baz))``
+
+  **NOTE:** it is an error to use multiple initial ``$`` characters without ``@`` like
+  this: ``$$$(...)...``
+
+Basic properties
+----------------
+
+As described above, dereference is actually implemented by two generic functions,
+``@`` and ``$``, which implement l-value and r-value dereference.
+
+They are defined as such::
+
+    (defgeneric @ (obj key))
+    (defgeneric $ (obj key))
+    (defgeneric (setf $) (obj key))
+
+Generally, l-value dereference returns an object that can be dereferenced further.
+R-value dereference with the same arguments may return the same object as l-value,
+or a simple scalar value, depending on the context.
+
+Perhaps oppositely to the used terms, only the r-value dereference function may be
+used as the *syntactic* target of assignment; this is because you can't actually change
+the (conceptual) address of an object, only its contents; and l-value dereference
+returns an address. I.e. in C++ you can write ``*a = ...``, but can't do ``&a = ...``.
+
+Any of the dereference functions may return a list to represent multiple possible
+values. Array objects often define ``(@ foo '*)`` to return all of the elements.
+
+If either the obj or key argument of any of the functions is a list (including *NIL*
+as empty list), the functions loop over the list, and return a concatenation of the
+resulting return value lists. This allows using ``$array.*.field`` to get a list of
+all values of a field within array elements.
+
+``($ obj t)`` is defined as the *natural* value of an object; e.g. if obj is a
+reference to a numeric field, this will be its value. By default it is equal to
+the object itself. ``($ obj key)`` for any other key would fall back to
+``($ (@ obj key) t)`` if no special handler for ``$`` with that key and
+object was defined.
+
+Reference objects
+=================
+
+The ``cl-linux-debug`` library represents typed pointers to objects in memory
+as objects of the ``memory-object-ref`` type.
+
+Along with the expected address and type of the pointer, these objects also
+retain a history of dereferences that have led to this particular pointer,
+and define virtual fields to access this information. This history is similar
+to what the Back button in a browser uses.
+
+All references by default have the following properties:
+
+* ``@ref.value``
+
+  By default returns ref itself. May be hidden by struct fields and index-enum keys.
+
+* ``@ref[integer]``
+
+  Returns a reference to address + size*int, i.e. offsets the pointer.
+
+* ``@ref.*``
+
+  Returns a list of contained collection elements. By default empty.
+
+* ``@ref.@``
+
+  Returns a list of subfields. By default empty.
+
+* ``@ref._parent``
+
+  Returns the previous reference in the "back" chain.
+
+* ``@ref._global``
+
+  Returns the nearest reference in the "back" chain that has a globally
+  named type, i.e. one defined by a ``struct-type``, ``class-type`` etc,
+  and not by any nested substructures. This may return the ref itself.
+
+* ``$ref._address``
+
+  Returns the numeric address embedded in the ref.
+
+* ``$ref._size``
+
+  Returns the size of the object pointed to.
+
+* ``$ref._key``
+
+  Returns the key that was used to get this ref from the parent.
+  This is not guaranteed to be precisely accurate, but e.g. for
+  array elements this will be the array index.
+
+* ``$ref._type``
+
+  For globally named types, returns their type name.
+
+Primitive types
+---------------
+
+Primitive types define the following methods:
+
+* ``$ref[t]``
+
+  The natural value of a primitive field is the scalar non-reference value it contains.
+
+  **NOTE:** When you write ``$struct.field``, it will evaluate via ``($ @struct.field t)``.
+
+* ``@ref.refers-to``, ``@ref.ref-target``
+
+  If the field has the relevant attributes, they can be dereferenced to retrieve the target objects.
+
+Enums
+-----
+
+Enum fields return their value as symbols, and allow access to attributes:
+
+* ``$ref[t]``
+
+  Returns the symbol matching the value, unless there is none. May be assigned both as symbol or number.
+
+* ``$ref.attribute``
+
+  If the enum has an attribute with that name, retrieves its value for the current value of the field.
+
+Pointers
+--------
+
+* ``$ref[t]``, ``@ref[t]``, ``$ref._target``, ``@ref._target``
+
+  These all return the value of the pointer, i.e. a reference to the target object.
+
+* ``($ ref key)`` -> ``($ (@ ref t) key)``
+* ``(@ ref key)`` -> ``(@ (@ ref t) key)``
+
+  All dereferences not explicitly supported are delegated to the target object.
+  This means that for most properties pointers are completely transparent; notable
+  exceptions are pointers to pointers, and pointers to primitive fields where you
+  have to use e.g. ``$struct.ptrfield.value``.
+
+Compounds
+---------
+
+* ``@ref.field``, ``@ref._fields.field``
+
+  Returns a reference to the given field.
+
+* ``@ref.*``, ``@ref.@``
+
+  Returns a list of references to all fields. Note that if the object is both an
+  implicit compound and a sequence, ``@ref.*`` will returns the sequence items as
+  described below.
+
+Sequences
+---------
+
+* ``@ref[int]``
+
+  Returns a reference to the Nth item of the sequence.
+
+* ``@ref[symbol]``
+
+  If the sequence has an ``index-enum``, its items can be accessed by symbolic names.
+
+* ``@ref.*``
+
+  Returns a list of all items of the sequence.
+
+* ``@ref._items``
+
+  Returns the items of the sequence as a special lazy object, intended to optimize
+  some things in the GUI.
+
+* ``@ref.index-refers-to[int]``
+
+  If the sequence has the relevant attribute, returns the target for the given index.
+
+* ``$ref.count``
+
+  Returns the number of items in the sequence.
+
+* ``$ref.has-items``
+
+  Checks if the sequence has any items, and returns T or NIL.
