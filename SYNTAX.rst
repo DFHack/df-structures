@@ -624,7 +624,7 @@ VersionInfo object in dfhack.
 Lisp Integration
 ================
 
-This XML file format was designed for use with the ``cl-linux-debug``
+This XML file format was designed together with the ``cl-linux-debug``
 Lisp tool, and has a number of aspects that closely integrate with
 its internals.
 
@@ -813,6 +813,10 @@ All references by default have the following properties:
   named type, i.e. one defined by a ``struct-type``, ``class-type`` etc,
   and not by any nested substructures. This may return the ref itself.
 
+* ``@ref._upglobal``
+
+  Exactly equivalent to ``@ref._parent._global``.
+
 * ``$ref._address``
 
   Returns the numeric address embedded in the ref.
@@ -918,3 +922,238 @@ Sequences
 * ``$ref.has-items``
 
   Checks if the sequence has any items, and returns T or NIL.
+
+Code helpers
+============
+
+The ``<code-helper>`` tag may be used to add lisp code fragments
+to the objects defined in the xml. The ``refers-to``, ``index-refers-to``
+and ``ref-target`` tags are also converted to code helpers internally,
+and you can use e.g. ``<code-helper name='refers-to'>...</code-helper>``
+instead of the attribute if your expression is too long for it.
+
+There are two features that can only be implemented via explicit
+``<code-helper>`` tags:
+
+* ``<code-helper name='describe'> ... </code-helper>``
+
+  This specifies a piece of code that is called to supply additional
+  informational items for the rightmost column of the table in the GUI
+  tool. The code should return a string, or a list of strings.
+
+  As with ``refers-to``, the code receives the value of the object
+  as ``$``, and the reference to the object in ``$$`` (i.e. ``$`` is
+  equal to ``$$[t]``).
+
+  The ``(describe-obj object)`` function can be used to call the same
+  describe mechanism on another object, e.g.::
+
+    <code-helper name='describe'> (describe-obj $.name) </code-helper>
+
+* ``<code-helper name='find-instance'> ... </code-helper>``
+
+  If the ``instance-vector`` and ``key-field`` attributes are not descriptive
+  enough to specify how to find an instance of the object by id, you can explicitly
+  define this helper to be used by ``ref-target`` links elsewhere.
+
+  It receives the value of the ``ref-target`` bearing field as ``$``,
+  and its ``aux-value`` as ``$$``.
+
+  Other than via ``ref-target``, you can invoke this mechanism explicitly using
+  the ``(find-instance class key aux-key)`` function, even from a ``find-instance``
+  helper for another type::
+
+    <code-helper name='find-instance'>$(find-instance $art_image_chunk $$).images[$]</code-helper>
+
+  This finds an instance of the ``art_image_chunk`` type using the aux-value ``$$``,
+  and then returns an element of its ``images`` sub-array using the main value ``$``.
+
+Examples
+========
+
+* ``@global.*``
+
+  The global variable 'global' contains a special compound that contains
+  all known global objects. This expressions retrieves a list of refs to
+  all of them.
+
+  Using ``$global.*`` would return values for the primitive ones instead
+  of refs, and is not that useful.
+
+* ``$global.world.units.all[0].id``
+
+  This expression is syntactically parsed into the following sequence::
+
+    tmp = global
+    tmp = @tmp.world  ; the world global ref
+    tmp = @tmp.units  ; the units field ref
+    tmp = @tmp.all    ; the all vector ref
+    tmp = @tmp[0]     ; the first unit object pointer ref
+    $tmp.id
+
+  The only non-trivial step here is the last one. The last value of
+  tmp is a reference to a pointer, and as described above, it delegates
+  anything it does not directly understand to its target, adding an
+  implicit step at runtime::
+
+    unit = @tmp._target
+    $unit.id
+
+  A unit object does not define ``$unit.id`` directly either, so the
+  final step falls back to::
+
+    idref = @unit.id
+    ($ idref t)
+
+  which retrieves a reference to the ``id`` field, and then evaluates
+  its natural value.
+
+  The result is that the expression returns the id value of the first
+  unit in the vector as would be naturally expected.
+
+  Using ``@global.world.units.all[0].id`` would have used ``@tmp.id`` as
+  the last step, which would have skipped the ``($ idref t)`` call and
+  returned a reference to the field.
+
+* A simple ``index-refers-to`` example::
+
+    <stl-vector name='created_weapons' type-name='int32_t'
+                index-refers-to='$global.world.raws.itemdefs.weapons[$]'/>
+
+  This is used to define a vector with counts of created weapons.
+
+  When it is displayed in the GUI, the tool evaluates the ``index-refers-to``
+  expression for every vector element, giving it the *element index*
+  as ``$``, and a reference to the vector itself as ``$$`` (here unused).
+
+  The expression straightforwardly uses that index to access another
+  global vector and return one of its elements. It is then used by the
+  GUI to add additional information to the info column.
+
+* An example of ``refers-to`` and ``_parent``::
+
+    <compound name='burrows'>
+        <stl-vector name='list' pointer-type='burrow'/>
+        <int32_t name='sel_index' refers-to='$$._parent.list[$]'/>
+    </compound>
+
+  This fragment of XML defines a compound with two fields, a vector and an int,
+  which has a ``refers-to`` attribute. When that field is displayed in the GUI,
+  it evaluates the expression in the attribute, giving it the *integer value*
+  as ``$``, and a *reference* to the integer field as ``$$``.
+
+  The expression parses as::
+
+    tmp = $$            ; reference to the int32_t field
+    tmp = @tmp._parent
+    tmp = @tmp.list
+    $tmp[$]
+
+  Since the only way the GUI could get a reference to the field was to evaluate
+  ``@ref-to-burrows.sel_index``, that previous reference is stored in its "back"
+  list, and ``@tmp._parent`` retrieves it. After that everything is simple.
+
+* An example of ``ref-target`` with ``aux-value``::
+
+    <int32_t name='race' ref-target='creature_raw'/>
+    <int16_t name='caste' ref-target='caste_raw' aux-value='$$.race'/>
+
+  The ``race`` field just specifies a type as ``ref-target``, so the
+  reference simply evaluates the ``find-instance`` helper of the
+  ``creature_raw``, passing it the race value as ``$``.
+
+  In order to find the caste however, you need to first find a creature,
+  which requires a race value. This value is supplied via the ``aux-value``
+  attribute into the ``$$`` argument to ``find-instance``.
+
+  Since the value of the ``caste`` field will be passed through to the
+  helper anyway, when evaluating ``aux-value`` the ``$`` argument is set
+  to a *reference* to the holding field, and ``$$`` is set to its ``_parent``.
+  This means that ``$$.race`` in the context of ``aux-value`` is equivalent
+  to ``$$._parent.race`` in the context of ``refers-to``.
+
+* A complex example of cross-references between arrays::
+
+    <struct-type type-name='caste_raw'>
+        <compound name='body_info'>
+            <stl-vector name='body_parts' pointer-type='body_part_raw'/>
+        </compound>
+        <compound name='bp_appearance'>
+            <stl-vector name='modifiers' pointer-type='bp_appearance_modifier'/>
+
+            <stl-vector name='modifier_idx' type-name='int32_t'
+                        refers-to='$$._parent._parent.modifiers[$]'
+                        index-refers-to='$$._parent.part_idx[$].refers-to'/>
+            <stl-vector name='part_idx' type-name='int16_t'
+                        refers-to='$$._global.body_info.body_parts[$]'/>
+            <stl-vector name='layer_idx' type-name='int16_t'
+                        refers-to='$$._parent._parent.part_idx[$$._key].refers-to.layers[$]'
+                        index-refers-to='$$._parent.part_idx[$].refers-to'/>
+        </compound>
+    </struct-type>
+
+  In order to understand this example it is first necessary to understand
+  that ``refers-to`` specified on a vector is actually transplanted onto the
+  implicitly constructed element tag::
+
+    <stl-vector name='part_idx'>
+        <int16_t refers-to='$$._global.body_info.body_parts[$]'/>
+    </stl-vector>
+
+  Therefore, ``$$`` is a reference to the ``<int16_t>`` field,
+  ``$$._parent`` is a reference to the vector, ``$$._parent._parent``
+  is a reference to the ``bp_appearance`` compound, etc.
+
+  The ``$$._global...`` works as an abbreviation that applies ``_parent``
+  until it reaches a globally defined type, which in this case is the
+  current instance of the ``caste_raw`` struct.
+
+  **NOTE:** ``$$._global._global`` is the same as ``$$._global``, i.e.
+  repeated ``_global`` is a no-op. The latest version supports ``_upglobal``,
+  which is equivalent to ``_parent._global``.
+
+  Thus, the ``refers-to`` link on the ``part_idx`` vector evaluates to
+  the element of the ``body_parts`` vector, indexed by the *value* of the
+  current ``part_idx`` vector item.
+
+  Likewise, the ``refers-to`` link on the ``modifier_idx`` vector goes
+  back to the ``bp_appearance`` compound, and descends into the ``modifiers``
+  vector, using the value of the current item.
+
+  The ``index-refers-to`` link on the same ``modifier_idx`` vector
+  highlights the shared indexing relation between the bottom vectors
+  by linking to the part_idx vector via the current item *index*.
+  Since this attribute is hosted by the vector itself, ``$$`` points
+  at the vector, and only one ``_parent`` is needed to reach
+  ``bp_appearance``.
+
+  This link also demonstrates how the defined relations can be reused
+  in other expressions by accessing the target of the ``refers-to``
+  link inside ``part_idx``. When the ``part_idx`` vector is accessed
+  simply as ``$xxx.part_idx[foo]``, it evaluates as::
+
+    tmp = @xxx.part_idx
+    tmp = @tmp[foo]
+    ($ tmp t)
+
+  thus returning just an integer value. However, if an additional
+  dereference step is added, it turns to::
+
+    tmp = @xxx.part_idx
+    tmp = @tmp[foo]
+    obj = @tmp.refers-to
+    ($ obj t)
+
+  which follows the ``refers-to`` link and evaluates its target.
+
+  Finally, the ``layer_idx`` vector, in addition to specifying the same
+  ``index-refers-to`` link as ``modifier_idx``, uses the link in ``part_idx``
+  to access other objects at its end::
+
+    refers-to='$$._parent._parent.part_idx[$$._key].refers-to.layers[$]'
+
+  Note how this link has to use two ``_parent`` steps again due to being
+  attached to the element of the vector instead of the vector itself.
+  It also has to use the ``_key`` attribute of the vector element to
+  retrieve the current index in the vector, because here ``$`` holds the
+  element value.
