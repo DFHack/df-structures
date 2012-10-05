@@ -57,10 +57,19 @@
 (defun suspend ()
   (call-debug-task 'stop-all-threads *process*))
 
-(defun find-str (string &key any-prefix? any-suffix?)
+(defun find-stl-str (string &key any-prefix? any-suffix?)
   (browse (find-stl-strings *memory* string
                             :any-prefix? any-prefix?
                             :any-suffix? any-suffix?)))
+
+(defun find-mem-str (string &key at-end? (heap? t) rodata?)
+  (browse (find-memory-strings *memory* string :at-end? at-end? :heap? heap? :rodata? rodata?)))
+
+(defun find-stl-vec (min-size max-size &key (eltsize 4) heap?)
+  (browse (find-stl-vectors *memory* min-size max-size :eltsize eltsize :heap? heap?)))
+
+(defun find-vtable-obj (obj-name)
+  (browse (find-obj-by-vtable *memory* obj-name)))
 
 (load "version.lisp")
 
