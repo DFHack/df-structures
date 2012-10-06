@@ -38,15 +38,7 @@
             <pointer type-name='world_population'/>
         </stl-vector>
 
-        <stl-vector name="inhabitants">
-            <pointer>
-                <int32_t name="count"/>
-                <int32_t name="race" ref-target='creature_raw'/>
-                <int32_t name="unk_8"/>
-                <int32_t name="unk_c" ref-target='historical_entity'/>
-                <int32_t name="unk_10"/>
-            </pointer>
-        </stl-vector>
+        <stl-vector name="inhabitants" pointer-type='world_site_inhabitant'/>
 
         <stl-vector name="unk_c4"/>
         <stl-vector name="unk_d4"/>
@@ -125,32 +117,45 @@
         <stl-vector name="unk_19c"/>
     </struct-type>
 
-    <struct-type type-name='world_site_realization'>
-        <stl-vector name='obj1' pointer-type='site_realization_obj1'/>
+    <struct-type type-name='world_site_inhabitant'>
+        <int32_t name="count"/>
+        <int32_t name="race" ref-target='creature_raw'/>
+        <int32_t name="unk_8"/>
+        <int32_t name="unk_c" ref-target='historical_entity'/>
         <int32_t name="unk_10"/>
+    </struct-type>
+
+    <struct-type type-name='world_site_realization'>
+        <stl-vector name='buildings' pointer-type='site_realization_building'/>
+        <int32_t name="num_buildings"/>
         <int32_t name="unk_14"/>
-        <int32_t name="unk_18"/>
-        <static-array name='unk_1c' count='17'>
-            <static-array count='17' type-name='int8_t'/>
+        <int32_t name="num_areas"/>
+        <static-array name='mini_rivers' count='17'>
+            <static-array count='17' type-name='int8_t'
+                          comment='2 for river tiles'/>
         </static-array>
-        <static-array name='unk_13d' count='17'>
-            <static-array count='17' type-name='int8_t'/>
+        <static-array name='mini_tiles' count='17'>
+            <static-array count='17' type-name='uint8_t'/>
         </static-array>
-        <static-array name='unk_25e' count='17'>
-            <static-array count='17' type-name='int16_t'/>
+        <static-array name='mini_colors' count='17'>
+            <static-array count='17' type-name='int16_t'
+                          comment='bold shl 6|bg shl 3|fg'/>
         </static-array>
         2601 = 51*51 = 17*3*17*3
-        <static-array name='unk_4a0' count='51'>
-            <static-array count='51' pointer-type='site_realization_obj2'/>
+        <static-array name='road_map' count='51'>
+            <static-array count='51' pointer-type='site_realization_crossroads'/>
         </static-array>
-        <static-array name='unk_2d44' count='2601' type-name='pointer'/>
+        <static-array name='unk_2d44' count='51'>
+            <static-array count='51' type-name='pointer'/>
+        </static-array>
         <static-array name='unk_55e8' count='17'>
             <static-array count='17'>
                 <int32_t name="unk_55e8"/>
                 <int32_t name="unk_55ec"/>
                 <int32_t name="unk_55f0"/>
                 <int32_t name="unk_55f4"/>
-                <int32_t name="unk_55f8"/>
+                <int16_t name="unk_55f8"/>
+                <int16_t name="unk_55fa"/>
                 <int32_t name="unk_55fc"/>
                 <int32_t name="unk_5600"/>
                 <int32_t name="unk_5604"/>
@@ -165,45 +170,51 @@
                 <int32_t name="unk_5634"/>
             </static-array>
         </static-array>
-        <static-array name='unk_b838' count='17'>
+        <static-array name='building_map' count='17'>
             <static-array count='17'>
-                <uint8_t name='unk1a'/>
-                <uint8_t name='unk1b'/>
-                <uint8_t name='unk2a'/>
-                <uint8_t name='unk2b'/>
-                <stl-vector name='obj1' pointer-type='site_realization_obj1'/>
+                <padding size='4'/>
+                <stl-vector name='buildings' pointer-type='site_realization_building'/>
                 <int32_t name='unk4'/>
                 <uint32_t name='unk5'/>
                 <stl-vector name='unk6'/>
             </static-array>
         </static-array>
-        <static-array name='unk_e1e4' count='2601' type-name='uint8_t'/>
-        <static-array name='unk_ec0e' count='2601' type-name='int16_t'/>
-        <static-array name='unk_10060' count='2601' type-name='int8_t'/>
+        <static-array name='zoom_tiles' count='51'>
+            <static-array count='51' type-name='uint8_t'/>
+        </static-array>
+        <static-array name='zoom_colors' count='51'>
+            <static-array count='51' type-name='int16_t'/>
+        </static-array>
+        <static-array name='zoom_movemask' count='51'>
+            <static-array count='51' type-name='int8_t'
+                          comment='8 left, 4 right, 2 down, 1 up; -1 any dir'/>
+        </static-array>
         2704 = 52*52
-        <static-array name='unk_10a8c' count='2704' type-name='int32_t'/>
-        <stl-vector name='unk_134cc'>
+        <static-array name='area_map' count='52'>
+            <static-array count='52' type-name='int32_t' refers-to='$$._global.areas[$]'/>
+        </static-array>
+        <stl-vector name='areas'>
             <pointer>
                 <int32_t name="unk_0"/>
                 <int32_t name="index"/>
                 <int32_t name="unk_8"/>
-                <int32_t name="unk_c"/>
-                <int32_t name="unk_10"/>
-                <int32_t name="unk_14"/>
-                <int32_t name="unk_18"/>
+                <int32_t name="min_x"/>
+                <int32_t name="max_x"/>
+                <int32_t name="min_y"/>
+                <int32_t name="max_y"/>
             </pointer>
         </stl-vector>
     </struct-type>
 
-    <struct-type type-name='site_realization_obj2'>
-        <static-array name='unk1' count='48' type-name='int32_t'/>
-        <static-array name='unk2' count='48' type-name='int32_t'/>
-        <static-array name='unk3' count='48' type-name='int32_t'/>
-        <static-array name='unk4' count='48' type-name='int32_t'/>
+    <struct-type type-name='site_realization_crossroads'>
+        <static-array name='road_min_y' count='48' type-name='int32_t'/>
+        <static-array name='road_max_y' count='48' type-name='int32_t'/>
+        <static-array name='road_min_x' count='48' type-name='int32_t'/>
+        <static-array name='road_max_x' count='48' type-name='int32_t'/>
         <int32_t name="idx_x"/>
         <int32_t name="idx_y"/>
-        <int32_t name="unk_308"/>
-        <int32_t name="unk_30c"/>
+        <int32_t name="tile_width"/>
+        <int32_t name="tile_height"/>
         <int32_t name="unk_310"/>
         <int32_t name="unk_314"/>
         <int32_t name="unk_318"/>
@@ -212,12 +223,12 @@
         <int32_t name="unk_324"/>
         <int32_t name="unk_328"/>
         <int32_t name="unk_32c"/>
-        <int32_t name="unk_330"/>
-        <int32_t name="unk_334"/>
-        <pointer name="up" type-name="site_realization_obj2"/>
-        <pointer name="down" type-name="site_realization_obj2"/>
-        <pointer name="right" type-name="site_realization_obj2"/>
-        <pointer name="left" type-name="site_realization_obj2"/>
+        <int32_t name="center_x_tile"/>
+        <int32_t name="center_y_tile"/>
+        <pointer name="up" type-name="site_realization_crossroads"/>
+        <pointer name="down" type-name="site_realization_crossroads"/>
+        <pointer name="right" type-name="site_realization_crossroads"/>
+        <pointer name="left" type-name="site_realization_crossroads"/>
         <int8_t name="unk_348"/>
         <int8_t name="unk_349"/>
         <int32_t name='unk_34c'/>
@@ -225,11 +236,12 @@
         <int8_t/>
         <int8_t/>
         <int8_t/>
-        <int16_t/>
+        <int8_t/>
+        <int8_t/>
         <static-array name='unk_356' count='32' type-name='coord'/>
     </struct-type>
 
-    <struct-type type-name='site_realization_obj1'>
+    <struct-type type-name='site_realization_building'>
         <int32_t name="index"/>
         <int32_t name="unk_4"/>
         <int32_t name="unk_8"/>
@@ -237,22 +249,9 @@
         <int32_t name="unk_10"/>
         <int32_t name="unk_14"/>
         <int32_t name="unk_18"/>
-        <stl-vector name="unk_1c">
-            <pointer>
-                <int32_t name="unk_0"/>
-                <int32_t name="unk_4"/>
-                <int32_t name="unk_8"/>
-                <int32_t name="unk_c"/>
-                <int32_t name="unk_10"/>
-                <int32_t name="unk_14"/>
-            </pointer>
-        </stl-vector>
+        <stl-vector name="inhabitants" pointer-type='world_site_inhabitant'/>
         <int32_t name="unk_2c"/>
-        <int32_t name="unk_30"/>
-        <int32_t name="unk_34"/>
-        <int16_t name="unk_38"/>
-        <padding name="unk_3a" size="2"/>
-        <int32_t name="unk_3c"/>
+        <compound name='item' type-name='site_building_item'/>
         <int32_t name="unk_40"/>
         <int32_t name="unk_44"/>
         <pointer name="building_info" type-name='site_realization_building_infost'/>
@@ -260,7 +259,7 @@
             <pointer>
                 <int32_t name="unk_0"/>
                 <int32_t name="unk_4"/>
-                <int32_t name="unk_8"/>
+                <int32_t name="owner" ref-target='historical_entity'/>
                 <int32_t name="unk_c"/>
                 <int32_t name="unk_10"/>
                 <int32_t name="unk_14"/>
@@ -274,7 +273,7 @@
     </class-type>
 
     <struct-type type-name='site_building_item'>
-        <int32_t name="unk"/>
+        <int32_t name="race" ref-target='creature_raw'/>
         <enum base-type='int16_t' name='item_type' type-name='item_type'/>
         <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
@@ -307,9 +306,30 @@
         <compound name='item2' type-name='site_building_item'/>
     </class-type>
 
+    <enum-type type-name='site_shop_type'>
+        <enum-item name='General'/>
+        <enum-item name='Food'/>
+        <enum-item name='Clothing'/>
+        <enum-item name='Cloth'/>
+        <enum-item name='Leather'/>
+        <enum-item name='WovenClothing'/>
+        <enum-item name='LeatherClothing'/>
+        <enum-item name='BoneCarver'/>
+        <enum-item name='GemCutter'/>
+        <enum-item name='Weaponsmith'/>
+        <enum-item name='Bowyer'/>
+        <enum-item name='Blacksmith'/>
+        <enum-item name='Armorsmith'/>
+        <enum-item name='MetalCraft'/>
+        <enum-item name='LeatherGoods'/>
+        <enum-item name='Carpenter'/>
+        <enum-item name='StoneFurniture'/>
+        <enum-item name='MetalFurniture'/>
+    </enum-type>
+
     <class-type type-name='site_realization_building_info_shop_housest'
                 inherits-from='site_realization_building_infost'>
-        <int32_t name="unk_4"/>
+        <enum base-type='int32_t' name="type" type-name='site_shop_type'/>
         <stl-string name="unk_8"/>
         <stl-string name="unk_24"/>
         <int32_t name="unk_40"/>
