@@ -223,7 +223,7 @@ sub generate_dt_ini($$$$$) {
     emit_addr 'animal_type',%all,'unit','training_level';
     emit_addr 'civ',%all,'unit','civ_id';
     emit_addr 'specific_refs',%all,'unit','specific_refs',$vbias;
-    emit_addr 'squad_id',%all,'unit','military.squad_index';
+    emit_addr 'squad_id',%all,'unit','military.squad_id';
     emit_addr 'squad_position',%all,'unit','military.squad_position';
     emit_addr 'recheck_equipment',%all,'unit','military.pickup_flags';
     emit_addr 'mood',%all,'unit','mood';
