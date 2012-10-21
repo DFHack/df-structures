@@ -94,7 +94,7 @@
         <flag-bit name='body_part_relsize_computed'/>
         <flag-bit name='unk1' comment='Is 1 for new creatures, periodically set to 0 for non-dead creatures.'/>
         <flag-bit name='unk2' comment='Is set to 1 every tick for non-dead creatures.'/>
-        <flag-bit name='unk3' comment='Is periodically set to 0 for non-dead creatures.'/>
+        <flag-bit name='compute_health' comment='causes the health structure to be created or updated'/>
 
         <flag-bit name='announce_titan' comment='Announces creature like an FB or titan.'/>
         <flag-bit name='unk5'/>
@@ -845,12 +845,14 @@
             <stl-vector name='unk_8e8'/> // items ids?
 
             <stl-vector type-name='uint16_t' name='unk_8f8'/> // same size as 8e8, soldier related?
+        </compound>
 
-            <stl-vector name='body_layer_908' type-name='uint32_t'/>
+        <compound name='recuperation'>
+            <stl-vector name='healing_rate' type-name='int32_t'/>
 
-            <int32_t name='unk_918'/>
-            <int32_t name='unk_91c'/>
-            <int32_t name='unk_920'/>
+            <int32_t name='effective_rate'/>
+            <int32_t name='tendons_heal'/>
+            <int32_t name='ligaments_heal'/>
         </compound>
 
         <int32_t name='weight'/>
@@ -959,7 +961,14 @@
             </pointer>
         </stl-vector>
         <int16_t name='unk2'/>
-        <int32_t name='unk3'/>
+        <bitfield name='flags'>
+            cause rq_diagnosis:
+            <flag-bit name='is_sick' comment='causes health.flags.needs_healthcare'/>
+            <flag-bit/>
+            prevent rq_diagnosis or needs_healthcare:
+            <flag-bit/>
+            <flag-bit/>
+        </bitfield>
         <stl-vector name='unk4' type-name='int32_t'/>
     </struct-type>
 
@@ -1159,7 +1168,7 @@
         </enum-item>
         <enum-item/>
         <enum-item/>
-        <enum-item/>
+        <enum-item name='WoundsCleaned'/>
         <enum-item/>
         <enum-item/>
         <enum-item/>
@@ -1232,17 +1241,18 @@
 
     <bitfield-type type-name='unit_health_flags'>
         <flag-bit name='rq_diagnosis'/>
-        <flag-bit/>
-        <flag-bit/>
-        <flag-bit/>
+        <flag-bit name='needs_recovery' comment='needs diagnosis but cannot walk'/>
+        <flag-bit name='needs_healthcare'
+                  comment='???; set when rq_diagnosis is, and not blocked by having a diagnosis'/>
+        <flag-bit name='rq_immobilize'/>
 
-        <flag-bit/>
-        <flag-bit/>
-        <flag-bit/>
-        <flag-bit/>
+        <flag-bit name='rq_dressing'/>
+        <flag-bit name='rq_cleaning'/>
+        <flag-bit name='rq_surgery'/>
+        <flag-bit name='rq_suture'/>
 
-        <flag-bit/>
-        <flag-bit/>
+        <flag-bit name='rq_setting'/>
+        <flag-bit name='rq_traction'/>
         <flag-bit name='rq_crutch'/>
         <flag-bit/>
     </bitfield-type>
@@ -1256,6 +1266,9 @@
         <flag-bit name='rq_setting'/>
         <flag-bit name='rq_traction'/>
         <flag-bit name='inoperable_rot'/>
+
+        <flag-bit name='needs_bandage' comment='used to remove once not needed'/>
+        <flag-bit name='needs_cast' comment='used to remove once not needed'/>
     </bitfield-type>
 
     <struct-type type-name='unit_health_info'>
@@ -1264,8 +1277,10 @@
         <compound name="flags" type-name='unit_health_flags'/>
         <stl-vector name="body_part_flags" type-name='unit_bp_health_flags'/>
 
-        <int32_t name="unk_18"/>
-        <int32_t name="unk_1c"/>
+        <int16_t name="unk_18"/>
+        <int16_t name="unk_1a"/>
+        <int16_t name="unk_1c"/>
+        <int16_t name="unk_1e"/>
         <int16_t name="unk_20"/>
 
         <stl-vector name="op_history">
