@@ -963,40 +963,133 @@
         <stl-vector name='unk4' type-name='int32_t'/>
     </struct-type>
 
+    <enum-type type-name='wound_effect_type' base-type='int16_t'>
+        <enum-item name='Bruise'/>
+        <enum-item name='Burn'/>
+        <enum-item name='Frostbite'/>
+        <enum-item/>
+        <enum-item name='Melting'/>
+        <enum-item/>
+        <enum-item name='Freezing'/>
+        <enum-item/>
+        <enum-item name='Necrosis'/>
+        <enum-item name='Blister'/>
+    </enum-type>
+
+    <bitfield-type type-name='wound_damage_flags1'>
+        <flag-bit name='cut_apart'/>
+        <flag-bit name='needs_setting'/>
+        <flag-bit/>
+        <flag-bit/>
+
+        <flag-bit/>
+        <flag-bit/>
+        <flag-bit name='tendon_torn'/>
+        <flag-bit/>
+
+        <flag-bit/>
+        <flag-bit name='ligament_torn'/>
+        <flag-bit name='motor_nerve_severed'/>
+        <flag-bit name='sensory_nerve_severed'/>
+
+        <flag-bit name='edged_damage'/>
+        <flag-bit name='smashed_apart'/>
+        <flag-bit name='major_artery'/>
+        <flag-bit name='guts_spilled'/>
+
+        <flag-bit/>
+        <flag-bit/>
+        <flag-bit/>
+        <flag-bit/>
+
+        <flag-bit/>
+        <flag-bit/>
+        <flag-bit/>
+        <flag-bit/>
+
+        <flag-bit/>
+        <flag-bit/>
+        <flag-bit/>
+        <flag-bit/>
+
+        <flag-bit name='compound_fracture'/>
+        <flag-bit/>
+        <flag-bit name='artery'/>
+        <flag-bit name='overlapping_fracture'/>
+    </bitfield-type>
+
+    <bitfield-type type-name='wound_damage_flags2'>
+    </bitfield-type>
+
     <struct-type type-name='unit_wound' key-field='id'>
         <int32_t name="id"/>
+
         <stl-vector name="parts">
             <pointer>
-                <int32_t name="unk_0"/>
-                <int16_t name="body_part_id"/>
-                <int16_t name="layer_idx"/>
-                <int32_t name="unk_8"/>
-                <int16_t name="unk_c"/>
-                <int32_t name="unk_10"/>
-                <stl-vector name="unk_14" type-name='int16_t'/>
-                <stl-vector name="unk_24" type-name='int16_t'/>
-                <stl-vector name="unk_34" type-name='int16_t'/>
-                <int16_t name="unk_44"/>
-                <int32_t name="unk_48"/>
-                <int32_t name="unk_4c"/>
-                <int32_t name="unk_50"/>
-                <int32_t name="unk_54"/>
+                <int32_t name="global_layer_idx"
+                         refers-to='$$._global._upglobal.body.body_plan.layer_idx[$].refers-to'/>
+                <int16_t name="body_part_id"
+                         refers-to='$$._global._upglobal.body.body_plan.body_parts[$]'/>
+                <int16_t name="layer_idx"
+                         refers-to='$$._parent.body_part_id.refers-to.layers[$]'/>
+
+                Contact area of the wound. Is initially the lesser of the weapon or body
+                part contact areas. It grows with cumulative hits. Body parts and non-weapon
+                items have contact=(size/10)^(2/3).
+                <int32_t name="contact_area"/>
+                <int16_t name="surface_perc"/>
+
+                This is strain. For skin/muscle/fat it is usually around 50000, and for
+                bone 100-113. This number heals over time towards 0. A wound that only
+                has strain is called "dented".
+                <int32_t name="strain"/>
+
+                <stl-vector name="effect_perc1" type-name='int16_t'/>
+                <stl-vector name="effect_perc2" type-name='int16_t'/>
+                <stl-vector name="effect_type">
+                    <enum base-type='int16_t' type-name='wound_effect_type'/>
+                </stl-vector>
+
+                A random percentage from 0-100, only for edged damage cases. Otherwise 0.
+                <int16_t name="edged_perc"/>
+
+                <compound name="flags1" type-name='wound_damage_flags1'/>
+                <compound name="flags2" type-name='wound_damage_flags2'/>
+
+                <int32_t name="bleeding"/>
+                <int32_t name="pain"/>
                 <int32_t name="unk_58"/>
                 <int32_t name="unk_5c"/>
                 <int32_t name="unk_60"/>
-                <int32_t name="unk_64"/>
-                <int32_t name="unk_68"/>
-                <int32_t name="unk_6c"/>
-                <int16_t name="unk_70"/>
-                <int16_t name="unk_72"/>
-                <int32_t name="unk_74"/>
+                <int32_t name="numbness"/>
+                <int32_t name="swelling"/>
+                <int32_t name="impaired"/>
+
+                This 0-100 percentage is related to cumulative damage. In cases where
+                multiple axe hacks are necessary for severing a limb, it must reach 100
+                before severing occurs. In cases where a weapon can't completely penetrate
+                a tissue, it is related to the weapon's penetration number. This percentage
+                heals towards 0 over time.
+                <int16_t name="cur_penetration_perc"/>
+                <int16_t name="max_penetration_perc"/>
+
+                <int32_t name="unk_74" init-value='-1'/>
             </pointer>
         </stl-vector>
-        <int32_t name="unk_14"/>
-        <int32_t name="unk_18"/>
-        <int32_t name="unk_1c"/>
-        <int32_t name="unk_20"/>
-        <int32_t name="unk_24"/>
+
+        <int32_t name="age"/>
+
+        <int32_t name="unit_id" ref-target='unit'/>
+        <int32_t name="hist_figure_id" ref-target='historical_figure'/>
+
+        <bitfield name="flags">
+            <flag-bit name='severed_part'/>
+            <flag-bit name='mortal_wound'/>
+            <flag-bit name='stuck_weapon'/>
+        </bitfield>
+
+        <int32_t name="syndrome_id" ref-target='syndrome'/>
+
         <int32_t name="unk_28"/>
         <int32_t name="unk_2c"/>
         <int32_t name="unk_30"/>
