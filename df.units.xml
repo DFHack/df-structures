@@ -850,7 +850,7 @@
         <compound name='recuperation'>
             <stl-vector name='healing_rate' type-name='int32_t'/>
 
-            <int32_t name='effective_rate'/>
+            <int32_t name='effective_rate' init-value='-1'/>
             <int32_t name='tendons_heal'/>
             <int32_t name='ligaments_heal'/>
         </compound>
@@ -991,12 +991,12 @@
         <flag-bit name='straight_scar'/>
         <flag-bit name='huge_dent'/>
 
-        <flag-bit/>
-        <flag-bit/>
+        <flag-bit name='tendon_bruised'/>
+        <flag-bit name='tendon_strained'/>
         <flag-bit name='tendon_torn'/>
-        <flag-bit/>
+        <flag-bit name='ligament_bruised'/>
 
-        <flag-bit/>
+        <flag-bit name='ligament_sprained'/>
         <flag-bit name='ligament_torn'/>
         <flag-bit name='motor_nerve_severed'/>
         <flag-bit name='sensory_nerve_severed'/>
@@ -1029,6 +1029,7 @@
 
     <bitfield-type type-name='wound_damage_flags2'>
         <flag-bit name='needs_setting'/>
+        <flag-bit name='unk1'/>
     </bitfield-type>
 
     <struct-type type-name='unit_wound' key-field='id'>
@@ -1037,9 +1038,9 @@
         <stl-vector name="parts">
             <pointer>
                 <int32_t name="global_layer_idx"
-                         refers-to='$$._global._upglobal.body.body_plan.layer_idx[$].refers-to'/>
+                         refers-to='$$._global._upglobal.caste.ref-target.body_info.layer_idx[$].refers-to'/>
                 <int16_t name="body_part_id"
-                         refers-to='$$._global._upglobal.body.body_plan.body_parts[$]'/>
+                         refers-to='$$._global._upglobal.caste.ref-target.body_info.body_parts[$]'/>
                 <int16_t name="layer_idx"
                          refers-to='$$._parent.body_part_id.refers-to.layers[$]'/>
 
@@ -1061,7 +1062,8 @@
                 </stl-vector>
 
                 A random percentage from 0-100, only for edged damage cases. Otherwise 0.
-                <int16_t name="edged_perc"/>
+                Values above 50 turn straight_scar description into curving scar.
+                <int16_t name="edged_curve_perc"/>
 
                 <compound name="flags1" type-name='wound_damage_flags1'/>
                 <compound name="flags2" type-name='wound_damage_flags2'/>
@@ -1083,7 +1085,8 @@
                 <int16_t name="cur_penetration_perc"/>
                 <int16_t name="max_penetration_perc"/>
 
-                <int32_t name="unk_74" init-value='-1'/>
+                <int32_t name="jammed_layer_idx" comment='in compound fracture'
+                         refers-to='$$._global._upglobal.caste.ref-target.body_info.layer_idx[$].refers-to'/>
             </pointer>
         </stl-vector>
 
@@ -1098,7 +1101,7 @@
             <flag-bit name='stuck_weapon'/>
             <flag-bit name='diagnosed'/>
             <flag-bit name='sutured'/>
-            <flag-bit/>
+            <flag-bit name='infection'/>
         </bitfield>
 
         <int32_t name="syndrome_id" ref-target='syndrome'/>
@@ -1254,7 +1257,8 @@
         <flag-bit name='rq_setting'/>
         <flag-bit name='rq_traction'/>
         <flag-bit name='rq_crutch'/>
-        <flag-bit/>
+
+        due to a field initialization bug, higher bits contain garbage
     </bitfield-type>
 
     <bitfield-type type-name='unit_bp_health_flags'>

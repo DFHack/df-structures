@@ -262,7 +262,8 @@
             <vmethod/>
             <vmethod/>
             <vmethod name='setSeedsPlantSkillLevel'> <int32_t name='level'/> </vmethod>
-            <vmethod ret-type='int16_t' name='getCorpseUnk17c'/>
+            <vmethod ret-type='int16_t' name='getCorpseMuscleAmount'
+                     comment='physical_attr_tissues[STRENGTH]'/>
 
             <vmethod name='ageItem'><int32_t name='amount'/></vmethod>
             <vmethod ret-type='int32_t' name='getCritterAirdrownTimer'/>
@@ -701,9 +702,9 @@
         <flag-bit name='sensory_nerve_severed'/>
         <flag-bit/>
 
-        <flag-bit name='has_splint_cast1' comment='??'/>
-        <flag-bit name='has_bandage' comment='?'/>
-        <flag-bit name='has_splint_cast2' comment='??'/>
+        <flag-bit name='has_splint'/>
+        <flag-bit name='has_bandage'/>
+        <flag-bit name='has_plaster_cast'/>
         <flag-bit/>
 
         <flag-bit/>
@@ -713,7 +714,8 @@
     </bitfield-type>
 
     <struct-type type-name='body_component_info'>
-        <stl-vector name='body_part_status' type-name='body_part_status'/>
+        <stl-vector name='body_part_status' type-name='body_part_status'
+                    index-refers-to='$$._global._upglobal.caste.ref-target.body_info.body_parts[$]'/>
 
         <stl-vector name='unk_318' type-name='int32_t'/>
 
@@ -754,28 +756,30 @@
         <int16_t name='race2' ref-target='creature_raw'/>
         <int16_t name='caste2' ref-target='caste_raw' aux-value='$$.race2'/>
 
-        <int32_t name='unk_88'/>
+        <int32_t name='rot_timer'/>
         <int8_t name='unk_8c'/>
 
         <compound name='body'>
-            <stl-vector name='wounds' type-name='pointer'/>
+            <stl-vector name='wounds' pointer-type='unit_wound'/>
 
             <static-array name='unk_100' type-name='int32_t' count='10'/>
             <int32_t name='unk_c8'/>
 
             <compound name='components' type-name='body_component_info'/>
 
-            <static-array type-name='int32_t' name='physical_attr_unk1'
+            <static-array type-name='int32_t' name='physical_attr_value'
                           count='6' index-enum='physical_attribute_type'/>
             <static-array type-name='int32_t' name='physical_attr_unk2'
                           count='6' index-enum='physical_attribute_type'/>
-            <static-array type-name='int32_t' name='physical_attr_unk3'
+            <static-array type-name='int32_t' name='physical_attr_tissues'
                           count='6' index-enum='physical_attribute_type'/>
 
             <stl-vector name='unk_194' type-name='int32_t'/>
-            <stl-vector name='unk_1a4' type-name='int32_t'/>
-            <stl-vector name='unk_1b4' type-name='int32_t'/>
-            <int32_t name="unk_18c"/>
+            <stl-vector name='body_modifiers' type-name='int32_t'
+                        index-refers-to='$$._global.caste.ref-target.body_appearance_modifiers[$]'/>
+            <stl-vector name='bp_modifiers' type-name='int32_t'
+                        index-refers-to='$$._global.caste.ref-target.bp_appearance.modifier_idx[$].refers-to'/>
+            <int32_t name="unk_18c" comment='=unit.appearance.unk_4c8'/>
         </compound>
 
         <int32_t name="birth_year"/>
@@ -797,8 +801,7 @@
         </compound>
 
         <int32_t name="blood_count"/>
-
-        <int32_t name="unk_1e0" comment='== counters.unk_cntdn_598'/>
+        <int32_t name="stored_fat"/>
 
         <int32_t name='hist_figure_id2' ref-target='historical_figure'/>
         <int32_t comment='v0.34.01, actual offset unknown'/>
