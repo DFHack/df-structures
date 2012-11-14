@@ -68,7 +68,7 @@
         <stl-vector name='events'>
             <pointer type-name='activity_event'/>
         </stl-vector>
-        <int32_t name='unk2'/>
+        <int32_t name='next_event_id'/>
     </struct-type>
 
     <enum-type type-name='activity_event_type'>
@@ -80,6 +80,28 @@
         <enum-item name='RangedPractice'/>
     </enum-type>
 
+    <struct-type type-name='activity_event_participants'>
+        <stl-vector name='hist_figure_ids'>
+            <int32_t ref-target='historical_figure'/>
+        </stl-vector>
+        <stl-vector name='participant_ids'>
+            <int32_t ref-target='unit'/>
+        </stl-vector>
+
+        -- Either empty, or same as above:
+        -- Seems to be related to subevents
+        <stl-vector name='hist_figure_ids2'>
+            <int32_t ref-target='historical_figure'/>
+        </stl-vector>
+        <stl-vector name='participant_ids2'>
+            <int32_t ref-target='unit'/>
+        </stl-vector>
+
+        -- Holder event
+        <int32_t name='activity_id' ref-target='activity_entry'/>
+        <int32_t name='event_id'/>
+    </struct-type>
+
     <class-type type-name='activity_event' original-name='activity_eventst'>
         <int32_t name='event_id'
                  comment='mostly, but not always, the index in activity.events'/>
@@ -90,31 +112,14 @@
               (find-by-id $activity.events $event_id $))
         </code-helper>
 
-        -- Guess:
-        <int32_t name='subevent_id' comment='-1 unless subevent'/>
+        <int32_t name='parent_event_id' ref-target='activity_event' aux-value='$$.activity_id'/>
+
         <bitfield name='flags'>
-            <flag-bit name='expired' comment='to be removed from squad_position, anyway'/>
+            <flag-bit name='dismissed' comment='to be removed from squad_position, anyway'/>
             <flag-bit name='subevents' comment='for all in training session, but not ind.drill'/>
         </bitfield>
 
-        <stl-vector name='hist_figure_ids'>
-            <int32_t ref-target='historical_figure'/>
-        </stl-vector>
-        <stl-vector name='participant_ids'>
-            <int32_t ref-target='unit'/>
-        </stl-vector>
-
-        -- Either empty, or same as above:
-        <stl-vector name='hist_figure_ids2'>
-            <int32_t ref-target='historical_figure'/>
-        </stl-vector>
-        <stl-vector name='participant_ids2'>
-            <int32_t ref-target='unit'/>
-        </stl-vector>
-
-        -- These are equal to the ones above:
-        <int32_t name='activity_id2' ref-target='activity_entry'/>
-        <int32_t name='event_id2'/>
+        <compound name='participants' type-name='activity_event_participants'/>
 
         <virtual-methods>
             <vmethod ret-type='activity_event_type' name='getType'/>
@@ -128,16 +133,18 @@
 
             <vmethod comment='returns -1'/>
             <vmethod comment='does nothing'> <pointer/> </vmethod>
-            <vmethod name='getHistFigVector'>
-                <ret-type> <pointer> <stl-vector> <int32_t ref-target='historical_figure'/> </stl-vector> </pointer> </ret-type>
+            <vmethod name='getParticipantInfo'>
+                <ret-type> <pointer type-name='activity_event_participants'/> </ret-type>
             </vmethod>
-            <vmethod/>
-            <vmethod/>
+            <vmethod name='dismiss'> <bool name='children_too'/> </vmethod>
+            <vmethod name='removeParticipant'> <int32_t name='histfig'/> <int32_t name='unit'/> </vmethod>
 
-            <vmethod/>
+            <vmethod name='process'> <pointer type-name='unit'/> </vmethod>
             <vmethod/>
             <vmethod ret-type='bool' name='decUniformLock'/>
-            <vmethod/>
+            <vmethod name='getSquadEventType'>
+                <ret-type> <enum base-type='int16_t' type-name='squad_event_type'/> </ret-type>
+            </vmethod>
             <vmethod name='setSkillDemoUnk5'>
                 <int16_t name='unk5'/>
             </vmethod>
@@ -147,7 +154,7 @@
                 <int32_t name='unk8'/>
                 <int32_t name='unk9'/>
             </vmethod>
-            <vmethod name='adjustUnkA' comment='combat_training adjusts unk5, skill_demonstration adjusts unk6, others do nothing'>
+            <vmethod name='adjustCounter'>
                 <int32_t name='amount'/>
             </vmethod>
             <vmethod name='getOrganizer' comment='or perhaps somebody else - only works for combat_training and skill_demonstration'>
@@ -179,7 +186,7 @@
         <int32_t name='building_id' ref-target='building'/>
         <int32_t name='hist_figure_id' ref-target='historical_figure'/>
         <int32_t name='unit_id' ref-target='unit'/>
-        <int32_t name='unk5'/>
+        <int32_t name='counter' comment='gt 0 => wait, lt 0 => schedule'/>
     </class-type>
 
     <class-type type-name='activity_event_skill_demonstrationst' inherits-from='activity_event'>
@@ -187,7 +194,7 @@
         <int32_t name='hist_figure_id' ref-target='historical_figure'/>
         <int32_t name='unit_id' ref-target='unit'/>
         <int16_t name='unk5'/>
-        <int32_t name='unk6'/>
+        <int32_t name='counter'/>
         <int32_t name='unk7'/>
         <int32_t name='unk8'/>
         <int32_t name='unk9'/>
