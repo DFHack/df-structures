@@ -1,4 +1,139 @@
 <data-definition>
+    <enum-type type-name='abstract_building_type'>
+        <enum-item name='STORE'/>
+        <enum-item name='MEAD_HALL'/>
+        <enum-item name='KEEP'/>
+        <enum-item name='HOME_SINGLE'/>
+        <enum-item name='HOME_APARTMENT'/>
+        <enum-item name='HOME_APARTMENT_ROOM'/>
+        <enum-item name='TEMPLE'/>
+        <enum-item name='DARK_TOWER'/>
+        <enum-item name='MARKET'/>
+        <enum-item name='TOMB'/>
+        <enum-item name='DUNGEON'/>
+    </enum-type>
+
+    <struct-type type-name='abstract_building_unk'> used within Tomb and Dungeon
+        <stl-vector>
+            <pointer>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+            </pointer>
+        </stl-vector>
+        <stl-vector type-name='int32_t'/>
+    </struct-type>
+
+    <class-type type-name='abstract_building' original-name='abstract_buildingst'>
+        <int32_t/>
+        <stl-vector>
+            <pointer>
+                <int16_t/>
+                <int32_t/>
+            </pointer>
+        </stl-vector>
+        <df-flagarray name='flags'/>
+        <pointer>
+            <stl-vector type-name='int32_t'/>
+            <int32_t/>
+            <stl-vector type-name='int16_t'/>
+            <int16_t/>
+            <int16_t/>
+        </pointer>
+        <stl-vector type-name='int32_t'/>
+        <int32_t/>
+        <stl-vector type-name='int32_t'/>
+        <int32_t/>
+        <int32_t comment='not initialized/saved/loaded, assumed member of base class'/>
+
+        <virtual-methods>
+            <vmethod ret-type='abstract_building_type' name='getType'/>
+            <vmethod ret-type='int16_t' name='getSubtype' comment='for stores'/>
+            <vmethod name='getDisplayTile' comment='on navigation minimap'>
+                <pointer type-name='uint8_t' name='tile'/>
+                <pointer type-name='uint16_t' name='fg'/>
+                <pointer type-name='uint16_t' name='bg'/>
+                <pointer type-name='uint16_t' name='bright'/>
+            </vmethod>
+            <vmethod name='getName'><ret-type><pointer type-name='language_name'/></pointer></vmethod>
+            <vmethod name='write_file'> <pointer comment='file_compressorst'/> </vmethod>
+
+            <vmethod name='read_file'>
+                <pointer comment='file_compressorst'/>
+                <int32_t name='loadversion'/>
+            </vmethod>
+            <vmethod is-destructor='true'/>
+            <vmethod ret-type='int32_t'/>
+            <vmethod ret-type='bool'/>
+            <vmethod ret-type='bool'/>
+
+            <vmethod ret-type='int32_t'/>
+            <vmethod><ret-type><pointer type-name='abstract_building_unk'/></pointer></vmethod>
+        </virtual-methods>
+    </class-type>
+
+    <enum-type type-name='abstract_building_store_subtype' base-type='int16_t'>
+        <enum-item name='Craft'/>
+        <enum-item name='Weapon'/>
+        <enum-item name='Armor'/>
+        <enum-item name='Clothing'/>
+        <enum-item name='Food'/>
+    </enum-type>
+
+    <class-type type-name='abstract_building_storest' inherits-from='abstract_building'>
+        <enum type-name='abstract_building_store_subtype' name='subtype'/>
+        <compound name='name' type-name='language_name'/>
+    </class-type>
+
+    <class-type type-name='abstract_building_mead_hallst' inherits-from='abstract_building'>
+        <compound name='name' type-name='language_name'/>
+    </class-type>
+
+    <class-type type-name='abstract_building_keepst' inherits-from='abstract_building'>
+        <compound name='name' type-name='language_name'/>
+    </class-type>
+
+    <class-type type-name='abstract_building_home_singlest' inherits-from='abstract_building'/>
+
+    <class-type type-name='abstract_building_home_apartmentst' inherits-from='abstract_building'/>
+
+    <class-type type-name='abstract_building_home_apartment_roomst' inherits-from='abstract_building'/>
+
+    <class-type type-name='abstract_building_templest' inherits-from='abstract_building'>
+        <int32_t/>
+        <int32_t comment='returned by the vmethod after the destructor'/>
+        <compound name='name' type-name='language_name'/>
+    </class-type>
+
+    <class-type type-name='abstract_building_dark_towerst' inherits-from='abstract_building'>
+        <compound name='name' type-name='language_name'/>
+    </class-type>
+
+    <class-type type-name='abstract_building_marketst' inherits-from='abstract_building'>
+        <compound name='name' type-name='language_name'/>
+    </class-type>
+
+    <class-type type-name='abstract_building_tombst' inherits-from='abstract_building'>
+        <compound name='name' type-name='language_name'/>
+        <compound name='unk' type-name='abstract_building_unk'/>
+        <int32_t/>
+        <int32_t comment='not initialized/saved'/>
+    </class-type>
+
+    <class-type type-name='abstract_building_dungeonst' inherits-from='abstract_building'>
+        <compound name='name' type-name='language_name'/>
+        <int16_t/>
+        <int32_t/>
+        <compound name='unk' type-name='abstract_building_unk'/>
+        <int32_t/>
+        <int32_t comment='not saved'/>
+        <int32_t comment='not saved'/>
+    </class-type>
+
     <struct-type type-name='world_site' key-field='id'
                  instance-vector='$global.world.world_data.sites'>
         <compound name='name' type-name='language_name'/>
@@ -86,7 +221,7 @@
         <df-flagarray name='flags'/>
 
         <stl-vector name="buildings">
-            <pointer comment='abstract_building'/>
+            <pointer type-name='abstract_building'/>
         </stl-vector>
 
         <int32_t name="next_building_id"/>
