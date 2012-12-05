@@ -173,12 +173,13 @@ sub emit_block(&;$$%) {
 my @primitive_type_list =
     qw(int8_t uint8_t int16_t uint16_t
        int32_t uint32_t int64_t uint64_t
-       s-float
+       s-float d-float
        bool flag-bit
        padding static-string);
 
 my %primitive_aliases = (
     's-float' => 'float',
+    'd-float' => 'double',
     'static-string' => 'char',
     'flag-bit' => 'void',
     'padding' => 'void',

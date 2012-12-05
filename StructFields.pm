@@ -112,6 +112,11 @@ my %custom_container_handlers = (
         my $type = decode_type_name_ref($_, -attr_name => 'index-enum', -force_type => 'enum-type') || 'int';
         return "BitArray<$type>";
     },
+    'df-static-flagarray' => sub {
+        my $type = decode_type_name_ref($_, -attr_name => 'index-enum', -force_type => 'enum-type') || 'int';
+        my $size = $_->getAttribute('count') or die "No count in df-static-flagarray.\n";
+        return "StaticBitArray<$size,$type>";
+    },
     'df-array' => sub {
         my $item = get_container_item_type($_, -void => 'void*');
         return "DfArray<$item >";

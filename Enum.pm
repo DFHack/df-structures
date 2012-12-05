@@ -210,7 +210,8 @@ sub render_enum_tables($$$$) {
 
                 for my $attr ($item->findnodes('child::item-attr')) {
                     my $name = $attr->getAttribute('name') or die "Unnamed item-attr.\n";
-                    my $value = $attr->getAttribute('value') or die "No-value item-attr.\n";
+                    my $value = $attr->getAttribute('value');
+                    (defined $value) or die "No-value item-attr.\n";
                     my $idx = $aidx{$name};
                     (defined $idx && $idx >= 0) or die "Unknown item-attr: $name\n";
 

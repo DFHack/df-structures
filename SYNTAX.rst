@@ -227,7 +227,7 @@ Primitive fields can be classified as following:
 
     Supported number types are: ``int8_t``, ``uint8_t``, ``int16_t``,
     ``uint16_t``, ``int32_t``, ``uint32_t``, ``int64_t``, ``uint64_t``,
-    ``s-float`` (single float).
+    ``s-float`` (single float), ``d-float`` (double float).
 
 3)  Boolean::
 
@@ -491,6 +491,10 @@ These are defined in df-code.lisp:
 ``<df-flagarray name='id' index-enum='enum'/>``
 
     Defines a ``BitArray<enum>`` field.
+
+``<df-static-flagarray name='id' index-enum='enum' count='numbytes'/>``
+
+    Defines a ``StaticBitArray<numbytes,enum>`` field.
 
 ``<df-array name='id' .../>``
 

@@ -6,6 +6,10 @@
   ()
   (:default-initargs :type-name $flag-bit))
 
+(def (class* eas) df-static-flagarray (array-item data-field concrete-item)
+  ((count nil :accessor t :type integer-or-null))
+  (:default-initargs :type-name $flag-bit))
+
 (def (class* eas) df-array (array-item data-field concrete-item)
   ())
 
@@ -26,6 +30,15 @@
   (let ((s $ref.start) (e $ref.size))
     (awhen (and s e)
       (values (start-address-of s) (* 8 e)))))
+
+;; df-static-flagarray implementation
+
+(defmethod compute-effective-size (context (type df-static-flagarray))
+  (or (count-of type) (error "No count in df-static-flagarray.")))
+
+(defmethod array-base-dimensions ((type df-static-flagarray) ref)
+  (assert (typep (effective-contained-item-of type) 'flag-bit))
+  (values (memory-object-ref-address ref) (* 8 (count-of type))))
 
 ;; df-array implementation
 
