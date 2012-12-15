@@ -344,9 +344,9 @@
 
     <class-type type-name='viewscreen_customize_unitst' inherits-from='viewscreen'>
         <pointer name="unit" type-name="unit"/>
-        <int8_t/>
-        <int8_t/>
-        <stl-string/>
+        <int8_t name='editing_nickname'/>
+        <int8_t name='editing_profession'/>
+        <stl-string name='previous_name'/> previous value of the string, for Abort Edit
         <int8_t name='has_name'/>
     </class-type>
 
@@ -409,23 +409,33 @@
         <int32_t name="x"/>
         <int32_t name="y"/>
         <int32_t name="z"/>
-        <int32_t name="unk_1c"/>
-        <int32_t name="unk_20"/>
-        <int8_t name="unk_24"/>
+        <int32_t name="announce_y"/> screen y of first announce shown
+        <int32_t name="announce_idx"/> idx of first announcement currently displayed
+        <int8_t name="announce_more"/> 0 [DONE] 1 [MORE]
     </class-type>
 
     <class-type type-name='viewscreen_dwarfmodest' inherits-from='viewscreen'>
-        <int8_t name="unk_10"/>
-        <padding size='3' comment='A necessary workaround for linux class alignment quirks'/>
-        <stl-vector name="unk_14"/>
-        <stl-vector name="unk_24"/>
-        <stl-vector type-name='int32_t' name="unk_34"/>
-        <stl-vector type-name='int32_t' name="unk_44"/>
-        <int32_t name="unk_54"/>
-        <int8_t name="unk_58"/>
-        <int8_t name="keyRepeat"/>
-        <stl-vector comment='v0.34.06'/>
-        <padding size='12'/>
+        <int8_t name='unk_10'/>
+
+        <int16_t name='jeweler_mat_count'/> jewelers workshop orders
+        <stl-vector type-name='int32_t' name='jeweler_cutgem'  index-refers-to='(material-by-id 0 $)'/> number of free items for job
+        <stl-vector type-name='int32_t' name='jeweler_encrust' index-refers-to='(material-by-id 0 $)'/> index list +3 (green/clear/crystal glass)
+
+        <stl-vector name='unit_labors_sidemenu'> For sidemenu unit/prefs/labor
+            <enum type-name='unit_labor' base-type='int32_t'/> When negative, labor category
+        </stl-vector>
+        <stl-vector name='unit_labors_sidemenu_uplevel'>
+            <enum type-name='unit_labor' base-type='int32_t'/>
+        </stl-vector>
+        <int32_t name='unit_labors_sidemenu_uplevel_idx'/>
+        <int8_t name='sideSubmenu'/> determine if ESC is Done or Back
+
+        <int8_t name='keyRepeat'/>
+
+        <stl-vector name='trained_animals' pointer-type='unit'/>
+        <int32_t name='trained_animal_idx'/>
+        <int32_t name='number_assigned_hunt'/> for current unit
+        <int32_t name='number_assigned_war'/>
     </class-type>
 
     <class-type type-name='viewscreen_entityst' inherits-from='viewscreen'>
@@ -468,7 +478,11 @@
     </class-type>
 
     <class-type type-name='viewscreen_game_cleanerst' inherits-from='viewscreen'>
-        <int32_t/>
+        <enum base-type='int32_t' name='state'>
+            <enum-item name='CleaningGameObjects'/>
+            <enum-item name='CleaningStrandedObjects'/>
+            <enum-item name='CleaningPlayObjects'/>
+        </enum>
         <int8_t/>
     </class-type>
 
