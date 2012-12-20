@@ -878,9 +878,10 @@
         <enum-item name='Stun'/>
         <enum-item name='Batter'/>
         <enum-item name='Possess'/>
-        <enum-item/>
+        <enum-item name='MisplaceItem'/>
         <enum-item name='Haunt'/>
         <enum-item name='Torment'/>
+        <enum-item name='ToppleBuilding'/>
     </enum-type>
 
     <struct-type type-name='unit_ghost_info'>
@@ -889,12 +890,22 @@
               comment='seems to have same value as type'/>
 
         <enum base-type='int16_t' name="goal" type-name='ghost_goal'/>
-        <int32_t name="target_unit" ref-target='unit'/>
 
-        <compound name='unk_pos' type-name='coord'/>
-        <int32_t name="unk_14" init-value='403200'/>
+        <compound name='target' is-union='true'>
+            <int32_t name="unit" ref-target='unit'/>
+            <int32_t name="item" ref-target='item'/>
+            <int32_t name="building" ref-target='building'/>
+        </compound>
+
+        <compound name='misplace_pos' type-name='coord'/>
+
+        <int32_t name="action_timer" init-value='403200' comment='time since last action'/>
         <int32_t name="unk_18"/>
-        <int32_t name="unk_1c"/>
+
+        <bitfield name='flags'>
+            <flag-bit name='announced'/>
+            <flag-bit name='was_at_rest'/>
+        </bitfield>
 
         <int32_t name="death_x" comment='in tiles, global to world'/>
         <int32_t name="death_y"/>
