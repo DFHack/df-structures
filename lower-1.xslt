@@ -121,6 +121,7 @@
         <prim-type ld:meta='number' ld:subtype='uint64_t' ld:unsigned='true' ld:bits='64'/>
         <prim-type ld:meta='number' ld:subtype='bool' ld:bits='8'/>
         <prim-type ld:meta='number' ld:subtype='s-float' ld:bits='32'/>
+        <prim-type ld:meta='number' ld:subtype='d-float' ld:bits='64'/>
         <prim-type ld:meta='number' ld:subtype='flag-bit' ld:bits='1'/>
 
         <prim-type ld:meta='bytes' ld:subtype='padding'/>
@@ -134,7 +135,7 @@
         <prim-type ld:meta='primitive' ld:subtype='stl-string'/>
     </ld:primitive-types>
 
-    <xsl:template match='int8_t|uint8_t|int16_t|uint16_t|int32_t|uint32_t|int64_t|uint64_t|bool|flag-bit|s-float|padding|static-string|ptr-string|stl-string'>
+    <xsl:template match='int8_t|uint8_t|int16_t|uint16_t|int32_t|uint32_t|int64_t|uint64_t|bool|flag-bit|s-float|d-float|padding|static-string|ptr-string|stl-string'>
         <xsl:param name='level' select='-1'/>
         <ld:field>
             <xsl:apply-templates select='@*'/>
@@ -206,8 +207,24 @@
         <xsl:param name='level' select='-1'/>
         <xsl:attribute name='ld:is-container'>true</xsl:attribute>
         <xsl:choose>
+            <xsl:when test='@pointer-type'>
+                <ld:field ld:meta='pointer' ld:is-container='true'>
+                    <xsl:attribute name='ld:level'><xsl:value-of select='$level'/></xsl:attribute>
+                    <xsl:attribute name='type-name'><xsl:value-of select='@pointer-type'/></xsl:attribute>
+                    <xsl:apply-templates select='@refers-to|@ref-target|@aux-value'/>
+                    <ld:field>
+                        <xsl:apply-templates select='@refers-to|@ref-target|@aux-value'/>
+                        <xsl:call-template name='lookup-type-ref'>
+                            <xsl:with-param name='name' select="@pointer-type"/>
+                            <xsl:with-param name="level" select="$level+1"/>
+                        </xsl:call-template>
+                    </ld:field>
+                </ld:field>
+                <xsl:apply-templates select='node()'/>
+            </xsl:when>
             <xsl:when test='@type-name'>
                 <ld:field>
+                    <xsl:apply-templates select='@refers-to|@ref-target|@aux-value'/>
                     <xsl:call-template name='lookup-type-ref'>
                         <xsl:with-param name='name' select="@type-name"/>
                         <xsl:with-param name="level" select="$level"/>
@@ -237,7 +254,7 @@
     </xsl:template>
 
     <!-- Misc containers: meta='container' subtype='$tag' -->
-    <xsl:template match='stl-vector|stl-deque|stl-bit-vector|df-flagarray|df-array|df-linked-list'>
+    <xsl:template match='stl-vector|stl-deque|stl-set|stl-bit-vector|df-flagarray|df-static-flagarray|df-array|df-linked-list'>
         <xsl:param name='level' select='-1'/>
         <ld:field ld:meta='container'>
             <xsl:attribute name='ld:level'><xsl:value-of select='$level'/></xsl:attribute>

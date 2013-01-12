@@ -11,6 +11,23 @@
         <pointer name='next' type-name='proj_list_link'/>
     </struct-type>
 
+    <bitfield-type type-name='projectile_flags'>
+        <flag-bit name='no_impact_destroy'/>
+        <flag-bit name='has_hit_ground'/>
+        <flag-bit name='bouncing'/>
+        <flag-bit name='high_flying'/>
+
+        <flag-bit name='piercing'/>
+        <flag-bit name='to_be_deleted'/>
+        <flag-bit name='unk6'/>
+        <flag-bit name='unk7'/>
+
+        <flag-bit name='parabolic'/>
+        <flag-bit name='unk9'/>
+        <flag-bit name='unk10'/>
+        <flag-bit name='no_collide'/>
+    </bitfield-type>
+
     <class-type type-name='projectile' original-name='projst' key-field='id'>
         <pointer name='link' type-name='proj_list_link'/>
 
@@ -23,27 +40,39 @@
         <compound name='prev_pos' type-name='coord'/>
 
         <int32_t name='distance_flown'/>
+        <int32_t name='fall_threshold'/>
+        <int32_t name='min_hit_distance'/>
+        <int32_t name='min_ground_distance'/>
 
-        <int32_t name='unk14'/>
-        <int32_t name='unk15'/>
-        <int32_t name='unk16'/>
-
-        <bool name='collided' comment='or falling?'/>
+        <compound name='flags' type-name='projectile_flags'/>
 
         <int16_t name='fall_counter' comment='counts down from delay to 0, then it moves'/>
         <int16_t name='fall_delay'/>
 
-        <int32_t name='unk20'/>
+        <int32_t name='hit_rating'/>
         <int32_t name='unk21'/>
         <int32_t name='unk22'/>
-        <int32_t name='unk23'/>
+        <int32_t name='bow_id' ref-target='item'/>
+
+        -- Parabolic projectile info:
+        <int32_t name="unk_item_id" ref-target='item'/>
+        <int32_t name="unk_unit_id" ref-target='unit'/>
+        <int32_t name="pos_x"/>
+        <int32_t name="pos_y"/>
+        <int32_t name="pos_z"/>
+        <int32_t name="speed_x"/>
+        <int32_t name="speed_y"/>
+        <int32_t name="speed_z"/>
+        <int32_t name="accel_x"/>
+        <int32_t name="accel_y"/>
+        <int32_t name="accel_z"/>
 
         <virtual-methods>
             <vmethod ret-type='projectile_type' name='getType'/>
-            <vmethod ret-type='bool'>
-                <bool/>
+            <vmethod ret-type='bool' name='checkImpact'>
+                <bool name='noDamageFloor'/>
             </vmethod>
-            <vmethod ret-type='bool'/>
+            <vmethod ret-type='bool' name='checkMovement'/>
             <vmethod name='write_file'> <pointer comment='file_compressorst'/> </vmethod>
             <vmethod name='read_file'>
                 <pointer comment='file_compressorst'/>
@@ -52,7 +81,7 @@
             <vmethod>
                 <pointer/>
             </vmethod>
-            <vmethod ret-type='bool'/>
+            <vmethod ret-type='bool' name='isObjectLost'/>
             <vmethod is-destructor='true'/>
         </virtual-methods>
     </class-type>

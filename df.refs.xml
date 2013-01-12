@@ -57,6 +57,7 @@
         <enum-item name="HISTORICAL_FIGURE"/>
         <enum-item name="ENTITY_POP"/>
         <enum-item name="CREATURE"/>
+        <enum-item name="UNIT_RIDER"/>
     </enum-type>
 
     <class-type type-name='general_ref' original-name='general_refst'>
@@ -90,14 +91,27 @@
             </vmethod>
             <vmethod name='setID'> <int32_t/> </vmethod>
             <vmethod ret-type='int32_t' name='getID'/>
-            <vmethod/>
-            <vmethod/>
+            <vmethod name='setLocation'>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+            </vmethod>
+            <vmethod name='getLocation'>
+                <pointer type-name='int32_t'/>
+                <pointer type-name='int32_t'/>
+                <pointer type-name='int32_t'/>
+            </vmethod>
             <vmethod is-destructor='true'/>
             <vmethod name='clone'>
                 <ret-type><pointer type-name='general_ref'/></ret-type>
             </vmethod>
-            <vmethod/>
-            <vmethod/>
+            <vmethod>
+                <int32_t/>
+                <pointer type-name='stl-string'/>
+            </vmethod>
+            <vmethod>
+                <pointer type-name='stl-string'/>
+            </vmethod>
         </virtual-methods>
     </class-type>
 
@@ -131,15 +145,15 @@
 
     <class-type type-name='general_ref_mapsquare' inherits-from='general_ref'
                 original-name='general_ref_mapsquarest'>
-        <int16_t name='unk1'/>
-        <int16_t name='unk2'/>
-        <int32_t name='unk3'/>
+        <enum base-type='int16_t' name='tiletype' type-name='tiletype'/>
+        <int16_t name="mat_type" ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name="mat_index" init-value='-1'/>
     </class-type>
 
     <class-type type-name='general_ref_entity_art_image' inherits-from='general_ref'
                 original-name='general_ref_entity_art_imagest'>
         <int32_t name='entity_id' ref-target='historical_entity'/>
-        <int32_t name='unk'/>
+        <int32_t name='unk' comment='points to entity.resources.unk16'/>
     </class-type>
 
     <class-type type-name='general_ref_projectile' inherits-from='general_ref'
@@ -176,47 +190,53 @@
     </class-type>
 
     <class-type type-name='general_ref_abstract_buildingst' inherits-from='general_ref'>
-        <int32_t/>
-        <int32_t/>
+        <int32_t name='site_id' ref-target='world_site'/>
+        <int32_t name='building_id' ref-target='abstract_building' aux-value='$$.site_id'/>
     </class-type>
 
     <class-type type-name='general_ref_historical_eventst' inherits-from='general_ref'>
-        <int32_t/>
+        <int32_t name='event_id' ref-target='history_event'/>
     </class-type>
 
     <class-type type-name='general_ref_spherest' inherits-from='general_ref'>
-        <int16_t/>
+        <enum base-type='int16_t' name='sphere_type' type-name='sphere_type'/>
     </class-type>
 
     <class-type type-name='general_ref_sitest' inherits-from='general_ref'>
-        <int32_t/>
+        <int32_t name='site_id' ref-target='world_site'/>
     </class-type>
 
     <class-type type-name='general_ref_subregionst' inherits-from='general_ref'>
-        <int32_t/>
+        <int32_t name='region_id' ref-target='world_region'/>
     </class-type>
 
     <class-type type-name='general_ref_feature_layerst' inherits-from='general_ref'>
-        <int32_t/>
+        <int32_t name='underground_region_id' ref-target='world_underground_region'/>
     </class-type>
 
     <class-type type-name='general_ref_historical_figurest' inherits-from='general_ref'>
-        <int32_t/>
+        <int32_t name='hist_figure_id' ref-target='historical_figure'/>
     </class-type>
 
     <class-type type-name='general_ref_entity_popst' inherits-from='general_ref'>
         <int32_t/>
+        <int32_t name='race' ref-target='creature_raw'/>
         <int32_t/>
-        <int32_t/>
-        <int32_t/>
+        <bitfield name='flags'>
+            <flag-bit name='animated_corpse'/>
+            <flag-bit name='ghostly'/>
+        </bitfield>
     </class-type>
 
     <class-type type-name='general_ref_creaturest' inherits-from='general_ref'>
+        <int32_t name='race' ref-target='creature_raw'/>
+        <int16_t name='caste' ref-target='caste_raw' aux-value='$$.race'/>
         <int32_t/>
         <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
+        <bitfield name='flags'>
+            <flag-bit name='animated_corpse'/>
+            <flag-bit name='ghostly'/>
+        </bitfield>
     </class-type>
 
     <class-type type-name='general_ref_is_artifactst' inherits-from='general_ref_artifact'/>
@@ -227,7 +247,10 @@
     <class-type type-name='general_ref_unit_milkeest' inherits-from='general_ref_unit'/>
     <class-type type-name='general_ref_unit_traineest' inherits-from='general_ref_unit'/>
     <class-type type-name='general_ref_unit_itemownerst' inherits-from='general_ref_unit'>
-        <int32_t comment='v0.34.06'/>
+        <bitfield name='flags' comment='v0.34.06'>
+            <flag-bit name='litter'
+                      comment='apparetly set after 1000 ticks, then confiscated in 1000 more ticks'/>
+        </bitfield>
     </class-type>
     <class-type type-name='general_ref_unit_tradebringerst' inherits-from='general_ref_unit'/>
     <class-type type-name='general_ref_unit_holderst' inherits-from='general_ref_unit'/>
@@ -242,6 +265,7 @@
     <class-type type-name='general_ref_unit_sheareest' inherits-from='general_ref_unit'/>
     <class-type type-name='general_ref_unit_suckeest' inherits-from='general_ref_unit'/>
     <class-type type-name='general_ref_unit_reporteest' inherits-from='general_ref_unit'/>
+    <class-type type-name='general_ref_unit_riderst' inherits-from='general_ref_unit'/>
     <class-type type-name='general_ref_building_civzone_assignedst' inherits-from='general_ref_building'/>
     <class-type type-name='general_ref_building_triggerst' inherits-from='general_ref_building'/>
     <class-type type-name='general_ref_building_triggertargetst' inherits-from='general_ref_building'/>
@@ -250,7 +274,7 @@
     <class-type type-name='general_ref_building_holderst' inherits-from='general_ref_building'/>
     <class-type type-name='general_ref_building_well_tag' inherits-from='general_ref_building'
                 original-name='general_ref_building_well_tagst'>
-        <bool name='unk'/>
+        <int8_t name='direction'/>
     </class-type>
     <class-type type-name='general_ref_building_use_target_1st' inherits-from='general_ref_building'/>
     <class-type type-name='general_ref_building_use_target_2st' inherits-from='general_ref_building'/>
@@ -259,6 +283,64 @@
     <class-type type-name='general_ref_entity_stolenst' inherits-from='general_ref_entity'/>
     <class-type type-name='general_ref_entity_offeredst' inherits-from='general_ref_entity'/>
     <class-type type-name='general_ref_entity_itemownerst' inherits-from='general_ref_entity'/>
+
+    <enum-type type-name='specific_ref_type'>
+        <enum-item/>
+        <enum-item name='UNIT_INVENTORY'/>
+        <enum-item name='JOB'/>
+        <enum-item name='BUILDING_PARTY'/>
+        <enum-item name='ACTIVITY'/>
+
+        <enum-item name='ITEM_GENERAL'/>
+        <enum-item name='EFFECT'/>
+        <enum-item name='PETINFO_PET'/>
+        <enum-item name='PETINFO_OWNER'/>
+        <enum-item name='VERMIN_EVENT'/>
+
+        <enum-item name='VERMIN_ESCAPED_PET'/>
+        <enum-item name='ENTITY'/>
+        <enum-item name='PLOT_INFO'/>
+        <enum-item name='VIEWSCREEN'/>
+        <enum-item name='UNIT_ITEM_WRESTLE'/>
+
+        <enum-item/>
+        <enum-item name='HIST_FIG'/>
+        <enum-item name='SITE'/>
+        <enum-item name='ARTIFACT'/>
+        <enum-item name='ITEM_IMPROVEMENT'/>
+
+        <enum-item name='COIN_FRONT'/>
+        <enum-item name='COIN_BACK'/>
+        <enum-item name='DETAIL_EVENT'/>
+        <enum-item name='SUBREGION'/>
+        <enum-item name='FEATURE_LAYER'/>
+
+        <enum-item name='ART_IMAGE'/>
+        <enum-item name='CREATURE_DEF'/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item name='ENTITY_POPULATION'/>
+        <enum-item name='BREED'/>
+    </enum-type>
+
+    <struct-type type-name='specific_ref'>
+        <enum name='type' base-type='int32_t' type-name='specific_ref_type'/>
+
+        <compound is-union='true'>
+            <pointer name='object'/>
+            <pointer name='unit' type-name='unit'/>
+            <pointer name='activity' type-name='activity_info'/>
+            <pointer name='pet' type-name='pet_info'/>
+            <pointer name='screen' type-name='viewscreen'/>
+            <pointer name='vermin' type-name='vermin'/>
+            <pointer name='effect' type-name='effect_info'/>
+            <pointer name='job' type-name='job'/>
+        </compound>
+
+        <compound is-union='true' name='arg2'>
+            <pointer name='wrestle' type-name='unit_item_wrestle'/>
+        </compound>
+    </struct-type>
 
     <enum-type type-name='histfig_entity_link_type'>
         <enum-item name='MEMBER'/>
@@ -291,7 +373,10 @@
             <vmethod ret-type='int32_t' name='getPosition'/>
             <vmethod ret-type='int32_t' name='getPositionStartYear'/>
             <vmethod ret-type='int32_t' name='getPositionEndYear'/>
-            <vmethod comment='generate_xml'/>
+            <vmethod comment='generate_xml'>
+                <pointer/>
+                <pointer/>
+            </vmethod>
         </virtual-methods>
     </class-type>
 
@@ -329,9 +414,9 @@
     </enum-type>
 
     <class-type type-name='histfig_site_link' original-name='histfig_site_linkst'>
-        <int32_t comment='uninitialized'/>
-        <int32_t/>
-        <int32_t/>
+        <int32_t name='site' ref-target='world_site'/>
+        <int32_t name='sub_id' comment='from XML'/>
+        <int32_t name='entity' ref-target='historical_entity'/>
         <virtual-methods>
             <vmethod ret-type='histfig_site_link_type' name='getType'/>
             <vmethod is-destructor='true'/>
@@ -340,7 +425,10 @@
                 <pointer comment='file_compressorst'/>
                 <int32_t name='loadversion'/>
             </vmethod>
-            <vmethod/>
+            <vmethod comment='generate_xml'>
+                <pointer/>
+                <pointer/>
+            </vmethod>
         </virtual-methods>
     </class-type>
 
@@ -366,7 +454,7 @@
     </enum-type>
 
     <class-type type-name='histfig_hf_link' original-name='histfig_hf_linkst'>
-        <int32_t ref-target='historical_figure'/>
+        <int32_t name='target_hf' ref-target='historical_figure'/>
         <int16_t name='link_strength'/>
 
         <virtual-methods>
@@ -377,7 +465,10 @@
                 <pointer comment='file_compressorst'/>
                 <int32_t name='loadversion'/>
             </vmethod>
-            <vmethod comment='generate_xml'/>
+            <vmethod comment='generate_xml'>
+                <pointer/>
+                <pointer/>
+            </vmethod>
         </virtual-methods>
     </class-type>
 
@@ -391,6 +482,34 @@
     <class-type type-name='histfig_hf_link_imprisonerst' inherits-from='histfig_hf_link'/>
     <class-type type-name='histfig_hf_link_masterst' inherits-from='histfig_hf_link'/>
     <class-type type-name='histfig_hf_link_apprenticest' inherits-from='histfig_hf_link'/>
+
+    <enum-type type-name='entity_entity_link_type'>
+        <enum-item name='PARENT'/>
+        <enum-item name='CHILD'/>
+    </enum-type>
+
+    <struct-type type-name='entity_entity_link'>
+        <enum base-type='int16_t' type-name='entity_entity_link_type' name='type'/>
+        <int32_t name='target' ref-target='historical_entity'/>
+        <int16_t name='strength'/>
+    </struct-type>
+
+    <enum-type type-name='entity_site_link_type'>
+        <enum-item name='unk_0'/>
+        <enum-item name='unk_1'/>
+        <enum-item name='unk_2'/>
+        <enum-item name='unk_3'/>
+        <enum-item name='unk_4'/>
+        <enum-item name='unk_5'/>
+        <enum-item name='unk_6'/>
+    </enum-type>
+
+    <struct-type type-name='entity_site_link'>
+        <enum base-type='int16_t' type-name='entity_site_link_type' name='type'/>
+        <int32_t name='site' ref-target='world_site'/>
+        <int32_t comment='probably the same as sub_id from histfig_site_link'/>
+        <int16_t name='strength'/>
+    </struct-type>
 </data-definition>
 
 <!--

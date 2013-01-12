@@ -173,12 +173,13 @@ sub emit_block(&;$$%) {
 my @primitive_type_list =
     qw(int8_t uint8_t int16_t uint16_t
        int32_t uint32_t int64_t uint64_t
-       s-float
+       s-float d-float
        bool flag-bit
        padding static-string);
 
 my %primitive_aliases = (
     's-float' => 'float',
+    'd-float' => 'double',
     'static-string' => 'char',
     'flag-bit' => 'void',
     'padding' => 'void',
@@ -314,10 +315,11 @@ sub with_header_file(&$) {
             for my $weak (sort { $a cmp $b } keys %weak_refs) {
                 next if $strong_refs{$weak};
                 my $ttype = $types{$weak};
+                my $meta = $ttype->getAttribute('ld:meta');
                 my $tstr = 'struct';
-                $tstr = 'enum' if $ttype->nodeName eq 'enum-type';
-                $tstr = 'union' if $ttype->nodeName eq 'bitfield-type';
-                $tstr = 'union' if ($ttype->nodeName eq 'struct-type' && is_attr_true($ttype,'is-union'));
+                $tstr = 'enum' if $meta eq 'enum-type';
+                $tstr = 'union' if $meta eq 'bitfield-type';
+                $tstr = 'union' if ($meta eq 'struct-type' && is_attr_true($ttype,'is-union'));
                 emit $tstr, ' ', $weak, ';';
             }
 

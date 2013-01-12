@@ -36,6 +36,49 @@
         <pointer type-name='uint8_t' name='screen_limit'/>
     </struct-type>
 
+    <class-type type-name='renderer'>
+        <pointer type-name='uint8_t' name='screen' is-array='true'/>
+        <pointer type-name='int32_t' name='screentexpos' is-array='true'/>
+        <pointer type-name='int8_t' name='screentexpos_addcolor' is-array='true'/>
+        <pointer type-name='uint8_t' name='screentexpos_grayscale' is-array='true'/>
+        <pointer type-name='uint8_t' name='screentexpos_cf' is-array='true'/>
+        <pointer type-name='uint8_t' name='screentexpos_cbr' is-array='true'/>
+
+        <pointer type-name='uint8_t' name='screen_old' is-array='true'/>
+        <pointer type-name='int32_t' name='screentexpos_old' is-array='true'/>
+        <pointer type-name='int8_t' name='screentexpos_addcolor_old' is-array='true'/>
+        <pointer type-name='uint8_t' name='screentexpos_grayscale_old' is-array='true'/>
+        <pointer type-name='uint8_t' name='screentexpos_cf_old' is-array='true'/>
+        <pointer type-name='uint8_t' name='screentexpos_cbr_old' is-array='true'/>
+
+        <virtual-methods>
+            <vmethod name='update_tile'> <int32_t name='x'/> <int32_t name='y'/> </vmethod>
+            <vmethod name='update_all'/>
+            <vmethod name='render'/>
+            <vmethod name='set_fullscreen'/>
+            <vmethod name='zoom'>
+                <enum base-type='int32_t' type-name='zoom_commands'/>
+            </vmethod>
+
+            <vmethod name='resize'> <int32_t name='w'/> <int32_t name='h'/> </vmethod>
+            <vmethod name='grid_resize'> <int32_t name='w'/> <int32_t name='h'/> </vmethod>
+            <vmethod is-destructor='true'/>
+            <vmethod ret-type='bool' name='get_mouse_coords'>
+                <pointer type-name='int32_t' name='x'/>
+                <pointer type-name='int32_t' name='y'/>
+            </vmethod>
+            <vmethod ret-type='bool' name='uses_opengl'/>
+        </virtual-methods>
+    </class-type>
+
+    <enum-type type-name='zoom_commands'>
+        <enum-item name='zoom_in'/>
+        <enum-item name='zoom_out'/>
+        <enum-item name='zoom_reset'/>
+        <enum-item name='zoom_fullscreen'/>
+        <enum-item name='zoom_resetgrid'/>
+    </enum-type>
+
     <struct-type type-name='enabler'>
         <bool name='fullscreen'/>
 
@@ -44,7 +87,7 @@
             <int32_t/>
         </stl-deque>
 
-        <pointer name='renderer'/>
+        <pointer name='renderer' type-name='renderer'/>
 
         <int32_t name='calculated_fps'/>
         <int32_t name='calculated_gfps'/>
@@ -105,13 +148,7 @@
         <compound name='async_zoom'>
             <pointer name='sem'/>
             <stl-deque name='queue'>
-                <enum>
-                    <enum-item name='zoom_in'/>
-                    <enum-item name='zoom_out'/>
-                    <enum-item name='zoom_reset'/>
-                    <enum-item name='zoom_fullscreen'/>
-                    <enum-item name='zoom_resetgrid'/>
-                </enum>
+                <enum base-type='int32_t' type-name='zoom_commands'/>
             </stl-deque>
             <pointer name='sem_fill'/>
         </compound>

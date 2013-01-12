@@ -91,7 +91,7 @@
         <flag-bit name='squad_eq'/>
     </bitfield-type>
 
-    <enum-type type-name='uniform_category'>
+    <enum-type type-name='uniform_category' base-type='int16_t'>
         <enum-item name='body'/>
         <enum-item name='head'/>
         <enum-item name='pants'/>
@@ -106,26 +106,34 @@
         <flag-bit name='exact_matches'/>
     </bitfield-type>
 
+    <enum-type type-name='barrack_preference_category'>
+        <enum-item name='Bed'/>
+        <enum-item name='Armorstand'/>
+        <enum-item name='Box'/>
+        <enum-item name='Cabinet'/>
+    </enum-type>
+
+    <enum-type type-name='squad_event_type' base-type='int16_t'>
+        <enum-item name='None' value='-1'/>
+        <enum-item name='Unk0'/>
+        <enum-item name='Unk1'/>
+        <enum-item name='Unk2'/>
+    </enum-type>
+
     <struct-type type-name='squad_position'>
         <int32_t name='occupant' ref-target='historical_figure'/>
 
         <code-helper name='describe'>(describe-obj @.occupant)</code-helper>
 
-        <stl-vector name="unk_4"/>
+        <stl-vector name="orders">
+            <pointer type-name='squad_order'/>
+        </stl-vector>
 
-        <compound name='preferences'>
-            <stl-vector name="bed">
+        <static-array name='preferences' count='4' index-enum='barrack_preference_category'>
+            <stl-vector>
                 <int32_t ref-target='building'/>
             </stl-vector>
-            <stl-vector name="armor_stand">
-                <int32_t ref-target='building'/>
-            </stl-vector>
-            <stl-vector name="box">
-                <int32_t ref-target='building'/>
-            </stl-vector>
-        </compound>
-
-        <stl-vector name="unk_44"/>
+        </static-array>
 
         <static-array name='uniform' count='7' index-enum='uniform_category'>
             <stl-vector>
@@ -146,15 +154,36 @@
         <int32_t name="flask" ref-target='item'/>
 
         -- May be invalid:
-        <int32_t name="activity1" ref-target='activity_entry'/>
-        <int32_t name="activity2" ref-target='activity_entry'/>
-        <int32_t name="activity3" ref-target='activity_entry'/>
+        <static-array name='activities' count='3' index-enum='squad_event_type'
+                      type-name='int32_t' ref-target='activity_entry'/>
+        <static-array name='events' count='3' index-enum='squad_event_type'
+                      type-name='int32_t' ref-target='activity_event'
+                      aux-value='$._global.activities[$._key]'/>
 
-        <int32_t name="unk_10c"/>
-        <int32_t name="unk_110"/>
-        <int32_t name="unk_114"/>
         <int32_t name="unk_118"/>
         <int32_t name="unk_11c"/>
+    </struct-type>
+
+    <struct-type type-name='squad_schedule_order'>
+        <pointer name="order" type-name='squad_order'/>
+        <int32_t name="min_count"/>
+        <stl-bit-vector name="positions"/>
+    </struct-type>
+
+    <struct-type type-name='squad_schedule_entry'>
+        <stl-string name='name'/>
+
+        <int16_t name='sleep_mode' comment='0 room, 1 barrack will, 2 barrack need'/>
+        <int16_t name='uniform_mode' comment='0 uniformed, 1 civ clothes'/>
+
+        <stl-vector name='orders' pointer-type='squad_schedule_order'/>
+
+        <stl-vector name='order_assignments' index-refers-to='$$._global._upglobal.positions[$]'>
+            -- weird change to pointer to int in v0.34.01
+            <pointer>
+                <int32_t refers-to='$$._parent._parent._parent.orders[$]'/>
+            </pointer>
+        </stl-vector>
     </struct-type>
 
     <struct-type type-name='squad' key-field='id' instance-vector='$global.world.squads.all'>
@@ -173,39 +202,16 @@
         </stl-vector>
 
         <stl-vector name="orders">
-            <pointer/>
+            <pointer type-name='squad_order'/>
         </stl-vector>
 
         <stl-vector name="schedule">
             <pointer>
-                <static-array count='12'>
-                    <stl-string name='name'/>
-
-                    <int16_t name='sleep_mode' comment='0 room, 1 barrack will, 2 barrack need'/>
-                    <int16_t name='uniform_mode' comment='0 uniformed, 1 civ clothes'/>
-
-                    <stl-vector name='orders'>
-                        <pointer>
-                            <pointer name="order"/>
-                            <int32_t name="min_count"/>
-                            <stl-vector name="unk_8">
-                                <int32_t/>
-                            </stl-vector>
-                            <int32_t name="unk_18"/>
-                        </pointer>
-                    </stl-vector>
-
-                    <stl-vector name='order_assignments'>
-                        -- weird change to pointer to int in v0.34.01
-                        <pointer>
-                            <int32_t refers-to='$$._parent._parent._parent.orders[$]'/>
-                        </pointer>
-                    </stl-vector>
-                </static-array>
+                <static-array count='12' type-name='squad_schedule_entry'/>
             </pointer>
         </stl-vector>
 
-        <int32_t name="cur_alert_idx"/>
+        <int32_t name="cur_alert_idx" refers-to='$$._parent.schedule[$]' init-value='0'/>
 
         <stl-vector name="rooms">
             <pointer>
@@ -214,8 +220,8 @@
             </pointer>
         </stl-vector>
 
-        <stl-vector name="unk_d0"/>
-        <stl-vector name="unk_e0"/>
+        <stl-vector name="rack_combat" type-name='int32_t' ref-target='building'/>
+        <stl-vector name="rack_training" type-name='int32_t' ref-target='building'/>
 
         <int32_t name="uniform_priority"/>
         <int32_t name="activity" ref-target='activity_entry'/>
@@ -224,10 +230,10 @@
             <pointer type-name='squad_ammo_spec'/>
         </stl-vector>
 
-        <stl-vector name="weapons_free">
+        <stl-vector name="train_weapon_free">
             <int32_t ref-target='item'/>
         </stl-vector>
-        <stl-vector name="weapons_inuse">
+        <stl-vector name="train_weapon_inuse">
             <int32_t ref-target='item'/>
         </stl-vector>
 
@@ -240,6 +246,104 @@
 
         <int16_t name="carry_food"/>
         <int16_t name="carry_water"/>
+    </struct-type>
+
+    <enum-type type-name='squad_order_type'>
+        <enum-item name='MOVE'/>
+        <enum-item name='KILL_LIST'/>
+        <enum-item name='DEFEND_BURROWS'/>
+        <enum-item name='PATROL_ROUTE'/>
+        <enum-item name='TRAIN'/>
+    </enum-type>
+
+    <enum-type type-name='squad_order_cannot_reason'>
+        text in viewscreen_unitlistst
+        <enum-item name='not_following_order'/>
+        <enum-item name='activity_cancelled'/>
+        <enum-item name='no_barracks'/>
+        <enum-item name='improper_barracks'/>
+        <enum-item name='no_activity'/>
+        <enum-item name='cannot_individually_drill'/>
+        <enum-item name='does_not_exist'/>
+        <enum-item name='no_archery_target'/>
+        <enum-item name='improper_building'/>
+        <enum-item name='unreachable_location'/>
+        <enum-item name='invalid_location'/>
+        <enum-item name='no_reachable_valid_target'/>
+        <enum-item name='no_burrow'/>
+        <enum-item name='not_in_squad'/>
+        <enum-item name='no_patrol_route'/>
+        <enum-item name='no_reachable_point_on_route'/>
+    </enum-type>
+
+    <class-type type-name='squad_order' original-name='squad_orderst'>
+        <virtual-methods>
+            <vmethod name='clone'> <ret-type><pointer type-name='squad_order'/></ret-type> </vmethod>
+            <vmethod name='write_file'> <pointer comment='file_compressorst'/> </vmethod>
+            <vmethod name='read_file'>
+                <pointer comment='file_compressorst'/>
+                <int32_t name='loadversion'/>
+            </vmethod>
+            <vmethod ret-type='squad_order_type' name='getType'/>
+            <vmethod name='isPatrol' ret-type='bool'/> whether or not dwarves get unhappy while doing this
+
+            <vmethod is-destructor='true'/>
+            <vmethod name='offsetPosition'>
+                <int16_t/> <int16_t/> <int16_t/>
+            </vmethod>
+            <vmethod ret-type='bool' name='process'>
+                <pointer name='soldier' type-name='unit'/>
+            </vmethod>
+            <vmethod ret-type='squad_order_cannot_reason' name='reasonCannot'>
+                <pointer name='soldier' type-name='unit'/>
+            </vmethod>
+            <vmethod ret-type='bool' name='decUniformLock'>
+                <pointer name='soldier' type-name='unit'/>
+            </vmethod>
+
+            <vmethod name='isFulfilled' ret-type='bool' comment='v0.34.11; true if all killed'/>
+            <vmethod name='getTargetUnits'>
+                <ret-type><pointer><stl-vector type-name='int32_t'/></pointer></ret-type>
+            </vmethod>
+            <vmethod ret-type='int16_t' name='getUniformType'>
+                <pointer name='soldier' type-name='unit'/>
+            </vmethod>
+            <vmethod name='getDescription'> <pointer type-name='stl-string'/> </vmethod>
+            <vmethod name='isInactive' ret-type='bool' comment='always false'/>
+            <vmethod name='isCombat' ret-type='bool' comment='not train'/>
+        </virtual-methods>
+    </class-type>
+
+    <class-type type-name='squad_order_trainst' inherits-from='squad_order'/>
+
+    <class-type type-name='squad_order_movest' inherits-from='squad_order'>
+        <compound name='pos' type-name='coord'/>
+        <int32_t name='unk'/>
+    </class-type>
+
+    <class-type type-name='squad_order_kill_listst' inherits-from='squad_order'>
+        <stl-vector name='units'>
+            <int32_t ref-target='unit'/>
+        </stl-vector>
+        <stl-vector name='histfigs'>
+            <int32_t ref-target='historical_figure'/>
+        </stl-vector>
+        <stl-string name='title'/>
+    </class-type>
+
+    <struct-type type-name='entity_uniform_item'>
+        <int8_t name='unk_0'/>
+        <int8_t name='unk_1'/>
+        <int16_t name='color' ref-target='descriptor_color'/>
+        <int32_t name='unk_4'/>
+        <int16_t name='unk_8'/>
+        <int16_t name='unk_a'/>
+        <int16_t name='unk_c'/>
+        <int16_t name='unk_e'/>
+        <compound name="indiv_choice" type-name='uniform_indiv_choice'/>
+        <int16_t name="mattype" ref-target='material' aux-value='$$.matindex'/>
+        <int32_t name="matindex"/>
+        <enum base-type='int16_t' name="material_class" type-name='uniform_material_class'/>
     </struct-type>
 
     <struct-type type-name='entity_uniform' key-field='id'>
@@ -263,18 +367,8 @@
         </static-array>
 
         <static-array name='uniform_item_info' count='7' index-enum='uniform_category'>
-            <stl-vector name="unk_e8">
-                <pointer>
-                    <int16_t name="unk_0"/>
-                    <int16_t name="color"/>
-                    <int32_t name="unk_4"/>
-                    <int32_t name="unk_8"/>
-                    <int32_t name="unk_c"/>
-                    <compound name="indiv_choice" type-name='uniform_indiv_choice'/>
-                    <int16_t name="mattype" ref-target='material' aux-value='$$.matindex'/>
-                    <int32_t name="matindex"/>
-                    <enum base-type='int16_t' name="material_class" type-name='uniform_material_class'/>
-                </pointer>
+            <stl-vector>
+                <pointer type-name='entity_uniform_item'/>
             </stl-vector>
         </static-array>
 

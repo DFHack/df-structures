@@ -57,11 +57,13 @@ sub with_struct_block(&$;$%) {
 
 # FIELD TYPE
 
+our %container_flags;
+
 sub get_container_item_type($;%) {
     my ($tag, %flags) = @_;
     my @items = $tag->findnodes('ld:item');
     if (@items) {
-        return get_struct_field_type($items[0], -local => $in_struct_body, %flags);
+        return get_struct_field_type($items[0], -local => $in_struct_body, %container_flags, %flags);
     } elsif ($flags{-void}) {
         return $flags{-void};
     } else {
@@ -99,12 +101,21 @@ my %custom_container_handlers = (
         my $item = get_container_item_type($_, -void => 'void*');
         return "std::deque<$item >";
     },
+    'stl-set' => sub {
+        my $item = get_container_item_type($_, -void => 'void*');
+        return "std::set<$item >";
+    },
     'stl-bit-vector' => sub {
         return "std::vector<bool>";
     },
     'df-flagarray' => sub {
         my $type = decode_type_name_ref($_, -attr_name => 'index-enum', -force_type => 'enum-type') || 'int';
         return "BitArray<$type>";
+    },
+    'df-static-flagarray' => sub {
+        my $type = decode_type_name_ref($_, -attr_name => 'index-enum', -force_type => 'enum-type') || 'int';
+        my $size = $_->getAttribute('count') or die "No count in df-static-flagarray.\n";
+        return "StaticBitArray<$size,$type>";
     },
     'df-array' => sub {
         my $item = get_container_item_type($_, -void => 'void*');
@@ -157,6 +168,13 @@ sub get_struct_field_type($;%) {
     my $suffix = '';
     my $type_def = undef;
 
+    local %container_flags = %flags;
+    delete $container_flags{-weak};
+    delete $container_flags{-void};
+
+    my $is_bytes = $meta eq 'bytes';
+    check_bad_attrs($tag, $is_bytes, $is_bytes && $subtype eq 'padding');
+
     if ($prefix = $tag->getAttribute('ld:typedef-name')) {
         $prefix = fully_qualified_name($tag,$prefix) unless $flags{-local};
         $type_def = $tag;
@@ -183,7 +201,7 @@ sub get_struct_field_type($;%) {
     } elsif ($meta eq 'global') {
         my $tname = $tag->getAttribute('type-name')
             or die "Global field without type-name";
-        $type_def = register_ref($tname, !$flags{-weak});
+        $type_def = register_ref($tname, !$flags{-weak} || ($subtype && $subtype eq 'enum'));
         $prefix = $main_namespace.'::'.$tname;
     } elsif ($meta eq 'compound') {
         die "Unnamed compound in global mode: ".$tag->toString."\n" unless $flags{-local};
@@ -330,7 +348,7 @@ sub render_field_init($) {
         return unless $subtype;
 
         if ($subtype eq 'bitfield' && defined $cur_init_value) {
-            emit $cur_init_field, '.whole = ', $cur_init_value;
+            emit $cur_init_field, '.whole = ', $cur_init_value, ';';
         } elsif ($subtype eq 'enum') {
             if ($meta eq 'global') {
                 my $tname = $field->getAttribute('type-name');
@@ -393,6 +411,7 @@ sub render_field_metadata_rec($$) {
 
     if (is_attr_true($field, 'ld:anon-compound'))
     {
+        local $in_union = $in_union || is_attr_true($field, 'is-union');
         my @fields = get_struct_fields($field);
         &render_field_metadata_rec($_, $FLD) for @fields;
         return;
@@ -429,7 +448,9 @@ sub render_field_metadata_rec($$) {
         }
     } elsif ($meta eq 'pointer') {
         my @items = $field->findnodes('ld:item');
-        my $count = is_attr_true($field, 'is-array') ? 1 : 0;
+        my $count = 0;
+        $count |= 1 if is_attr_true($field, 'is-array');
+        $count |= 2 if $in_union;
 
         push @field_defs, [ "${FLD}(POINTER, $name)", auto_identity_reference($items[0]), $count, $enum ];
     } elsif ($meta eq 'static-array') {
@@ -457,6 +478,8 @@ sub render_field_metadata_rec($$) {
 
 sub render_field_metadata($$\@\%) {
     my ($tag, $full_name, $fields, $info) = @_;
+
+    local $in_union = $in_union_body;
 
     local $in_struct_body = 0;
     local $in_union_body = 0;

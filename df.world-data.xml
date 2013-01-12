@@ -27,6 +27,55 @@
         <enum-item name='Bush'/>
     </enum-type>
 
+    <struct-type type-name='world_population_ref'>
+        <int16_t name="region_x"/>
+        <int16_t name="region_y"/>
+        <int16_t name="feature_idx" init-value="-1"/>
+
+        <int32_t name='cave_id' ref-target='world_underground_region'/>
+
+        <int32_t name="unk_28" />
+
+        <int32_t name="population_idx">
+            <code-helper name='refers-to'>
+                (let* ((info $$._global)
+                       (wdata $global.world.world_data)
+                       (x $info.region_x)
+                       (y $info.region_y)
+                       (reg (or (when (/= $info.feature_idx -1)
+                                  (let* ((rip $wdata.feature_map[(floor x 16)][(floor y 16)])
+                                         (flst $rip.features.feature_init[(logand x 15)][(logand y 15)]))
+                                    $flst[$info.feature_idx].feature))
+                                (awhen $info.cave_id.ref-target
+                                  $it.feature_init.feature)
+                                (find-instance $world_region ;
+                                               $wdata.region_map[x][y].region_id))))
+                  $reg.population[$])
+            </code-helper>
+        </int32_t>
+
+        <int16_t name="depth"/>
+    </struct-type>
+
+    <struct-type type-name='local_population'>
+        <enum base-type='int8_t' name='type' type-name='world_population_type'/>
+
+        <compound is-union='true'>
+            <int16_t name="race" ref-target='creature_raw'/>
+            <int16_t name="plant" ref-target='plant_raw'/>
+        </compound>
+
+        <int32_t name="quantity"/>
+        <bool name="known" comment='in ui.tasks.known_*'/>
+
+        <compound name='population' type-name='world_population_ref'/>
+
+        <int32_t name='wp_unk_10' init-value='-1'/>
+        <int32_t name='wp_unk_18' init-value='-1'/>
+        <int32_t name='wp_unk_1c' init-value='-1'/>
+    </struct-type>
+
+
     <struct-type type-name='world_population'>
         <enum base-type='int16_t' name='type' type-name='world_population_type'/>
 
@@ -41,131 +90,8 @@
         <int32_t name="unk_10" init-value='-1'/>
         <int32_t name="unk_14" init-value='-1'/>
 
-        <int32_t init-value='-1' comment='v0.34.01'/>
-        <int32_t init-value='-1' comment='v0.34.01'/>
-    </struct-type>
-
-    <struct-type type-name='world_site' key-field='id'
-                 instance-vector='$global.world.world_data.sites'>
-        <compound name='name' type-name='language_name'/>
-
-        <code-helper name='describe'>(describe-obj $.name)</code-helper>
-
-        <int32_t name="civ_id" ref-target='historical_entity'/>
-        <int32_t name="owner1" ref-target='historical_entity'/>
-        <int32_t name="owner2" ref-target='historical_entity'/>
-        <int32_t comment='v0.34.01'/>
-
-        <enum base-type='int16_t' name="type">
-            <enum-item name='PlayerFortress'/>
-            <enum-item name='DarkFortress'/>
-            <enum-item name='Cave'/>
-            <enum-item name='MountainHalls'/>
-            <enum-item name='ForestRetreat'/>
-            <enum-item name='Town'/>
-            <enum-item name='Unk6'/>
-            <enum-item name='LairShrine'/>
-            <enum-item name='Fortress'/>
-            <enum-item name='Camp'/>
-        </enum>
-
-        <compound name='pos' type-name='coord2d'/>
-
-        <int32_t name="id"/>
-
-        <stl-vector name="nemesis" comment='could also be units - they happen to coincide here'>
-            <int32_t ref-target='nemesis_record'/>
-        </stl-vector>
-
-        <stl-vector name="unk_94"/>
-
-        <stl-vector name="animals">
-            <pointer type-name='world_population'/>
-        </stl-vector>
-
-        <stl-vector name="inhabitants">
-            <pointer>
-                <int32_t name="count"/>
-                <int32_t name="race" ref-target='creature_raw'/>
-                <int32_t name="unk_8"/>
-                <int32_t name="unk_c" ref-target='historical_entity'/>
-                <int32_t name="unk_10"/>
-            </pointer>
-        </stl-vector>
-
-        <stl-vector name="unk_c4"/>
-        <stl-vector name="unk_d4"/>
-
-        <int32_t name="index"/>
-
-        <int16_t name="unk_e8"/>
-        <int16_t name="unk_ea"/>
-        <int16_t name="unk_ec"/>
-        <int16_t name="unk_ee"/>
-
-        <int32_t name="unk_f0"/>
-        <int32_t name="unk_f4"/>
-        <int32_t name="unk_f8"/>
-        <int32_t name="unk_fc"/>
-        <int32_t name="unk_100"/>
-
-        <uint32_t name="unk_104"/>
-        <uint32_t name="unk_108"/>
-
-        <int32_t name="unk_10c"/>
-        <int32_t name="unk_110"/>
-        <int32_t name="unk_114"/>
-        <int32_t name="unk_118"/>
-        <int32_t name="unk_11c"/>
-        <int32_t name="unk_120"/>
-        <int32_t name="unk_124"/>
-        <int32_t name="unk_128"/>
-        <int32_t name="unk_12c"/>
-        <int32_t name="unk_130"/>
-        <int32_t name="unk_134"/>
-        <int32_t name="unk_138"/>
-
-        <int32_t comment='v0.34.01'/>
-
-        <stl-vector name="unk_13c">
-            <pointer>
-                <int32_t name="unk_0"/>
-                <int32_t name="unk_4"/>
-                <int32_t name="unk_8"/>
-                <int32_t name="unk_c"/>
-            </pointer>
-        </stl-vector>
-
-        <df-flagarray name='flags'/>
-
-        <stl-vector name="unk_154"/>
-
-        <int32_t name="unk_164"/>
-        <int32_t name="unk_168"/>
-        <int32_t name="unk_16c"/>
-        <int32_t name="unk_170"/>
-        <int32_t name="unk_174"/>
-
-        <compound name='unk_178' type-name='coord'/>
-
-        <pointer name="unk_180"/>
-
-        <pointer name="unk_184">
-            <int32_t name="unk_0"/>
-            <int16_t name="unk_4"/>
-            <stl-vector name="unk_8"/>
-            <int32_t name="unk_14"/>
-            <int32_t name="unk_18"/>
-            <int32_t name="unk_1c"/>
-        </pointer>
-
-        <stl-vector type-name='pointer' comment='v0.34.01'/>
-        <stl-vector type-name='int32_t' comment='v0.34.01'/>
-
-        <pointer name="unk_188" type-name='world_site_unk130'/>
-
-        <stl-vector name="unk_18c"/>
-        <stl-vector name="unk_19c"/>
+        <int32_t name='unk_18' init-value='-1' comment='v0.34.01'/>
+        <int32_t name='unk_1c' init-value='-1' comment='v0.34.01'/>
     </struct-type>
 
     <struct-type type-name='world_landmass'
@@ -185,7 +111,19 @@
         <code-helper name='describe'>(describe-obj $.name)</code-helper>
 
         <int32_t name="index"/>
-        <int16_t name="unk_70"/>
+
+        <enum base-type='int16_t' name="type">
+            <enum-item name='Swamp'/>
+            <enum-item name='Desert'/>
+            <enum-item name='Jungle'/>
+            <enum-item name='Mountains'/>
+            <enum-item name='Ocean'/>
+            <enum-item name='Lake'/>
+            <enum-item name='Glacier'/>
+            <enum-item name='Tundra'/>
+            <enum-item name='Steppe'/>
+            <enum-item name='Hills'/>
+        </enum>
 
         <compound name='region_coords' type-name='coord2d_path'/>
 
@@ -221,11 +159,12 @@
             <int16_t/>
         </stl-vector>
 
-        <int32_t name="unk_1e4"/>
+        <int16_t name="unk_1e4"/>
+        <int16_t name="unk_1e6"/>
         <int16_t name="unk_1e8"/>
         <int16_t name="unk_1ec"/>
 
-        <stl-vector name="unk_1f0"/>
+        <stl-vector name="unk_1f0" type-name='int32_t'/>
         <padding name="unk_200" size="4"/>
 
         <int32_t name="mid_x"/>
@@ -238,20 +177,26 @@
 
     <struct-type type-name='world_underground_region'
                  instance-vector='$global.world.world_data.underground_regions'>
-        <int16_t name='unk1'/>
+        <enum base-type='int16_t' name="type">
+            <enum-item name='Cavern'/>
+            <enum-item name='MagmaSea'/>
+            <enum-item name='Underworld'/>
+        </enum>
+
         <compound name='name' type-name='language_name'/>
         <code-helper name='describe'>(describe-obj $.name)</code-helper>
 
         <int32_t name="index"/>
 
-        <int16_t name="unk_74"/>
-        <int16_t name="unk_76"/>
-        <int16_t name="unk_78"/>
+        <int16_t name="layer_depth" comment='0-2 caves, 3 magma sea, 4 hell'/>
+        <int16_t name="layer_depth_p1a" comment='+1'/>
+        <int16_t name="layer_depth_p1b"/>
         <int16_t name="unk_7a"/>
-        <int32_t name="unk_7c"/>
+        <int16_t name="unk_7c"/>
+        <int16_t name="unk_7e"/>
         <int16_t name="unk_80"/>
         <int16_t name="unk_82"/>
-        <int16_t name="unk_84"/>
+        <int16_t name="passage_density"/>
 
         <compound name='region_coords' type-name='coord2d_path'/>
         <stl-vector name="region_min_z" type-name='int16_t'/>
@@ -330,19 +275,72 @@
         </stl-vector>
     </struct-type>
 
+    <struct-type type-name='world_region_feature'>
+        <int16_t name='feature_idx'>
+            <code-helper name='refers-to'>
+                (let* ((info $$._parent._parent._global)
+                       (wdata $global.world.world_data)
+                       (x $info.pos.x)
+                       (y $info.pos.y))
+                  (when (/= $ -1)
+                    (let* ((rip $wdata.feature_map[(floor x 16)][(floor y 16)])
+                           (flst $rip.features.feature_init[(logand x 15)][(logand y 15)]))
+                      $flst[$])))
+            </code-helper>
+        </int16_t>
+        <int32_t name="layer" ref-target='world_underground_region'/>
+        <int32_t name="region_tile_idx">
+            <code-helper name='describe'>
+                (let ((l $$._parent.layer.ref-target))
+                  (when l
+                    (list (fmt "(~A,~A)-(~A:~A)"
+                               $l.region_coords.x[$] $l.region_coords.y[$]
+                               $l.region_min_z[$] $l.region_max_z[$]))))
+            </code-helper>
+        </int32_t>
+        <int16_t name='min_z'/>
+        <int16_t name='max_z'/>
+        <static-array count='6' type-name='coord2d' name='unk_c'/>
+        <int32_t name="unk_28"/>
+        <uint32_t name="seed" comment='looks random'/>
+        <df-flagarray name="unk_30"/>
+        <static-array count='15' type-name='int16_t' name='unk_38'/>
+        <int16_t name="top_layer_idx"
+                    comment='topmost cave layer the feature reaches'/>
+    </struct-type>
+
     <struct-type type-name='world_region_details'>
         <static-array count='17' name='biome'>
-            <static-array type-name='int8_t' count='17'/>
+            <static-array type-name='int8_t' count='17'
+                          comment='lower 4 bits: biome 1..9; |=0x30 if fort'/>
         </static-array>
         <static-array count='17' name='elevation'>
             <static-array type-name='int16_t' count='17'/>
         </static-array>
 
-        <static-array type-name='uint32_t' count='256' name='unk3'/>
-        <static-array type-name='int16_t' count='1088' name='unk4'/>
-        <static-array type-name='int8_t' count='256' name='unk5'/>
-        <static-array type-name='int8_t' count='256' name='unk6'/>
-        <static-array type-name='int8_t' count='256' name='unk7'/>
+        <static-array count='16' name='seed' comment='looks random'>
+            <static-array type-name='uint32_t' count='16'/>
+        </static-array>
+
+        272 = 17*16; also, always x le y so likely some kind of ranges actually
+        <static-array count='17' name='unk4a'>
+            <static-array type-name='coord2d' count='16'/>
+        </static-array>
+        <static-array count='16' name='unk4b'>
+            <static-array type-name='coord2d' count='17'/>
+        </static-array>
+
+        <static-array name='unk5' count='16'>
+            <static-array type-name='int8_t' count='16'/>
+        </static-array>
+        <static-array name='unk6' count='16'>
+            <static-array type-name='int8_t' count='16'/>
+        </static-array>
+        <static-array name='unk7' count='16'>
+            <static-array type-name='int8_t' count='16'/>
+        </static-array>
+
+        <code-helper name='describe'> (describe-obj $.pos) </code-helper>
 
         <compound name='pos' type-name='coord2d'/>
         <int16_t/>
@@ -382,13 +380,13 @@
             </static-array>
         </compound>
 
-        <static-array type-name='int8_t' count='256' name='unk11'/>
+        <static-array name='unk11' count='16'>
+            <static-array type-name='int8_t' count='16'/>
+        </static-array>
 
-        <static-array count='16' name='unk_objects'>
+        <static-array count='16' name='features'>
             <static-array count='16'>
-                <stl-vector>
-                    <pointer/>
-                </stl-vector>
+                <stl-vector pointer-type='world_region_feature'/>
             </static-array>
         </static-array>
 
@@ -399,6 +397,87 @@
         </static-array>
 
         <static-array type-name='int32_t' count='256' name='undef13'/>
+    </struct-type>
+
+    <struct-type type-name='region_map_entry'>
+        <int32_t name="unk_0"/>
+        <padding name="unk_4" size="4"/>
+        <stl-vector name="sites">
+            <pointer type-name='world_site'/>
+        </stl-vector>
+        <df-flagarray name='flags'/>
+        <int16_t name="elevation" comment='~40 ocean -> ~100 plains -> ~200 mointains'/>
+        <int16_t name="rainfall"/>
+        <int16_t name="vegetation"/>
+        <int16_t name="temperature"/>
+        <int16_t name="evilness"/>
+        <int16_t name="drainage"/>
+        <int16_t name="volcanism"/>
+        <int16_t name="savagery"/>
+        <int16_t name="unk_30" comment='3'/>
+        <int16_t name="unk_32" comment='0'/>
+        <int16_t name="unk_34" comment='0'/>
+        <int16_t name="unk_36" comment='0'/>
+        <int16_t name="unk_38" comment='0'/>
+        <int16_t name="unk_3a" comment='0-5000'/>
+        <int16_t name="salinity"/>
+        <compound name='unk_3e' type-name='coord'/>
+        <compound name='unk_44' type-name='coord'/>
+        <compound name='unk_4a' type-name='coord'/>
+        <int32_t name="region_id" ref-target='world_region'/>
+        <int32_t name="landmass_id" ref-target='world_landmass'/>
+        <int16_t name='geo_index' ref-target='world_geo_biome'/>
+    </struct-type>
+
+    <struct-type type-name='entity_claim_mask'>
+        <pointer name="map" is-array='true'>
+            <pointer is-array='true'>
+                <stl-vector name='entities'>
+                    <int32_t ref-target='historical_entity'/>
+                </stl-vector>
+                <stl-vector name='region_masks'>
+                    <pointer>
+                        <static-array count='16'>
+                            <static-array count='16' type-name='uint8_t'
+                                            comment='1 bit per entity'/>
+                        </static-array>
+                    </pointer>
+                </stl-vector>
+            </pointer>
+        </pointer>
+        <int16_t name="width"/>
+        <int16_t name="height"/>
+    </struct-type>
+
+    <struct-type type-name='moving_party'>
+        <compound name='pos' type-name='coord2d' comment='global block x/y'/>
+        <int16_t name="unk_4"/>
+        <int32_t name="unk_c"/>
+        <int32_t name="unk_10"/>
+        <stl-vector name="members">
+            <pointer>
+                <int32_t name="nemesis_id" ref-target='nemesis_record'/>
+                <int32_t name="hunger"/>
+                <int32_t name="thirst"/>
+                <int32_t name="sleepiness"/>
+                <int32_t name="stored_fat"/>
+                <int32_t name="unk_14"/>
+                <int32_t name="unk_18" init-value='1' comment='maybe type'/>
+                <int32_t name="unk_1c" init-value='-1000000'/>
+                <int32_t name="unk_20" init-value='-1000000'/>
+                <int32_t name="unk_24" init-value='-1000000'/>
+            </pointer>
+        </stl-vector>
+        <int32_t name="entity_id" ref-target='historical_entity'/>
+        <df-flagarray name='flags'/>
+        <stl-vector name="unk_30"/>
+        <stl-vector name="unk_40"/>
+        <int16_t name="unk_70"/>
+        <int16_t name="unk_72" init-value='-1'/>
+        <int16_t name="unk_74" init-value='-1'/>
+        <int32_t name="unk_7c" init-value='-1'/>
+        <int32_t name="region_id" ref-target='world_region'/>
+        <int32_t name="beast_id" init-value='-1' comment='for FB'/>
     </struct-type>
 
     <struct-type type-name='world_data'>
@@ -417,37 +496,16 @@
         <int32_t name='world_width'/>
         <int32_t name='world_height'/>
 
-        <stl-vector name='unk2'>
-            <pointer>
-                <int16_t name="unk_0"/>
-                <int16_t name="unk_2"/>
-                <int16_t name="unk_4"/>
-                <int32_t name="unk_c"/>
-                <int32_t name="unk_10"/>
-                <stl-vector name="unk_14">
-                    <pointer/>
-                </stl-vector>
-                <int32_t name="unk_24"/>
-                <df-flagarray name='flags'/>
-                <stl-vector name="unk_30"/>
-                <stl-vector name="unk_40"/>
-                <int16_t name="unk_70"/>
-                <int16_t name="unk_72"/>
-                <int16_t name="unk_74"/>
-                <int32_t name="unk_7c"/>
-                <int32_t name="unk_80"/>
-                <int32_t name="unk_84"/>
-            </pointer>
-        </stl-vector>
+        <stl-vector name='travel' pointer-type='moving_party'/>
 
-        <int32_t/>
-        <int32_t/>
-        <int16_t/>
-        <int16_t/>
-        <int16_t/>
-        <int16_t/>
-        <int16_t/>
-        <int16_t/>
+        <int32_t name='unk_78'/>
+        <int32_t name='unk_7c'/>
+        <int16_t name='unk_80'/>
+        <int16_t name='unk_82'/>
+        <int16_t name='unk_84'/>
+        <int16_t name='unk_86'/>
+        <int16_t name='unk_88'/>
+        <int16_t name='unk_8a'/>
 
         <int16_t comment='v0.34.01'/>
         <int16_t comment='v0.34.01'/>
@@ -464,46 +522,32 @@
             <pointer type-name='world_region_details'/>
         </stl-vector>
 
-        <int32_t name="unk_dc"/>
-        <int32_t name="unk_e0"/>
-        <int32_t name="unk_e4"/>
+        <int32_t name="adv_region_x"/>
+        <int32_t name="adv_region_y"/>
+        <int32_t name="adv_emb_x"/>
+        <int32_t name="adv_emb_y"/>
 
-        <int32_t name="unk_e8"/>
-        <int32_t name="unk_ec"/>
-        <int32_t name="unk_f0"/>
+        <int16_t name="unk_x1"/>
+        <int16_t name="unk_y1"/>
+        <int16_t name="unk_x2"/>
+        <int16_t name="unk_y2"/>
 
-        <compound name='construction_squares'>
+        <compound name='constructions'>
             <int16_t name="width"/>
             <int16_t name="height"/>
 
-            <pointer name="table" is-array='true'>
+            <pointer name="map" is-array='true'>
                 <pointer is-array='true'>
-                    <stl-vector>
-                        <pointer/>
-                    </stl-vector>
+                    <stl-vector pointer-type='world_construction_square'/>
                 </pointer>
             </pointer>
+
+            <stl-vector name="list" pointer-type='world_construction'/>
+            <int32_t name="next_id"/>
         </compound>
 
-        <stl-vector name="constructions">
-            <pointer/>
-        </stl-vector>
-        <int32_t name="next_construction_id"/>
-
-        <static-array name="unk_110" count='2'>
-            <pointer name="table" is-array='true'>
-                <pointer is-array='true'>
-                    <stl-vector name='unk1'>
-                        <int32_t/>
-                    </stl-vector>
-                    <stl-vector name='unk2'>
-                        <pointer type-name='int8_t' is-array='true'/>
-                    </stl-vector>
-                </pointer>
-            </pointer>
-            <int16_t name="width"/>
-            <int16_t name="height"/>
-        </static-array>
+        <compound name="entity_claims1" type-name='entity_claim_mask'/>
+        <compound name="entity_claims2" type-name='entity_claim_mask'/>
 
         <stl-vector name="sites">
             <pointer type-name='world_site'/>
@@ -558,7 +602,7 @@
 
         <stl-vector type-name='pointer' comment='v0.34.01'/>
         <stl-vector type-name='pointer' comment='v0.34.01'/>
-        <stl-vector type-name='pointer' comment='v0.34.01'/>
+        <stl-vector name='building_data' type-name='pointer' comment='v0.34.01'/>
 
         <stl-vector name="landmasses">
             <pointer type-name='world_landmass'/>
@@ -577,7 +621,7 @@
                 <compound name='name' type-name='language_name'/>
                 <compound name='pos' type-name='coord2d'/>
                 <df-flagarray name='flags'/>
-                <int16_t name="unk_78"/>
+                <int16_t name="height"/>
             </pointer>
         </stl-vector>
         <stl-vector name="rivers">
@@ -585,35 +629,7 @@
         </stl-vector>
 
         <pointer name="region_map" is-array='true'>
-            <pointer is-array='true'>
-                <int32_t name="unk_0"/>
-                <padding name="unk_4" size="4"/>
-                <stl-vector name="sites">
-                    <pointer type-name='world_site'/>
-                </stl-vector>
-                <df-flagarray name='flags'/>
-                <int16_t name="elevation" comment='~40 ocean -> ~100 plains -> ~200 mointains'/>
-                <int16_t name="wetness"/>
-                <int16_t name="vegetation"/>
-                <int16_t name="temperature"/>
-                <int16_t name="evilness"/>
-                <int16_t name="hilliness"/>
-                <int16_t name="unk_2c"/>
-                <int16_t name="savagery"/>
-                <int16_t name="unk_30"/>
-                <int16_t name="unk_32"/>
-                <int16_t name="unk_34"/>
-                <int16_t name="unk_36"/>
-                <int16_t name="unk_38"/>
-                <int16_t name="unk_3a"/>
-                <int16_t name="saltiness"/>
-                <compound name='unk_3e' type-name='coord'/>
-                <compound name='unk_44' type-name='coord'/>
-                <compound name='unk_4a' type-name='coord'/>
-                <int32_t name="region_id" ref-target='world_region'/>
-                <int32_t name="landmass_id" ref-target='world_landmass'/>
-                <int16_t name='geo_index' ref-target='world_geo_biome'/>
-            </pointer>
+            <pointer is-array='true' type-name='region_map_entry'/>
         </pointer>
         <pointer name="unk_1c4"/>
         <padding name="unk_1c8" size="4"/>
@@ -655,7 +671,7 @@
             <pointer type-name='world_site'/>
         </stl-vector>
 
-        <pointer name="unk_204" is-array='true'>
+        <pointer name="feature_map" is-array='true'>
             <pointer is-array='true'>
                 <int16_t name='x'/>
                 <int16_t name='y'/>

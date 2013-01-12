@@ -40,20 +40,7 @@
         <flag-bit name='sand'/>
         <flag-bit name='glass'/>
         <flag-bit name='clay'/>
-    </bitfield-type>
-
-    <bitfield-type type-name='job_item_category' base-type='uint32_t'>
-        <flag-bit name='unk1'/>
-        <flag-bit name='unk2'/>
-        <flag-bit name='furniture'/>
-        <flag-bit name='unk8'/>
-        <flag-bit name='unk16'/>
-        <flag-bit name='unk32'/>
-        <flag-bit name='ammo'/>
-        <flag-bit name='unk128'/>
-        <flag-bit name='unk256'/>
-        <flag-bit name='unk512'/>
-        <flag-bit name='finished_goods'/>
+        <flag-bit name='milk'/>
     </bitfield-type>
 
     <struct-type type-name='job_list_link'>
@@ -77,66 +64,66 @@
                 If last, 'working' is used instead.
             </comment>
         </flag-bit>
-        <flag-bit/>
+        <flag-bit name='item_lost' comment='set when a Hauled item is removed; causes cancel'/>
         <flag-bit/>
         <flag-bit/>
         <flag-bit name='by_manager'/>
-        <flag-bit/>
-        <flag-bit/>
-        <flag-bit/>
-        <flag-bit/>
+        <flag-bit name='store_item'/>
+        <flag-bit name='quality' count='3' comment='set by improvement code'/>
+        <flag-bit name='specific_dropoff'
+                  comment='for some jobs, blocks auto-restockpiling of the hauled item'/>
     </bitfield-type>
 
     <struct-type type-name='job' key-field='id'>
-        <int32_t name='id'/>
+        <int32_t name='id' init-value='-1'/>
         <pointer name='list_link' type-name='job_list_link'/>
         <enum name='job_type' base-type='int16_t' type-name='job_type'/>
-        <int32_t name='unk2'/>
+        <int32_t name='unk2' init-value='-1'/>
 
         <code-helper name='describe'>$.job_type</code-helper>
 
         <compound name='pos' type-name='coord'/>
 
-        <int32_t name='completion_timer' comment='-1 per 10 frames'/>
+        <int32_t name='completion_timer' init-value='-1' comment='-1 per 10 frames'/>
 
-        <uint16_t name='unk4a'/>
-        <uint16_t name='unk4b'/>
+        <uint32_t name='unk4' comment='garbage, but serialized'/>
 
         <compound name='flags' type-name='job_flags'/>
 
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
-        <int32_t name='mat_index'/>
-        <int16_t name='unk5'/>
-        <int16_t name='unk6'/>
-        <int16_t name='item_subtype'/>
+        <int32_t name='mat_index' init-value='-1'/>
+        <int16_t name='unk5' init-value='-1'/>
+        <enum base-type='int16_t' name='item_type' type-name='item_type' comment='for Bait Trap jobs'/>
+        <int16_t name='item_subtype' init-value='-1' comment='for StoreInStockpile: hauler_type'/>
 
-        <compound name="item_category" type-name='job_item_category'/>
+        <compound name="item_category" type-name='stockpile_group_set'/>
         <int32_t name="hist_figure_id" ref-target='historical_figure'/>
         <compound name='material_category' type-name='job_material_category'/>
 
         <stl-string name='reaction_name'/>
 
-        <int32_t name='unk9'/>
-        <int32_t name='unk10'/>
+        <int32_t name='expire_timer' comment='for stockpiling, +1 per 50 ticks if no worker; del when 20'/>
+        <int16_t name='recheck_cntdn' comment='for process_jobs'/>
+        <int16_t name='unk10b_cntdn'/>
+        <int32_t name='unk11' init-value='-1' comment='v0.34.08'/>
 
         <stl-vector name='items'>
             <pointer type-name='job_item_ref'/>
         </stl-vector>
 
-        <stl-vector name='misc_links'>
-            <pointer>
-                <int32_t name='id'/>
-                <pointer name='ptr'/>
-            </pointer>
+        <stl-vector name='specific_refs'>
+            <pointer type-name='specific_ref'/>
         </stl-vector>
-
-        <stl-vector name='references'>
+        <stl-vector name='general_refs'>
             <pointer type-name='general_ref'/>
         </stl-vector>
 
         <stl-vector name='job_items'>
             <pointer type-name='job_item'/>
         </stl-vector>
+
+        <compound name='guide_path' type-name='coord_path' comment='v0.34.08'/>
+        <int32_t name='cur_path_index' comment='v0.34.08'/>
     </struct-type>
 
     <struct-type type-name='job_item_ref'>
@@ -146,10 +133,12 @@
             <enum-item/>
             <enum-item name='Reagent'/>
             <enum-item name='Hauled'/>
-            <enum-item/>
-            <enum-item/>
+            <enum-item name='LinkToTarget'/>   used when linking a lever to a building, not sure if swapped
+            <enum-item name='LinkToTrigger'/>
             <enum-item/>
             <enum-item name='TargetContainer'/>
+            <enum-item name='QueuedContainer'/>     queued to be put in a container
+            <enum-item name='PushHaulVehicle'/>     wheelbarrow
         </enum>
         <int32_t name='is_fetching'
                  comment='0 immediately once taken to be brought'/>
@@ -247,17 +236,18 @@
         <enum base-type='int16_t' name='item_type' type-name='item_type'/>
         <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
-        <int32_t name='mat_index'/>
+        <int32_t name='mat_index' init-value='-1'/>
 
         <compound name='flags1' type-name='job_item_flags1'/>
 
-        <int32_t name='quantity'/>
-        <enum base-type='int16_t' name='vector_id' type-name='job_item_vector_id'/>
+        <int32_t name='quantity' init-value='1'/>
+        <enum base-type='int16_t' name='vector_id'
+              type-name='job_item_vector_id' init-value='IN_PLAY'/>
 
         <compound name='flags2' type-name='job_item_flags2'/>
         <compound name='flags3' type-name='job_item_flags3'/>
-        <int32_t name='unk2'/>
-        <int32_t name='unk3'/>
+        <uint32_t name='flags4'/>
+        <uint32_t name='flags5'/>
 
         -- Custom:
         <int32_t name='metal_ore' ref-target='inorganic_raw'/>
@@ -265,8 +255,8 @@
         <stl-string name='reaction_class'/>
         <stl-string name='has_material_reaction_product'/>
 
-        <int32_t name='min_dimension' comment='pure guess by context'/>
-        <int32_t name='reagent_index'/>
+        <int32_t name='min_dimension' init-value='-1' comment='pure guess by context'/>
+        <int32_t name='reagent_index' init-value='-1'/>
         <stl-vector type-name='int32_t' name='contains' comment='used with custom reactions'/>
         <int32_t name='reaction_id' ref-target='reaction'/>
         <enum base-type='int16_t' name='has_tool_use' type-name='tool_uses'/>
@@ -276,7 +266,7 @@
         <enum base-type='int16_t' name="item_type" type-name='item_type'/>
         <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
-        <int32_t name='mat_index'/>
+        <int32_t name='mat_index' init-value='-1'/>
 
         <compound name="flags1" type-name='job_item_flags1'/>
 
@@ -294,28 +284,29 @@
         <compound name="flags3" type-name='job_item_flags3'/>
         <bool name="use_flags3"/>
 
-        <int32_t name="unk2"/>
-        <bool name="use_unk2"/>
+        <uint32_t name='flags4'/>
+        <bool name="use_flags4"/>
 
-        <int32_t name="unk3"/>
-        <bool name="use_unk3"/>
+        <uint32_t name='flags5'/>
+        <bool name="use_flags5"/>
 
         <stl-string name='reaction_class'/>
         <stl-string name='has_material_reaction_product'/>
-        <int32_t name="metal_ore"/>
+        <int32_t name="metal_ore" ref-target='inorganic_raw'/>
 
         <bool name="use_metal_ore"/>
         <bool name="use_reaction_class"/>
         <bool name="use_reaction_product"/>
 
-        <int32_t name="min_dimension"/>
-        <int32_t name="reaction_id"/>
+        <int32_t name="min_dimension" init-value='-1'/>
+        <int32_t name="reaction_id" ref-target='reaction'/>
 
         <stl-vector name='contains' type-name='int32_t'/>
         <bool name="use_contains"/>
 
-        <int16_t name="has_tool_use"/>
-        <int16_t comment='v0.34.01-02'/>
+        <enum base-type='int16_t' name='has_tool_use' type-name='tool_uses'/>
+        <enum base-type='int16_t' name='has_melee_skill'
+              type-name='job_skill' comment='v0.34.01-02'/>
 
         <compound name='pos' type-name='coord'/>
 
@@ -329,6 +320,12 @@
             <int32_t ref-target='burrow'/>
         </stl-vector>
         <bool name="use_burrows"/>
+
+        <pointer name='take_from' comment='v0.34.08'>
+            <stl-vector>
+                <pointer type-name='building'/>
+            </stl-vector>
+        </pointer>
     </struct-type>
 
     <struct-type type-name='manager_order'>
@@ -342,7 +339,7 @@
         <int16_t name="mat_type" ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name="mat_index"/>
 
-        <compound name="item_category" type-name='job_item_category'/>
+        <compound name="item_category" type-name='stockpile_group_set'/>
         <int32_t name="hist_figure_id" ref-target='historical_figure'/>
         <compound name="material_category" type-name='job_material_category'/>
 
@@ -358,11 +355,20 @@
         <int16_t name="item_subtype"/>
         <int16_t name="mat_type" ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name="mat_index"/>
-        <compound name="item_category" type-name='job_item_category'/>
+        <compound name="item_category" type-name='stockpile_group_set'/>
         <int32_t init-value='-1'/>
         <compound name="material_category" type-name='job_material_category'/>
         <int8_t init-value='1'/>
     </struct-type>
+
+    <enum-type type-name='guild_id'>
+        <enum-item name='Miners'/>
+        <enum-item name='Carpenters'/>
+        <enum-item name='Masons'/>
+        <enum-item name='Metalsmiths'/>
+        <enum-item name='Jewelers'/>
+        <enum-item name='Craftsmen'/>
+    </enum-type>
 
     <struct-type type-name='mandate'>
         <pointer name='unit' type-name='unit'/>

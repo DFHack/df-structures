@@ -7,12 +7,30 @@
 
     <struct-type type-name='machine_info'>
         <int32_t name="machine_id" ref-target='machine'/>
-        <int32_t/>
+        <bitfield name='flags'>
+            <flag-bit name='frozen'/>
+        </bitfield>
     </struct-type>
 
     <struct-type type-name='power_info'>
         <int32_t name='produced'/>
         <int32_t name='consumed'/>
+    </struct-type>
+
+    <bitfield-type type-name='machine_conn_modes' base-type='uint8_t'>
+        <flag-bit name='up'/>
+        <flag-bit name='down'/>
+        <flag-bit name='right'/>
+        <flag-bit name='left'/>
+        <flag-bit name='z_up'/>
+        <flag-bit name='z_down'/>
+    </bitfield-type>
+
+    <struct-type type-name='machine_tile_set'>
+        <compound name='tiles' type-name='coord_path'/>
+        <stl-vector name='can_connect'>
+            <compound type-name='machine_conn_modes'/>
+        </stl-vector>
     </struct-type>
 
     <class-type type-name='machine' original-name='machinest'
@@ -37,7 +55,11 @@
         <int8_t name='visual_phase'/>
         <int16_t name="phase_timer"/>
 
-        <int32_t name="is_active"/>
+        <bitfield name="flags">
+            <flag-bit name='active'/>
+            <flag-bit name='frozen' comment='?'/>
+            <flag-bit name='unfreeze' comment='?'/>
+        </bitfield>
 
         <virtual-methods>
             <vmethod ret-type='machine_type' name='getType'/>
@@ -79,7 +101,7 @@
     <class-type type-name='building_windmillst' inherits-from='building_actual'>
         <compound name='machine' type-name='machine_info'/>
 
-        <int16_t name="orient_angle"/>
+        <int16_t name="orient_angle" init-value='-1'/>
         <int16_t name="orient_mode"/>
 
         <int16_t name="is_working"/>
@@ -95,19 +117,27 @@
         <bool name='gives_power'/>
     </class-type>
 
+    <enum-type type-name='screw_pump_direction' base-type='int8_t'>
+        <enum-item name='FromNorth'/>
+        <enum-item name='FromEast'/>
+        <enum-item name='FromSouth'/>
+        <enum-item name='FromWest'/>
+    </enum-type>
+
     <class-type type-name='building_screw_pumpst' inherits-from='building_actual'>
         <compound name='machine' type-name='machine_info'/>
 
         <uint8_t name="unk_100"/>
 
-        <enum name='direction' base-type='int8_t'>
-            <enum-item name='FromNorth'/>
-            <enum-item name='FromEast'/>
-            <enum-item name='FromSouth'/>
-            <enum-item name='FromWest'/>
-        </enum>
+        <enum name='direction' base-type='int8_t' type-name='screw_pump_direction'/>
 
         <bool name='pump_manually'/>
+    </class-type>
+
+    <class-type type-name='building_rollersst' inherits-from='building_actual'>
+        <compound name='machine' type-name='machine_info'/>
+        <enum name='direction' base-type='int32_t' type-name='screw_pump_direction'/>
+        <int32_t name='speed' init-value='50000'/>
     </class-type>
 </data-definition>
 

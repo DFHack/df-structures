@@ -89,8 +89,19 @@
         <flag-bit name='water_salt'/>
     </bitfield-type>
 
+    <enum-type type-name='tile_building_occ' base-type='uint32_t'>
+        <enum-item name='None' comment='no building'/>
+        <enum-item name='Planned' comment='nothing built yet'/>
+        <enum-item name='Passable'/>
+        <enum-item name='Obstacle' comment='workshop tile; ~fortification'/>
+        <enum-item name='Well'/>
+        <enum-item name='Floored' comment='depot; lowered bridge'/>
+        <enum-item name='Impassable'/>
+        <enum-item name='Dynamic' comment='doors, grates, etc'/>
+    </enum-type>
+
     <bitfield-type type-name='tile_occupancy'>
-        <flag-bit name='building' count='3'/>
+        <flag-bit name='building' count='3' type-name='tile_building_occ'/>
         <flag-bit name='unit' comment='standing'/>
         <flag-bit name='unit_grounded' comment='prone'/>
         <flag-bit name='item'/>
@@ -99,11 +110,18 @@
         <flag-bit name='moss'/>
         <flag-bit name='arrow_color' count='4'/>
         <flag-bit name='arrow_variant'/>
-        <flag-bit name='unk13'/>
+        <flag-bit name='unk13_noncitizen_unit'
+                  comment='when noncitizen moves in, something happens and it is cleared'/>
         <flag-bit name='monster_lair'
                   comment='A monster lair. Items placed wont be moved.'/>
         <flag-bit name='no_grow'
                   comment='seems to be set on terrain tiles where grass growth is impossible'/>
+        <flag-bit name='unk16'/>
+        <flag-bit name='unk17'/>
+        <flag-bit name='carve_track_north'/>
+        <flag-bit name='carve_track_south'/>
+        <flag-bit name='carve_track_east'/>
+        <flag-bit name='carve_track_west'/>
     </bitfield-type>
 
     <bitfield-type type-name='block_flags'>
@@ -114,12 +132,48 @@
                   comment='Protects UpdateLiquid from being cleared the first time.'/>
     </bitfield-type>
 
-    <struct-type type-name='block_burrow'>
-        <int32_t name='id' ref-target='burrow'/>
+    <bitfield-type type-name='z_level_flags'>
+        <flag-bit name='update'/>
+        <flag-bit name='can_stop'/>
+        <flag-bit name='update_twice'/>
+    </bitfield-type>
 
-        <static-array name='tile_bitmask' count='16'>
+    <enum-type type-name='tile_liquid_flow_dir' base-type='uint16_t'>
+        <enum-item name='none'/>
+        <enum-item name='south'/>
+        <enum-item name='east'/>
+        <enum-item name='northeast'/>
+        <enum-item name='west'/>
+        <enum-item name='northwest'/>
+        <enum-item name='southeast'/>
+        <enum-item name='southwest'/>
+        <enum-item name='inv_8'/>
+        <enum-item name='inv_9'/>
+        <enum-item name='north'/>
+        <enum-item name='inv_b'/>
+        <enum-item name='inv_c'/>
+        <enum-item name='inv_d'/>
+        <enum-item name='inv_e'/>
+        <enum-item name='inv_f'/>
+    </enum-type>
+
+    <bitfield-type type-name='tile_liquid_flow' base-type='uint16_t'>
+        <flag-bit name='temp_flow_timer' count='3' comment='set when water sloshes around, counts down to zero'/>
+        <flag-bit name='unk_1' count='3'/>
+        <flag-bit name='perm_flow_dir' count='4' type-name='tile_liquid_flow_dir'/>
+        <flag-bit name='unk_2' count='6' comment='periodically set whenever perm_flow_dir is nonzero'/>
+    </bitfield-type>
+
+    <struct-type type-name='tile_bitmask' custom-methods='true'>
+        <static-array name='bits' count='16'>
             <uint16_t/>
         </static-array>
+    </struct-type>
+
+    <struct-type type-name='block_burrow' custom-methods='true'>
+        <int32_t name='id' ref-target='burrow'/>
+
+        <compound name='tile_bitmask' type-name='tile_bitmask'/>
 
         <pointer name="link" type-name='block_burrow_link'/>
     </struct-type>
@@ -139,22 +193,21 @@
 
         <df-linked-list name='block_burrows' type-name='block_burrow_link'/>
 
-        <int32_t name='local_feature'/>
-        <int32_t name='global_feature'/>
-        <int32_t name='unk2'/>
+        <int32_t name='local_feature' init-value='-1'/>
+        <int32_t name='global_feature' init-value='-1'/>
+        <int32_t name='unk2' init-value='-1'/>
         <int32_t name='unk3' comment='undef'/>
-        <int32_t name='unk4'/>
-        <int32_t name='unk5'/>
+        <int32_t name='dsgn_check_cooldown'/>
+        <compound type-name='tile_designation' name='default_liquid'/>
 
         <stl-vector name='items'>
             <int32_t ref-target='item'/>
         </stl-vector>
-        <stl-vector name='effects'>
-            <pointer type-name='effect'/>
+        <stl-vector name='flows'>
+            <pointer type-name='flow_info'/>
         </stl-vector>
 
-        <int32_t name='unk7'/>
-        <int32_t name='unk8' comment='undef'/>
+        <compound name='flow_pool' type-name='flow_reuse_pool'/>
 
         <stl-vector name='plants'>
             <pointer type-name='plant'/>
@@ -165,7 +218,7 @@
 
         <static-array name='tiletype' count='16'>
             <static-array count='16'>
-                <enum base-type='int16_t' type-name='tiletype'/>
+                <enum base-type='int16_t' type-name='tiletype' init-value='OpenSpace'/>
             </static-array>
         </static-array>
         <static-array name='designation' count='16'>
@@ -184,22 +237,27 @@
                 <int8_t/>
             </static-array>
         </static-array>
-        <static-array name='pathfinding' count='16'>
+
+        <static-array name='path_cost' count='16'>
+            <comment>flood; 256*cost for straight, 362*cost for diagonal</comment>
             <static-array count='16'>
                 <int32_t/>
             </static-array>
         </static-array>
-        <static-array name='unk10' count='16'>
+        <static-array name='path_tag' count='16'>
+            <comment>flood; sync to path_distance; same value; inc per run; reset to 0 on wraparound</comment>
             <static-array count='16'>
                 <uint16_t/>
             </static-array>
         </static-array>
-        <static-array name='passable' count='16'>
+        <static-array name='walkable' count='16'>
+            <comment>0 = non-walkable; same nonzero at A and B = walkable from A to B</comment>
             <static-array count='16'>
                 <uint16_t/>
             </static-array>
         </static-array>
-        <static-array name='unk12' count='16'>
+        <static-array name='map_edge_distance' count='16'>
+            <comment>1 at walkable map edge; then +1 per 10 tiles it seems; 0 in dug tunnels</comment>
             <static-array count='16'>
                 <uint16_t/>
             </static-array>
@@ -221,9 +279,9 @@
                 <uint16_t/>
             </static-array>
         </static-array>
-        <static-array name='unk14' count='16'>
+        <static-array name='liquid_flow' count='16'>
             <static-array count='16'>
-                <uint16_t/>
+                <compound type-name='tile_liquid_flow'/>
             </static-array>
         </static-array>
 
@@ -233,20 +291,57 @@
     </struct-type>
 
     <struct-type type-name='cave_column_link'>
-        <pointer name='item'/>
+        <pointer name='item' type-name='cave_column'/>
         <pointer name='prev' type-name='cave_column_link'/>
         <pointer name='next' type-name='cave_column_link'/>
     </struct-type>
 
+    <class-type type-name='cave_column' original-name='cave_columnst'>
+        <int16_t/>
+        <int16_t/>
+        <int16_t init-value='30000'/>
+        <int8_t/>
+
+        <virtual-methods>
+            <vmethod name='write_file'> <pointer comment='file_compressorst'/> </vmethod>
+            <vmethod name='read_file'>
+                <pointer comment='file_compressorst'/>
+                <int32_t name='loadversion'/>
+            </vmethod>
+        </virtual-methods>
+    </class-type>
+
+    <class-type type-name='cave_column_rectangle' original-name='cave_column_rectanglest'>
+        <int32_t/>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+        <stl-vector type-name='int16_t'/>
+        <stl-vector type-name='int16_t'/>
+        <stl-vector type-name='int16_t'/>
+        <int32_t/>
+
+        <virtual-methods>
+            <vmethod name='write_file'> <pointer comment='file_compressorst'/> </vmethod>
+            <vmethod name='read_file'>
+                <pointer comment='file_compressorst'/>
+                <int32_t name='loadversion'/>
+            </vmethod>
+        </virtual-methods>
+    </class-type>
+
     <struct-type type-name='map_block_column'>
         <int16_t name="unk_0"/>
         <int16_t name="unk_2"/>
-        <int16_t name="unk_4"/>
+        <int16_t name='ground_level' comment='for sidebar'/>
 
-        <stl-vector name="unk_8">
+        <stl-vector name='unmined_glyphs'>
             <pointer>
-                <static-array name='unk1' count='8' type-name='int16_t'/>
-                <static-array name='unk2' count='4' type-name='uint8_t'/>
+                <static-array name='x' count='4' type-name='int16_t'/>
+                <static-array name='y' count='4' type-name='int16_t'/>
+                <static-array name='tile' count='4' type-name='uint8_t'/>
             </pointer>
         </stl-vector>
 
@@ -259,7 +354,7 @@
         </static-array>
 
         <stl-vector name='column_rectangles'>
-            <pointer/>
+            <pointer type-name='cave_column_rectangle'/>
         </stl-vector>
 
         <int16_t name='unk_c2c'/>
@@ -301,8 +396,12 @@
 
     <class-type type-name='block_square_event_mineralst' inherits-from='block_square_event' custom-methods='true'>
         <int32_t name='inorganic_mat' ref-target='inorganic_raw'/>
-        <static-array name='tile_bitmask' count='16' type-name='uint16_t'/>
-        <uint32_t name='flags'/>
+        <compound name='tile_bitmask' type-name='tile_bitmask'/>
+        <bitfield name='flags'>
+            <flag-bit name='discovered'/>
+            <flag-bit name='cluster' comment='??'/>
+            <flag-bit name='vein' comment='??'/>
+        </bitfield>
     </class-type>
 
     <class-type type-name='block_square_event_frozen_liquidst' inherits-from='block_square_event'>
@@ -319,8 +418,8 @@
     </class-type>
 
     <class-type type-name='block_square_event_world_constructionst' inherits-from='block_square_event'>
-        <int32_t name='inorganic_mat' ref-target='inorganic_raw'/>
-        <static-array name='tile_bitmask' count='16' type-name='uint16_t'/>
+        <int32_t name='construction_id' ref-target='world_construction'/>
+        <compound name='tile_bitmask' type-name='tile_bitmask'/>
     </class-type>
 
     <class-type type-name='block_square_event_material_spatterst' inherits-from='block_square_event'>
@@ -330,8 +429,8 @@
         <static-array name='amount' count='16'>
             <static-array count='16' type-name='uint8_t'/>
         </static-array>
-        <int16_t name='min_temperature'/>
-        <int16_t name='max_temperature'/>
+        <uint16_t name='min_temperature'/>
+        <uint16_t name='max_temperature'/>
     </class-type>
 
     <class-type type-name='block_square_event_grassst' inherits-from='block_square_event'>
@@ -363,8 +462,8 @@
         <int16_t/>
 
         <compound name='embark_pos' type-name='coord2d_path'/>
-        <stl-vector type-name='int16_t'/>
-        <stl-vector type-name='int16_t'/>
+        <stl-vector name='min_map_z' type-name='int16_t'/>
+        <stl-vector name='max_map_z' type-name='int16_t'/>
 
         <virtual-methods>
             <vmethod ret-type='feature_type' name='getType'/>
@@ -384,10 +483,10 @@
     <class-type type-name='feature_cavest' inherits-from='feature'/>
     <class-type type-name='feature_pitst' inherits-from='feature'/>
     <class-type type-name='feature_magma_poolst' inherits-from='feature'>
-        <int32_t/>
+        <int32_t name='magma_fill_z'/>
     </class-type>
     <class-type type-name='feature_volcanost' inherits-from='feature'>
-        <int32_t/>
+        <int32_t name='magma_fill_z'/>
     </class-type>
     <class-type type-name='feature_deep_special_tubest' inherits-from='feature'/>
     <class-type type-name='feature_deep_surface_portalst' inherits-from='feature'/>
@@ -404,13 +503,13 @@
 
     <class-type type-name='feature_init' original-name='feature_initst'>
         <df-flagarray name='flags' index-enum='feature_init_flags'/>
-        <stl-vector/>
+        <stl-vector name='alterations' pointer-type='feature_alteration'/>
         <int16_t name='start_x'/>
         <int16_t name='start_y'/>
         <int16_t name='end_x'/>
         <int16_t name='end_y'/>
-        <int16_t/>
-        <int16_t/>
+        <int16_t name='start_depth' comment='in underground layers'/>
+        <int16_t name='end_depth'/>
 
         <virtual-methods>
             <vmethod ret-type='feature_type' name='getType'/>
@@ -532,7 +631,96 @@
     </class-type>
 
     <class-type type-name='feature_alteration_new_lava_fill_zst' inherits-from='feature_alteration'>
+        <int32_t name='magma_fill_z'/>
+    </class-type>
+
+    <enum-type type-name='world_construction_type'>
+        <enum-item name='ROAD'/>
+        <enum-item name='TUNNEL'/>
+        <enum-item name='BRIDGE'/>
+        <enum-item name='WALL'/>
+    </enum-type>
+
+    <class-type type-name='world_construction_square' original-name='world_construction_squarest'>
+        <code-helper name='describe'> (describe-obj $.region_pos) </code-helper>
+
+        <compound name='region_pos' type-name='coord2d'/>
+        <int32_t name='construction_id' ref-target='world_construction'/>
+
+        <stl-vector name='embark_x' type-name='int16_t'/>
+        <stl-vector name='embark_y' type-name='int16_t'/>
+        <stl-vector name='embark_unk' type-name='int16_t'/>
+        <stl-vector name='embark_z' type-name='int16_t'/>
+
+        <virtual-methods>
+            <vmethod ret-type='world_construction_type' name='getType'/>
+            <vmethod name='write_file'> <pointer comment='file_compressorst'/> </vmethod>
+            <vmethod name='read_file'>
+                <pointer comment='file_compressorst'/>
+                <int32_t name='loadversion'/>
+            </vmethod>
+            <vmethod is-destructor='true'/>
+            <vmethod comment='10 parms, possibly responsible for actually placing it on the map'/>
+        </virtual-methods>
+    </class-type>
+
+    <class-type type-name='world_construction_square_roadst' inherits-from='world_construction_square'>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
         <int32_t/>
+    </class-type>
+
+    <class-type type-name='world_construction_square_tunnelst' inherits-from='world_construction_square'/>
+
+    <class-type type-name='world_construction_square_bridgest' inherits-from='world_construction_square'>
+        <int32_t/>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+        <int32_t/>
+    </class-type>
+
+    <class-type type-name='world_construction_square_wallst' inherits-from='world_construction_square'>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+        <int32_t/>
+    </class-type>
+
+    <class-type type-name='world_construction' original-name='world_constructionst'
+                instance-vector='$global.world.world_data.constructions.list' key-field='id'>
+        <int32_t name='id'/>
+
+        <stl-vector name='square_obj' pointer-type='world_construction_square'/>
+        <compound name='square_pos' type-name='coord2d_path'/>
+
+        <virtual-methods>
+            <vmethod ret-type='world_construction_type' name='getType'/>
+            <vmethod name='getName'><ret-type><pointer type-name='language_name'/></ret-type></vmethod>
+            <vmethod name='write_file'> <pointer comment='file_compressorst'/> </vmethod>
+            <vmethod name='read_file'>
+                <pointer comment='file_compressorst'/>
+                <int32_t name='loadversion'/>
+            </vmethod>
+            <vmethod is-destructor='true'/>
+        </virtual-methods>
+    </class-type>
+
+    <class-type type-name='world_construction_roadst' inherits-from='world_construction'>
+        <compound type-name='language_name' name='name'/>
+    </class-type>
+
+    <class-type type-name='world_construction_tunnelst' inherits-from='world_construction'>
+        <compound type-name='language_name' name='name'/>
+    </class-type>
+
+    <class-type type-name='world_construction_bridgest' inherits-from='world_construction'>
+        <compound type-name='language_name' name='name'/>
+    </class-type>
+
+    <class-type type-name='world_construction_wallst' inherits-from='world_construction'>
+        <compound type-name='language_name' name='name'/>
     </class-type>
 
     <enum-type type-name='biome_type'>
@@ -590,7 +778,7 @@
     </enum-type>
 
     <bitfield-type type-name='construction_flags' base-type='uint8_t'>
-        <flag-bit/>
+        <flag-bit name='no_build_item' comment='build item is created from scratch upon removing construction, does not exist beforehand'/>
         <flag-bit name='top_of_wall' comment='used on the floors above constructed walls so you cannot remove them'/>
     </bitfield-type>
 
@@ -604,7 +792,7 @@
         <enum base-type='int16_t' type-name='tiletype' name='original_tile'/>
     </struct-type>
 
-    <enum-type type-name='effect_type' base-type='int16_t'>
+    <enum-type type-name='flow_type' base-type='int16_t'>
         <enum-item name='Miasma'/>
         <enum-item name='Steam' comment='only if mat_type=1'/>
         <enum-item name='Mist'/>
@@ -620,19 +808,34 @@
         <enum-item name='SeaFoam'/>
     </enum-type>
 
-    <struct-type type-name='effect'>
-        <enum type-name='effect_type' base-type='int16_t' name='type'/>
+    <struct-type type-name='flow_info'>
+        <enum type-name='flow_type' base-type='int16_t' name='type'/>
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
-        <int32_t name='mat_index'/>
+        <int32_t name='mat_index' init-value='-1'/>
         <int16_t name='density'/>
-        <int16_t name='x'/>
-        <int16_t name='y'/>
-        <int16_t name='z'/>
-        <int16_t/>
-        <int16_t/>
-        <int16_t/>
-        <int16_t/>
-        <int32_t/>
+        <compound name='pos' type-name='coord'/>
+        <compound name='dest' type-name='coord'/>
+        <bool name='expanding' init-value='1'/>
+        <bool name='reuse'/>
+        <int32_t name='unk3' init-value='-1'/>
+    </struct-type>
+
+    <struct-type type-name='flow_reuse_pool'>
+        <int32_t name='reuse_idx' init-value='-1'/>
+        <bitfield name='flags'>
+            <flag-bit name='active'/>
+        </bitfield>
+    </struct-type>
+
+    <struct-type type-name='effect_info'>
+        <int32_t comment='uninit'/>
+        <pointer type-name='job'/>
+        <int16_t name='type' comment='2 = falling into chasm'/>
+        <int16_t name='foreground'/>
+        <int16_t name='background'/>
+        <int8_t name='bright'/>
+        <compound type-name='coord' name='pos'/>
+        <int32_t name='timer'/>
     </struct-type>
 </data-definition>
 

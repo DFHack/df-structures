@@ -16,7 +16,8 @@
         <stl-vector name='unk_a0' type-name='int16_t'/>
         <stl-vector name='candidate_enabled' type-name='bool'/>
 
-        <int32_t name="count_required"/>
+        <int16_t name="count_required"/>
+        <int16_t name="count_max" comment='if 0, fixed at required'/>
         <int16_t name="count_provided"/>
     </struct-type>
 
@@ -85,7 +86,8 @@
             <pointer type-name='build_req_choicest'/>
         </stl-vector>
 
-        <int32_t name="building_type" comment='if -1, in Build menu; otherwise select item'/>
+        <enum base-type='int32_t' name="building_type"
+              type-name='building_type' comment='if -1, in Build menu; otherwise select item'/>
         <int16_t name="building_subtype"/>
         <int32_t name="custom_type" ref-target='building_def'/>
 
@@ -96,7 +98,7 @@
 
         <int32_t name="is_grouped"/>
 
-        <stl-vector name='unk3'>
+        <stl-vector name='errors'>
             <pointer type-name='stl-string'/>
         </stl-vector>
         <stl-vector name='unk4'>
@@ -110,25 +112,32 @@
         <int16_t name='unk5_0a'/>
         <int16_t name='unk5_0b'/>
 
-        <int32_t name='unk5_1'/>
-        <int32_t name='unk5_2'/>
-        <int8_t name='unk5_3a'/>
-        <int8_t name='unk5_3b'/>
-        <int8_t name='unk5_3c'/>
-        <int8_t name='unk5_3d'/>
-        <int32_t name='unk5_4'/>
-        <stl-vector name='unk6'/>
-        <stl-vector name='unk7'/>
+        <compound name='plate_info' type-name='pressure_plate_info'/>
+
+        <stl-vector name='unk6' type-name='int16_t'/>
+        <stl-vector name='unk7' type-name='int16_t'/>
+
+        <int32_t name='friction' init-value='50000' comment='v0.34.08'/>
+        <int32_t name='use_dump' comment='v0.34.08'/>
+        <int32_t name='dump_x_shift' comment='v0.34.08'/>
+        <int32_t name='dump_y_shift' comment='v0.34.08'/>
+
+        <int32_t name='speed' init-value='50000' comment='v0.34.08'/>
         dtor: 0x85272c0
     </struct-type>
 
     -- MISC. SIDEBAR MENUS
 
     <class-type type-name='interface_button' original-name='interface_buttonst'>
-        <int32_t name="hotkey_id"/>
+        <enum name='hotkey_id' type-name='interface_key' base-type='int32_t'/>
         <bool name="is_hidden"/>
 
         <virtual-methods>
+            <vmethod name='printSlabStatus' comment='ghost, buried, memorialized'>
+                <int32_t name='x'/>
+                <int32_t name='y'/>
+                <int32_t name='unused'/>
+            </vmethod>
             <vmethod name='getLabel'>
                 <pointer type-name='stl-string' name='str'/>
             </vmethod>
@@ -136,7 +145,9 @@
             <vmethod name='setColor'>
                 <bool name='selected'/>
             </vmethod>
-            <vmethod/>
+            <vmethod name='makeHidden'/>
+            <vmethod name='getTrackGlyph' ret-type='uint8_t'/>
+            <vmethod name='setTrackGlyphColor'/>
             <vmethod is-destructor='true'/>
         </virtual-methods>
     </class-type>
@@ -164,11 +175,11 @@
                 inherits-from='interface_button_buildingst'>
         <enum name="job_type" base-type='int32_t' type-name='job_type'/>
         <stl-string name="reaction_name"/>
-        <int16_t name="unused_30"/>
+        <enum base-type='int16_t' name='item_type' type-name='item_type'/>
         <int16_t name="item_subtype"/>
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name='mat_index'/>
-        <compound name="item_category" type-name='job_item_category'/>
+        <compound name="item_category" type-name='stockpile_group_set'/>
         <int32_t name="hist_figure_id" ref-target='historical_figure'/>
         <compound name='material_category' type-name='job_material_category'/>
         <bool name="unk_48"/>
@@ -249,8 +260,18 @@
 
         <int32_t name="unk_58"/>
         <int32_t name="unk_5c"/>
-        <int32_t name="unk_60"/>
-        <int32_t name="unk_64"/>
+
+        <compound name='zone'>
+            <bool name='remove'/>
+            <padding size='1'/>
+            <enum name='mode' base-type='int16_t'>
+                <enum-item name='Rectangle'/>
+                <enum-item name='Flow'/>
+                <enum-item name='FloorFlow'/>
+            </enum>
+
+            <pointer name='selected' type-name='building_civzonest'/>
+        </compound>
 
         <compound name='unit'>
             <stl-vector name='inv_items'>
@@ -260,6 +281,30 @@
                 <pointer type-name='unit_spatter'/>
             </stl-vector>
 
+            <bool name="in_new_squad" comment='v0.34.08'/>
+            <int32_t name="cursor_uniform" comment='v0.34.08'/>
+            <int32_t name="unk_88n" comment='v0.34.08'/>
+
+            <stl-vector name='squads' comment='v0.34.08'>
+                <pointer type-name='squad'/>
+            </stl-vector>
+            <stl-vector name='squad_pos' comment='v0.34.08'>
+                <pointer type-name='entity_position'/>
+            </stl-vector>
+            <stl-vector name='squad_assn' comment='v0.34.08'>
+                <pointer type-name='entity_position_assignment'/>
+            </stl-vector>
+            <stl-bit-vector name='squad_unk1' comment='v0.34.08'/>
+            <stl-vector name='squad_unk2' comment='v0.34.08'/>
+
+            <pointer type-name='entity_position'/>
+            <pointer type-name='entity_position_assignment'/>
+            <pointer type-name='entity_position'/>
+            <int16_t name='in_squad'/>
+            <int16_t/>
+            <int16_t/>
+            <int16_t/>
+
             <int32_t name="unk_80"/>
             <int32_t name="unk_84"/>
             <int32_t name="unk_88"/>
@@ -267,7 +312,7 @@
             <int32_t name="unk_90"/>
 
             <stl-vector name='list'>
-                <int32_t refers-to='$global.world.units.other[0][$]'/>
+                <int32_t refers-to='$global.world.units.active[$]'/>
             </stl-vector>
 
             <int32_t name="unk_a0"/>
@@ -330,14 +375,20 @@
                     <enum-item name='Unit'/>
                     <enum-item name='Building'/>
                     <enum-item name='Vermin'/>
+                    <enum-item name='Flow'/>
+                    <enum-item name='Campfire'/>
+                    <enum-item name='Spatter'/>
                 </enum>
-                <int32_t comment='uninit'/>
-                <int32_t comment='uninit'/>
+                <int16_t name='spatter_mat_type' ref-target='material' aux-value='$$.mat_index'/>
+                <int32_t name='spatter_mat_index'/>
+                <enum type-name='matter_state' base-type='int16_t' name='spatter_mat_state'/>
                 <compound is-union='true'>
                     <pointer name='item' type-name='item'/>
                     <pointer name='unit' type-name='unit'/>
                     <pointer name='building' type-name='building'/>
                     <pointer name='vermin' type-name='vermin'/>
+                    <pointer name='flow' type-name='flow_info'/>
+                    <int8_t name='spatter_size'/>
                 </compound>
             </pointer>
         </stl-vector>

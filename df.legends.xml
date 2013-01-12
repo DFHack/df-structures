@@ -3,11 +3,14 @@
                  instance-vector='$global.ui.invasions.list' key-field='id'>
         <int32_t name='id'/>
         <int32_t name='civ_id' ref-target='historical_entity'/>
-        <int32_t name='is_active1' comment='0 unless active'/>
-        <int32_t name='is_active2'/>
-        <int32_t name='size' comment='just a guess'/>
+        <int32_t name='active_size1' comment='0 unless active'/>
+        <int32_t name='active_size2'/>
+        <int32_t name='size'/>
         <int32_t name='duration_counter'/>
-        <int16_t name='unk4a'/>
+        <bitfield base-type='uint16_t' name='flags'>
+            <flag-bit name='active'/>
+            <flag-bit name='siege'/>
+        </bitfield>
         <int16_t name='unk4b'/>
     </struct-type>
 
@@ -50,6 +53,12 @@
         <int32_t name='civ_id' ref-target='historical_entity'/>
     </struct-type>
 
+    <enum-type type-name='nemesis_flags'>
+        <enum-item name='ACTIVE_ADVENTURER' comment='used when loading save'/>
+        <enum-item name='RETIRED_ADVENTURER' comment='allows resuming play'/>
+        <enum-item name='ADVENTURER' comment='blue color in legends'/>
+    </enum-type>
+
     <struct-type type-name='nemesis_record' key-field='id' instance-vector='$global.world.nemesis.all'>
         <int32_t name='id' comment='sequential index in the array'/>
 
@@ -73,7 +82,7 @@
         <int16_t name='unk10' comment='-1'/>
         <int32_t name='unk11' comment='-1'/>
         <int32_t name='unk12' comment='-1'/>
-        <df-flagarray name='flags'/>
+        <df-flagarray name='flags' index-enum='nemesis_flags'/>
     </struct-type>
 
     <struct-type type-name='artifact_record' key-field='id'

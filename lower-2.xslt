@@ -55,6 +55,7 @@
                     <xsl:copy-of select='text()[1]'/>
                     <ld:item ld:meta='compound'>
                         <xsl:attribute name='ld:level'><xsl:value-of select='@ld:level'/></xsl:attribute>
+                        <xsl:apply-templates select='@key-field'/>
                         <xsl:apply-templates select='ld:field|text()'/>
                     </ld:item>
                     <xsl:apply-templates select='node()[not(self::ld:field)]'/>

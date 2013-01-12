@@ -25,15 +25,57 @@
         <int32_t name='end_z'/>
     </global-object>
 
-    <global-object name='control_mode' type-name='int32_t'/>
-    <global-object name='game_mode' type-name='int32_t'/>
+    <enum-type type-name='game_mode'>
+        <enum-item name='DWARF'/>
+        <enum-item name='ADVENTURE'/>
+        <enum-item name='num'/>
+        <enum-item name='NONE'/>
+    </enum-type>
+
+    <enum-type type-name='game_type'>
+        <enum-item name='DWARF_MAIN'/>
+        <enum-item name='ADVENTURE_MAIN'/>
+        <enum-item name='VIEW_LEGENDS'/>
+        <enum-item name='DWARF_RECLAIM'/>
+        <enum-item name='DWARF_ARENA'/>
+        <enum-item name='ADVENTURE_ARENA'/>
+        <enum-item name='num'/>
+        <enum-item name='NONE'/>
+    </enum-type>
+
+    <global-object name='gamemode'>
+        <enum base-type='int32_t' type-name='game_mode'/>
+    </global-object>
+    <global-object name='gametype'>
+        <enum base-type='int32_t' type-name='game_type'/>
+    </global-object>
 
     <global-object name='ui_area_map_width' type-name='int8_t'/>
     <global-object name='ui_menu_width' type-name='int8_t'/>
 
     -- .bss compound - THAT IS, NOT SIMPLE INTEGER VARIABLES!
 
-    <global-object name='announcements' type-name='announcements'/>
+    <global-object name='created_item_type'>
+        <stl-vector>
+            <enum base-type='int16_t' type-name='item_type'/>
+        </stl-vector>
+    </global-object>
+    <global-object name='created_item_subtype'>
+        <stl-vector>
+            <int16_t refers-to='(item-subtype-target $global.created_item_type[$$._key] $)'/>
+        </stl-vector>
+    </global-object>
+    <global-object name='created_item_mattype'>
+        <stl-vector>
+            <int16_t ref-target='material' aux-value='$global.created_item_matindex[$._key]'/>
+        </stl-vector>
+    </global-object>
+    <global-object name='created_item_matindex'>
+        <stl-vector type-name='int16_t'/>
+    </global-object>
+    <global-object name='created_item_count'>
+        <stl-vector type-name='int32_t'/>
+    </global-object>
 
     <!-- To find: with world, place cursor over unit, and trace pointers to unit -->
     <global-object name='cursor_unit_list'>
@@ -45,6 +87,10 @@
 
     <global-object name='d_init' type-name='d_init'/>
 
+    <global-object name='flows'>
+        <stl-vector pointer-type='flow_info'/>
+    </global-object>
+
     <global-object name='enabler' type-name='enabler'/>
     <global-object name='gps' type-name='graphic'/>
 
@@ -53,6 +99,14 @@
 
     <global-object name='init' type-name='init'/>
 
+    <global-object name='texture' type-name='texture_handler'/>
+
+    <global-object name='timed_events'>
+        <stl-vector>
+            <pointer type-name='timed_event'/>
+        </stl-vector>
+    </global-object>
+
     <!-- To find: create squad, enter the 's' menu, trace pointers to squad -->
     <global-object name='ui' type-name='ui'/>
 
@@ -60,6 +114,24 @@
 
     <!-- To find: start creating a building, trace the build material item pointers -->
     <global-object name='ui_build_selector' type-name='ui_build_selector'/>
+
+    <global-object name='ui_building_assign_type'>
+        <stl-vector type-name='int8_t'/>
+    </global-object>
+    <global-object name='ui_building_assign_is_marked'>
+        <stl-vector type-name='bool'/>
+    </global-object>
+    <!-- Candidates for a building owner. To find: backtrack from unit. -->
+    <global-object name='ui_building_assign_units'>
+        <stl-vector>
+            <pointer type-name='unit'/>
+        </stl-vector>
+    </global-object>
+    <global-object name='ui_building_assign_items'>
+        <stl-vector>
+            <pointer type-name='item'/>
+        </stl-vector>
+    </global-object>
 
     <!-- To find: place loo'k' cursor over a unit, trace pointers to unit -->
     <global-object name='ui_look_list' type-name='ui_look_list'/>
@@ -72,8 +144,41 @@
 
     -- .bss primitive
 
+    <global-object name='activity_next_id' type-name='int32_t'/>
+    <global-object name='art_image_chunk_next_id' type-name='int32_t'/>
+    <global-object name='artifact_next_id' type-name='int32_t'/>
+    <global-object name='building_next_id' type-name='int32_t'/>
+    <global-object name='crime_next_id' type-name='int32_t'/>
+    <global-object name='entity_next_id' type-name='int32_t'/>
+    <global-object name='flow_guide_next_id' type-name='int32_t'/>
+    <global-object name='formation_next_id' type-name='int32_t'/>
+    <global-object name='hist_event_collection_next_id' type-name='int32_t'/>
+    <global-object name='hist_event_next_id' type-name='int32_t'/>
+    <global-object name='hist_figure_next_id' type-name='int32_t'/>
+    <global-object name='identity_next_id' type-name='int32_t'/>
+    <global-object name='incident_next_id' type-name='int32_t'/>
+    <global-object name='interaction_instance_next_id' type-name='int32_t'/>
+    <global-object name='item_next_id' type-name='int32_t'/>
+    <global-object name='job_next_id' type-name='int32_t'/>
+    <global-object name='machine_next_id' type-name='int32_t'/>
+    <global-object name='nemesis_next_id' type-name='int32_t'/>
+    <global-object name='proj_next_id' type-name='int32_t'/>
+    <global-object name='schedule_next_id' type-name='int32_t'/>
+    <global-object name='squad_next_id' type-name='int32_t'/>
+    <global-object name='task_next_id' type-name='int32_t'/>
+    <global-object name='unit_chunk_next_id' type-name='int32_t'/>
+    <global-object name='unit_next_id' type-name='int32_t'/>
+    <global-object name='vehicle_next_id' type-name='int32_t'/>
+    <global-object name='written_content_next_id' type-name='int32_t'/>
+
+    <global-object name='announcements' type-name='announcements'/>
+
     <global-object name='cur_year' type-name='int32_t'/>
     <global-object name='cur_year_tick' type-name='int32_t'/>
+    <global-object name='cur_year_tick_advmode' type-name='int32_t'/>
+
+    <global-object name='cur_season' type-name='int8_t'/>
+    <global-object name='cur_season_tick' type-name='int32_t'/>
 
     <global-object name='current_weather'>
         <static-array count='5'>
@@ -83,10 +188,15 @@
         </static-array>
     </global-object>
 
-    <!-- To find: open workshop, create jobs, search for value changing +1 every time -->
-    <global-object name='job_next_id' type-name='int32_t'/>
-
     <global-object name='pause_state' type-name='bool'/>
+
+    <global-object name='process_dig' type-name='bool'
+                   comment='Requests dig designations to be processed next frame.'/>
+    <global-object name='process_jobs' type-name='bool'
+                   comment='Requests building jobs to be processed next frame.'/>
+
+    <global-object name='ui_building_in_assign' type-name='bool'/>
+    <global-object name='ui_building_in_resize' type-name='bool'/>
 
     <!-- To find: open building i't'ems, move list highlight around, search for changes -->
     <global-object name='ui_building_item_cursor'>
@@ -101,7 +211,7 @@
     <!-- To find: enter unit 'v'iew mode, move to a point with multiple units
          within range, toggle them by pressing 'v', search for changes. -->
     <global-object name='ui_selected_unit'>
-        <int32_t refers-to='$global.world.units.other[0][$]'/>
+        <int32_t refers-to='$global.world.units.active[$]'/>
     </global-object>
 
     <!-- To find: enter unit 'v'iew mode, switch pages, search for changes -->
@@ -119,6 +229,57 @@
     <global-object name='window_x' type-name='int32_t'/>
     <global-object name='window_y' type-name='int32_t'/>
     <global-object name='window_z' type-name='int32_t'/>
+
+    <global-object name='debug_nopause' type-name='bool' comment='Prevents the game from being paused'/>
+    <global-object name='debug_nomoods' type-name='bool' comment='Same as ARTIFACTS:NO'/>
+    <global-object name='debug_combat' type-name='bool' comment='Functionality unknown, combat-related'/>
+    <global-object name='debug_wildlife' type-name='bool' comment='Functionality unknown, wildlife-related'/>
+    <global-object name='debug_nodrink' type-name='bool' comment='Disables thirst on everything'/>
+    <global-object name='debug_noeat' type-name='bool' comment='Disables hunger on everything'/>
+    <global-object name='debug_nosleep' type-name='bool' comment='Disables drowsiness on everything'/>
+    <global-object name='debug_showambush' type-name='bool' comment='Makes hidden ambushers visible on-screen and in the units list (but not to your citizens)'/>
+    <global-object name='debug_fastmining' type-name='bool' comment='All dwarves mine as fast as a Legendary Miner'/>
+    <global-object name='debug_nothought' type-name='bool' comment='All units have happiness locked at 100'/>
+    <global-object name='debug_noberserk' type-name='bool' comment='Insanity can only result in Crazed or Melancholy, never Berserk'/>
+    <global-object name='debug_turbospeed' type-name='bool' comment='All units move and work at maximum speed'/>
+
+    <global-object name='standing_orders_gather_minerals' type-name='uint8_t'/>
+    <global-object name='standing_orders_gather_wood' type-name='uint8_t'/>
+    <global-object name='standing_orders_gather_food' type-name='uint8_t'/>
+    <global-object name='standing_orders_gather_bodies' type-name='uint8_t'/>
+    <global-object name='standing_orders_gather_animals' type-name='uint8_t'/>
+    <global-object name='standing_orders_gather_furniture' type-name='uint8_t'/>
+    <global-object name='standing_orders_farmer_harvest' type-name='uint8_t'/>
+    <global-object name='standing_orders_job_cancel_announce' type-name='uint8_t'/>
+    <global-object name='standing_orders_mix_food' type-name='uint8_t'/>
+    <global-object name='standing_orders_gather_refuse' type-name='uint8_t'/>
+    <global-object name='standing_orders_gather_refuse_outside' type-name='uint8_t'/>
+    <global-object name='standing_orders_gather_vermin_remains' type-name='uint8_t'/>
+    <global-object name='standing_orders_dump_corpses' type-name='uint8_t'/>
+    <global-object name='standing_orders_dump_skulls' type-name='uint8_t'/>
+    <global-object name='standing_orders_dump_skins' type-name='uint8_t'/>
+    <global-object name='standing_orders_dump_bones' type-name='uint8_t'/>
+    <global-object name='standing_orders_dump_hair' type-name='uint8_t'/>
+    <global-object name='standing_orders_dump_shells' type-name='uint8_t'/>
+    <global-object name='standing_orders_dump_other' type-name='uint8_t'/>
+    <global-object name='standing_orders_forbid_used_ammo' type-name='uint8_t'/>
+    <global-object name='standing_orders_forbid_other_dead_items' type-name='uint8_t'/>
+    <global-object name='standing_orders_forbid_own_dead' type-name='uint8_t'/>
+    <global-object name='standing_orders_forbid_other_nohunt' type-name='uint8_t'/>
+    <global-object name='standing_orders_forbid_own_dead_items' type-name='uint8_t'/>
+    <global-object name='standing_orders_auto_loom' type-name='uint8_t'/>
+    <global-object name='standing_orders_auto_collect_webs' type-name='uint8_t'/>
+    <global-object name='standing_orders_auto_slaughter' type-name='uint8_t'/>
+    <global-object name='standing_orders_auto_butcher' type-name='uint8_t'/>
+    <global-object name='standing_orders_auto_tan' type-name='uint8_t'/>
+    <global-object name='standing_orders_auto_fishery' type-name='uint8_t'/>
+    <global-object name='standing_orders_auto_kitchen' type-name='uint8_t'/>
+    <global-object name='standing_orders_auto_kiln' type-name='uint8_t'/>
+    <global-object name='standing_orders_auto_smelter' type-name='uint8_t'/>
+    <global-object name='standing_orders_auto_other' type-name='uint8_t'/>
+    <global-object name='standing_orders_use_dyed_cloth' type-name='uint8_t'/>
+    <global-object name='standing_orders_zoneonly_drink' type-name='uint8_t'/>
+    <global-object name='standing_orders_zoneonly_fish' type-name='uint8_t'/>
 </data-definition>
 
 <!--

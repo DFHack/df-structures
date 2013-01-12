@@ -9,21 +9,31 @@
     <class-type type-name='viewscreen' original-name='viewscreenst'>
         <pointer name='child' type-name='viewscreen'/>
         <pointer name='parent' type-name='viewscreen'/>
-        <enum base-type='int8_t' name='breakdown_level' type-name='interface_breakdown_types'/>
+        <enum base-type='int8_t' name='breakdown_level' type-name='interface_breakdown_types' init-value='NONE'/>
         <int8_t name='option_key_pressed'/>
-        
+
         <virtual-methods>
-            <vmethod name='feed'> <pointer name='events'/> </vmethod>
+            <vmethod name='feed'>
+                <pointer name='events'> <stl-set>
+                    <enum type-name='interface_key' base-type='int32_t'/>
+                </stl-set> </pointer>
+            </vmethod>
             <vmethod name='logic'/>
             <vmethod name='render'/>
             <vmethod name='resize'> <int32_t name='w'/> <int32_t name='h'/> </vmethod>
             <vmethod name='help'/>
-            <vmethod ret-type='bool' name='movies_okay'/>
-            <vmethod ret-type='bool' name='is_option_screen'/>
-            <vmethod ret-type='bool' name='is_save_screen'/>
+            <vmethod ret-type='int8_t' name='movies_okay'/>
+            <vmethod ret-type='int8_t' name='is_option_screen'/>
+            <vmethod ret-type='int8_t' name='is_save_screen'/>
             <vmethod is-destructor='true'/>
-            <vmethod ret-type='bool' name='key_conflict'> <int32_t/> </vmethod>
+            <vmethod ret-type='bool' name='key_conflict'>
+                <enum type-name='interface_key' base-type='int32_t'/>
+            </vmethod>
         </virtual-methods>
+    </class-type>
+
+    <class-type type-name='viewscreen_layer' original-name='viewscreen_layerst' inherits-from='viewscreen'>
+        <stl-vector pointer-type="layer_object" name="layer_objects"/>
     </class-type>
 
     <struct-type type-name='interfacest'>
@@ -40,9 +50,7 @@
         <int32_t name='supermovie_delayrate'/>
         <int32_t name='supermovie_delaystep'/>
 
-        <stl-vector name='supermovie_sound'>
-            <pointer type-name='stl-string'/>
-        </stl-vector>
+        <stl-vector pointer-type='stl-string' name='supermovie_sound'/>
 
         <static-array name='supermovie_sound_time' count='16' comment='SOUND_CHANNELNUM'>
             <static-array count='200' type-name='int32_t'/>
@@ -57,162 +65,150 @@
         <stl-string name='movie_file'/>
     </struct-type>
 
-    <class-type type-name='viewscreen_titlest' inherits-from='viewscreen'>
-        <static-string name='str_histories' size='256'/>
-        <static-string name='menu_items' size='256'/>
-        <enum base-type='int16_t' name="sel_subpage">
-            <enum-item name='None'/>
-            <enum-item name='StartGame'/>
-            <enum-item name='Unk2'/>
-            <enum-item name='Arena'/>
-            <enum-item name='About'/>
-        </enum>
-        <int32_t name="sel_menu_line"/>
-        <int32_t name="sel_submenu_line"/>
-        <int8_t name="unk_218"/>
-        <stl-vector name="unk_21c">
-            <int32_t/>
-        </stl-vector>
-        <stl-vector name="unk_228"/>
-        <stl-vector name="unk_234"/>
-        <stl-vector name="start_savegames">
-            <pointer/>
-        </stl-vector>
-        <stl-vector name="continue_savegames">
-            <pointer/>
-        </stl-vector>
-        <stl-string name="str_slaves"/>
-        <stl-string name="str_chapter"/>
-        <stl-string name="str_copyright"/>
-        <stl-string name="str_version"/>
-        <stl-string name="str_unk"/>
-        <stl-string name="str_programmed"/>
-        <stl-string name="str_designed"/>
-        <stl-string name="str_visit"/>
-        <stl-string name="str_site"/>
+    <class-type type-name='layer_object' original-name='layer_objectst'>
+        <bool name='enabled'/>
+        <bool name='active'/>
+
+        <virtual-methods>
+            No destructor anywhere:
+            <vmethod ret-type='int32_t' name='getFirstVisible'/>
+            <vmethod ret-type='int32_t' name='getLastVisible'/>
+            <vmethod ret-type='int32_t' name='getX1'/>
+            <vmethod ret-type='int32_t' name='getY1'/>
+            <vmethod ret-type='int32_t' name='getX2'/>
+
+            <vmethod ret-type='int32_t' name='getY2'/>
+            <vmethod ret-type='int32_t' comment='list 1; button,base -1'/>
+            <vmethod ret-type='int32_t' name='getListCursor'/>
+            <vmethod name='setListCursor'> <int32_t/> </vmethod>
+            <vmethod name='feed'>
+                <pointer name='events'> <stl-set>
+                    <enum type-name='interface_key' base-type='int32_t'/>
+                </stl-set> </pointer>
+            </vmethod>
+
+            <vmethod ret-type='bool' name='isSetMouseLRCur'/>
+            <vmethod ret-type='bool' name='isSetMouseLCur'/>
+            <vmethod ret-type='bool' name='isSetMouseRCur'/>
+            <vmethod ret-type='int32_t' name='getMouseLCur'/>
+            <vmethod ret-type='int32_t' name='getMouseRCur'/>
+
+            <vmethod> <pointer type-name='int32_t'/> <pointer type-name='int32_t'/> </vmethod>
+            <vmethod> <pointer type-name='int32_t'/> <pointer type-name='int32_t'/> </vmethod>
+            <vmethod ret-type='int32_t' name='getListLength'/>
+            <vmethod name='setListLength'> <int32_t/> </vmethod>
+            <vmethod ret-type='int32_t'/>
+
+            <vmethod ret-type='int32_t'/>
+            <vmethod ret-type='int32_t'/>
+            <vmethod ret-type='int32_t'/>
+        </virtual-methods>
     </class-type>
 
-    <class-type type-name='viewscreen_optionst' inherits-from='viewscreen'>
-        ...
+    <class-type type-name='layer_object_listst' inherits-from='layer_object'>
+        <int32_t name='cursor'/>
+        <int32_t name='num_entries'/>
+        <int32_t name='x1'/>
+        <int32_t name='y1'/>
+        <int32_t name='page_size'/>
+        <int32_t name='x2'/>
+        <int32_t name='y2'/>
+        <int32_t name='mouse_l_cur'/>
+        <int32_t name='mouse_r_cur'/>
+        <bool name='rclick_scrolls'/>
+        <int32_t name='flag' comment='for standardscrolling'/>
+        <enum name='key_lclick' base-type='int32_t' type-name='interface_key'/>
+        <enum name='key_rclick' base-type='int32_t' type-name='interface_key'/>
     </class-type>
 
-    <class-type type-name='viewscreen_dwarfmodest' inherits-from='viewscreen'>
-        <int8_t name="unk_10"/>
-        <padding size='3' comment='A necessary workaround for linux class alignment quirks'/>
-        <stl-vector name="unk_14"/>
-        <stl-vector name="unk_24"/>
-        <stl-vector type-name='int32_t' name="unk_34"/>
-        <stl-vector type-name='int32_t' name="unk_44"/>
-        <int32_t name="unk_54"/>
-        <int8_t name="unk_58"/>
-        <int8_t name="keyRepeat"/>
-        <stl-vector comment='v0.34.06'/>
-        <padding size='12'/>
+    <class-type type-name='layer_object_buttonst' inherits-from='layer_object'>
+        <int32_t name='x1'/>
+        <int32_t name='y1'/>
+        <int32_t name='x2'/>
+        <int32_t name='y2'/>
+        <int32_t name='has_mouse_lclick'/>
+        <int32_t name='has_mouse_rclick'/>
+        <int32_t name='mouse_lclick_x'/>
+        <int32_t name='mouse_lclick_y'/>
+        <int32_t name='mouse_rclick_x'/>
+        <int32_t name='mouse_rclick_y'/>
+        <int32_t name='mouse_x'/>
+        <int32_t name='mouse_y'/>
+        <int32_t name='mouse_x_old'/>
+        <int32_t name='mouse_y_old'/>
+        <int8_t name='handle_mouselbtndown'/>
+        <int8_t name='handle_mouserbtndown'/>
     </class-type>
 
-    <class-type type-name='viewscreen_joblistst' inherits-from='viewscreen'>
-        <bool name="allow_zoom"/>
-
-        <int32_t name="cursor_pos"/>
-
-        <stl-vector name="jobs">
-            <pointer type-name='job'/>
-        </stl-vector>
-        <stl-vector name="units">
-            <pointer type-name="unit"/>
-        </stl-vector>
+    <class-type type-name='viewscreen_adventure_logst' inherits-from='viewscreen'>
+        <int8_t/>
+        <int8_t/>
+        <int8_t/>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+        <int32_t/>
+        <int8_t/>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+        <stl-vector name="sites"/>
+        <stl-vector name="tasks"/>
+        <stl-vector name="entities"/>
+        <stl-vector name="regions"/>
+        <stl-vector name="layers"/>
     </class-type>
 
-    <class-type type-name='viewscreen_unitlistst' inherits-from='viewscreen'>
-        <bool name="allow_zoom"/>
-        <int32_t name="page"/>
-        <static-array name='cursor_pos' count='4'>
-            <int32_t refers-to='$$._global.units[$$._key][$]'/>
-        </static-array>
-        <static-array name='jobs' count='4'>
-            <stl-vector>
-                <pointer type-name='job'/>
-            </stl-vector>
-        </static-array>
-        <static-array name='units' count='4'>
-            <stl-vector>
-                <pointer type-name="unit"/>
-            </stl-vector>
-        </static-array>
-    </class-type>
-
-    <class-type type-name='viewscreen_itemst' inherits-from='viewscreen'>
-        <pointer name="item" type-name="item"/>
-
-        <stl-vector name="entry_ref">
-            <pointer type-name="general_ref"/>
-        </stl-vector>
-        <stl-vector name="entry_indent" type-name='int16_t'/>
-        <stl-vector name="unk_34">
-            <pointer comment='NULL'/>
-        </stl-vector>
-        <stl-vector name="entry_string">
-            <pointer type-name='stl-string'/>
-        </stl-vector>
-        <stl-vector name="entry_reaction">
-            <int32_t/>
-        </stl-vector>
-        <int32_t name="cursor_pos"/>
-
-        <bool name="caption_uses"/>
-        <bool name="caption_contents"/>
-    </class-type>
-
-    <class-type type-name='viewscreen_createquotast' inherits-from='viewscreen'>
-        <static-string name='str_filter' size='256'/>
-        <int32_t name='top_idx'/>
+    <class-type type-name='viewscreen_announcelistst' inherits-from='viewscreen'>
+        <pointer type-name='unit' name='unit'/>
+        <enum type-name='unit_report_type' base-type='int16_t' name='report_type'/>
         <int32_t name='sel_idx'/>
-        <stl-vector name='orders'>
-            <pointer type-name='manager_order_template'/>
-        </stl-vector>
-        <stl-vector type-name='int32_t'/>
-        <bool name='want_quantity'/>
+        <stl-vector pointer-type='report' name='reports'/>
     </class-type>
 
-    <class-type type-name='viewscreen_layer_arena_creaturest' inherits-from='viewscreen'>
-        <stl-vector name="interface_objects">
-            <pointer/>
-        </stl-vector>
-        <int8_t name="unk_1c"/>
-        <int16_t name="unk_1e"/>
-        <padding name="unk_20" size="8"/>
-        <int32_t name="cur_side"/>
-        <int32_t name="cur_interaction" refers-to='$global.world.arena_spawn.interactions[$]'/>
+    <class-type type-name='viewscreen_barterst' inherits-from='viewscreen'>
+        <pointer/>
+        <pointer/>
+        <pointer/>
+        <pointer/>
+        <static-array count='2'><stl-vector/></static-array>
+        <static-array count='2'><stl-vector/></static-array>
+        <static-array count='2'><stl-vector/></static-array>
+        <stl-vector/>
+        <stl-vector/>
+        <static-array count='2' type-name='int32_t'/>
+        <int8_t/>
+        <int16_t/>
+        <int8_t/>
+        <int32_t name='max_ask'/>
+        <int32_t name='max_offer'/>
+        <int32_t name='cur_ask'/>
+        <int32_t name='cur_offer'/>
+        <int16_t/>
+        <int8_t/>
+        <stl-string/>
     </class-type>
 
-    <class-type type-name='viewscreen_dungeonmodest' inherits-from='viewscreen'>
-        <int32_t name="x"/>
-        <int32_t name="y"/>
-        <int32_t name="z"/>
-        <int32_t name="unk_1c"/>
-        <int32_t name="unk_20"/>
-        <int8_t name="unk_24"/>
+    <class-type type-name='viewscreen_buildingst' inherits-from='viewscreen'>
+        <pointer name='building' type-name='building'/>
     </class-type>
 
-    <class-type type-name='viewscreen_dungeon_monsterstatusst'
-                inherits-from='viewscreen'>
-        <pointer name="unit" type-name="unit"/>
-
-        <int32_t name="inventory_cursor"/>
-        <int32_t name="body_part_cursor"/>
-
-        <stl-vector name="body_part">
-            <int16_t refers-to='$$._global.unit.body.body_plan.body_parts[$]'/>
-        </stl-vector>
-
-        <bool name="view_skills"/>
-
-        <stl-vector name="inventory">
-            <pointer type-name="unit_inventory_item"/>
-        </stl-vector>
-        <stl-vector name="spatters">
-            <pointer type-name="unit_spatter"/>
-        </stl-vector>
+    <class-type type-name='viewscreen_buildinglistst' inherits-from='viewscreen'>
+        <int32_t name='cursor' refers-to='$$._parent.buildings[$]'/>
+        <bool name='alt_right_panel'/>
+        <stl-vector name='buildings' pointer-type='building'/>
+        <stl-vector name='buildings2' pointer-type='building'/>
+        <stl-vector name='room_value' type-name='int32_t' index-refers-to='$$._parent.buildings[$]'/>
+        <stl-vector name='room_value2' type-name='int32_t' index-refers-to='$$._parent.buildings2[$]'/>
     </class-type>
 
     <enum-type type-name='embark_finder_option'>
@@ -321,6 +317,1371 @@
         <int16_t name="unk_158"/>
         <int16_t name="unk_15a"/>
         <int32_t name="unk_15c"/>
+    </class-type>
+
+    <class-type type-name='viewscreen_civlistst' inherits-from='viewscreen'>
+        <int32_t name='sel_idx'/>
+        <stl-vector pointer-type='historical_entity' name='entities'/>
+    </class-type>
+
+    <class-type type-name='viewscreen_conversationst' inherits-from='viewscreen'>
+        <pointer/>
+        <int32_t/>
+        <int32_t/>
+        <int16_t/>
+    </class-type>
+
+    <class-type type-name='viewscreen_createquotast' inherits-from='viewscreen'>
+        <static-string name='str_filter' size='256'/>
+        <int32_t name='top_idx'/>
+        <int32_t name='sel_idx'/>
+        <stl-vector name='orders'>
+            <pointer type-name='manager_order_template'/>
+        </stl-vector>
+        <stl-vector type-name='int32_t'/>
+        <bool name='want_quantity'/>
+    </class-type>
+
+    <class-type type-name='viewscreen_customize_unitst' inherits-from='viewscreen'>
+        <pointer name="unit" type-name="unit"/>
+        <int8_t name='editing_nickname'/>
+        <int8_t name='editing_profession'/>
+        <stl-string name='previous_name'/> previous value of the string, for Abort Edit
+        <int8_t name='has_name'/>
+    </class-type>
+
+    <class-type type-name='viewscreen_dungeon_monsterstatusst'
+                inherits-from='viewscreen'>
+        <pointer name="unit" type-name="unit"/>
+
+        <int32_t name="inventory_cursor"/>
+        <int32_t name="body_part_cursor"/>
+
+        <stl-vector name="body_part">
+            <int16_t refers-to='$$._global.unit.body.body_plan.body_parts[$]'/>
+        </stl-vector>
+
+        <bool name="view_skills"/>
+
+        <stl-vector name="inventory">
+            <pointer type-name="unit_inventory_item"/>
+        </stl-vector>
+        <stl-vector name="spatters">
+            <pointer type-name="unit_spatter"/>
+        </stl-vector>
+    </class-type>
+
+    <class-type type-name='viewscreen_dungeon_wrestlest' inherits-from='viewscreen'>
+        <pointer type-name='unit'/>
+        <pointer type-name='unit'/>
+        <int8_t/>
+        <int32_t/>
+        <stl-vector/>
+        <int32_t/>
+        <int32_t/>
+        <stl-vector/>
+        <stl-vector/>
+        <compound name='unk1'>
+            <int32_t/>
+            <int8_t/>
+            <int8_t/>
+            <stl-vector/>
+            <stl-vector/>
+            <stl-vector/>
+            <stl-vector/>
+            <stl-vector/>
+            <stl-vector/>
+            <stl-vector/>
+            <stl-vector/>
+            <stl-vector/>
+            <stl-vector/>
+            <stl-vector/>
+            <stl-vector/>
+            <stl-vector/>
+            <stl-vector/>
+            <stl-vector/>
+        </compound>
+        <int32_t/>
+        <int32_t/>
+    </class-type>
+
+    <class-type type-name='viewscreen_dungeonmodest' inherits-from='viewscreen'>
+        <int32_t name="x"/>
+        <int32_t name="y"/>
+        <int32_t name="z"/>
+        <int32_t name="announce_y"/> screen y of first announce shown
+        <int32_t name="announce_idx"/> idx of first announcement currently displayed
+        <int8_t name="announce_more"/> 0 [DONE] 1 [MORE]
+    </class-type>
+
+    <class-type type-name='viewscreen_dwarfmodest' inherits-from='viewscreen'>
+        <int8_t name='unk_10'/>
+
+        <int16_t name='jeweler_mat_count'/> jewelers workshop orders
+        <stl-vector type-name='int32_t' name='jeweler_cutgem'  index-refers-to='(material-by-id 0 $)'/> number of free items for job
+        <stl-vector type-name='int32_t' name='jeweler_encrust' index-refers-to='(material-by-id 0 $)'/> index list +3 (green/clear/crystal glass)
+
+        <stl-vector name='unit_labors_sidemenu'> For sidemenu unit/prefs/labor
+            <enum type-name='unit_labor' base-type='int32_t'/> When negative, labor category
+        </stl-vector>
+        <stl-vector name='unit_labors_sidemenu_uplevel'>
+            <enum type-name='unit_labor' base-type='int32_t'/>
+        </stl-vector>
+        <int32_t name='unit_labors_sidemenu_uplevel_idx'/>
+        <int8_t name='sideSubmenu'/> determine if ESC is Done or Back
+
+        <int8_t name='keyRepeat'/>
+
+        <stl-vector name='trained_animals' pointer-type='unit'/>
+        <int32_t name='trained_animal_idx'/>
+        <int32_t name='number_assigned_hunt'/> for current unit
+        <int32_t name='number_assigned_war'/>
+    </class-type>
+
+    <class-type type-name='viewscreen_entityst' inherits-from='viewscreen'>
+        <pointer name='entity' type-name='historical_entity'/>
+        <stl-vector/>
+        <int32_t/>?
+        <stl-vector pointer-type='nemesis_record' name='important_leader_nemesis'/>
+        <stl-vector type-name='int32_t'/>
+        <int32_t name='start_idx'/>
+        <stl-vector/>
+        <stl-vector/>
+        <int32_t/>
+        <int16_t/>
+    </class-type>
+
+    <class-type type-name='viewscreen_export_graphical_mapst' inherits-from='viewscreen'>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int8_t/>
+        <int32_t/>
+    </class-type>
+
+    <class-type type-name='viewscreen_export_regionst' inherits-from='viewscreen'>
+        <int8_t/>
+        <stl-vector/>
+        <stl-vector/>
+        <stl-vector/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+    </class-type>
+
+    <class-type type-name='viewscreen_game_cleanerst' inherits-from='viewscreen'>
+        <enum base-type='int32_t' name='state'>
+            <enum-item name='CleaningGameObjects'/>
+            <enum-item name='CleaningStrandedObjects'/>
+            <enum-item name='CleaningPlayObjects'/>
+        </enum>
+        <int8_t/>
+    </class-type>
+
+    <class-type type-name='viewscreen_itemst' inherits-from='viewscreen'>
+        <pointer name="item" type-name="item"/>
+
+        <stl-vector name="entry_ref">
+            <pointer type-name="general_ref"/>
+        </stl-vector>
+        <stl-vector name="entry_indent" type-name='int16_t'/>
+        <stl-vector name="unk_34">
+            <pointer comment='NULL'/>
+        </stl-vector>
+        <stl-vector name="entry_string">
+            <pointer type-name='stl-string'/>
+        </stl-vector>
+        <stl-vector name="entry_reaction">
+            <int32_t/>
+        </stl-vector>
+        <int32_t name="cursor_pos"/>
+
+        <bool name="caption_uses"/>
+        <bool name="caption_contents"/>
+    </class-type>
+
+    <class-type type-name='viewscreen_jobst' inherits-from='viewscreen'>
+        <int32_t/>
+    </class-type>
+
+    <class-type type-name='viewscreen_joblistst' inherits-from='viewscreen'>
+        <bool name="allow_zoom"/>
+
+        <int32_t name="cursor_pos"/>
+
+        <stl-vector name="jobs">
+            <pointer type-name='job'/>
+        </stl-vector>
+        <stl-vector name="units">
+            <pointer type-name="unit"/>
+        </stl-vector>
+    </class-type>
+
+    <class-type type-name='viewscreen_jobmanagementst' inherits-from='viewscreen'>
+        <int32_t name='sel_idx'/> index into world.manager_orders, curpage = sel_idx/16
+    </class-type>
+
+    <class-type type-name='viewscreen_justicest' inherits-from='viewscreen'>
+        <int16_t name='jails_needed'/>
+        <int16_t name='jails_present'/>
+        <int32_t/>
+        <stl-vector/>
+        <stl-vector/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int8_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <stl-vector/>
+        <int32_t/>
+        <stl-vector/>
+    </class-type>
+
+    <class-type type-name='viewscreen_kitchenprefst' inherits-from='viewscreen'>
+        <int32_t name="cursor"/>
+        <stl-vector name='item_type'>
+            <enum base-type='int16_t' type-name='item_type'/>
+        </stl-vector>
+        <stl-vector name="item_subtype">
+            <int16_t refers-to='(item-subtype-target $$._global.group_item_type[$$._key] $)'/>
+        </stl-vector>
+        <stl-vector name="mat_type">
+            <int16_t ref-target='material' aux-value='$$._global.group_mat_index[$._key]'/>
+        </stl-vector>
+        <stl-vector name="mat_index" type-name='int32_t'/>
+        <stl-vector name="count" type-name='int32_t'/>
+        <stl-vector name="forbidden" type-name='uint8_t' comment='1 cook, 2 brew'/>
+        <stl-vector name="possible" type-name='uint8_t' comment='1 cook, 2 brew'/>
+    </class-type>
+
+    <class-type type-name='viewscreen_layer_arena_creaturest'
+                inherits-from='viewscreen_layer'>
+        <int8_t name="unk_1c"/>
+        <int16_t name="unk_1e"/>
+        <padding name="unk_20" size="8"/>
+        <int32_t name="cur_side"/>
+        <int32_t name="cur_interaction" refers-to='$global.world.arena_spawn.interactions[$]'/>
+    </class-type>
+
+    <struct-type type-name='assign_trade_status'>
+        <pointer name='item' type-name='item'/>
+        <int32_t name="distance"/>
+        <enum base-type='int8_t' name="status">
+            <enum-item name='RemoveTrading' value='-2'/>
+            <enum-item name='RemovePending'/>
+            <enum-item name='None'/>
+            <enum-item name='AddPending'/>
+            <enum-item name='Pending'/>
+            <enum-item name='Trading'/>
+        </enum>
+        <bool name='unk' comment='mandate?'/>
+        <int32_t name="value"/>
+        <int32_t name="weight"/>
+    </struct-type>
+
+    <class-type type-name='viewscreen_layer_assigntradest'
+                inherits-from='viewscreen_layer'>
+        <stl-vector name='info'>
+            <pointer type-name='assign_trade_status'/>
+        </stl-vector>
+        <pointer name='depot' type-name='building_tradedepotst'/>
+        <static-array name='lists' count='61'>
+            <stl-vector>
+                <int32_t refers-to='$$._global.info[$]'/>
+            </stl-vector>
+        </static-array>
+        <stl-vector name='visible_lists' type-name='int16_t'/>
+        <bool name='sort_distance'/>
+        <bool name='pending_on_top'/>
+        <bool name='filter_mandates'/>
+        <stl-string name='filter' comment='v0.34.10'/>
+    </class-type>
+
+    <class-type type-name='viewscreen_layer_choose_language_namest' inherits-from='viewscreen_layer'>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>?
+        <compound name='unk1'>
+            <static-array count='6'>
+                <stl-vector/>
+            </static-array>
+            <static-array count='6'>
+                <stl-vector/>
+            </static-array>
+        </compound>
+        <stl-vector/>
+        <stl-vector/>
+        <stl-string/>
+    </class-type>
+
+    <class-type type-name='viewscreen_layer_currencyst' inherits-from='viewscreen_layer'>
+        <stl-vector/>
+        <int32_t/>
+        <stl-vector/>
+    </class-type>
+
+    <class-type type-name='viewscreen_layer_export_play_mapst' inherits-from='viewscreen_layer'>
+        <stl-vector type-name='int8_t'/>
+        <stl-vector type-name='int16_t'/>
+        <stl-vector type-name='int16_t'/>
+        <stl-vector type-name='int16_t'/>
+    </class-type>
+
+    <class-type type-name='viewscreen_layer_militaryst' inherits-from='viewscreen_layer'>
+        <compound name='squads'>
+            <stl-vector name="list">
+                <pointer type-name='squad'/>
+            </stl-vector>
+            <stl-vector name="leader_positions">
+                <pointer type-name="entity_position"/>
+            </stl-vector>
+            <stl-vector name="leader_assignments">
+                <pointer type-name="entity_position_assignment"/>
+            </stl-vector>
+            <stl-bit-vector name='can_appoint'/>
+        </compound>
+
+        <compound name='positions'>
+            <stl-vector name="assigned">
+                <pointer type-name='unit'/>
+            </stl-vector>
+            <stl-vector name="skill">
+                <enum base-type='int16_t' type-name='job_skill'/>
+            </stl-vector>
+            <stl-vector name="unk_84" type-name='int32_t'/>
+            <stl-vector name="candidates">
+                <pointer type-name='unit'/>
+            </stl-vector>
+        </compound>
+
+        <enum name="page">
+            <enum-item name='Positions'/>
+            <enum-item name='Alerts'/>
+            <enum-item name='Equip'/>
+            <enum-item name='Uniforms'/>
+            <enum-item name='Supplies'/>
+            <enum-item name='Ammunition'/>
+        </enum>
+
+        <int32_t name="num_squads"/>
+        <int32_t name="num_soldiers"/>
+        <int32_t name="num_active"/>
+
+        <compound name='squad_members'>
+            <stl-vector name="profession">
+                <enum base-type='int16_t' type-name='profession'/>
+            </stl-vector>
+            <stl-vector name="count" type-name='int32_t'/>
+            <stl-vector name="max_count" type-name='int32_t'/>
+        </compound>
+
+        <bool name="in_create_squad"/>
+        <bool name="in_new_squad"/>
+        <bool name='unk_e6'/>
+
+        <stl-vector name="captain_positions">
+            <pointer type-name='entity_position'/>
+        </stl-vector>
+        <pointer name='new_position' type-name='entity_position'/>
+
+        <bool name="unk_fc"/>
+        <bool name='in_rename_alert'/>
+        <bool name='in_delete_alert'/>
+
+        <stl-vector name="alert_squads">
+            <pointer type-name='squad'/>
+        </stl-vector>
+
+        <compound name='equip'>
+            <enum name='mode'>
+                <enum-item name='Customize'/>
+                <enum-item name='Uniform'/>
+                <enum-item name='Priority'/>
+            </enum>
+            <stl-vector name="squads">
+                <pointer type-name='squad'/>
+            </stl-vector>
+            <stl-vector name="units">
+                <pointer type-name='unit'/>
+            </stl-vector>
+            <stl-vector name="specific_items">
+                <pointer type-name='item'/>
+            </stl-vector>
+            <int32_t name='prio_in_move' refers-to='$$._parent.squads[$]'/>
+
+            <compound name='assigned'>
+                <stl-vector name="spec">
+                    <pointer type-name='squad_uniform_spec'/>
+                </stl-vector>
+                <stl-vector name="category">
+                    <enum base-type='int16_t' type-name='uniform_category'/>
+                </stl-vector>
+                <stl-vector name="index" type-name='int32_t'
+                            comment='spec in category vector'/>
+            </compound>
+            <stl-vector name="unk_178"/>
+            <pointer name="edit_spec" type-name='squad_uniform_spec'/>
+
+            <stl-vector name="uniforms">
+                <pointer type-name='entity_uniform'/>
+            </stl-vector>
+            <compound name='uniform'>
+                <stl-vector name="type">
+                    <enum base-type='int16_t' type-name='item_type'/>
+                </stl-vector>
+                <stl-vector name="subtype">
+                    <int16_t refers-to='(item-subtype-target $$._parent._parent.type[$$._key] $)'/>
+                </stl-vector>
+                <stl-vector name="category">
+                    <enum base-type='int16_t' type-name='uniform_category'/>
+                </stl-vector>
+                <stl-vector name="index" type-name='int16_t'/>
+                <stl-vector name="info">
+                    <pointer type-name='entity_uniform_item'/>
+                </stl-vector>
+            </compound>
+
+            <enum name='edit_mode'>
+                <enum-item name='Armor'/>
+                <enum-item name='Helm'/>
+                <enum-item name='Legs'/>
+                <enum-item name='Gloves'/>
+                <enum-item name='Boots'/>
+                <enum-item name='Shield'/>
+                <enum-item name='Weapon'/>
+                <enum-item name='Material'/>
+                <enum-item name='Color'/>
+                <enum-item name='SpecificArmor'/>
+                <enum-item name='SpecificHelm'/>
+                <enum-item name='SpecificLegs'/>
+                <enum-item name='SpecificGloves'/>
+                <enum-item name='SpecificBoots'/>
+                <enum-item name='SpecificShield'/>
+                <enum-item name='SpecificWeapon'/>
+            </enum>
+            <padding name="unk_1ec" size="4"/>
+            <compound name='add_item'>
+                <stl-vector name="type">
+                    <enum base-type='int16_t' type-name='item_type'/>
+                </stl-vector>
+                <stl-vector name="subtype">
+                    <int16_t refers-to='(item-subtype-target $$._parent._parent.type[$$._key] $)'/>
+                </stl-vector>
+                <stl-vector name="unk_214"/>
+                <stl-bit-vector name="foreign"/>
+            </compound>
+            <compound name='material'>
+                <stl-vector name="generic">
+                    <enum base-type='int16_t' type-name='uniform_material_class'/>
+                </stl-vector>
+                <compound name='specific' type-name='material_vec_ref'/>
+            </compound>
+            <compound name='color'>
+                <stl-vector name="id">
+                    <int32_t ref-target='descriptor_color'/>
+                </stl-vector>
+                <stl-bit-vector name='dye'/>
+            </compound>
+            <bool name='in_name_uniform'/>
+        </compound>
+
+        <compound name='ammo'>
+            <stl-vector name="squads">
+                <pointer type-name='squad' comment='null for hunters'/>
+            </stl-vector>
+            <bool name='in_add_item'/>
+            <bool name='in_set_material'/>
+            <compound name='add_item'>
+                <stl-vector name="type">
+                    <enum base-type='int16_t' type-name='item_type'/>
+                </stl-vector>
+                <stl-vector name="subtype">
+                    <int16_t refers-to='(item-subtype-target $$._parent._parent.type[$$._key] $)'/>
+                </stl-vector>
+                <stl-bit-vector name="foreign"/>
+            </compound>
+            <compound name='material'>
+                <stl-vector name="generic">
+                    <enum base-type='int16_t' type-name='uniform_material_class'/>
+                </stl-vector>
+                <compound name='specific' type-name='material_vec_ref'/>
+            </compound>
+        </compound>
+
+        <stl-vector name="supplies_squads">
+            <pointer type-name='squad'/>
+        </stl-vector>
+    </class-type>
+
+    <class-type type-name='viewscreen_layer_musicsoundst' inherits-from='viewscreen_layer'/>
+
+    <class-type type-name='viewscreen_layer_noblelistst' inherits-from='viewscreen_layer'>
+        <enum name='mode' base-type='int16_t'>
+            <enum-item name='List'/>
+            <enum-item name='Appoint'/>
+            <enum-item name='Settings'/>
+        </enum>
+
+        <stl-vector name="info">
+            <pointer>
+                <pointer name="unit" type-name="unit"/>
+                <pointer name="nemesis" type-name="nemesis_record"/>
+                <pointer name="unk_8"/>
+                <pointer name="position" type-name="entity_position"/>
+                <pointer name="assignment" type-name="entity_position_assignment"/>
+                <int32_t name="group" ref-target='historical_entity'/>
+                <int32_t name="precedence"/>
+            </pointer>
+        </stl-vector>
+        <stl-vector name="candidates">
+            <pointer>
+                <pointer name='unit' type-name='unit'/>
+                <int32_t name='weight'/>
+            </pointer>
+        </stl-vector>
+        <stl-vector name="assignments">
+            <pointer type-name="entity_position_assignment"/>
+        </stl-vector>
+        <stl-vector name="histfigs">
+            <int32_t ref-target='historical_figure'/>
+        </stl-vector>
+        <stl-vector name="groups">
+            <int32_t ref-target='historical_entity'/>
+        </stl-vector>
+    </class-type>
+
+    <bitfield-type type-name='health_view_bits1'>
+        <flag-bit name='bleeding_heavy'/>
+        <flag-bit name='bleeding'/>
+        <flag-bit name='pale'/>
+        <flag-bit name='blood_loss_severe'/>
+        <flag-bit name='faint'/>
+        <flag-bit name='blood_loss'/>
+        <flag-bit name='paralyzed'/>
+        <flag-bit name='paralyzed_partially'/>
+
+        <flag-bit name='sluggish'/>
+        <flag-bit name='numb_completely'/>
+        <flag-bit name='numb_partially'/>
+        <flag-bit name='numb_slightly'/>
+        <flag-bit name='fever_serious'/>
+        <flag-bit name='fever_moderate'/>
+        <flag-bit name='fever_slight'/>
+        <flag-bit name='pain_extreme'/>
+
+        <flag-bit name='pain_moderate'/>
+        <flag-bit name='pain_slight'/>
+        <flag-bit name='exhausted'/>
+        <flag-bit name='overexerted'/>
+        <flag-bit name='tired'/>
+        <flag-bit name='stunned'/>
+        <flag-bit name='dizzy'/>
+        <flag-bit name='drowning'/>
+
+        <flag-bit name='winded'/>
+        <flag-bit name='nauseous'/>
+        <flag-bit name='drowsy_very'/>
+        <flag-bit name='drowsy'/>
+        <flag-bit name='dehydrated'/>
+        <flag-bit name='thirsty'/>
+        <flag-bit name='starving'/>
+        <flag-bit name='hungry'/>
+    </bitfield-type>
+
+    <bitfield-type type-name='health_view_bits2'>
+        <flag-bit name='breathe_cant'/>
+        <flag-bit name='breathe_trouble'/>
+        <flag-bit name='vision_lost'/>
+        <flag-bit name='vision_impaired'/>
+        <flag-bit name='vision_impaired2'/>
+        <flag-bit name='stand_cant'/>
+        <flag-bit name='stand_impaired'/>
+        <flag-bit name='grasp_cant'/>
+
+        <flag-bit name='grasp_impaired'/>
+        <flag-bit name='fly_cant'/>
+        <flag-bit name='fly_impaired'/>
+        <flag-bit name='motor_nerve'/>
+        <flag-bit name='sensory_nerve'/>
+        <flag-bit name='spilled'/>
+        <flag-bit name='artery_major'/>
+        <flag-bit name='artery'/>
+
+        <flag-bit name='tendon_torn'/>
+        <flag-bit name='tendon_strain'/>
+        <flag-bit name='tendon_bruise'/>
+        <flag-bit name='ligament_torn'/>
+        <flag-bit name='ligament_sprain'/>
+        <flag-bit name='ligament_bruise'/>
+        <flag-bit name='fracture_compound'/>
+        <flag-bit name='fracture_overlap'/>
+
+        <flag-bit name='need_setting'/>
+        <flag-bit name='tissue_broken'/>
+        <flag-bit name='tissue_part_broken'/>
+        <flag-bit name='damage_heavy'/>
+        <flag-bit name='damage_moderate'/>
+        <flag-bit name='damage_light'/>
+        <flag-bit name='pain_extreme'/>
+        <flag-bit name='pain_moderate'/>
+    </bitfield-type>
+
+    <bitfield-type type-name='health_view_bits3'>
+        <flag-bit name='pain_minor'/>
+        <flag-bit name='swell_extreme'/>
+        <flag-bit name='swell_medium'/>
+        <flag-bit name='swell_minor'/>
+        <flag-bit name='infection'/>
+
+        <flag-bit name='rq_diagnosis'/>
+        <flag-bit name='rq_crutch'/>
+        <flag-bit name='inoperable_rot'/>
+        <flag-bit name='rq_cleaning'/>
+        <flag-bit name='rq_surgery'/>
+        <flag-bit name='rq_suture'/>
+        <flag-bit name='rq_setting'/>
+        <flag-bit name='rq_dressing'/>
+        <flag-bit name='rq_traction'/>
+        <flag-bit name='rq_immobilize'/>
+    </bitfield-type>
+
+    <class-type type-name='viewscreen_layer_overall_healthst'
+                inherits-from='viewscreen_layer'>
+        <int32_t/>
+
+        <stl-vector name="unit">
+            <pointer type-name="unit"/>
+        </stl-vector>
+        <stl-vector name="bits1">
+            <compound type-name='health_view_bits1'/>
+        </stl-vector>
+        <stl-vector name="bits2">
+            <compound type-name='health_view_bits2'/>
+        </stl-vector>
+        <stl-vector name="bits3">
+            <compound type-name='health_view_bits3'/>
+        </stl-vector>
+        <int32_t name="x_cursor_pos"/>
+    </class-type>
+
+    <class-type type-name='viewscreen_layer_reactionst' inherits-from='viewscreen_layer'>
+        <int32_t/>
+    </class-type>
+
+    <class-type type-name='viewscreen_layer_squad_schedulest' inherits-from='viewscreen_layer'>
+        <stl-vector/>
+        <int8_t/>
+        <int32_t/>
+        <int32_t/>
+        <int8_t/>
+        <int8_t/>
+        <int8_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>?4c
+        <compound name='unk1'>
+            <stl-vector/>
+            <int32_t/>
+        </compound>
+        <int32_t/>
+        <int32_t/>
+        <stl-vector/>
+        <int32_t/>?7c
+        <int32_t/>
+        <int32_t/>
+    </class-type>
+
+    <class-type type-name='viewscreen_layer_stockpilest'
+                inherits-from='viewscreen_layer'>
+        <pointer name="settings" type-name='stockpile_settings'/>
+        <enum name="cur_group" type-name='stockpile_list' base-type='int32_t'/>
+        <enum name="cur_list" type-name='stockpile_list' base-type='int32_t'/>
+        <stl-vector name="group_ids">
+            <enum type-name='stockpile_list' base-type='int32_t'/>
+        </stl-vector>
+        <stl-vector name="group_bits">
+            <compound type-name='stockpile_group_set'/>
+        </stl-vector>
+        <stl-vector name="list_ids">
+            <enum type-name='stockpile_list' base-type='int32_t'/>
+        </stl-vector>
+        <stl-vector name="item_names">
+            <pointer type-name='stl-string'/>
+        </stl-vector>
+        <stl-vector name="item_status">
+            <pointer type-name='bool'/>
+        </stl-vector>
+        <stl-string name="title"/>
+    </class-type>
+
+    <class-type type-name='viewscreen_layer_stone_restrictionst' inherits-from='viewscreen_layer'>
+        <static-array count='2'><stl-vector/></static-array>
+        <static-array count='2'><stl-vector/></static-array>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <stl-vector/>
+        <stl-vector/>
+    </class-type>
+
+    <class-type type-name='viewscreen_layer_unit_actionst' inherits-from='viewscreen_layer'>
+        <pointer name='unit' type-name='unit'/>
+        <stl-vector name='held_items' pointer-type='item'/>
+        <stl-vector name='reactions' pointer-type='reaction'/>
+        <stl-vector name='choice_items' pointer-type='item'/>
+        <stl-vector name='sel_items' pointer-type='item'/>
+        <stl-vector name='sel_reagents' type-name='int32_t' refers-to='$$._global.cur_reaction[$]'/>
+        <pointer name='cur_reaction' type-name='reaction'/>
+        <int32_t name='reagent' refers-to='$$.cur_reaction.reagents[$]'/>
+        <int32_t name='reagent_amnt_left'/>
+        <int32_t/>
+        <stl-vector/>
+        <stl-vector/>
+        <stl-vector/>
+        <stl-vector/>
+        <stl-vector/>
+        <stl-vector/>
+        <stl-vector/>
+        <stl-vector/>
+    </class-type>
+
+    <class-type type-name='viewscreen_layer_unit_healthst' inherits-from='viewscreen_layer'>
+        <int32_t/>
+        <int32_t/>
+        <int16_t/>
+        <stl-string/>
+        <static-array count='4'><stl-vector pointer-type='stl-string'/></static-array>
+        <static-array count='4'><stl-vector/></static-array>
+        <static-array count='4'><stl-vector/></static-array>
+        <static-array count='4'><stl-vector/></static-array>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+    </class-type>
+
+    <class-type type-name='viewscreen_layer_unit_relationshipst' inherits-from='viewscreen_layer'>
+        <pointer type-name='unit' name='unit'/>
+        <stl-vector pointer-type='stl-string' name='relation_textline'/>1st column text (name, prof)
+        <stl-vector type-name='int16_t' name='relation_type'/>
+        <stl-vector type-name='int16_t'/>-1?
+        <stl-vector pointer-type='unit' name='relation_unit'/>0 for deity and other non-units
+        <stl-vector pointer-type='historical_figure' name='relation_hg'/>
+        <stl-vector type-name='int32_t' name='level'/>5000 for deity, 330 for friend, 30 for acquaintance
+    </class-type>
+
+    <class-type type-name='viewscreen_layer_workshop_profilest'
+                inherits-from='viewscreen_layer'>
+        <pointer name="profile" type-name='workshop_profile'/>
+
+        <stl-vector name="workers">
+            <pointer type-name="unit"/>
+        </stl-vector>
+    </class-type>
+
+    <class-type type-name='viewscreen_layer_world_gen_paramst' inherits-from='viewscreen_layer'>
+        <int32_t/>
+        <stl-string/>
+        <stl-vector/>
+        <compound name='unk1'>
+            <int32_t/>
+            <int32_t/>
+            <int32_t/>
+            <int32_t/>
+            <int32_t/>
+            <int32_t/>
+            <int32_t/>
+            <int32_t/>
+            <int32_t/>
+            <int32_t/>
+            <int32_t/>
+            <int32_t/>
+            <int32_t/>
+            <int32_t/>
+            <int32_t/>
+            <int32_t/>
+            <int32_t/>
+            <int32_t/>
+            <int32_t/>
+            <int32_t/>
+            <int32_t/>
+            <int32_t/>
+            <int32_t/>
+            <int32_t/>
+            <int32_t/>
+            <int32_t/>
+        </compound>
+    </class-type>
+
+    <class-type type-name='viewscreen_layer_world_gen_param_presetst' inherits-from='viewscreen_layer'>
+        <int32_t/>
+        <int32_t/>
+        <stl-string/>
+        <static-array type-name='int16_t' count='24'/>
+        <static-array type-name='int8_t' count='24'/>
+        <int32_t/>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+    </class-type>
+
+    <class-type type-name='viewscreen_legendsst' inherits-from='viewscreen'>
+        <int32_t/>10?
+        <int32_t/>
+        <int32_t/>18?
+        <int32_t/>1c?
+        <int32_t/>20?
+        <int32_t/>
+        <stl-vector name='histfigs'/>
+        <stl-vector name='sites'/>
+        <stl-vector name='artifacts'/>
+        <stl-vector name='regions'/>
+        <stl-vector name='entities'/>
+        <stl-vector/>
+        <stl-vector name='structures'/>
+        <stl-vector/>
+        <stl-vector/>
+        <stl-vector/>
+        <stl-vector/>
+        <stl-vector/>
+        <int32_t/>
+        <stl-vector/>
+        <stl-vector/>
+        <stl-vector/>
+        <stl-vector/>
+        <stl-string/>
+        <int16_t/>
+        <int32_t/>
+        <int32_t/>
+        <stl-vector/>
+        <stl-vector/>
+        <stl-vector/>
+        <stl-vector/>
+        <int32_t/>
+        <int8_t/>
+        <stl-vector/>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+        <stl-string/>
+        <int8_t/>
+        <stl-vector/>
+        <stl-vector/>
+        <stl-vector/>
+        <stl-vector/>
+        <stl-vector/>
+        <stl-vector/>
+        <stl-vector/>
+        <stl-vector/>
+    </class-type>
+
+    <class-type type-name='viewscreen_loadgamest' inherits-from='viewscreen'>
+        <int8_t name='loading'/>
+        <int32_t name='sel_idx'/>
+        <stl-vector name='saves'>
+            <pointer>
+                <static-array name='save_info' type-name='int32_t' count='27'/> misc data read from savefile
+                <enum base-type='int16_t' name='game_type' type-name='game_type'/> only 0 (fort) 1 (adv) 3(reclaim) are valid
+                <stl-string name='fort_name'/>
+                <stl-string name='world_name'/>
+                <int32_t name='year'/>
+                <stl-string name='folder_name'/>
+            </pointer>
+        </stl-vector>
+    </class-type>
+
+    <class-type type-name='viewscreen_meetingst' inherits-from='viewscreen'>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+    </class-type>
+
+    <class-type type-name='viewscreen_movieplayerst' inherits-from='viewscreen'>
+        <int8_t name='saving'/>
+        <int8_t name='loading'/>
+        <int8_t name='editing'/>
+        <int8_t name='text_mode'/>
+        <uint8_t name='editing_char'/>
+        <int32_t name='editing_copy_from'/>
+        <int16_t name='editing_screenf'/>
+        <int16_t name='editing_screenb'/>
+        <int16_t name='editing_screenbright'/>
+        <int32_t name='editing_selected_sound'/>
+        <int8_t name='editing_menu'/>
+        <stl-string name='savename'/>
+        <stl-string name='force_file'/>
+        <int8_t name='is_playing'/>
+        <int8_t name='is_forced_play'/>
+        <int8_t name='quit_if_no_play'/>
+        <int32_t name='maxmoviepos'/>
+        <int32_t name='end_frame_pos'/>
+        <int32_t name='selfile'/>
+        <stl-vector name='filelist'/>
+    </class-type>
+
+    <class-type type-name='viewscreen_new_regionst' inherits-from='viewscreen'>
+        <stl-vector name='worldgen_presets'/> LARGE_ISLAND etc
+
+        advanced settings
+        <int8_t/>
+        <int8_t/>
+        <int32_t/>
+        <stl-string/>
+        <int8_t/>
+        <int8_t/>
+        <int8_t/>
+        <int8_t/>
+        <int8_t/>
+        <int8_t/>
+        <int8_t/>
+        <int8_t/>
+        <int8_t/>
+        <int8_t/>
+        <int8_t/>
+        <int8_t/>
+        <int8_t/>
+        <int8_t/>
+        <int8_t/>
+        <int8_t/>
+
+        create new world
+        <int16_t name='cursor_line'/>
+
+        <int32_t name='world_size'/>
+        <int32_t name='history'/>
+        <int32_t name='number_civs'/>
+        <int32_t name='number_sites'/>
+        <int32_t name='number_beasts'/>
+        <int32_t name='savagery'/>
+        <int32_t name='mineral_occurence'/>
+
+        <int8_t/>
+        <int8_t/>
+        <stl-vector/>
+        <stl-vector/>
+    </class-type>
+
+    <class-type type-name='viewscreen_noblest' inherits-from='viewscreen'>
+        <int32_t/>
+    </class-type>
+
+    <class-type type-name='viewscreen_optionst' inherits-from='viewscreen'>
+        <int8_t/>
+        <int8_t/>
+        <int8_t/>
+        <int8_t/>
+        <int8_t/>
+        <int32_t/>
+    </class-type>
+
+    <class-type type-name='viewscreen_overallstatusst' inherits-from='viewscreen'>
+        <stl-vector name="visible_pages">
+            <int16_t/>
+        </stl-vector>
+        <int32_t name="page_cursor"/>
+    </class-type>
+
+    <class-type type-name='viewscreen_petst' inherits-from='viewscreen'>
+        <int32_t name="cursor"/>
+
+        <stl-vector name="animal">
+            <compound is-union='true'>
+                <pointer name='unit' type-name='unit'/>
+                <pointer name='item' type-name='item'/>     item_verminst
+            </compound>
+        </stl-vector>
+        <stl-vector name="is_vermin" type-name='bool'/>
+        <stl-vector name="pet_info">
+            <pointer type-name='pet_info'/>
+        </stl-vector>
+        <stl-vector name="is_tame" type-name='bool'/>
+        <stl-vector name="is_adopting" type-name='bool'/>
+
+        <enum name='mode'>
+            <enum-item name='List'/>
+            <enum-item name='TrainingKnowledge'/>
+            <enum-item name='SelectTrainer'/>
+        </enum>
+
+        <int32_t name='knowledge_page'/>
+        <stl-vector name="known">
+            <int32_t ref-target='creature_raw'/>
+        </stl-vector>
+
+        <int32_t name='trainer_cursor'/>
+        <stl-vector name="trainer_unit">
+            <pointer type-name='unit'/>
+        </stl-vector>
+        <stl-vector name="trainer_mode">
+            <int32_t comment='0 any, 1 any unassigned, 2 none, 3 specific'/>
+        </stl-vector>
+    </class-type>
+
+    <class-type type-name='viewscreen_pricest' inherits-from='viewscreen'>
+        <int16_t/>
+        <int32_t/>
+    </class-type>
+
+    <class-type type-name='viewscreen_reportlistst' inherits-from='viewscreen'>
+        <stl-vector/>
+        <stl-vector/>
+        <stl-vector/>
+        <int32_t/>
+    </class-type>
+
+    <class-type type-name='viewscreen_requestagreementst' inherits-from='viewscreen'>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <static-string size='256'/>
+        <int32_t/>
+    </class-type>
+
+    <class-type type-name='viewscreen_savegamest' inherits-from='viewscreen'>
+        <int8_t/>
+        <stl-string/>
+    </class-type>
+
+    <class-type type-name='viewscreen_selectitemst' inherits-from='viewscreen'>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <static-array count='105'>
+            <stl-vector/>
+        </static-array>
+        <static-string size='256'/>
+        <static-string size='256'/>
+        <static-string size='256'/>
+        <int32_t/>
+        <int32_t/>
+        <int8_t/>
+        <int32_t/>
+        <stl-vector/>
+    </class-type>
+
+    <class-type type-name='viewscreen_setupadventurest' inherits-from='viewscreen'>
+        <int8_t/>
+        <stl-string/>
+        <int32_t/>
+        <int32_t/>?
+        <int32_t/>?
+        <int16_t/>
+        <compound name='unk1'>
+            <compound type-name='language_name'/>
+            <int16_t/>?
+            <int8_t/>?
+            <static-array type-name='int32_t' count='116'/>
+            <int32_t/>
+            <int16_t/>
+            <int32_t/>?
+            <int32_t/>?
+            <int16_t/>
+            <int32_t/>
+            <int32_t/>
+            <int32_t/>
+            <int32_t/>
+            <int32_t/>
+            <int32_t/>
+            <static-array type-name='int32_t' count='13'/>
+            <int16_t/>
+        </compound>
+        <stl-vector type-name='int16_t'/>
+        <stl-vector type-name='int32_t'/>
+        <stl-vector type-name='int16_t'/>
+        <stl-vector type-name='int32_t'/>
+        <int8_t/>
+        <int32_t/>
+        <int32_t/>
+    </class-type>
+
+    <class-type type-name='viewscreen_setupdwarfgamest' inherits-from='viewscreen'>
+        <static-string size='256'/>
+        <stl-vector/>
+        <stl-vector/>
+        <stl-vector/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int8_t/>
+        <stl-vector/>
+        <stl-vector/>
+        <int32_t/>
+        <stl-string/>
+        <stl-vector/>
+        <int32_t/>
+        <int8_t/>
+        <int8_t/>
+        <int8_t/>
+        <compound name='unk1'>
+            <static-array count='105'>
+                <stl-vector/>
+            </static-array>
+            <stl-vector/>
+            <stl-vector/>
+            <stl-vector/>
+        </compound>
+        <stl-vector/>
+        <compound type-name='language_name'/>
+        <compound type-name='language_name'/>
+        <int8_t/>
+        <compound name='unk2'>
+            <int16_t/>
+            <int16_t/>
+            <int16_t/>
+            <int16_t/>
+            <stl-vector/>
+            <stl-vector/>
+        </compound>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+        <stl-vector/>
+        <stl-vector/>
+        <int32_t/>
+        <int32_t/>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+        <int32_t/>
+        <int8_t/>
+    </class-type>
+
+    <class-type type-name='viewscreen_storesst' inherits-from='viewscreen'>
+        <static-string name='title' size='256'/>
+        <int32_t name="category_cursor"/>
+        <int32_t name="item_cursor"/>
+        <int16_t name='in_right_list'/>
+        <int16_t name='in_group_mode'/>
+        <stl-vector name="category_total" type-name='int32_t' index-enum='item_type'/>
+        <stl-vector name="category_busy" type-name='int32_t' index-enum='item_type'/>
+        <stl-vector name="items">
+            <pointer type-name="item"/>
+        </stl-vector>
+        <stl-vector name='group_item_type'>
+            <enum base-type='int16_t' type-name='item_type'/>
+        </stl-vector>
+        <stl-vector name="group_item_subtype">
+            <int16_t refers-to='(item-subtype-target $$._global.group_item_type[$$._key] $)'/>
+        </stl-vector>
+        <stl-vector name="group_mat_type">
+            <int16_t ref-target='material' aux-value='$$._global.group_mat_index[$._key]'/>
+        </stl-vector>
+        <stl-vector name="group_mat_index" type-name='int16_t'/>
+        <stl-vector name="group_count" type-name='int32_t'/>
+        <stl-vector name="category_order">
+            <enum base-type='int16_t' type-name='item_type'/>
+        </stl-vector>
+        <bool name="can_zoom"/>
+    </class-type>
+
+    <class-type type-name='viewscreen_textviewerst' inherits-from='viewscreen'>
+        <stl-string name="title"/>
+        <stl-string name="title_colors"/>   same length as title, changes fg/bg
+        <stl-vector name="text_format" pointer-type="stl-string"/>  full text with markup ([P] etc), cut arbitrarily (not per display line)
+        <stl-string/>
+        <stl-string/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <stl-string name="viewscreen_class"/>      "text_viewer"
+        <stl-string/>
+        <stl-vector name="text_display"> one per display line
+            <pointer>
+                <compound>
+                    <ptr-string name="text"/>   NULL for empty lines
+                    <ptr-string name="format"/>
+                    <int16_t/>
+                    <int32_t/>
+                    <int32_t init-value="-1"/>
+                    <int32_t/>
+                </compound>
+            </pointer>
+        </stl-vector>
+        <stl-vector/>   same length as text_display, all 0
+        <int8_t/>
+        <int32_t name="scroll_pos"/>    vertical scrollbar position
+        <int32_t />
+        <int32_t/>
+    </class-type>
+
+    <class-type type-name='viewscreen_titlest' inherits-from='viewscreen'>
+        <static-string name='str_histories' size='256'/>
+        <static-string name='menu_items' size='256'/>
+        <enum base-type='int16_t' name="sel_subpage">
+            <enum-item name='None'/>
+            <enum-item name='StartSelectWorld'/>
+            <enum-item name='StartSelectMode'/> adventurer/fortmode/legends
+            <enum-item name='Arena'/>
+            <enum-item name='About'/>
+        </enum>
+        <int32_t name="sel_menu_line"/>
+        <int32_t name="sel_submenu_line"/>
+        <int8_t name="loading"/>
+        <stl-vector type-name="int32_t" name="menu_line_id"/>
+        <stl-vector type-name="int32_t" name="submenu_line_id"/>
+        <stl-vector pointer-type="stl-string" name="submenu_line_text"/>
+        <stl-vector pointer-type="stl-string" name="start_savegames"/>
+        <stl-vector pointer-type="stl-string" name="continue_savegames"/>
+        <stl-string name="str_slaves"/>
+        <stl-string name="str_chapter"/>
+        <stl-string name="str_copyright"/>
+        <stl-string name="str_version"/>
+        <stl-string name="str_unk"/>
+        <stl-string name="str_programmed"/>
+        <stl-string name="str_designed"/>
+        <stl-string name="str_visit"/>
+        <stl-string name="str_site"/>
+    </class-type>
+
+    <class-type type-name='viewscreen_topicmeetingst' inherits-from='viewscreen'>
+        <int32_t/>
+        <int32_t/>
+    </class-type>
+
+    <class-type type-name='viewscreen_topicmeeting_fill_land_holder_positionst' inherits-from='viewscreen'>
+        <static-string size='256'/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <stl-vector/>
+        <stl-vector/>
+        <stl-vector/>
+        <stl-vector/>
+        <int32_t/>
+        <int32_t/>
+    </class-type>
+
+    <class-type type-name='viewscreen_topicmeeting_takerequestsst' inherits-from='viewscreen'>
+        <static-string size='256'/>
+        <pointer name='units'/>
+        <int32_t/>
+        <stl-vector/>
+        <int32_t/>
+        <int32_t/>
+    </class-type>
+
+    <class-type type-name='viewscreen_tradeagreementst' inherits-from='viewscreen'>
+        <int32_t/>
+        <int32_t/>
+        <stl-vector/>
+        <int32_t/>
+        <int32_t/>
+        <static-string size='256'/>
+        <int32_t/>
+    </class-type>
+
+    <class-type type-name='viewscreen_tradegoodsst' inherits-from='viewscreen'>
+        <static-string name='title' size='256'/>
+        <stl-string name="merchant_name"/>
+        <stl-string name="merchant_entity"/>
+        <pointer name="depot" type-name="building_tradedepotst"/>
+        <pointer name="caravan" type-name="caravan_state"/>
+        <pointer name="entity" type-name="historical_entity"/>
+        <bool name='is_unloading'/>
+        <bool name='has_traders'/>
+        <pointer name="trader" type-name="unit"/>
+        <pointer name="broker" type-name="unit"/>
+        <stl-vector name="trader_items">
+            <pointer type-name="item"/>
+        </stl-vector>
+        <stl-vector name="broker_items">
+            <pointer type-name="item"/>
+        </stl-vector>
+        <stl-vector name="trader_selected" type-name='bool'/>
+        <stl-vector name="broker_selected" type-name='bool'/>
+        <stl-vector name="trader_count" type-name='int32_t'/>
+        <stl-vector name="broker_count" type-name='int32_t'/>
+        <int32_t name="trader_cursor"/>
+        <int32_t name="broker_cursor"/>
+        <bool name="in_right_pane"/>
+        <int16_t name='trade_reply'/>
+        <int16_t/>
+        <int32_t/>
+        <int8_t name="has_offer"/>
+        <stl-vector name="unk_1d8"/>
+        <int8_t name="in_edit_count"/>
+        <stl-string name="edit_count"/>
+    </class-type>
+
+    <class-type type-name='viewscreen_tradelistst' inherits-from='viewscreen'>
+        <int32_t name="unk_10"/>
+        <pointer name="depot" type-name="building_tradedepotst"/>
+        <stl-vector name="caravans">
+            <pointer type-name="caravan_state"/>
+        </stl-vector>
+    </class-type>
+
+    <class-type type-name='viewscreen_treasurelistst' inherits-from='viewscreen'> list artifacts in fort mode
+        <int32_t name="sel_idx"/> screen selection, in items.other[ANY_ARTIFACT]
+    </class-type>
+
+    <class-type type-name='viewscreen_unitst' inherits-from='viewscreen'>
+        <pointer name="unit" type-name="unit"/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int8_t/>
+    </class-type>
+
+    <enum-type type-name='viewscreen_unitlist_page' base-type='int32_t'>
+        <enum-item name='Citizens'/>
+        <enum-item name='Livestock'/>
+        <enum-item name='Others'/>
+        <enum-item name='Dead'/>
+    </enum-type>
+
+    <class-type type-name='viewscreen_unitlistst' inherits-from='viewscreen'>
+        <bool name="allow_zoom"/>
+        <enum base-type='int32_t' name='page' type-name='viewscreen_unitlist_page'/>
+        <static-array name='cursor_pos' count='4' index-enum='viewscreen_unitlist_page'>
+            <int32_t refers-to='$$._global.units[$$._key][$]'/>
+        </static-array>
+        <static-array name='jobs' count='4' index-enum='viewscreen_unitlist_page'>
+            <stl-vector>
+                <pointer type-name='job'/>
+            </stl-vector>
+        </static-array>
+        <static-array name='units' count='4' index-enum='viewscreen_unitlist_page'>
+            <stl-vector>
+                <pointer type-name="unit"/>
+            </stl-vector>
+        </static-array>
+    </class-type>
+
+    <class-type type-name='viewscreen_wagesst' inherits-from='viewscreen'>
+        <int16_t name='profession_category'/>
     </class-type>
 </data-definition>
 
