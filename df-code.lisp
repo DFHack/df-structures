@@ -120,7 +120,7 @@
          (idx $table.organic_indexes[category][idx]))
     (case category
       ((1 2 3)
-       $raws.creatures[type].caste[idx])
+       $raws.creatures.all[type].caste[idx])
       (otherwise
        (material-by-id type idx)))))
 
