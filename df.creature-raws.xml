@@ -400,7 +400,8 @@
         <int32_t name='unk6'/>
         <int16_t name='unk7'/>
 
-        <stl-vector name='unk8'/>
+        <stl-vector name='bp_modifiers' type-name='int32_t'
+                    refers-to='$$._global._upglobal._upglobal._upglobal.bp_appearance.modifier_idx[$].refers-to'/>
 
         <int32_t name='layer_id' comment='across all body parts'/>
 
@@ -738,20 +739,20 @@
                         index-refers-to='$$._parent.part_idx[$].refers-to'/>
 
             -- Subset of modifiable layers, i.e. where layer_idx != -1
-            <stl-vector name='layers_part_idx' type-name='int16_t'
+            <stl-vector name='style_part_idx' type-name='int16_t'
                         refers-to='$$._global.body_info.body_parts[$]'/>
-            <stl-vector name='layers_layer_idx' type-name='int16_t'
-                        refers-to='$$._parent._parent.layers_part_idx[$$._key].refers-to.layers[$]'
-                        index-refers-to='$$._parent.part_idx[$].refers-to'/>
-            <stl-vector name='layers_list_idx' type-name='int32_t'
-                        refers-to='$$._parent._parent.part_idx[$].refers-to'
-                        index-refers-to='$$._parent.aux_part_idx[$].refers-to'/>
+            <stl-vector name='style_layer_idx' type-name='int16_t'
+                        refers-to='$$._parent._parent.style_part_idx[$$._key].refers-to.layers[$]'
+                        index-refers-to='$$._parent.style_part_idx[$].refers-to'/>
+            <stl-vector name='style_list_idx' type-name='int32_t'
+                        refers-to='$$._parent._parent.modifier_idx[$].refers-to'
+                        index-refers-to='$$._parent.style_layer_idx[$].refers-to'/>
         </compound>
 
         <stl-vector name='color_modifiers'>
             <pointer type-name='color_modifier_raw'/>
         </stl-vector>
-        <stl-vector name='unk_11f4'/>
+        <stl-vector name='tissue_styles' pointer-type='tissue_style_raw'/>
         <stl-vector name='unk_1204'/>
 
         <static-array name='unk16a' count='4'>
@@ -920,6 +921,28 @@
                       count='6' index-enum='creature_graphics_role'/>
         <static-array name='add_color' type-name='bool'
                       count='6' index-enum='creature_graphics_role'/>
+    </struct-type>
+
+    <struct-type type-name='tissue_style_raw' key-field='id'>
+        <stl-string name="token"/>
+        <code-helper name='describe'>$.token</code-helper>
+
+        <stl-vector name='part_idx' type-name='int16_t'
+                    refers-to='$$._global._upglobal.body_info.body_parts[$]'/>
+        <stl-vector name='layer_idx' type-name='int16_t'
+                    refers-to='$$._parent._parent.part_idx[$$._key].refers-to.layers[$]'
+                    index-refers-to='$$._parent.part_idx[$].refers-to'/>
+
+        <stl-vector name="styles" type-name="int16_t"/>
+
+        <stl-vector name="list_idx" type-name="int32_t"
+                    refers-to='$$._global._upglobal.bp_appearance.style_layer_idx[$].refers-to'/>
+
+        <int32_t name="id"/>
+
+        <stl-string name="noun"/>
+        <enum base-type='int16_t' type-name='part_of_speech'
+              name="word_type" comment='0 singular, 1 plural'/>
     </struct-type>
 
     <struct-type type-name='creature_raw' instance-vector='$global.world.raws.creatures.all'>
