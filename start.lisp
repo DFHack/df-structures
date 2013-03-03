@@ -3,8 +3,14 @@
 (in-package :work)
 
 (unless *process*
-  (setf *process* (start-debug (progn (format t "Enter process ID:~%") (read))))
-  (setf *memory* (make-memory-mirror *process* 'object-memory-mirror)))
+  (let* ((cmdline-pid (aif (second sb-ext:*posix-argv*)
+                           (ignore-errors (read-from-string it))))
+         (pid (if (numberp cmdline-pid)
+                  cmdline-pid
+                  (progn (format t "Enter process ID:~%")
+                         (read)))))
+    (setf *process* (start-debug pid))
+    (setf *memory* (make-memory-mirror *process* 'object-memory-mirror))))
 
 (if (typep (os-context-of *memory*) 'os-context/windows)
     (progn
