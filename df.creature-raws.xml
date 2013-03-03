@@ -353,7 +353,7 @@
         <enum-item name='CONNECTOR'/>
     </enum-type>
 
-    <enum-type type-name='appearance_modifier_type'>
+    <enum-type type-name='appearance_modifier_type' base-type='int16_t'>
         <enum-item name='HEIGHT'/>
         <enum-item name='BROADNESS'/>
         <enum-item name='LENGTH'/>
@@ -467,12 +467,17 @@
         <int32_t name='clothing_item_id' init-value='-1' comment='v0.34.06'/>
     </struct-type>
 
-    <struct-type type-name='color_modifier_raw'>
+    <struct-type type-name='color_modifier_raw' key-field='id'>
+        <code-helper name='describe'> $.part </code-helper>
+
         <stl-vector type-name='int32_t' name='pattern_index' ref-target='descriptor_pattern'/>
         <stl-vector type-name='int32_t' name='pattern_frequency'/>
 
-        <stl-vector type-name='int16_t' name='body_part_id'/>
-        <stl-vector type-name='int16_t' name='tissue_layer_id'/>
+        <stl-vector name='body_part_id' type-name='int16_t'
+                    refers-to='$$._global._upglobal.body_info.body_parts[$]'/>
+        <stl-vector name='tissue_layer_id' type-name='int16_t'
+                    refers-to='$$._global.body_part_id[$$._key].refers-to.layers[$]'
+                    index-refers-to='$$._global.body_part_id[$].refers-to'/>
 
         <int16_t name='unk5' />
         <int32_t name='start_date'/>
@@ -482,7 +487,7 @@
         <int16_t name="unk_6c"/>
         <int16_t name="unk_6e"/>
         <int32_t name="unk_70"/>
-        <int32_t name="unk_74"/>
+        <int32_t name="id"/>
         <stl-vector name="unk_78">
             <pointer/>
         </stl-vector>
@@ -491,7 +496,7 @@
         </stl-vector>
     </struct-type>
 
-    <struct-type type-name='body_appearance_modifier'>
+    <struct-type type-name='body_appearance_modifier' key-field='id'>
         <code-helper name='describe'> $.type </code-helper>
         <enum type-name='appearance_modifier_type' base-type='int16_t' name='type'/>
         <static-array type-name='int32_t' count='7' name='ranges'/>
@@ -506,13 +511,13 @@
         <stl-string name='noun'/>
         <int16_t/>
         <int16_t/>
-        <int32_t/>
-        <int32_t/>
+        <int32_t name='id'/>
+        <int32_t name='id2' comment='same as id'/>
     </struct-type>
 
-    <struct-type type-name='bp_appearance_modifier'>
+    <struct-type type-name='bp_appearance_modifier' key-field='id'>
         <code-helper name='describe'> $.type </code-helper>
-        <enum type-name='appearance_modifier_type' base-type='int8_t' name='type'/>
+        <enum type-name='appearance_modifier_type' base-type='int16_t' name='type'/>
         <static-array type-name='int32_t' count='7' name='ranges'/>
         <static-array type-name='int32_t' count='6' name='desc_range'/>
         <int32_t/>
@@ -523,15 +528,16 @@
         <int32_t comment='-1'/>
         <int32_t name='importance'/>
         <stl-string name='noun'/>
-        <int32_t name='single_plural'/>
-        <int32_t/>
+        <int16_t name='single_plural'/>
+        <int16_t name='unk1'/>
+        <int32_t name='id1'/>
         <stl-vector name='body_parts'>
             <int16_t refers-to='$$._global._parent._global.body_info.body_parts[$]'/>
         </stl-vector>
         <stl-vector name='tissue_layer'>
             <int16_t refers-to='$$._parent._parent.body_parts[$$._key].refers-to.layers[$]'/>
         </stl-vector>
-        <int32_t/>
+        <int32_t name='id'/>
     </struct-type>
 
     <struct-type type-name='caste_clothing_item'>
@@ -1056,8 +1062,25 @@
         <int32_t name='underground_layer_min'/>
         <int32_t name='underground_layer_max'/>
 
-        <stl-vector type-name='int32_t' name='unk6'/>
-        <stl-vector type-name='int32_t' name='unk7'/>
+        <stl-vector name='modifier_class'>
+            <int32_t>
+                <code-helper name='refers-to'>
+                    (let* ((castes $$._global.caste.*)
+                           (id $$._key)
+                           (vectors (case $
+                                      (0 $castes.body_appearance_modifiers)
+                                      (1 $castes.bp_appearance.modifiers)
+                                      (2 $castes.color_modifiers)
+                                      (3 $castes.tissue_styles))))
+                      (dolist (v vectors)
+                        (awhen (find-by-id v $id id)
+                          (return it))))
+                </code-helper>
+            </int32_t>
+        </stl-vector>
+        <stl-vector type-name='int32_t' name='modifier_num_patterns'
+                    comment='for color modifiers, == number of items in their pattern_* vectors'
+                    index-refers-to='$$._parent.modifier_class[$].refers-to'/>
 
         <stl-vector type-name='int32_t' name='hive_product_0'/>
         <stl-vector type-name='int32_t' name='hive_product_1'/>
@@ -1072,7 +1095,7 @@
             </stl-vector>
         </static-array>
 
-        <int32_t name='unk8'/>
+        <int32_t name='next_modifier_id'/>
 
         <stl-vector name='raws'>
             <pointer type-name='stl-string'/>
