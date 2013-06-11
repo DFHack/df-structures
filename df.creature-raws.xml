@@ -382,6 +382,10 @@
         <enum-item name='RASPY_VOICE'/>
     </enum-type>
 
+    <enum-type type-name='body_part_layer_flags'>
+        <enum-item name='CONNECTS'/>
+    </enum-type>
+
     <struct-type type-name='body_part_layer_raw'>
         <stl-string name='layer_name'/>
 
@@ -389,9 +393,9 @@
 
         <int32_t name='tissue_id'/>
 
-        <df-flagarray name='flags'/>
+        <df-flagarray name='flags' index-enum='body_part_layer_flags'/>
 
-        <int32_t name='unk2'/>
+        <int32_t name='part_fraction' comment='total 1000'/>
 
         <int32_t name='healing_rate'/>
         <int32_t name='vascular'/>
@@ -405,12 +409,14 @@
 
         <int32_t name='layer_id' comment='across all body parts'/>
 
-        <int32_t name='unk10'/>
-        <int32_t name='unk11'/>
+        For subordinate layers:
+        <int32_t name='parent_idx' refers-to='$$._global._upglobal.layers[$]'/>
+        <int32_t name='parent_layer_id'/>
+
         <int32_t name='layer_depth' comment='-1 for skin and internal organs'/>
         <int32_t name='unk13'/>
         <int32_t name='unk14'/>
-        <int32_t name='unk15'/>
+        <int32_t name='styleable_id'/>
     </struct-type>
 
     <struct-type type-name='body_part_raw'>
@@ -427,10 +433,11 @@
             <pointer type-name='body_part_layer_raw'/>
         </stl-vector>
 
-        <int32_t name='unk2'/>
-        <int32_t name='unk3'/>
-        <int32_t name='unk4'/>
-        <int32_t name='unk5'/>
+        <int32_t name='fraction_total'/>
+        <int32_t name='fraction_base'/>
+        <int32_t name='fraction_fat'/>
+        <int32_t name='fraction_muscle'/>
+
         <int32_t name='relsize'/>
         <int32_t name='number'/>
 
@@ -460,8 +467,8 @@
         <int32_t name='numbered_idx' comment='defined only if number field nonzero'
                  refers-to='$$._global._upglobal.numbered_masks[$]'/>
 
-        <int16_t name='insulation_muscle'/>
         <int16_t name='insulation_fat'/>
+        <int16_t name='insulation_muscle'/>
         <int16_t name='insulation_base'/>
 
         <int32_t name='clothing_item_id' init-value='-1' comment='v0.34.06'/>
@@ -572,7 +579,7 @@
             <pointer/>
         </stl-vector>
 
-        <int32_t name='unk8'/>
+        <int32_t name='total_relsize' comment='unless INTERNAL or EMBEDDED'/>
 
         <stl-vector name='layer_part' index-refers-to='$$._global.layer_idx[$].refers-to'>
             <int16_t refers-to='$$._global.body_parts[$]'/>
@@ -599,10 +606,11 @@
 
         <compound name='materials' type-name='material_vec_ref'/>
 
-        <int32_t name='unk15a'/>
-        <int32_t name='unk15b'/>
-        <int32_t name='unk15c'/>
-        <int32_t name='unk15d'/>
+        Sums of values in the parts:
+        <int32_t name='fraction_total'/>
+        <int32_t name='fraction_base'/>
+        <int32_t name='fraction_fat'/>
+        <int32_t name='fraction_muscle'/>
 
         <pointer name='clothing_items' comment='v0.34.06'>
             <stl-vector>
