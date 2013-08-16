@@ -647,17 +647,8 @@
             <uint32_t name='speed_add' comment='v0.34.01'/>
             <uint32_t name='speed_mul_percent' comment='v0.34.01' init-value='100'/>
 
-            <pointer name='attr_change' comment='v0.34.01'>
-                <static-array name='phys_att_perc' type-name='int32_t'
-                              count='6' index-enum='physical_attribute_type'/>
-                <static-array name='phys_att_add' type-name='int32_t'
-                              count='6' index-enum='physical_attribute_type'/>
-                <static-array name='ment_att_perc' type-name='int32_t'
-                              count='13' index-enum='mental_attribute_type'/>
-                <static-array name='ment_att_add' type-name='int32_t'
-                              count='13' index-enum='mental_attribute_type'/>
-            </pointer>
-            <uint32_t comment='v0.34.01' init-value='100'/>
+            <pointer name='attr_change' type-name='curse_attr_change' comment='v0.34.01'/>
+            <uint32_t name='luck_mul_percent' comment='v0.34.01' init-value='100'/>
 
             <stl-vector comment='v0.34.01'/>
             <stl-vector comment='v0.34.01'/>
@@ -682,7 +673,7 @@
             <uint32_t name='vomit_timeout' comment='blocks nausea causing vomit'/>
 
             <uint32_t name='stored_fat' comment='hunger leads to death only when 0'/>
-            <uint32_t name='unk_59c'/>
+            <uint32_t name='undead_hitpoints' comment='collapses once >= area_cur'/>
         </compound>
 
         <compound name='status'>
@@ -938,7 +929,7 @@
             <enum-item name='Flask' comment='attached to clothing'/>
             <enum-item name='WrappedAround' comment='e.g. bandage'/>
             <enum-item name='StuckIn'/>
-            <enum-item name='Unk7' comment='string descr like Worn'/>
+            <enum-item name='InMouth' comment='string descr like Worn'/>
             <enum-item name='Shouldered'/>
             <enum-item name='SewnInto'/>
         </enum>
@@ -1044,20 +1035,20 @@
         <flag-bit name='major_artery'/>
         <flag-bit name='guts_spilled'/>
 
-        <flag-bit/>
+        <flag-bit name='edged_shake1'/>
         <flag-bit name='jagged_scar'/>
-        <flag-bit/>
+        <flag-bit name='edged_shake2'/>
         <flag-bit name='broken'/>
 
         <flag-bit name='huge_dent2'/>
-        <flag-bit/>
-        <flag-bit/>
+        <flag-bit name='gouged'/>
+        <flag-bit name='blunt_shake1'/>
         <flag-bit name='jagged_scar2'/>
 
-        <flag-bit/>
-        <flag-bit/>
+        <flag-bit name='blunt_shake2'/>
+        <flag-bit name='joint_bend1'/>
         <flag-bit name='jagged_scar3'/>
-        <flag-bit/>
+        <flag-bit name='joint_bend2'/>
 
         <flag-bit name='compound_fracture'/>
         <flag-bit name='diagnosed'/>
@@ -1067,7 +1058,7 @@
 
     <bitfield-type type-name='wound_damage_flags2'>
         <flag-bit name='needs_setting'/>
-        <flag-bit name='unk1'/>
+        <flag-bit name='entire_surface'/>
     </bitfield-type>
 
     <struct-type type-name='unit_wound' key-field='id'>
@@ -1150,7 +1141,48 @@
         <int32_t name="unk_34"/>
         <int32_t name="unk_38"/>
         <int32_t name="unk_3c"/>
-        <pointer name="unk_40"/>
+        <pointer name="curse" type-name='wound_curse_info'/>
+    </struct-type>
+
+    <struct-type type-name='curse_attr_change'>
+        <static-array name='phys_att_perc' type-name='int32_t'
+                      count='6' index-enum='physical_attribute_type'/>
+        <static-array name='phys_att_add' type-name='int32_t'
+                      count='6' index-enum='physical_attribute_type'/>
+        <static-array name='ment_att_perc' type-name='int32_t'
+                      count='13' index-enum='mental_attribute_type'/>
+        <static-array name='ment_att_add' type-name='int32_t'
+                      count='13' index-enum='mental_attribute_type'/>
+    </struct-type>
+
+    <struct-type type-name='wound_curse_info'>
+        <compound name='add_tags1' type-name='cie_add_tag_mask1'/>
+        <compound name='rem_tags1' type-name='cie_add_tag_mask1'/>
+        <compound name='add_tags2' type-name='cie_add_tag_mask2'/>
+        <compound name='rem_tags2' type-name='cie_add_tag_mask2'/>
+
+        <bool name='name_visible'/>
+        <stl-string name='name'/>
+        <stl-string name='name_plural'/>
+        <stl-string name='name_adjective'/>
+
+        <uint32_t name='sym_and_color1' init-value='0x400'/>
+        <uint32_t name='sym_and_color2' init-value='0x400'/>
+        <uint32_t name='flash_period'/>
+        <uint32_t name='flash_time2'/>
+        <uint32_t name='speed_add'/>
+        <uint32_t name='speed_mul_percent' init-value='100'/>
+
+        <pointer name='attr_change' type-name='curse_attr_change'/>
+        <uint32_t name='luck_mul_percent' init-value='100'/>
+
+        <stl-vector/>
+        <stl-vector/>
+        <int32_t name='unk1'/>
+        <int32_t name='unk2' init-value='-1'/>
+        <int32_t name='unk3' init-value='-1'/>
+        <stl-vector/>
+        <stl-vector/>
     </struct-type>
 
     <enum-type base-type='int16_t' type-name='misc_trait_type'>
