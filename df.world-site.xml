@@ -143,6 +143,20 @@
         <int32_t comment='not saved'/>
     </class-type>
 
+    <enum-type type-name='world_site_type' base-type='int16_t'>
+        <enum-item name='PlayerFortress'/>
+        <enum-item name='DarkFortress'/>
+        <enum-item name='Cave'/>
+        <enum-item name='MountainHalls'/>
+        <enum-item name='ForestRetreat'/>
+        <enum-item name='Town'/>
+        <enum-item name='Unk6'/>
+        <enum-item name='LairShrine'/>
+        <enum-item name='Fortress'/>
+        <enum-item name='Camp'/>
+        <enum-item name='Monument'/>
+    </enum-type>
+
     <struct-type type-name='world_site' key-field='id'
                  instance-vector='$global.world.world_data.sites'>
         <compound name='name' type-name='language_name'/>
@@ -154,19 +168,7 @@
         <int32_t name="old_owner_id" ref-target='historical_entity'/>
         <int32_t name="outcast_id" ref-target='historical_entity' comment='v0.34.01'/>
 
-        <enum base-type='int16_t' name="type">
-            <enum-item name='PlayerFortress'/>
-            <enum-item name='DarkFortress'/>
-            <enum-item name='Cave'/>
-            <enum-item name='MountainHalls'/>
-            <enum-item name='ForestRetreat'/>
-            <enum-item name='Town'/>
-            <enum-item name='Unk6'/>
-            <enum-item name='LairShrine'/>
-            <enum-item name='Fortress'/>
-            <enum-item name='Camp'/>
-            <enum-item name='Monument'/>
-        </enum>
+        <enum base-type='int16_t' name="type" type-name='world_site_type'/>
 
         <compound name='pos' type-name='coord2d'/>
 
@@ -394,13 +396,20 @@
         <pointer name="effect" type-name='interaction_effect'/>
     </struct-type>
 
-    <struct-type type-name='site_realization_building'>
-        <int32_t name="index"/>
+    <struct-type type-name='site_realization_building' key-field='id'>
+        <int32_t name="id"/>
+
+        <code-helper name='find-instance'>
+            (find-by-id $(find-instance $world_site $$).realization.buildings $id $)
+        </code-helper>
+
         <int32_t name="unk_4"/>
-        <int32_t name="unk_8"/>
-        <int32_t name="unk_c"/>
-        <int32_t name="unk_10"/>
-        <int32_t name="unk_14"/>
+
+        <int32_t name="min_x" comment='in tiles relative to site'/>
+        <int32_t name="min_y"/>
+        <int32_t name="max_x"/>
+        <int32_t name="max_y"/>
+
         <int32_t name="unk_18"/>
         <stl-vector name="inhabitants" pointer-type='site_building_inhabitant'/>
         <int32_t name="unk_2c"/>
