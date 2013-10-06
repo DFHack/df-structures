@@ -31,6 +31,9 @@ sub render_bitfield_core {
     emit_block {
         emit $base, ' whole;';
 
+        my $idx = 0;
+        my @idlist;
+
         emit_block {
             for my $item (@fields) {
                 ($item->getAttribute('ld:meta') eq 'number' &&
@@ -52,10 +55,27 @@ sub render_bitfield_core {
                     $fbase = $etn;
                 }
 
+                push @idlist, [ $name, $idx, sprintf('0x%xU',((1<<$size)-1)<<$idx), ',' ];
+                $idx += $size;
+
                 emit_comment $item;
                 emit $fbase, " ", $name, " : ", $size, ";", get_comment($item);
             }
         } "struct ", " bits;";
+
+        $idlist[-1][3] = '';
+
+        emit_block {
+            for my $r (@idlist) {
+                emit "shift_", $r->[0], " = ", $r->[1], $r->[3];
+            }
+        } "enum Shift ", ";";
+
+        emit_block {
+            for my $r (@idlist) {
+                emit "mask_", $r->[0], " = ", $r->[2], $r->[3];
+            }
+        } "enum Mask : $base ", ";";
 
         emit $name, "($base whole_ = 0) : whole(whole_) {};";
     } "union $name ", ";";
