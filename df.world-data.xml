@@ -106,24 +106,26 @@
         <stl-vector name="unk_84"/>
     </struct-type>
 
+    <enum-type type-name='world_region_type' base-type='int16_t'>
+        <enum-item name='Swamp'/>
+        <enum-item name='Desert'/>
+        <enum-item name='Jungle'/>
+        <enum-item name='Mountains'/>
+        <enum-item name='Ocean'/>
+        <enum-item name='Lake'/>
+        <enum-item name='Glacier'/>
+        <enum-item name='Tundra'/>
+        <enum-item name='Steppe'/>
+        <enum-item name='Hills'/>
+    </enum-type>
+
     <struct-type type-name='world_region' instance-vector='$global.world.world_data.regions'>
         <compound name='name' type-name='language_name'/>
         <code-helper name='describe'>(describe-obj $.name)</code-helper>
 
         <int32_t name="index"/>
 
-        <enum base-type='int16_t' name="type">
-            <enum-item name='Swamp'/>
-            <enum-item name='Desert'/>
-            <enum-item name='Jungle'/>
-            <enum-item name='Mountains'/>
-            <enum-item name='Ocean'/>
-            <enum-item name='Lake'/>
-            <enum-item name='Glacier'/>
-            <enum-item name='Tundra'/>
-            <enum-item name='Steppe'/>
-            <enum-item name='Hills'/>
-        </enum>
+        <enum base-type='int16_t' name="type" type-name='world_region_type'/>
 
         <compound name='region_coords' type-name='coord2d_path'/>
 
@@ -162,7 +164,7 @@
         <int16_t name="unk_1e4"/>
         <int16_t name="unk_1e6"/>
         <int16_t name="unk_1e8"/>
-        <int16_t name="unk_1ec"/>
+        <int16_t name="lake_surface"/>
 
         <stl-vector name="unk_1f0" type-name='int32_t'/>
         <padding name="unk_200" size="4"/>
@@ -323,27 +325,35 @@
         </static-array>
 
         272 = 17*16; also, always x le y so likely some kind of ranges actually
-        <static-array count='17' name='unk4a'>
-            <static-array type-name='coord2d' count='16'/>
-        </static-array>
-        <static-array count='16' name='unk4b'>
+        <static-array count='16' name='unk4v'>
             <static-array type-name='coord2d' count='17'/>
         </static-array>
+        <static-array count='17' name='unk4h'>
+            <static-array type-name='coord2d' count='16'/>
+        </static-array>
 
-        <static-array name='unk5' count='16'>
+        These seem to form a grid with values corresponding  to edges
+        and vertices separating embark tiles; assembling a full outline
+        requires collecting values from 4 adjacent tiles, including
+        accessing adjacent details objects at the edge:
+        5x 5v | 5x
+        5h ** | 5h
+        ------------
+        5x 5v | 5x
+        <static-array name='unk5x' count='16'>
             <static-array type-name='int8_t' count='16'/>
         </static-array>
-        <static-array name='unk6' count='16'>
+        <static-array name='unk5v' count='16'>
             <static-array type-name='int8_t' count='16'/>
         </static-array>
-        <static-array name='unk7' count='16'>
+        <static-array name='unk5h' count='16'>
             <static-array type-name='int8_t' count='16'/>
         </static-array>
 
         <code-helper name='describe'> (describe-obj $.pos) </code-helper>
 
         <compound name='pos' type-name='coord2d'/>
-        <int16_t/>
+        <int16_t name='unk12e8'/>
         <int16_t/>
         <int16_t/>
         <int16_t/>
@@ -530,7 +540,7 @@
 
         <int32_t name='unk_78'/>
         <int32_t name='unk_7c'/>
-        <int16_t name='unk_80'/>
+        <int16_t name='flip_latitude'/>
         <int16_t name='unk_82'/>
         <int16_t name='unk_84'/>
         <int16_t name='unk_86'/>
