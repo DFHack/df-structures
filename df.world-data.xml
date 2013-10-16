@@ -324,31 +324,52 @@
             <static-array type-name='uint32_t' count='16'/>
         </static-array>
 
-        272 = 17*16; also, always x le y so likely some kind of ranges actually
-        <static-array count='16' name='unk4v'>
-            <static-array type-name='coord2d' count='17'/>
-        </static-array>
-        <static-array count='17' name='unk4h'>
-            <static-array type-name='coord2d' count='16'/>
-        </static-array>
+        <compound name='edges'>
+            In order to determine how biomes cross embark tile edges,
+            the rectangle framing an embark tile is split into 4 corners,
+            and 4 straight edge segments, using ranges measured in tiles:
 
-        These seem to form a grid with values corresponding  to edges
-        and vertices separating embark tiles; assembling a full outline
-        requires collecting values from 4 adjacent tiles, including
-        accessing adjacent details objects at the edge:
-        5x 5v | 5x
-        5h ** | 5h
-        ------------
-        5x 5v | 5x
-        <static-array name='unk5x' count='16'>
-            <static-array type-name='int8_t' count='16'/>
-        </static-array>
-        <static-array name='unk5v' count='16'>
-            <static-array type-name='int8_t' count='16'/>
-        </static-array>
-        <static-array name='unk5h' count='16'>
-            <static-array type-name='int8_t' count='16'/>
-        </static-array>
+            +-/----/+
+            |       /
+            /   *   |
+            /       /
+            +-/-/---+
+
+            <static-array count='16' name='split_x'
+                          comment='splits for horizontal edges, x=min y=max'>
+                <static-array type-name='coord2d' count='17'/>
+            </static-array>
+            <static-array count='17' name='split_y'
+                          comment='splits for vertical edges, x=min y=max'>
+                <static-array type-name='coord2d' count='16'/>
+            </static-array>
+
+            After this, each corner and edge segment is assigned the biome
+            of one of the adjoining 4 or 2 embark tiles, based on the values
+            in these arrays. It may be necessary to access adjacent details
+            objects to collect the full outline:
+
+            c11 x11 | c21
+            y11 *** | y21
+            -------------
+            c12 x12 | c22
+
+            There are also certain rules forcing ocean/lake biomes to lose
+            edges to mountains, and both of them to anything else, no matter
+            what the original array value is. The actual biomes for tiles in
+            the frame are semi-randomly interpolated from this edge spec.
+
+            <static-array name='biome_corner' count='16'
+                          comment='upleft=0,upright=1,downleft=2,downright=3??'>
+                <static-array type-name='int8_t' count='16'/>
+            </static-array>
+            <static-array name='biome_x' count='16' comment='up=0,down=1'>
+                <static-array type-name='int8_t' count='16'/>
+            </static-array>
+            <static-array name='biome_y' count='16' comment='left=0,right=1'>
+                <static-array type-name='int8_t' count='16'/>
+            </static-array>
+        </compound>
 
         <code-helper name='describe'> (describe-obj $.pos) </code-helper>
 
