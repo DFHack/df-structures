@@ -130,6 +130,14 @@
         <flag-bit name='update_liquid'/>
         <flag-bit name='update_liquid_twice'
                   comment='Protects UpdateLiquid from being cleared the first time.'/>
+        <flag-bit name='repath_on_freeze'
+                  comment='reindex_pathfinding set and flag cleared if temperature below 10000'/>
+        <flag-bit name='repath_on_melt'
+                  comment='reindex_pathfinding set and flag cleared if temperature above 10000'/>
+        <flag-bit name='has_aquifer'
+                  comment='has actual aquifer tiles (?)'/>
+        <flag-bit name='check_aquifer'
+                  comment='has tiles that may get flooded by an adjacent aquifer'/>
     </bitfield-type>
 
     <bitfield-type type-name='z_level_flags'>
@@ -333,9 +341,10 @@
     </class-type>
 
     <struct-type type-name='map_block_column'>
-        <int16_t name="unk_0"/>
-        <int16_t name="unk_2"/>
-        <int16_t name='ground_level' comment='for sidebar'/>
+        <int16_t name="sink_level" comment='water at or above this level sinks into aquifer tiles'/>
+        <int16_t name="beach_level" comment='water at this level disappears if above more water'/>
+
+        <int16_t name='ground_level' comment='for coloring unallocated blocks'/>
 
         <stl-vector name='unmined_glyphs'>
             <pointer>
@@ -357,14 +366,14 @@
             <pointer type-name='cave_column_rectangle'/>
         </stl-vector>
 
-        <int16_t name='unk_c2c'/>
+        <int16_t name='z_shift' comment='seems to be 0 originally, but updated when map is shifted'/>
+
         <df-flagarray name='flags'/>
 
-        <int16_t name='tile_min_x'/>
-        <int16_t name='tile_min_y'/>
+        <compound name='map_pos' type-name='coord2d' comment='top left in tiles'/>
         <int16_t name='unk_c3c' comment='uninitialized'/>
-        <int16_t name='unk_c3e'/>
-        <int16_t name='unk_c40'/>
+
+        <compound name='region_pos' type-name='coord2d'/>
     </struct-type>
 
     <enum-type type-name='block_square_event_type'>
@@ -399,8 +408,10 @@
         <compound name='tile_bitmask' type-name='tile_bitmask'/>
         <bitfield name='flags'>
             <flag-bit name='discovered'/>
-            <flag-bit name='cluster' comment='??'/>
-            <flag-bit name='vein' comment='??'/>
+            <flag-bit name='cluster'/>
+            <flag-bit name='vein'/>
+            <flag-bit name='cluster_small'/>
+            <flag-bit name='cluster_one'/>
         </bitfield>
     </class-type>
 

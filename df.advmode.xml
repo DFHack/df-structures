@@ -97,8 +97,56 @@
         <int16_t name='unk26'/>
         <int32_t name='player_id' refers-to='$global.world.nemesis.all[$]'/>
 
-        <stl-vector name='unk27'/>
-        <stl-vector name='talks'/>
+        <stl-vector name='talk_targets'>
+            <pointer>
+                <int32_t name='unit_id' ref-target='unit'/>
+                <int32_t name='histfig_id' ref-target='historical_figure'/>
+                <int32_t/>
+            </pointer>
+        </stl-vector>
+        <stl-vector name='conversations'>
+            <pointer>
+                <stl-string name='conv_title'/>
+                <int32_t name='state'/> 0=started, 1=active, 2=finished
+                <stl-vector type-name='int16_t' name='talk_choices' />
+
+                <int32_t ref-target='unit'/>
+                <int32_t ref-target='historical_figure'/>
+                <int32_t/>
+
+                <int32_t ref-target='unit'/>
+                <int32_t ref-target='historical_figure'/>
+                <int32_t/>
+
+                <int32_t ref-target='unit'/>
+                <int32_t ref-target='historical_figure'/>
+                <int32_t/>
+
+                <stl-vector pointer-type='nemesis_record'/>
+                <stl-vector pointer-type='historical_entity'/>
+                <int8_t/>
+                <int32_t/>
+                <int32_t/>
+                <int16_t/>
+                <stl-vector/>
+                <stl-vector/>
+                <stl-vector/>
+                <pointer type-name='building' comment='civzone'/>
+                <int8_t/>
+                <int32_t/>
+                <stl-vector name='speech'>
+                    <pointer>
+                        <stl-vector name='text' pointer-type='stl-string'/>
+                        <int32_t name='speaker' ref-target='unit'/>
+                        <int32_t/>
+                        <int32_t/>
+                        <int16_t name='fg'/>
+                        <int16_t name='bg'/>
+                        <int16_t name='bright'/>
+                    </pointer>
+                </stl-vector>
+            </pointer>
+        </stl-vector>
 
         <int32_t name="unk_e0"/>
         <int8_t name="unk_e4"/>
@@ -167,33 +215,58 @@
         <pointer name='next' type-name='quest_list_link'/>
     </struct-type>
 
+    <enum-type type-name='adv_task_type' base-type='int32_t'>
+        <enum-item name='KillNemesis'/>
+        <enum-item name='SeekNemesis'/>
+    </enum-type>
+
     <class-type type-name='adv_task' original-name='taskst' key-field='id'>
         <pointer name='link' type-name='quest_list_link'/>
 
         <int32_t name='id'/>
 
         <int32_t name='quest_giver_id' ref-target='historical_figure'/>
-        <int32_t ref-target='world_site'/>
-        <int32_t/>
+        <int32_t name='giver_site' ref-target='world_site'/>
+        <int32_t name='unk1'/>
         <int32_t name='adventurer_id' ref-target='historical_figure'/>
-        <int32_t/>
+        <int32_t name='unk2'/>
 
         <compound name='target_pos' type-name='coord2d'/>
         <compound name='giver_pos' type-name='coord2d'/>
 
-        <int32_t/>
-        <int32_t/>
+        -- 1/16 fraction of target_pos
+        <int16_t name='target_x1' init-value='-1'/>
+        <int16_t name='target_x2' init-value='-1'/>
+        <int16_t name='target_y1' init-value='-1'/>
+        <int16_t name='target_y2' init-value='-1'/>
+
+        <virtual-methods>
+            <vmethod name='getType' ret-type='adv_task_type'/>
+            <vmethod name='getStatus' ret-type='int32_t' comment='0 done, 1 not found, 2 not killed?'/>
+            <vmethod name='getDescription'> <pointer type-name='stl-string'/> </vmethod>
+            <vmethod name='onKill'> <int32_t name='histfig_id'/> </vmethod>
+            <vmethod name='updateTargetPos'/>
+
+            <vmethod name='getGoalSite' ret-type='int32_t'/>
+            <vmethod name='getTargetHistFig' ret-type='int32_t'/>
+            <vmethod name='read_file'>
+                <pointer comment='file_compressorst'/>
+                <int32_t name='loadversion'/>
+            </vmethod>
+            <vmethod name='write_file'> <pointer comment='file_compressorst'/> </vmethod>
+            <vmethod is-destructor='true'/>
+        </virtual-methods>
     </class-type>
 
     <class-type type-name='task_kill_nemesisst' inherits-from='adv_task'>
-        <int32_t/>
+        <int32_t name='unk3'/>
         <int32_t name='target_site' ref-target='world_site'/>
         <int32_t name='target_hfid' ref-target='historical_figure'/>
-        <int8_t/>
+        <bool name='is_killed'/>
     </class-type>
 
     <class-type type-name='task_seek_nemesisst' inherits-from='adv_task'>
-        <int32_t/>
+        <int32_t name='unk3'/>
         <int32_t name='target_site' ref-target='world_site'/>
         <int32_t name='target_hfid' ref-target='historical_figure'/>
     </class-type>

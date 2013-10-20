@@ -175,7 +175,7 @@
 
         <enum-item name='NO_FEVERS'/>
         <enum-item name='NO_PROFESSION_COLOR' comment='guessed from use'/>
-        <enum-item name='unk_2a'/>
+        <enum-item name='NO_CONNECTIONS_FOR_MOVEMENT'/>
         <enum-item name='unk_2b'/>
         <enum-item name='AMBUSHPREDATOR'/>
         <enum-item name='unk_2d'/>
@@ -270,7 +270,7 @@
         <enum-item name='POWER'/>
         <enum-item name='unk_7d'/>
         <enum-item name='unk_7e'/>
-        <enum-item name='unk_7f'/>
+        <enum-item name='CASTE_TILE'/>
 
         <enum-item name='CASTE_COLOR'/>
         <enum-item name='unk_81'/>
@@ -382,6 +382,10 @@
         <enum-item name='RASPY_VOICE'/>
     </enum-type>
 
+    <enum-type type-name='body_part_layer_flags'>
+        <enum-item name='CONNECTS'/>
+    </enum-type>
+
     <struct-type type-name='body_part_layer_raw'>
         <stl-string name='layer_name'/>
 
@@ -389,9 +393,9 @@
 
         <int32_t name='tissue_id'/>
 
-        <df-flagarray name='flags'/>
+        <df-flagarray name='flags' index-enum='body_part_layer_flags'/>
 
-        <int32_t name='unk2'/>
+        <int32_t name='part_fraction' comment='total 1000'/>
 
         <int32_t name='healing_rate'/>
         <int32_t name='vascular'/>
@@ -405,12 +409,14 @@
 
         <int32_t name='layer_id' comment='across all body parts'/>
 
-        <int32_t name='unk10'/>
-        <int32_t name='unk11'/>
+        For subordinate layers:
+        <int32_t name='parent_idx' refers-to='$$._global._upglobal.layers[$]'/>
+        <int32_t name='parent_layer_id'/>
+
         <int32_t name='layer_depth' comment='-1 for skin and internal organs'/>
         <int32_t name='unk13'/>
-        <int32_t name='unk14'/>
-        <int32_t name='unk15'/>
+        <int32_t name='nonsolid_id'/>
+        <int32_t name='styleable_id'/>
     </struct-type>
 
     <struct-type type-name='body_part_raw'>
@@ -427,10 +433,11 @@
             <pointer type-name='body_part_layer_raw'/>
         </stl-vector>
 
-        <int32_t name='unk2'/>
-        <int32_t name='unk3'/>
-        <int32_t name='unk4'/>
-        <int32_t name='unk5'/>
+        <int32_t name='fraction_total'/>
+        <int32_t name='fraction_base'/>
+        <int32_t name='fraction_fat'/>
+        <int32_t name='fraction_muscle'/>
+
         <int32_t name='relsize'/>
         <int32_t name='number'/>
 
@@ -460,8 +467,8 @@
         <int32_t name='numbered_idx' comment='defined only if number field nonzero'
                  refers-to='$$._global._upglobal.numbered_masks[$]'/>
 
-        <int16_t name='insulation_muscle'/>
         <int16_t name='insulation_fat'/>
+        <int16_t name='insulation_muscle'/>
         <int16_t name='insulation_base'/>
 
         <int32_t name='clothing_item_id' init-value='-1' comment='v0.34.06'/>
@@ -572,7 +579,7 @@
             <pointer/>
         </stl-vector>
 
-        <int32_t name='unk8'/>
+        <int32_t name='total_relsize' comment='unless INTERNAL or EMBEDDED'/>
 
         <stl-vector name='layer_part' index-refers-to='$$._global.layer_idx[$].refers-to'>
             <int16_t refers-to='$$._global.body_parts[$]'/>
@@ -592,17 +599,18 @@
         <stl-vector name='nonsolid_layers'>
             For blood, magma, iron men etc, lists BLOOD/MAGMA/GAS layers.
             For other titans and FBs, lists all layers. For ordinary, empty.
-            <int32_t refers-to='$$._global.layer_part[$].refers-to'/>
+            <int32_t refers-to='$$._global.layer_idx[$].refers-to'/>
         </stl-vector>
 
         <int32_t comment='v0.34.01'/>
 
         <compound name='materials' type-name='material_vec_ref'/>
 
-        <int32_t name='unk15a'/>
-        <int32_t name='unk15b'/>
-        <int32_t name='unk15c'/>
-        <int32_t name='unk15d'/>
+        Sums of values in the parts:
+        <int32_t name='fraction_total'/>
+        <int32_t name='fraction_base'/>
+        <int32_t name='fraction_fat'/>
+        <int32_t name='fraction_muscle'/>
 
         <pointer name='clothing_items' comment='v0.34.06'>
             <stl-vector>
@@ -1082,18 +1090,22 @@
                     comment='for color modifiers, == number of items in their pattern_* vectors'
                     index-refers-to='$$._parent.modifier_class[$].refers-to'/>
 
-        <stl-vector type-name='int32_t' name='hive_product_0'/>
-        <stl-vector type-name='int32_t' name='hive_product_1'/>
-        <stl-vector type-name='int16_t' name='hive_product_2'/>
-        <stl-vector type-name='int16_t' name='hive_product_3'/>
-        <stl-vector type-name='int16_t' name='hive_product_4'/>
-        <stl-vector type-name='int32_t' name='hive_product_5'/>
+        <compound name='hive_product'>
+            <stl-vector type-name='int32_t' name='number'/>
+            <stl-vector type-name='int32_t' name='time'/>
 
-        <static-array name='hive_product_tmpstr' count='5'>
-            <stl-vector>
-                <pointer type-name='stl-string'/>
+            <stl-vector name='item_type'>
+                <enum base-type='int16_t' type-name='item_type'/>
             </stl-vector>
-        </static-array>
+            <stl-vector type-name='int16_t' name='item_subtype'/>
+            <compound name='material' type-name='material_vec_ref'/>
+
+            <static-array name='tmpstr' count='5'>
+                <stl-vector>
+                    <pointer type-name='stl-string'/>
+                </stl-vector>
+            </static-array>
+        </compound>
 
         <int32_t name='next_modifier_id'/>
 

@@ -47,10 +47,12 @@ while (<N>) {
 close N;
 
 my %subst = (
-    proj => 'projectile'
+    proj => 'projectile',
+    task => 'adv_task',
 );
 my %rsubst = (
-    projectile => 'projst'
+    projectile => 'projst',
+    adv_task => 'taskst',
 );
 
 sub vtable_name($) {

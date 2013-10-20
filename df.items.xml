@@ -47,9 +47,21 @@
         <flag-bit name='has_rider' comment='vehicle with a rider'/>
     </bitfield-type>
 
+    <enum-type type-name='item_magicness_type' base-type='int16_t'>
+        <enum-item name='Sparkle'/>
+        <enum-item name='AirWarped'/>
+        <enum-item name='Whistle'/>
+        <enum-item name='OddlySquare'/>
+        <enum-item name='SmallBumps'/>
+        <enum-item name='EarthSmell'/>
+        <enum-item name='Lightning'/>
+        <enum-item name='GrayHairs' comment='with value of 10 or higher, creatures that look at the item cannot think negative thoughts'/>
+        <enum-item name='RustlingLeaves'/>
+    </enum-type>
+
     <struct-type type-name='item_magicness'>
-        <int16_t name='type' comment=''/>
-        <int16_t name='value' comment='boosts item value by 50*this; when 10 or higher, changes the message for type 7'/>
+        <enum base-type='int16_t' name="type" type-name='item_magicness_type'/>
+        <int16_t name='value' comment='boosts item value by 50*this'/>
         <int16_t/>
         <int32_t name='flags' comment='1=does not show up in item description or alter item value'/>
     </struct-type>
@@ -263,8 +275,7 @@
             <vmethod/>
             <vmethod/>
             <vmethod name='setSeedsPlantSkillLevel'> <int32_t name='level'/> </vmethod>
-            <vmethod ret-type='int16_t' name='getCorpseMuscleAmount'
-                     comment='physical_attr_tissues[STRENGTH]'/>
+            <vmethod ret-type='int16_t' name='getCorpseSize' comment='size_info.size_cur'/>
 
             <vmethod name='ageItem'><int32_t name='amount'/></vmethod>
             <vmethod ret-type='int32_t' name='getCritterAirdrownTimer'/>
@@ -709,17 +720,25 @@
         <flag-bit name='skin_damage' comment='brown'/>
         <flag-bit name='motor_nerve_severed'/>
         <flag-bit name='sensory_nerve_severed'/>
-        <flag-bit/>
+        <flag-bit name='spilled_guts'/>
 
         <flag-bit name='has_splint'/>
         <flag-bit name='has_bandage'/>
         <flag-bit name='has_plaster_cast'/>
-        <flag-bit/>
+        <flag-bit comment='related to soap and grime'/>
 
-        <flag-bit/>
-        <flag-bit/>
-        <flag-bit comment='seen e.g. on ribs smashed by blunt attack, but quickly disappeared'/>
-        <flag-bit/>
+        <flag-bit comment='related to soap and grime'/>
+        <flag-bit comment='related to soap and grime'/>
+        <flag-bit name='severed_or_jammed'
+                  comment='seen e.g. on ribs smashed by blunt attack, but quickly disappeared'/>
+        <flag-bit name='under_shell'/>
+
+        <flag-bit name='is_shell'/>
+    </bitfield-type>
+
+    <bitfield-type type-name='body_layer_status'>
+        <flag-bit name='gone'/>
+        <flag-bit name='leaking'/>
     </bitfield-type>
 
     <struct-type type-name='body_component_info'>
@@ -728,14 +747,31 @@
 
         <stl-vector name='numbered_masks' type-name='uint32_t'
                     comment='1 bit per instance of a numbered body part'/>
+        <stl-vector name='nonsolid_remaining' type-name='uint32_t' comment='0-100%'
+                    index-refers-to='$$._global._upglobal.caste.ref-target.body_info.nonsolid_layers[$].refers-to'/>
 
-        <stl-vector name='body_layer_328' type-name='uint32_t'/>
-        <stl-vector name='body_layer_338' type-name='uint32_t'
-                    comment='if 1, gone'/> // 238*0
-        <stl-vector name='body_layer_348' type-name='uint32_t'/> // 238*0
-        <stl-vector name='body_layer_358' type-name='uint32_t'/> // 238*0
-        <stl-vector name='body_layer_368' type-name='uint32_t'/> // 238*0
-        <stl-vector name='body_layer_378' type-name='uint32_t'/> // 238*0
+        <stl-vector name='layer_status' type-name='body_layer_status'
+                    index-refers-to='$$._global._upglobal.caste.ref-target.body_info.layer_idx[$].refers-to'/>
+        <stl-vector name='layer_wound_area' type-name='uint32_t'
+                    index-refers-to='$$._global._upglobal.caste.ref-target.body_info.layer_idx[$].refers-to'/>
+
+        Surface percentages for cuts/fractures, dents and effects (such as
+        bruises, burns, frostbite, melting, freezing, necrosis, and blistering)
+        <stl-vector name='layer_cut_fraction' type-name='uint32_t' comment='0-10000'
+                    index-refers-to='$$._global._upglobal.caste.ref-target.body_info.layer_idx[$].refers-to'/>
+        <stl-vector name='layer_dent_fraction' type-name='uint32_t' comment='0-10000'
+                    index-refers-to='$$._global._upglobal.caste.ref-target.body_info.layer_idx[$].refers-to'/>
+        <stl-vector name='layer_effect_fraction' type-name='uint32_t' comment='0-10000'
+                    index-refers-to='$$._global._upglobal.caste.ref-target.body_info.layer_idx[$].refers-to'/>
+    </struct-type>
+
+    <struct-type type-name='body_size_info'>
+        <int32_t name='size_cur'/>
+        <int32_t name='size_base'/>
+        <int32_t name='area_cur' comment='size_cur^0.666'/>
+        <int32_t name='area_base' comment='size_base^0.666'/>
+        <int32_t name='length_cur' comment='(size_cur*10000)^0.333'/>
+        <int32_t name='length_base' comment='(size_base*10000)^0.333'/>
     </struct-type>
 
     <enum-type type-name='corpse_material_type'>
@@ -781,8 +817,8 @@
                           count='6' index-enum='physical_attribute_type'/>
             <static-array type-name='int32_t' name='physical_attr_unk2'
                           count='6' index-enum='physical_attribute_type'/>
-            <static-array type-name='int32_t' name='physical_attr_tissues'
-                          count='6' index-enum='physical_attribute_type'/>
+
+            <compound name='size_info' type-name='body_size_info'/>
 
             <stl-vector name='unk_194' type-name='int32_t'/>
             <stl-vector name='body_modifiers' type-name='int32_t'
@@ -796,8 +832,8 @@
         <int32_t name="birth_time"/>
         <int32_t name='curse_year' comment='v0.34.01'/>
         <int32_t name='curse_time' comment='v0.34.01'/>
-        <int32_t comment='v0.34.01'/>
-        <int32_t comment='v0.34.01'/>
+        <int32_t name='birth_year_bias' init-value='0' comment='v0.34.01'/>
+        <int32_t name='birth_time_bias' init-value='0' comment='v0.34.01'/>
         <int32_t name="death_year"/>
         <int32_t name="death_time"/>
 
@@ -1022,19 +1058,39 @@
         <int16_t name='caste' ref-target='caste_raw' aux-value='$$.race'/>
         <int32_t name='unk_7c'/>
         <compound name='egg_materials' type-name='material_vec_ref'/>
-        <padding size='44'/>
-        <int32_t comment='v0.34.01, actual offset unknown'/>
-        <int32_t comment='v0.34.06, actual offset unknown'/>
-        <compound name='unk_cc'>
-            <int16_t/>
-            <int16_t/>
-            <int16_t/>
-            <int32_t/>
-            <int32_t/>
-            <int32_t/>
-            <int16_t/>
-        </compound>
-        <int32_t/>
+
+        <bitfield name='egg_flags'>
+            <flag-bit name='fertile' comment='allows the incubation_counter to be checked/incremented'/>
+        </bitfield>
+
+        <int32_t name='incubation_counter' init-value='0'
+                 comment='increments when fertile in unforbidden nestbox, hatch at >= 100800 (3 months)'/>
+
+        <int32_t name='hatchling_civ_id' ref-target='historical_entity'
+                 comment='hatchlings will have this civ_id'/>
+        <int32_t name='hatchling_population_id' ref-target='entity_population'
+                 comment='hatchlings will have this population_id'/>
+        <int32_t name='hatchling_unit_unk_c0' init-value='-1'
+                 comment='hatchlings will have this unit.unk_c0 value'/>
+
+        <pointer name='mothers_genes' type-name='unit_genes' comment='object owned by egg item'/>
+        <int16_t name='mothers_caste' ref-target='caste_raw' aux-value='$$.race'/>
+
+        <pointer name='fathers_genes' type-name='unit_genes' comment='object owned by egg item'/>
+        <int16_t name='fathers_caste' ref-target='caste_raw' aux-value='$$.race'
+                 comment='-1 if no father genes'/>
+
+        <compound name='hatchling_flags1' type-name='unit_flags1'
+                  comment='used primarily for bit_flag:tame'/>
+        <compound name='hatchling_flags2' type-name='unit_flags2'
+                  comment='used primarily for bit_flag:roaming_wilderness_population_source'/>
+        <compound name='hatchling_flags3' type-name='unit_flags3'
+                  comment='not normally used, most/all do not stick'/>
+
+        <enum name='hatchling_training_level' base-type='int32_t'
+              type-name='animal_training_level' init-value='WildUntamed'/>
+        <compound name='hatchling_animal_population' type-name='world_population_ref'/>
+        <int32_t name='hatchling_mother_id' ref-target='unit'/>
         <int32_t name='size'/>
     </class-type>
 

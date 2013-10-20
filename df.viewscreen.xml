@@ -141,31 +141,39 @@
     </class-type>
 
     <class-type type-name='viewscreen_adventure_logst' inherits-from='viewscreen'>
-        <int8_t/>
-        <int8_t/>
-        <int8_t/>
-        <int16_t/>
-        <int16_t/>
-        <int16_t/>
-        <int16_t/>
-        <int16_t/>
-        <int16_t/>
-        <int16_t/>
-        <int16_t/>
-        <int16_t/>
-        <int16_t/>
-        <int32_t/>
-        <int8_t/>
-        <int16_t/>
-        <int16_t/>
-        <int16_t/>
-        <int16_t/>
-        <int16_t/>
-        <stl-vector name="sites"/>
-        <stl-vector name="tasks"/>
-        <stl-vector name="entities"/>
-        <stl-vector name="regions"/>
-        <stl-vector name="layers"/>
+        <enum base-type="int8_t" name="mode">
+            <enum-item name="Info"/>
+            <enum-item name="Map"/>
+        </enum>
+        <int8_t name="map_islocalview"/>
+        <int8_t name="map_hidden"/>
+        <int16_t name="player_region_x"/>
+        <int16_t name="player_region_y"/>
+        <int16_t name="player_local_x"/>
+        <int16_t name="player_local_y"/>
+        <int16_t name='unk_8'/>
+        <int16_t name='unk_9'/>
+        <int16_t name='unk_10'/>
+        <int16_t name='unk_11'/>
+        <int16_t name="cursor_x"/>
+        <int16_t name="cursor_y"/>
+        <int32_t name="index" comment="cursor position in info mode"/>
+        <int8_t name="map_draw_line"/>
+        <enum base-type="int16_t" name="info_mode">
+            <enum-item name="Tasks"/>
+            <enum-item name="Entities"/>
+            <enum-item name="Sites"/>
+            <enum-item name="Regions"/>
+        </enum>
+        <int16_t name="local_area_x1" comment="rectangle of 0 in local view"/>
+        <int16_t name="local_area_x2"/>
+        <int16_t name="local_area_y1"/>
+        <int16_t name="local_area_y2"/>
+        <stl-vector name="sites" pointer-type="world_site"/>
+        <stl-vector name="tasks" pointer-type="adv_task"/>
+        <stl-vector name="entities" pointer-type="historical_entity"/>
+        <stl-vector name="regions" pointer-type="world_region"/>
+        <stl-vector name="layers" pointer-type="world_geo_layer"/>
     </class-type>
 
     <class-type type-name='viewscreen_announcelistst' inherits-from='viewscreen'>
@@ -338,7 +346,7 @@
         <stl-vector name='orders'>
             <pointer type-name='manager_order_template'/>
         </stl-vector>
-        <stl-vector type-name='int32_t'/>
+        <stl-vector name='pages' type-name='int32_t' comment='first index for each page'/>
         <bool name='want_quantity'/>
     </class-type>
 
@@ -415,7 +423,7 @@
     </class-type>
 
     <class-type type-name='viewscreen_dwarfmodest' inherits-from='viewscreen'>
-        <int8_t name='unk_10'/>
+        <int8_t name='shown_site_name'/> display site name next frame
 
         <int16_t name='jeweler_mat_count'/> jewelers workshop orders
         <stl-vector type-name='int32_t' name='jeweler_cutgem'  index-refers-to='(material-by-id 0 $)'/> number of free items for job
@@ -1207,9 +1215,9 @@
     </class-type>
 
     <class-type type-name='viewscreen_meetingst' inherits-from='viewscreen'>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
+        <pointer type-name='dipscript_popup' name='dipscript_popup'/>
+        <pointer type-name='dipscript_popup_unit' name='popup_unk4'/>
+        <int32_t name='popup_unk0'/>
     </class-type>
 
     <class-type type-name='viewscreen_movieplayerst' inherits-from='viewscreen'>
@@ -1379,38 +1387,40 @@
     </class-type>
 
     <class-type type-name='viewscreen_setupadventurest' inherits-from='viewscreen'>
-        <int8_t/>
-        <stl-string/>
-        <int32_t/>
-        <int32_t/>?
-        <int32_t/>?
-        <int16_t/>
-        <compound name='unk1'>
-            <compound type-name='language_name'/>
-            <int16_t/>?
-            <int8_t/>?
-            <static-array type-name='int32_t' count='116'/>
-            <int32_t/>
-            <int16_t/>
-            <int32_t/>?
-            <int32_t/>?
-            <int16_t/>
-            <int32_t/>
-            <int32_t/>
-            <int32_t/>
-            <int32_t/>
-            <int32_t/>
-            <int32_t/>
-            <static-array type-name='int32_t' count='13'/>
-            <int16_t/>
+        <int8_t name='editing_name'/>
+        <stl-string name='saved_firstname'/>    restore this as firstname on cancel
+        <int32_t name='index_col1'/>    cursor position
+        <int32_t name='index_skills'/>
+        <int32_t name='skill_points_remaining'/>
+        <enum base-type='int16_t' name='subscreen'>
+            <enum-item name='Nemesis' value='1'/>
+            <enum-item name='Skills'/>
+            <enum-item name='Name'/>
+        </enum>
+        <compound name='adventurer'>
+            <compound type-name='language_name' name='name'/>
+            <int16_t name='race'/>
+            <int16_t name='caste'/>
+            <static-array type-name='int32_t' count='116' index-enum='job_skill' name='skills'/>
+            <int32_t name='entity' ref-target='historical_entity'/>
+            <int16_t name='histfig' refers-to='$global.world.nemesis.all[$]'/>
+            <int32_t name='unk_7'/>?
+            <int32_t name='unk_8'/>?
+            <int16_t name='unk_9'/>
+            <static-array type-name='int32_t' count='19' name='attributes'/>
+            <enum base-type='int16_t' name='status'>
+                <enum-item name='Peasant'/>
+                <enum-item name='Hero'/>
+                <enum-item name='Demigod'/>
+            </enum>
         </compound>
-        <stl-vector type-name='int16_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int16_t'/>
-        <stl-vector type-name='int32_t'/>
-        <int8_t/>
-        <int32_t/>
-        <int32_t/>
+        <stl-vector type-name='int16_t' name='race_list'/>
+        <stl-vector type-name='int32_t' name='entity_list'/>
+        <stl-vector type-name='int16_t' name='nemesis_list'/>
+        <stl-vector type-name='int16_t' name='skill_list'/>
+        <int8_t name='focus_column'/>  0 = skill, 1 = attr
+        <int32_t name='attribute_points_remaining'/>
+        <int32_t name='index_attributes'/>  cursor index in the attributes list
     </class-type>
 
     <class-type type-name='viewscreen_setupdwarfgamest' inherits-from='viewscreen'>
@@ -1587,17 +1597,17 @@
         <static-string size='256'/>
         <pointer name='units'/>
         <int32_t/>
-        <stl-vector/>
-        <int32_t/>
-        <int32_t/>
+        <stl-vector type-name='int16_t'/>
+        <int32_t name='type_idx'/>
+        <int32_t name='good_idx'/>
     </class-type>
 
     <class-type type-name='viewscreen_tradeagreementst' inherits-from='viewscreen'>
         <int32_t/>
         <int32_t/>
-        <stl-vector/>
-        <int32_t/>
-        <int32_t/>
+        <stl-vector type-name='int16_t'/>
+        <int32_t name='type_idx'/>
+        <int32_t name='good_idx'/>
         <static-string size='256'/>
         <int32_t/>
     </class-type>
