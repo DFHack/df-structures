@@ -762,6 +762,88 @@
         <int32_t init-value='-1'/>
         <int32_t init-value='-1'/>
     </struct-type>
+
+    <enum-type type-name='entity_material_category' base-type='int16_t'>
+        <enum-item name='Clothing' comment='cloth or leather'/>
+        <enum-item name='Leather' comment='organic.leather'/>
+        <enum-item name='Cloth' comment='any cloth'/>
+        <enum-item name='Wood' comment='organic.wood, used for training weapons'/>
+        <enum-item name='Crafts' comment='misc_mat.crafts'/>
+        <enum-item name='Stone' comment='stones'/>
+        <enum-item name='Improvement' comment='misc_mat.crafts'/>
+        <enum-item name='Glass' comment='misc_mat.unk4, used for extract vials'/>
+        <enum-item name='Wood2' comment='misc_mat.barrels, also used for buckets'/>
+        <enum-item name='Bag' comment='cloth/leather'/>
+        <enum-item name='Cage' comment='misc_mat.cages'/>
+        <enum-item name='WeaponMelee' comment='metal.weapon'/>
+        <enum-item name='WeaponRanged' comment='metal.ranged'/>
+        <enum-item name='Ammo' comment='metal.ammo'/>
+        <enum-item name='MetalUnk' comment='metal.unk'/>
+        <enum-item name='Pick' comment='metal.pick'/>
+        <enum-item name='MetalMisc' comment='metal.tool, also used for shields, instruments, and toys'/>
+        <enum-item name='Gem' comment='gems'/>
+        <enum-item name='Bone' comment='refuse.bone'/>
+        <enum-item name='Shell' comment='refuse.shell'/>
+        <enum-item name='Pearl' comment='refuse.pearl'/>
+        <enum-item name='Ivory' comment='refuse.ivory'/>
+        <enum-item name='Horn' comment='refuse.horn'/>
+        <enum-item name='Other' comment='misc_mat.unk2'/>
+        <enum-item name='Anvil' comment='metal.anvil'/>
+        <enum-item name='Booze' comment='misc_mat.booze'/>
+        <enum-item name='Metal' comment='metals with ITEMS_HARD, used for chains'/>
+        <enum-item name='PlantFiber' comment='organic.fiber'/>
+        <enum-item name='Silk' comment='organic.silk'/>
+        <enum-item name='Wool' comment='organic.wool'/>
+        <enum-item name='Furniture' comment='misc_mat.rock_metal'/>
+        <enum-item name='MiscWood2' comment='misc_mat.wood2'/>
+    </enum-type>
+
+    <struct-type type-name='entity_uniform_item'>
+        <int8_t name='random_dye'/>
+        <int8_t name='armorlevel'/>
+        <int16_t name='item_color' ref-target='descriptor_color'/>
+        <int32_t name='art_image_id'/>
+        <int16_t name='art_image_subid'/>
+        <int16_t name='image_thread_color' ref-target='descriptor_color'/>
+        <enum base-type='int16_t' name='image_material_class' type-name='entity_material_category'/>
+        <int16_t name='maker_race'/>
+        <compound name="indiv_choice" type-name='uniform_indiv_choice'/>
+        <int16_t name="mattype" ref-target='material' aux-value='$$.matindex'/>
+        <int32_t name="matindex"/>
+        <enum base-type='int16_t' name="material_class" type-name='uniform_material_class'/>
+    </struct-type>
+
+    <struct-type type-name='entity_uniform' key-field='id'>
+        <int32_t name="id"/>
+        <int16_t name="unk_4"/>
+
+        <code-helper name='describe'>
+            (describe-obj $.name)
+        </code-helper>
+
+        <static-array name='uniform_item_types' count='7' index-enum='uniform_category'>
+            <stl-vector>
+                <enum base-type='int16_t' type-name='item_type'/>
+            </stl-vector>
+        </static-array>
+
+        <static-array name='uniform_item_subtypes' count='7' index-enum='uniform_category'>
+            <stl-vector>
+                <int16_t refers-to='(item-subtype-target $$._parent._parent._parent.uniform_item_types[$$._parent._key][$$._key] $)'/>
+            </stl-vector>
+        </static-array>
+
+        <static-array name='uniform_item_info' count='7' index-enum='uniform_category'>
+            <stl-vector>
+                <pointer type-name='entity_uniform_item'/>
+            </stl-vector>
+        </static-array>
+
+        <stl-string name="name"/>
+
+        <compound name='flags' type-name='uniform_flags'/>
+    </struct-type>
+
 </data-definition>
 
 <!--
