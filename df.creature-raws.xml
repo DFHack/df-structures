@@ -391,7 +391,7 @@
 
         <code-helper name='describe'>$.layer_name</code-helper>
 
-        <int32_t name='tissue_id'/>
+        <int32_t name='tissue_id' refers-to='$$._upglobal._upglobal._upglobal._upglobal._upglobal.tissue[$]'/>
 
         <df-flagarray name='flags' index-enum='body_part_layer_flags'/>
 
@@ -1071,7 +1071,7 @@
         <stl-vector name='speech3'/>
 
         <stl-vector name='material' pointer-type='material'/>
-        <stl-vector type-name='pointer' name='tissue'/>
+        <stl-vector name='tissue' pointer-type='tissue'/>
 
         <compound name='profession_name'>
             <static-array type-name='stl-string' name='singular' count='106' index-enum='profession'/>
@@ -1200,7 +1200,7 @@
         <stl-vector name='parts' pointer-type='body_part_template'/>
     </struct-type>
 
-    <enum-type type-name='tissue_template_flags'>
+    <enum-type type-name='tissue_flags'>
         <enum-item name='THICKENS_ON_STRENGTH'/>
         <enum-item name='THICKENS_ON_ENERGY_STORAGE'/>
         <enum-item name='ARTERIES'/>
@@ -1229,21 +1229,48 @@
 
     <struct-type type-name='tissue_template' instance-vector='$global.world.raws.tissue_templates'>
         <stl-string name='id'/>
-        <df-flagarray name='flags' index-enum='tissue_template_flags'/>
+        <df-flagarray name='flags' index-enum='tissue_flags'/>
         <stl-string name='tissue_name_singular'/>
         <stl-string name='tissue_name_plural'/>
         <static-array name='tissue_material_str' type-name='stl-string' count='3'/>
-        <int16_t/>
-        <int32_t/>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
         <int32_t name='relative_thickness'/>
         <int32_t name='healing_rate'/>
         <int32_t name='vascular'/>
         <int32_t name='pain_receptors'/>
         <int16_t name='tissue_shape'/>
-        <int32_t/>
+        <int32_t name='unk1' init-value='-1'/>
         <int16_t name='insulation'/>
         <stl-string name='subordinate_to_tissue'/>
-        <int16_t name='tissue_mat_state'/>
+        <enum base-type='int16_t' name='tissue_mat_state' type-name='matter_state'/>
+        <stl-string name='tissue_shape_str'/>
+    </struct-type>
+
+    <struct-type type-name='tissue' key-field='id'>
+        <stl-string name='id'/>
+        <df-flagarray name='flags' index-enum='tissue_flags'/>
+        <stl-string name='tissue_name_singular'/>
+        <stl-string name='tissue_name_plural'/>
+        <static-array name='tissue_material_str' type-name='stl-string' count='3'/>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+        <int32_t name='relative_thickness'/>
+        <int32_t name='healing_rate'/>
+        <int32_t name='vascular'/>
+        <int32_t name='pain_receptors'/>
+        <int16_t name='tissue_shape'/>
+        <int32_t name='unk1' init-value='-1'/>
+        <int16_t name='insulation'/>
+        <stl-string name='subordinate_to_tissue'/>
+        <int32_t name='parent_tissue' refers-to='$$._global._upglobal.tissue[$]'/>
+        <enum base-type='int16_t' name='tissue_mat_state' type-name='matter_state'/>
+        <uint16_t name='heatdam_point'/>
+        <uint16_t name='colddam_point'/>
+        <uint16_t name='ignite_point'/>
+        <uint16_t name='melting_point'/>
+        <uint16_t name='boiling_point'/>
+        <uint16_t name='spec_heat'/>
         <stl-string name='tissue_shape_str'/>
     </struct-type>
 
