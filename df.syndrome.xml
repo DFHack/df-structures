@@ -41,6 +41,8 @@
         <flag-bit name='MUSCULAR_ONLY'/>
         <flag-bit name='RESISTABLE'/>
         <flag-bit name='LOCALIZED'/>
+        <flag-bit name='MOON_PHASE'/>
+        <flag-bit name='COUNTER_TRIGGER'/>
     </bitfield-type>
 
     <bitfield-type type-name='cie_add_tag_mask1'>
@@ -89,13 +91,15 @@
         <flag-bit name='FIT_FOR_RESURRECTION'/>
     </bitfield-type>
 
+    <enum-type type-name='creature_interaction_effect_target_mode' base-type='int16_t'>
+        <enum-item name='BY_TYPE'/>
+        <enum-item name='BY_TOKEN'/>
+        <enum-item name='BY_CATEGORY'/>
+    </enum-type>
+
     <struct-type type-name='creature_interaction_effect_target'>
         <stl-vector name='mode'>
-            <enum base-type='int16_t'>
-                <enum-item name='BY_TYPE'/>
-                <enum-item name='BY_TOKEN'/>
-                <enum-item name='BY_CATEGORY'/>
-            </enum>
+            <enum base-type='int16_t' type-name='creature_interaction_effect_target_mode'/>
         </stl-vector>
         <stl-vector name='key' pointer-type='stl-string'/>
         <stl-vector name='tissue' pointer-type='stl-string'/>
@@ -113,8 +117,8 @@
         <int32_t name='id'/>
         <int32_t name='syn_index' comment='index in syndrome'/>
 
-        <int32_t name="unk_4"/>
-        <int32_t name="unk_8"/>
+        <int32_t name="moon_phase_min"/>
+        <int32_t name="moon_phase_max"/>
 
         <compound name='counter_trigger'>
             <stl-vector name="counter">
@@ -131,33 +135,33 @@
                 <ret-type><pointer type-name='creature_interaction_effect'/></ret-type>
             </vmethod>
             <vmethod is-destructor='true'/>
-            <vmethod>
-                <pointer/>
-                <pointer/>
-                <int32_t/>
-                <int32_t/>
-                <int16_t/>
-                <int16_t/>
-                <int32_t/>
+            <vmethod name='doAction'>
+                <pointer type-name='unit'/>
+                <pointer type-name='unit_syndrome'/>
+                <pointer type-name='syndrome'/>
+                <int32_t name='intensity'/>
+                <int16_t name='bp_index'/>
+                <int16_t name='bp_layer'/>
+                <pointer pointer-type='unit_wound'/>
             </vmethod>
-            <vmethod ret-type='bool'/>
+            <vmethod name='isUntargeted' ret-type='bool'/>
 
-            <vmethod name='getVector1'>
-                <ret-type><pointer><stl-vector/></pointer></ret-type>
+            <vmethod name='getTargetModes'>
+                <ret-type><pointer><stl-vector><enum base-type='int16_t' type-name='creature_interaction_effect_target_mode'/></stl-vector></pointer></ret-type>
             </vmethod>
-            <vmethod name='getVector2'>
-                <ret-type><pointer><stl-vector/></pointer></ret-type>
+            <vmethod name='getTargetKeys'>
+                <ret-type><pointer><stl-vector pointer-type='stl-string'/></pointer></ret-type>
             </vmethod>
-            <vmethod name='getVector3'>
-                <ret-type><pointer><stl-vector/></pointer></ret-type>
+            <vmethod name='getTargetTissues'>
+                <ret-type><pointer><stl-vector pointer-type='stl-string'/></pointer></ret-type>
             </vmethod>
             <vmethod name='checkAddFlag1' ret-type='bool'><uint32_t/></vmethod>
             <vmethod name='setBodyMatInteractionName'><pointer/></vmethod>
 
             <vmethod name='parseSynAcquireType'><pointer name='type'/></vmethod>
             <vmethod name='setBodyTransform'><pointer name='race'/><pointer name='caste'/></vmethod>
-            <vmethod name='checkMoonPhase'><pointer/><pointer/><pointer/></vmethod>
-            <vmethod name='checkCounter'><pointer/><pointer/><pointer/><pointer/></vmethod>
+            <vmethod name='addPeriodic'><pointer/><pointer/><pointer/></vmethod>
+            <vmethod name='addCounterTrigger'><pointer/><pointer/><pointer/><pointer/></vmethod>
             <vmethod><pointer/></vmethod>
 
             <vmethod/>
@@ -405,7 +409,7 @@
     </bitfield-type>
 
     <struct-type type-name='syndrome'
-                 instance-vector='$global.world.raws.syndromes.all' key-field='id'>
+                 instance-vector='$global.world.raws.syndromes.all'>
         <stl-string name='syn_name'/>
 
         <code-helper name='describe'>$.syn_name</code-helper>

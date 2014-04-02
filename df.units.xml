@@ -754,11 +754,12 @@
         </compound>
 
         <compound name='syndromes'>
+            -- Sorted by type:
             <stl-vector name='active' pointer-type='unit_syndrome'/>
 
             -- Seems to be incremented every new infection:
-            <stl-vector name='total_id' type-name='int32_t' ref-target='syndrome'/>
-            <stl-vector name='total_count' type-name='int16_t'/>
+            <stl-vector name='reinfection_type' type-name='int32_t' ref-target='syndrome'/>
+            <stl-vector name='reinfection_count' type-name='int16_t'/>
         </compound>
 
         <compound name='reports'>
@@ -932,27 +933,31 @@
                  comment='counts to PHYS_ATT_RATES demotion; then value--; soft_demotion++'/>
     </struct-type>
 
-    <struct-type type-name='unit_syndrome'>
+    <struct-type type-name='unit_syndrome' key-field='type'>
         <int32_t name='type' ref-target='syndrome'/>
         <int32_t name='year'/>
         <int32_t name='year_time'/>
         <int32_t name='ticks'/>
-        <stl-vector type-name='int32_t'/>
-        <int32_t name='unk1'/>
-        <stl-vector name='symptoms'>
+        <stl-vector name='wounds' type-name='int32_t' comment='refers to unit_wound by id'/>
+        <int32_t name='wound_id'/>
+        <stl-vector name='symptoms' index-refers-to='$$._global.type.ref-target.ce[$]'>
             <pointer>
-                <int32_t name='unk1'/>
-                <int32_t name='unk2'/>
+                <int32_t name='quantity' comment='from spatter size'/>
+                <int32_t name='delay' comment='for SIZE_DELAYS'/>
                 <int32_t name='ticks'/>
+                -- When not cie.isUntargeted():
                 <stl-vector name='target_bp' type-name='int16_t'/>
                 <stl-vector name='target_layer' type-name='int16_t'/>
-                <stl-vector name='target_unk1' type-name='int32_t'/>
-                <stl-vector name='target_unk2' type-name='int32_t'/>
+                <stl-vector name='target_quantity' type-name='int32_t'/>
+                <stl-vector name='target_delay' type-name='int32_t'/>
                 <stl-vector name='target_ticks' type-name='int32_t'/>
-                <uint32_t name='flags'/>
+                <bitfield name='flags'>
+                    <flag-bit name='disabled' comment='if PROB roll fails, or all symptoms expire'/>
+                    <flag-bit name='active'/>
+                </bitfield>
             </pointer>
         </stl-vector>
-        <int16_t name='unk2'/>
+        <int16_t name='reinfection_count' comment='set from unit.reinfection_count[i]++'/>
         <bitfield name='flags'>
             cause rq_diagnosis:
             <flag-bit name='is_sick' comment='causes health.flags.needs_healthcare'/>
@@ -1141,7 +1146,7 @@
 
         <stl-vector/>
         <stl-vector/>
-        <int32_t name='unk1'/>
+        <int32_t name='counter'/>
         <int32_t name='unk2' init-value='-1'/>
         <int32_t name='unk3' init-value='-1'/>
         <stl-vector/>
