@@ -122,7 +122,7 @@
         <flag-bit name='exit_vehicle1' comment='trapavoid'/>
 
         <flag-bit name='exit_vehicle2' comment='trapavoid'/>
-        <flag-bit name='unk21'/>
+        <flag-bit name='dangerous_terrain'/>
         <flag-bit name='unk22'/>
         <flag-bit name='unk23'/>
     </bitfield-type>
@@ -731,8 +731,8 @@
 
             <int16_t name='adv_sleep_timer'/>
 
-            -- coordinates, and a set of coordinate vectors
-            <compound name='unk_75a' type-name='coord'/>
+            -- average of the following vector
+            <compound name='recent_job_area' type-name='coord'/>
 
             -- up to 50 locations where jobs were performed recently by the unit
             <compound name='recent_jobs' type-name='coord_path'/>
@@ -812,7 +812,16 @@
             <int32_t name='interaction' refers-to='$$._global.body.body_plan.interactions[$]' comment='v0.34.01'/>
 
             <stl-vector name='unk_850'/>
-            <stl-vector name='unk_860' type-name='int32_t'/>
+            <stl-vector name='witness_reports'>
+                <pointer>
+                    <int32_t name='death_id' ref-target='death_info'/>
+                    <int32_t name='crime_id' ref-target='criminal_case'/>
+                    <int32_t name='unk1'/>
+                    <int32_t name='year'/>
+                    <int32_t name='year_tick'/>
+                    <int32_t name='unk2'/>
+                </pointer>
+            </stl-vector>
 
             <int32_t name='enemy_status_slot' init-value='-1'/>
             <int32_t name='unk_874_cntr'/> // age ? incremented every tick
@@ -1170,18 +1179,18 @@
     <enum-type base-type='int16_t' type-name='misc_trait_type'>
         <enum-attr name='tag'/>
 
-        <enum-item/>
-        <enum-item/>
-        <enum-item/>
-        <enum-item/>
-        <enum-item/>
-        <enum-item/>
+        <enum-item name='RequestWaterCooldown'/> for thirsty patients
+        <enum-item name='RequestFoodCooldown'/> for hungry patients
+        <enum-item name='RequestRescueCooldown'/>
+        <enum-item name='RequestHealthcareCooldown'/>
+        <enum-item name='GetDrinkCooldown'/>
+        <enum-item name='GetFoodCooldown'/>
         <enum-item name='CleanSelfCooldown'/>
         <enum-item name='Migrant'/>
 
         <enum-item name='RoomComplaint'/>
         <enum-item name='UnnamedResident' comment='upon reaching zero, resident creature gets named'/>
-        <enum-item/>
+        <enum-item name='RentBedroomCooldown'/>
         <enum-item name='ClaimTrinketCooldown'/>
         <enum-item name='ClaimClothingCooldown'/>
         <enum-item name='WantsDrink'>
@@ -1200,7 +1209,7 @@
         <enum-item name='OnBreak'>
             <item-attr name='tag' value='ON_BREAK'/>
         </enum-item>
-        <enum-item/>
+        <enum-item name='PrepareToDie'/>
         <enum-item name='CaveAdapt'>
             <item-attr name='tag' value='CAVE_ADAPT'/>
         </enum-item>
@@ -1209,11 +1218,11 @@
         <enum-item/>
         <enum-item/>
 
+        <enum-item name='FollowUnitCooldown' comment='0-20, 200 on failed path'/>
         <enum-item/>
         <enum-item/>
         <enum-item/>
-        <enum-item/>
-        <enum-item/>
+        <enum-item name='DangerousTerrainCooldown' comment='created at 200, blocks repath?'/>
         <enum-item name='Beaching' comment='triggered by BEACH_FREQUENCY'/>
         <enum-item name='IdleAreaCooldown'/>
         <enum-item/>
@@ -1221,17 +1230,17 @@
         <enum-item name='PartiedOut'>
             <item-attr name='tag' value='PARTIED_OUT'/>
         </enum-item>
-        <enum-item/>
-        <enum-item/>
-        <enum-item name='WoundsCleaned'/>
-        <enum-item/>
-        <enum-item/>
-        <enum-item/>
-        <enum-item/>
+        <enum-item name='DiagnosePatientCooldown' comment='0-2000'/>
+        <enum-item name='DressWoundCooldown'/>
+        <enum-item name='CleanPatientCooldown'/>
+        <enum-item name='SurgeryCooldown'/>
+        <enum-item name='SutureCooldown'/>
+        <enum-item name='SetBoneCooldown'/>
+        <enum-item name='PlaceInTractionCooldown'/>
 
-        <enum-item/>
-        <enum-item/>
-        <enum-item/>
+        <enum-item name='ApplyCastCooldown'/>
+        <enum-item name='ImmobilizeBreakCooldown'/>
+        <enum-item name='BringCrutchCooldown'/>
         <enum-item/>
         <enum-item name='MilkCounter'>
             <item-attr name='tag' value='MILK_COUNTER'/>
@@ -1345,10 +1354,10 @@
         <stl-vector name="body_part_flags" type-name='unit_bp_health_flags'/>
 
         <int16_t name="unk_18_cntdn"/>
-        <int16_t name="unk_1a_cntdn"/>
-        <int16_t name="unk_1c_cntdn"/>
-        <int16_t name="unk_1e_cntdn"/>
-        <int16_t name="unk_20_cntdn"/>
+        <int16_t name="immobilize_cntdn"/>
+        <int16_t name="dressing_cntdn"/>
+        <int16_t name="suture_cntdn"/>
+        <int16_t name="crutch_cntdn"/>
 
         <stl-vector name="op_history">
             <pointer>
