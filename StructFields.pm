@@ -576,18 +576,22 @@ sub emit_struct_fields($$;%) {
         }
     } 'ctors';
 
-    if ($want_ctor) {
-        emit "$name($ctor_args$ctor_arg_init);";
-    }
-
     %info = $flags{-addmethods}->($tag) if $flags{-addmethods};
+
+    my $alloc_fn = $info{nodtor} ? 'allocator_nodel_fn' : 'allocator_fn';
+
+    if ($want_ctor) {
+        outdent { emit $flags{-class} ? "protected:" : "public:"; };
+        emit "$name($ctor_args$ctor_arg_init);";
+        if ($flags{-class}) {
+            emit "friend void *${main_namespace}::${alloc_fn}<${full_name}>(void*,const void*);";
+        }
+    }
 
     with_emit_static {
         my $ftable = render_field_metadata $tag, $full_name, @fields, %info;
 
         if ($flags{-class}) {
-            my $alloc_fn = $info{nodtor} ? 'allocator_nodel_fn' : 'allocator_fn';
-
             emit "virtual_identity ${full_name}::_identity(",
                     "sizeof($full_name), &${alloc_fn}<${full_name}>, ",
                     "\"$name\",",
