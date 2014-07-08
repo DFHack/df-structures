@@ -21,7 +21,7 @@
 
 ;; disable the known object walk to speed up xml loading
 ;; use when updating for a new version
-;(setf (enumerate-known-objects? *memory*) nil)
+(setf (enumerate-known-objects? *memory*) nil)
 
 (reload)
 (resume)

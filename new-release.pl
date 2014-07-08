@@ -84,6 +84,8 @@ for $_ (@symlines) {
 }
 @template or die "Could not find the symtable template\n";
 
+our @lines;
+
 sub import_genfile($$$;$) {
     my ($dir, $fn, $pfix, $substl) = @_;
     local *IFH;
@@ -164,16 +166,16 @@ sub copy_globals($) {
     rename "$dir/df.globals.xml", "$dir/df.globals.xml-old";
 
     open IN, 'defs.xml-empty';
-    open OUT, ">$dir/df.globals.xml";
+    open FH, ">$dir/df.globals.xml";
     while (<IN>) {
         if (/(\s*)<!-- defs -->/) {
             import_genfile $dir, 'ctors', $1, $_;
         } else {
-            print OUT $_;
+            print FH $_;
         }
     }
     close IN;
-    close OUT;
+    close FH;
 }
 
 copy_globals 'linux';
