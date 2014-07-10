@@ -6,13 +6,13 @@
         <enum-item name='WINTER'/>
         <enum-item/>
         <enum-item name='SEED'/>
-        <enum-item name='LEAVES'/>
+        <enum-item name='TREE_HAS_MUSHROOM_CAP'/>
         <enum-item name='DRINK'/>
 
         <enum-item name='EXTRACT_BARREL'/>
         <enum-item name='EXTRACT_VIAL'/>
         <enum-item name='EXTRACT_STILL_VIAL'/>
-        <enum-item/>
+        <enum-item name='GENERATED'/>
         <enum-item name='THREAD'/>
         <enum-item name='MILL'/>
         <enum-item/>
@@ -85,14 +85,26 @@
         <enum-item name='BIOME_RIVER_TROPICAL_FRESHWATER'/>
         <enum-item name='BIOME_RIVER_TROPICAL_BRACKISHWATER'/>
         <enum-item name='BIOME_RIVER_TROPICAL_SALTWATER'/>
-        <enum-item name='AUTUMNCOLOR'/>
+        <enum-item name='TWIGS_SIDE_BRANCHES'/>
         <enum-item name='SAPLING'/>
         <enum-item name='TREE'/>
         <enum-item name='GRASS'/>
+
+        <enum-item name='TWIGS_ABOVE_BRANCHES'/>
+        <enum-item name='TWIGS_BELOW_BRANCHES'/>
+        <enum-item name='TWIGS_SIDE_HEAVY_BRANCHES'/>
+        <enum-item name='TWIGS_ABOVE_HEAVY_BRANCHES'/>
+        <enum-item name='TWIGS_BELOW_HEAVY_BRANCHES'/>
+        <enum-item name='TWIGS_SIDE_TRUNK'/>
+        <enum-item name='TWIGS_ABOVE_TRUNK'/>
+        <enum-item name='TWIGS_BELOW_TRUNK'/>
     </enum-type>
 
     <struct-type type-name='plant_raw' instance-vector='$global.world.raws.plants.all'>
         <stl-string name='id'/>
+
+        <int32_t comment='v0.40.01'/>
+        <stl-vector comment='v0.40.01'/>
 
         <code-helper name='describe'>$.id</code-helper>
 
@@ -104,8 +116,10 @@
 
         <stl-string name='seed_singular'/>
         <stl-string name='seed_plural'/>
-        <stl-string name='leaves_singular'/>
-        <stl-string name='leaves_plural'/>
+        <stl-string name='leaves_singular' comment='unused'/>
+        <stl-string name='leaves_plural' comment='unused'/>
+
+        <int32_t name='source_hfid' ref-target='historical_figure'/>
 
         <uint8_t name='unk1'/>
         <uint8_t name='unk2'/>
@@ -115,13 +129,13 @@
             <uint8_t name='dead_picked_tile'/>
             <uint8_t name='shrub_tile'/>
             <uint8_t name='dead_shrub_tile'/>
-            <uint8_t name='leaves_tile'/>
-            <uint8_t name='tree_tile'/>
-            <uint8_t name='dead_tree_tile'/>
+            <uint8_t name='tree_tile' comment='unused'/>
+            <uint8_t name='dead_tree_tile' comment='unused'/>
             <uint8_t name='sapling_tile'/>
             <uint8_t name='dead_sapling_tile'/>
             <static-array type-name='uint8_t' name='grass_tiles' count='16'/>
             <static-array type-name='uint8_t' name='alt_grass_tiles' count='12'/>
+            <static-array type-name='uint8_t' name='tree_tiles' count='104'/>
         </compound>
 
         <int32_t name='growdur'/>
@@ -133,8 +147,6 @@
             <static-array type-name='int8_t' name='shrub_color' count='3'/>
             <static-array type-name='int8_t' name='dead_shrub_color' count='3'/>
             <static-array type-name='int8_t' name='seed_color' count='3'/>
-            <static-array type-name='int8_t' name='leaves_color' count='3'/>
-            <static-array type-name='int8_t' name='dead_leaves_color' count='3'/>
             <static-array type-name='int8_t' name='tree_color' count='3'/>
             <static-array type-name='int8_t' name='dead_tree_color' count='3'/>
             <static-array type-name='int8_t' name='sapling_color' count='3'/>
@@ -169,7 +181,6 @@
                      aux-value='$$.idx_extract_barrel'/>
             <int16_t name='type_extract_still_vial' ref-target='material'
                      aux-value='$$.idx_extract_still_vial'/>
-            <int16_t name='type_leaves' ref-target='material' aux-value='$$.idx_leaves'/>
 
             <int32_t name='idx_basic_mat'/>
             <int32_t name='idx_tree'/>
@@ -180,7 +191,6 @@
             <int32_t name='idx_extract_vial'/>
             <int32_t name='idx_extract_barrel'/>
             <int32_t name='idx_extract_still_vial'/>
-            <int32_t name='idx_leaves'/>
 
             <static-array type-name='stl-string' name='str_basic_mat' count='3'/>
             <static-array type-name='stl-string' name='str_tree' count='3'/>
@@ -191,11 +201,34 @@
             <static-array type-name='stl-string' name='str_extract_vial' count='3'/>
             <static-array type-name='stl-string' name='str_extract_barrel' count='3'/>
             <static-array type-name='stl-string' name='str_extract_still_vial' count='3'/>
-            <static-array type-name='stl-string' name='str_leaves' count='3'/>
         </compound>
 
         <int32_t name='underground_depth_min'/>
         <int32_t name='underground_depth_max'/>
+
+        <stl-vector name='growths'/>
+        <stl-string name='root_name'/>
+        <stl-string name='trunk_name'/>
+        <stl-string name='heavy_branch_name'/>
+        <stl-string name='light_branch_name'/>
+        <stl-string name='twig_name'/>
+        <stl-string name='cap_name'/>
+        <int32_t name='trunk_period'/>
+        <int32_t name='heavy_branch_density'/>
+        <int32_t name='light_branch_density'/>
+        <int32_t name='max_trunk_height'/>
+        <int32_t name='heavy_branch_radius'/>
+        <int32_t name='light_branch_radius'/>
+        <int32_t name='trunk_branching'/>
+        <int32_t name='max_trunk_diameter'/>
+        <int32_t name='trunk_width_period'/>
+        <int32_t name='cap_period'/>
+        <int32_t name='cap_radius'/>
+        <int32_t name='root_density'/>
+        <int32_t name='root_radius'/>
+
+        <stl-vector/>
+        <stl-vector/>
     </struct-type>
 </data-definition>
 
