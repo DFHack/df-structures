@@ -174,7 +174,7 @@
         <enum-item name='NO_DIZZINESS'/>
 
         <enum-item name='NO_FEVERS'/>
-        <enum-item name='NO_PROFESSION_COLOR' comment='guessed from use'/>
+        <enum-item name='NO_UNIT_TYPE_COLOR'/>
         <enum-item name='NO_CONNECTIONS_FOR_MOVEMENT'/>
         <enum-item name='unk_2b'/>
         <enum-item name='AMBUSHPREDATOR'/>
@@ -184,7 +184,7 @@
 
         <enum-item name='SECRETION'/>
         <enum-item name='IMMOBILE'/>
-        <enum-item name='unk_32'/>
+        <enum-item name='MULTIPART_FULL_VISION'/>
         <enum-item name='MEANDERER'/>
         <enum-item name='THICKWEB'/>
         <enum-item name='TRAINABLE_HUNTING'/>
@@ -311,6 +311,13 @@
         <enum-item name='unk_a0'/>
         <enum-item name='CRAZED'/>
         <enum-item name='BLOODSUCKER'/>
+        <enum-item name='NO_VEGETATION_PERTURB'/>
+        <enum-item name='DIVE_HUNTS_VERMIN'/>
+        <enum-item name='GOBBLE_VERMIN'/>
+        <enum-item name='CANNOT_JUMP'/>
+        <enum-item name='STANCE_CLIMBER'/>
+
+        <enum-item name='CANNOT_CLIMB'/>
     </enum-type>
 
     <enum-type type-name='body_part_raw_flags'>
@@ -678,9 +685,6 @@
         <uint16_t name='max_temp'/>
         <uint16_t name='fixed_temp'/>
 
-        <padding size='270' comment='TODO'/>
-
-        <!--
         <static-array type-name='int16_t' name='caste_color' count='3'/>
 
         <compound name='misc'>
@@ -702,7 +706,9 @@
             <int16_t name='beach_frequency'/>
             <int16_t name='clutch_size_min'/>
             <int16_t name='clutch_size_max'/>
-            <int32_t name='speed'/>
+            <int16_t name='vision_arc_min'/>
+            <int16_t name='vision_arc_max'/>
+            <int32_t name='speed' comment='no longer used'/>
             <int32_t name='modvalue'/>
             <int32_t name='petvalue'/>
             <int32_t name='milkable'/>
@@ -711,7 +717,7 @@
             <int32_t name='maxage_max'/>
             <int32_t name='baby_age'/>
             <int32_t name='child_age'/>
-            <int32_t name='swim_speed'/>
+            <int32_t name='swim_speed' comment='no longer used'/>
             <int32_t name='trade_capacity'/>
             <int32_t name='unk4'/>
             <int32_t name='pop_ratio'/>
@@ -727,7 +733,6 @@
             <int32_t name='prone_to_rage'/>
             <static-array type-name='int32_t' name='unk6' count='29'/>
         </compound>
-        -->
 
         <compound name='personality'>
             <static-array type-name='int16_t' name='a' count='50' index-enum='personality_facet_type'/>
@@ -767,7 +772,8 @@
 
         <int8_t name='gender'/>
 
-        <static-array name='unk_v40_2' count='6' type-name='int32_t' comment='v0.40.1'/>
+        <static-array name='orientation_male' count='3' type-name='int32_t' comment='v0.40.1'/>
+        <static-array name='orientation_female' count='3' type-name='int32_t' comment='v0.40.1'/>
 
         <stl-vector type-name='int32_t' name='body_size_1'/>
         <stl-vector type-name='int32_t' name='body_size_2'/>
@@ -918,9 +924,9 @@
         <stl-vector name='creature_class' pointer-type='stl-string'/>
 
         <compound name='unknown2'>
-            <stl-vector name='unk23a' type-name='int32_t'/>
-            <stl-vector name='unk23b' type-name='int32_t'/>
-            <stl-vector name='unk23c' type-name='int32_t'/>
+            <stl-vector name='gobble_vermin_class' pointer-type='stl-string'/>
+            <stl-vector name='gobble_vermin_creature_1' pointer-type='stl-string'/>
+            <stl-vector name='gobble_vermin_creature_2' pointer-type='stl-string'/>
 
             <stl-vector name='infect_all' type-name='int32_t' ref-target='syndrome'
                         comment='v0.34.01; for spatter applied to all bp'/>
@@ -953,11 +959,12 @@
         </compound>
 
         <static-array type-name='int32_t' name='habit_num' count='2'/>
-        <static-array name='habit' count='2'><stl-vector/></static-array>
-        <!--<static-array name='lair' count='2'><stl-vector/></static-array>-->
-        <stl-vector type-name='int16_t'/>
-        <stl-vector type-name='int32_t'/>
-        <static-array name='lair_characteristic' count='2'><stl-vector/></static-array>
+        <stl-vector name='habit_1' type-name='int16_t'/>
+        <stl-vector name='habit_2' type-name='int32_t'/>
+        <stl-vector name='lair_1' type-name='int16_t'/>
+        <stl-vector name='lair_2' type-name='int32_t'/>
+        <stl-vector name='lair_characteristic_1' type-name='int16_t'/>
+        <stl-vector name='lair_characteristic_2' type-name='int32_t'/>
         <static-array name='lair_hunter_speech' count='2'><stl-vector/></static-array>
         <static-array name='unk29' count='2'><stl-vector/></static-array>
         <static-array name='specific_food' count='2'><stl-vector/></static-array>
@@ -970,15 +977,15 @@
         <stl-vector type-name='pointer' comment='v0.34.01'/>
 
         -- v0.40.01
-        <int32_t name="unk_32ac"/>
-        <int32_t name="unk_32b0"/>
-        <stl-string name="unk_32b4"/>
-        <int32_t name="unk_32d0"/>
-        <stl-vector name="unk_32d4"/>
-        <stl-vector name="unk_32e4"/>
-        <stl-vector name="unk_32f4"/>
-        <stl-vector name="unk_3304"/>
-        <stl-vector name="unk_3314"/>
+        <int32_t name="smell_trigger"/>
+        <int32_t name="odor_level"/>
+        <stl-string name="odor_string"/>
+        <int32_t name="low_light_vision"/>
+        <stl-vector pointer-type='stl-string' name="sense_creature_class_1"/>
+        <stl-vector type-name='int8_t' name="sense_creature_class_2"/>
+        <stl-vector type-name='int16_t' name="sense_creature_class_3"/>
+        <stl-vector type-name='int16_t' name="sense_creature_class_4"/>
+        <stl-vector type-name='int16_t' name="sense_creature_class_5"/>
     </struct-type>
 
     <enum-type type-name='creature_graphics_role'>
