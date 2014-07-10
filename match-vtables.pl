@@ -8,7 +8,7 @@ my %vtable_names;
 my %is_class;
 my %superclass;
 
-open N, "all.csv" or die "Cannot open all.csv\n";
+open(N, '<', "all.csv") or die "Cannot open all.csv\n";
 while (<N>) {
     next unless /^\"([^\"]*)\",\"(\d+)\",\"0x([0-9a-f]+)\",\"0x([0-9a-f]+)\",\"([^\"]*)\",\"([^\"]*)\",\"([^\"]*)\"/i;
     my ($top, $level, $addr, $size, $type, $name, $target) = ($1,$2,hex $3,hex $4,$5,$6,$7);
@@ -33,7 +33,7 @@ my %vtable_addrs;
 my %vmethod_addrs;
 my %addr_names;
 
-open N, "vtables-ext.txt" or die "Cannot open vtables-ext.txt\n";
+open(N, '<', "vtables-ext.txt") or die "Cannot open vtables-ext.txt\n";
 my $cur_class;
 while (<N>) {
     if (/<vtable-address name='(\S+)' value='0x([0-9a-f]+)'>/) {
