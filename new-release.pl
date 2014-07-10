@@ -13,18 +13,18 @@
 use strict;
 use warnings;
 
+use Digest::MD5;
+
 my $version = $ARGV[0] or die "Usage: new-release.pl <version> [path]\n";
 my $path = $ARGV[1] || glob("~/Games/DF/");
 
 # Find the new md5 and timestamp
 
 sub compute_md5($) {
-    my ($fn) = @_;
-
-    my $md5_hash = `md5sum "$fn"`;
-    $md5_hash =~ s/\s.*$//s;
-    $md5_hash =~ /^[0-9a-fA-F]+$/ or die "Could not determine md5 hash: $fn\n";
-    return lc $md5_hash;
+    open(my $fh, '<', shift);
+    my $md5_hash = Digest::MD5->new->addfile($fh)->hexdigest;
+    close($fh);
+    return($md5_hash);
 }
 
 my $md5_hash = compute_md5 "$path/df_linux/libs/Dwarf_Fortress";
