@@ -42,14 +42,14 @@
         <enum-item name='IMPROVED_BOWS'/>
         <enum-item name='OUTDOOR_WOOD'/>
         <enum-item name='LOCAL_BANDITRY'/>
-        <enum-item/>
+        <enum-item name='BUILDS_OUTDOOR_TOMBS'/>
         <enum-item name='INVADERS_IGNORE_NEUTRALS'/>
 
         <enum-item name='AT_PEACE_WITH_WILDLIFE'/>
         <enum-item name='EQUIPMENT_IMPROVEMENTS'/>
         <enum-item name='ABUSE_BODIES'/>
         <enum-item name='UNDEAD_CANDIDATE'/>
-        <enum-item/>
+        <enum-item name='GENERATED'/>
         <enum-item name='SKULKING'/>
         <enum-item/>
         <enum-item name='MERCHANT_NOBILITY'/>
@@ -57,13 +57,22 @@
         <enum-item name='TREE_CAP_DIPLOMACY'/>
         <enum-item name='DIPLOMAT_BODYGUARDS'/>
         <enum-item name='MERCHANT_BODYGUARDS'/>
-        <enum-item/>
-        <enum-item/>
+        <enum-item name='INDOOR_ORCHARDS'/>
+        <enum-item name='OUTDOOR_ORCHARDS'/>
         <enum-item name='WANDERER'/>
         <enum-item name='BEAST_HUNTER'/>
         <enum-item name='SCOUT'/>
 
         <enum-item name='WILL_ACCEPT_TRIBUTE'/>
+        <enum-item name='INDOOR_GARDENS'/>
+        <enum-item name='OUTDOOR_GARDENS'/>
+        <enum-item name='MERCENARY'/>
+        <enum-item name='SITE_GUARDIAN'/>
+        <enum-item name='DIVINE_MAT_WEAPONS'/>
+        <enum-item name='DIVINE_MAT_ARMOR'/>
+        <enum-item name='DIVINE_MAT_CRAFTS'/>
+
+        <enum-item name='DIVINE_MAT_CLOTHING'/>
     </enum-type>
 
     <enum-type type-name='site_type'>
@@ -77,6 +86,7 @@
         <enum-item/>
         <enum-item name='FORTRESS'/>
         <enum-item/>
+        <enum-item name='MONUMENT'/>
     </enum-type>
 
     <enum-type type-name='ethic_type'>
@@ -121,10 +131,13 @@
         <enum-item name='PUNISH_EXILE'/>
         <enum-item name='PUNISH_CAPITAL'/>
         <enum-item name='UNTHINKABLE'/>
+        <enum-item name='REQUIRED'/>
     </enum-type>
 
     <struct-type type-name='entity_raw' instance-vector='$global.world.raws.entities'>
         <stl-string name='code'/>
+        <int32_t comment='v0.40.01'/>
+        <stl-vector comment='v0.40.01'/>
 
         <code-helper name='describe'>$.translation</code-helper>
 
@@ -204,6 +217,7 @@
 
             <static-array name='biome_support' type-name='int32_t' count='51' index-enum='biome_type'/>
             <static-array name='start_biome' type-name='int8_t' count='51' index-enum='biome_type'/>
+            <static-array name='settlement_biome' type-name='int8_t' count='51' index-enum='biome_type'/>
 
             <static-array name='active_season' type-name='int8_t' count='4'/>
         </compound>
@@ -221,6 +235,8 @@
             <enum base-type='int16_t' type-name='ethic_response'/>
         </static-array>
 
+        <static-array name='values' type-name='int32_t' count='32' index-enum='value_type'/>
+
         <int32_t name='max_site_pop_number'/>
         <int32_t name='max_pop_number'/>
         <int32_t name='max_starting_civ_number'/>
@@ -232,11 +248,11 @@
 
         <compound name='jobs'>
             <static-array name='permitted_job' type-name='bool'
-                          index-enum='profession' count='106'/>
+                          index-enum='profession' count='111'/>
             <static-array name='permitted_labor' type-name='bool'
                           index-enum='unit_labor' count='94'/>
             <static-array name='permitted_skill' type-name='bool'
-                          index-enum='job_skill' count='116'/>
+                          index-enum='job_skill' count='117'/>
 
             <static-array name='world_construction' type-name='bool'
                           index-enum='world_construction_type' count='4'/>
@@ -245,6 +261,9 @@
         <stl-vector name='positions' pointer-type='entity_position_raw'/>
 
         <static-array name='variable_positions' type-name='int8_t'
+                      index-enum='entity_position_responsibility' count='25'/>
+
+        <static-array name='site_variable_positions' type-name='int8_t'
                       index-enum='entity_position_responsibility' count='25'/>
 
         <stl-vector name='tissue_styles'>
@@ -271,14 +290,13 @@
 
         <int32_t name='banditry'/>
 
-        <stl-vector name='unk2'/>
-        <stl-vector name='currency'/>
-
-        <stl-vector name='gem_shapes' comment='v0.34.01' type-name='int32_t' ref-target='descriptor_shape'/>
-        <stl-vector name='stone_shapes' comment='v0.34.01' type-name='int32_t' ref-target='descriptor_shape'/>
-
-        <stl-vector comment='v0.34.01'/>
-        <stl-vector comment='v0.34.01'/>
+        <stl-vector pointer-type='stl-string' name='gem_shapes_str'>
+        <stl-vector pointer-type='stl-string' name='stone_shapes_str'>
+        <stl-vector name='gem_shapes' type-name='int32_t' ref-target='descriptor_shape'/>
+        <stl-vector name='stone_shapes' type-name='int32_t' ref-target='descriptor_shape'/>
+        <int32_t name='source_hfid' ref-target='historical_figure'/>
+        <stl-vector pointer-type='stl-string' name='currency_str1'/>
+        <stl-vector pointer-type='stl-string' name='currency_str2'/>
     </struct-type>
 
     <enum-type type-name='entity_position_raw_flags'>
@@ -307,6 +325,9 @@
         <enum-item name='SLEEP_PRETENSION'/>
         <enum-item name='PUNISHMENT_EXEMPTION'/>
         <enum-item name='QUEST_GIVER'/>
+        <enum-item name='SPECIAL_BURIAL'/>
+
+        <enum-item name='REQUIRES_MARKET'/>
     </enum-type>
 
     <enum-type type-name='entity_position_responsibility'>
@@ -371,7 +392,7 @@
 
         <int16_t name='land_holder'/>
         <int16_t name='number'/>
-        <int16_t name='requires_population'/>
+        <enum name='execution_skill' type-name='job_skill' base-type='int16_t'/>
         <int32_t name='precedence'/>
 
         <stl-string name='replaced_by_str'/>
