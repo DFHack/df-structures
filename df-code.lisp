@@ -154,3 +154,6 @@
 
 (defun name-has-substring? (name substring)
   (some @$(search substring $) (describe-obj name)))
+
+(defun has-status? ($ status)
+  (eq (type-annotation (memory-object-ref-type $) :status) status))
