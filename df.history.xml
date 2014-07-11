@@ -346,7 +346,7 @@
         <enum-item name='RECLAIM_SITE'/>
         <enum-item name='HF_DESTROYED_SITE'/>
         <enum-item name='SITE_DIED'/>
-        <enum-item name='SITE_ABANDONED'/>
+        <enum-item name='SITE_RETIRED'/>
         <enum-item name='ENTITY_CREATED'/>
         <enum-item name='ENTITY_ACTION'/>
         <enum-item name='ENTITY_INCORPORATED'/>
@@ -396,6 +396,12 @@
         <enum-item name='ENTITY_LAW'/>
         <enum-item name='HF_GAINS_SECRET_GOAL'/>
         <enum-item name='ARTIFACT_STORED'/>
+        <enum-item name='AGREEMENT_FORMED'/>
+        <enum-item name='SITE_DISPUTE'/>
+        <enum-item name='AGREEMENT_CONCLUDED'/>
+        <enum-item name='INSURRECTION_STARTED'/>
+        <enum-item name='INSURRECTION_ENDED'/>
+        <enum-item name='HF_ATTACKED_SITE'/>
     </enum-type>
 
     <struct-type type-name='history_event_context'>
@@ -779,10 +785,11 @@
         <int32_t name='site' ref-target='world_site'/>
     </class-type>
 
-    <class-type type-name='history_event_site_abandonedst' inherits-from='history_event'>
+    <class-type type-name='history_event_site_retiredst' inherits-from='history_event'>
         <int32_t name='civ' ref-target='historical_entity'/>
         <int32_t name='group' ref-target='historical_entity'/>
         <int32_t name='site' ref-target='world_site'/>
+        <int32_t name='flags' comment='1: first time'/>
     </class-type>
 
     <class-type type-name='history_event_entity_createdst' inherits-from='history_event'>
@@ -1249,6 +1256,103 @@
         <int32_t name='site' ref-target='world_site'/>
     </class-type>
 
+    <class-type type-name='history_event_agreement_formedst' inherits-from='history_event'>
+        <int32_t name='agreement_id'/>
+    </class-type>
+
+    <enum-type type-name='site_dispute_type'>
+        <enum-item name='Territory'/>
+        <enum-item name='WaterRights'/>
+        <enum-item name='GrazingRights'/>
+        <enum-item name='FishingRights'/>
+        <enum-item name='RightsOfWay'/>
+        <enum-item name='LivestockOwnership'/>
+    </enum-type>
+
+    <class-type type-name='history_event_site_disputest' inherits-from='history_event'>
+        <enum name='dispute_type' type-name='site_dispute_type' base-type='int32_t'/>
+        <int32_t name='entity_1' ref-target='historical_entity'/>
+        <int32_t name='entity_2' ref-target='historical_entity'/>
+        <int32_t name='site_1' ref-target='world_site'/>
+        <int32_t name='site_2' ref-target='world_site'/>
+    </class-type>
+
+    <enum-type type-name='agreement_conclusion_reason'>
+        <enum-item name='None'/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item name='Whim'/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item name='ShouldHaveReachedGoal'/>
+        <enum-item name='InsufficientProgressTowardGoal'/>
+        <enum-item name='GoingWrongDirection'/>
+        <enum-item name='ArrivedAtLocation'/>
+        <enum-item name='EntityNoLongerRules'/>
+        <enum-item name='LeftSite'/>
+        <enum-item name='ReunitedWithLovedOne'/>
+        <enum-item name='ViolentDisagreement'/>
+        <enum-item name='Adopted'/>
+        <enum-item/>
+        <enum-item name='ArrivedAtPerson'/>
+    </enum-type>
+
+    <class-type type-name='history_event_agreement_concludedst' inherits-from='history_event'>
+        <int32_t name='agreement_id'/>
+        <int32_t name='subject_id'/>
+        <enum name='reason' type-name='agreement_conclusion_reason' base-type='int32_t'/>
+        <int32_t name='concluder_hf' ref-target='historical_figure'/>
+    </class-type>
+
+    <class-type type-name='history_event_insurrection_startedst' inherits-from='history_event'>
+        <int32_t name='target_civ' ref-target='historical_entity'/>
+        <int32_t name='site' ref-target='world_site'/>
+    </class-type>
+
+    <enum-type type-name='insurrection_outcome'>
+        <enum-item name='LeadershipOverthrown'/>
+        <enum-item name='PopulationGone'/>
+        <enum-item name='Crushed'/>
+    </enum-type>
+
+    <class-type type-name='history_event_insurrection_endedst' inherits-from='history_event'>
+        <int32_t name='target_civ' ref-target='historical_entity'/>
+        <int32_t name='site' ref-target='world_site'/>
+        <enum name='outcome' type-name='insurrection_outcome' base-type='int32_t'/>
+    </class-type>
+
+    <class-type type-name='history_event_hf_attacked_sitest' inherits-from='history_event'>
+        <int32_t name='attacker_hf' ref-target='historical_figure'/>
+        <int32_t name='defender_civ' ref-target='historical_entity'/>
+        <int32_t name='site_civ' ref-target='historical_entity'/>
+        <int32_t name='site' ref-target='world_site'/>
+    </class-type>
+
     <enum-type type-name='history_event_collection_type'>
         <enum-item name='WAR'/>
         <enum-item name='BATTLE'/>
@@ -1258,6 +1362,7 @@
         <enum-item name='THEFT'/>
         <enum-item name='BEAST_ATTACK'/>
         <enum-item name='JOURNEY'/>
+        <enum-item name='INSURRECTION'/>
     </enum-type>
 
     <class-type type-name='history_event_collection' original-name='history_event_collectionst'
@@ -1430,6 +1535,12 @@
 
     <class-type type-name='history_event_collection_journeyst' inherits-from='history_event_collection'>
         <stl-vector name='traveler_hf' type-name='int32_t' ref-target='historical_figure'/>
+        <int32_t name='ordinal'/>
+    </class-type>
+
+    <class-type type-name='history_event_collection_insurrectionst' inherits-from='history_event_collection'>
+        <int32_t name='site' ref-target='world_site'/>
+        <int32_t name='target_civ' ref-target='historical_entity'/>
         <int32_t name='ordinal'/>
     </class-type>
 
