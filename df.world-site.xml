@@ -463,6 +463,28 @@
         <pointer name="effect" type-name='interaction_effect'/>
     </struct-type>
 
+    <enum-type type-name='site_realization_building_type'>
+        <enum-item/>
+        <enum-item name='castle_wall'/>
+        <enum-item name='castle_tower'/>
+        <enum-item name='castle_courtyard'/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item name='shop_house'/>
+        <enum-item/>
+        <enum-item name='market_square'/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item name='trenches'/>
+        <enum-item name='tree_house'/>
+        <enum-item name='hillock_house'/>
+    </enum-type>
+
     <struct-type type-name='site_realization_building' key-field='id'>
         <int32_t name="id"/>
 
@@ -470,7 +492,7 @@
             (find-by-id $(find-instance $world_site $$).realization.buildings $id $)
         </code-helper>
 
-        <int32_t name="unk_4"/>
+        <enum name='name' type-name='site_realization_building_type'/>
 
         <int32_t name="min_x" comment='in tiles relative to site'/>
         <int32_t name="min_y"/>
@@ -499,6 +521,15 @@
     </struct-type>
 
     <class-type type-name='site_realization_building_infost'>
+        <virtual-methods>
+            <vmethod ret-type='site_realization_building_type' name='getType'/>
+            <vmethod name='write_file'> <pointer comment='file_compressorst'/> </vmethod>
+            <vmethod name='read_file'>
+                <pointer comment='file_compressorst'/>
+                <int32_t name='loadversion'/>
+            </vmethod>
+            <vmethod is-destructor='true'/>
+        </virtual-methods>
     </class-type>
 
     <struct-type type-name='site_building_item'>
@@ -508,6 +539,20 @@
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name='mat_index'/>
     </struct-type>
+
+    <class-type type-name='site_realization_building_info_castle_wallst'
+                inherits-from='site_realization_building_infost'>
+        <int32_t name="unk_4"/>
+        <int32_t name="unk_8"/>
+        <int32_t name="unk_c"/>
+        <int32_t name="unk_10"/>
+        <int32_t name="unk_14"/>
+        <int32_t name="unk_18"/>
+        <int32_t name="unk_1c"/>
+        <int32_t name='unk_20'/>
+        <compound name='item1' type-name='site_building_item'/>
+        <compound name='item2' type-name='site_building_item'/>
+    </class-type>
 
     <class-type type-name='site_realization_building_info_castle_towerst'
                 inherits-from='site_realization_building_infost'>
@@ -520,20 +565,12 @@
         <compound name='item1' type-name='site_building_item'/>
         <compound name='item2' type-name='site_building_item'/>
         <int32_t name="unk_3c"/>
+        <int32_t name="unk_40"/>
+        <int32_t name="unk_44"/>
     </class-type>
 
-    <class-type type-name='site_realization_building_info_castle_wallst'
-                inherits-from='site_realization_building_infost'>
-        <int32_t name="unk_4"/>
-        <int32_t name="unk_8"/>
-        <int32_t name="unk_c"/>
-        <int32_t name="unk_10"/>
-        <int32_t name="unk_14"/>
-        <int32_t name="unk_18"/>
-        <int32_t name="unk_1c"/>
-        <compound name='item1' type-name='site_building_item'/>
-        <compound name='item2' type-name='site_building_item'/>
-    </class-type>
+    <class-type type-name='site_realization_building_info_castle_courtyardst'
+                inherits-from='site_realization_building_infost'/>
 
     <enum-type type-name='site_shop_type'>
         <enum-item name='General'/>
@@ -559,29 +596,36 @@
     <class-type type-name='site_realization_building_info_shop_housest'
                 inherits-from='site_realization_building_infost'>
         <enum base-type='int32_t' name="type" type-name='site_shop_type'/>
-        <stl-string name="unk_8"/>
-        <stl-string name="unk_24"/>
-        <int32_t name="unk_40"/>
-        <int32_t name="unk_44"/>
-        <int32_t name="unk_48"/>
-        <int32_t name="unk_4c"/>
-        <int32_t name="unk_50"/>
-        <int32_t name="unk_54"/>
-        <int32_t name="unk_58"/>
-        <int32_t name="unk_5c"/>
-        <int16_t name="unk_60"/>
-        <int16_t name="unk_62"/>
-        <int16_t name="unk_64"/>
-        <int16_t name="unk_66"/>
-        <int16_t name="unk_68"/>
-        <int32_t name="unk_6c"/>
-        <int16_t name="unk_70"/>
-        <int8_t name="unk_72"/>
+        <compound name='name' type-name='language_name'/>
     </class-type>
 
     <class-type type-name='site_realization_building_info_market_squarest'
                 inherits-from='site_realization_building_infost'>
         <int32_t name="unk_4"/>
+    </class-type>
+
+
+    <class-type type-name='site_realization_building_info_trenchesst'
+                inherits-from='site_realization_building_infost'>
+        <int32_t name='unk_4'/>
+        <static-array name='unk_8'>
+            <int32_t/>
+            <int32_t/>
+            <int32_t/>
+            <int32_t/>
+        </static-array>
+    </class-type>
+
+    <class-type type-name='site_realization_building_info_tree_housest'
+                inherits-from='site_realization_building_infost'>
+        <int32_t name='unk_4'/>
+        <int32_t name='unk_8'/>
+        <compound name='name' type-name='language_name'/>
+    </class-type>
+
+    <class-type type-name='site_realization_building_info_hillock_housest'
+                inherits-from='site_realization_building_infost'>
+        <int32_t name='unk_4'/>
     </class-type>
 </data-definition>
 
