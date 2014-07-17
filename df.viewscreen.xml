@@ -160,20 +160,41 @@
         <int32_t name="index" comment="cursor position in info mode"/>
         <int8_t name="map_draw_line"/>
         <enum base-type="int16_t" name="info_mode">
-            <enum-item name="Tasks"/>
-            <enum-item name="Entities"/>
+            <enum-item name="Events"/>
+            <enum-item name="Agreements"/>
+            <enum-item name="People"/>
             <enum-item name="Sites"/>
+            <enum-item name="Groups"/>
             <enum-item name="Regions"/>
+            <enum-item name="Bestiary"/>
         </enum>
         <int16_t name="local_area_x1" comment="rectangle of 0 in local view"/>
         <int16_t name="local_area_x2"/>
         <int16_t name="local_area_y1"/>
         <int16_t name="local_area_y2"/>
-        <stl-vector name="sites" pointer-type="world_site"/>
-        <stl-vector name="entities" pointer-type="historical_entity"/>
-        <stl-vector name="regions" pointer-type="world_region"/>
-        <stl-vector name="layers" pointer-type="world_geo_layer"/>
+        <int32_t name='unk_v40_1a'/>
+        <int32_t name='unk_v40_1b'/>
+        <int32_t name='unk_v40_1c'/>
+        <int32_t name='unk_v40_1d'/>
+        <int32_t name='unk_v40_1e'/>
+        <int32_t name='unk_v40_1f'/>
+        <stl-string name='filter_str'/>
+        <int8_t name='in_filter'/>
+        <static-array name='items' count='8'>
+            <stl-vector pointer-type='adventure_log_item'/>
+        </static-array>
+        <static-array name='filtered_items' count='8'>
+            <stl-vector pointer-type='adventure_log_item'/>
+        </static-array>
     </class-type>
+
+    <struct-type type-name='adventure_log_item'>
+        <pointer name='object'/>
+        <stl-string name='str1'/>
+        <stl-string name='str2'/>
+        <stl-string name='str3'/>
+        <stl-vector pointer-type='stl-string' name='info'/>
+    </struct-type>
 
     <class-type type-name='viewscreen_announcelistst' inherits-from='viewscreen'>
         <pointer type-name='unit' name='unit'/>
@@ -385,24 +406,24 @@
         <stl-vector/>
         <int32_t/>
         <int32_t/>
-        <stl-vector/>
-        <stl-vector/>
+        <stl-vector type-name='int32_t'/>
+        <stl-vector type-name='int32_t'/>
         <compound name='unk1'>
-            <int32_t/>
+            <pointer type-name='unit'/>
             <int8_t/>
             <int8_t/>
+            <stl-vector name='weapons' pointer-type='item'/>
+            <stl-vector type-name='int16_t'/>
+            <stl-vector/>
+            <stl-vector type-name='int16_t'/>
             <stl-vector/>
             <stl-vector/>
             <stl-vector/>
             <stl-vector/>
-            <stl-vector/>
-            <stl-vector/>
-            <stl-vector/>
-            <stl-vector/>
-            <stl-vector/>
-            <stl-vector/>
-            <stl-vector/>
-            <stl-vector/>
+            <stl-vector type-name='int16_t'/>
+            <stl-vector type-name='int16_t'/>
+            <stl-vector type-name='int16_t'/>
+            <stl-vector type-name='int16_t'/>
             <stl-vector/>
             <stl-vector/>
             <stl-vector/>
@@ -1331,7 +1352,7 @@
         <int8_t name='editing_name'/>
         <stl-string name='saved_firstname'/>    restore this as firstname on cancel
         <int32_t name='index_col1'/>    cursor position
-        <int32_t name='index_skills'/>
+        <int32_t name='index_skills' refers-to='$$._parent.skill_list[$]'/>
         <int32_t name='skill_points_remaining'/>
         <enum base-type='int16_t' name='subscreen'>
             <enum-item name='Nemesis' value='1'/>
@@ -1340,9 +1361,9 @@
         </enum>
         <compound name='adventurer'>
             <compound type-name='language_name' name='name'/>
-            <int16_t name='race'/>
-            <int16_t name='caste'/>
-            <static-array type-name='int32_t' count='116' index-enum='job_skill' name='skills'/>
+            <int16_t name='race' ref-target='creature_raw'/>
+            <int16_t name='caste' ref-target='caste_raw' aux-value='$$.race'/>
+            <static-array type-name='int32_t' count='117' index-enum='job_skill' name='skills'/>
             <int32_t name='entity' ref-target='historical_entity'/>
             <int16_t name='histfig' refers-to='$global.world.nemesis.all[$]'/>
             <int32_t name='unk_7'/>?
@@ -1355,10 +1376,20 @@
                 <enum-item name='Demigod'/>
             </enum>
         </compound>
-        <stl-vector type-name='int16_t' name='race_list'/>
-        <stl-vector type-name='int32_t' name='entity_list'/>
-        <stl-vector type-name='int16_t' name='nemesis_list'/>
-        <stl-vector type-name='int16_t' name='skill_list'/>
+        <int32_t name='unk_v40_1a' init-value='-1' comment='v0.40.01'/>
+        <int32_t name='site_id' ref-target='world_site' comment='v0.40.01'/>
+        <int32_t name='deity_id' ref-target='historical_figure' comment='v0.40.01'/>
+        <int32_t name='belief_strength' comment='v0.40.01'/>
+        <stl-vector name='background' pointer-type='stl-string' comment='v0.40.01'/>
+        <stl-vector name='sites' pointer-type='world_site' comment='v0.40.01'/>
+        <stl-vector name='background_type' type-name='int32_t' comment='v0.40.01'/>
+        <int32_t name='sel_background' refers-to='$$._parent.background_type[$]' comment='v0.40.01'/>
+        <stl-vector type-name='int16_t' name='race_list' ref-target='creature_raw'/>
+        <stl-vector type-name='int32_t' name='entity_list' ref-target='historical_entity'/>
+        <stl-vector type-name='int16_t' name='nemesis_list' ref-target='nemesis_record'/>
+        <stl-vector name='skill_list'>
+            <enum base-type='int16_t' type-name='job_skill'/>
+        </stl-vector>
         <int8_t name='focus_column'/>  0 = skill, 1 = attr
         <int32_t name='attribute_points_remaining'/>
         <int32_t name='index_attributes'/>  cursor index in the attributes list
@@ -1658,6 +1689,11 @@
 
     <class-type type-name='viewscreen_wagesst' inherits-from='viewscreen'>
         <int16_t name='profession_category'/>
+    </class-type>
+
+    <class-type type-name='viewscreen_update_regionst' inherits-from='viewscreen'>
+        <int32_t name='year'/>
+        <int32_t name='year_tick'/>
     </class-type>
 </data-definition>
 
