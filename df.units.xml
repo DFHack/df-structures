@@ -165,7 +165,7 @@
         <enum-item name='PEACE'/>
     </enum-type>
 
-    <enum-type type-name='goal_type'>
+    <enum-type type-name='goal_type' base-type='int32_t'>
         <enum-item name='STAY_ALIVE'/>
         <enum-item name='MAINTAIN_ENTITY_STATUS'/>
         <enum-item name='START_A_FAMILY'/>
@@ -539,7 +539,7 @@
 
         <stl-vector comment='v0.40.01'/>
         <stl-vector type-name='int32_t' comment='v0.40.01'/>
-        <stl-vector type-name='int32_t' comment='v0.40.01'/>
+        <stl-vector type-name='int32_t' ref-target='activity_entry'/>
         <stl-vector type-name='int32_t' comment='v0.40.01'/>
 
         <compound name='animal'>
@@ -628,24 +628,14 @@
             <int32_t comment='v0.40.01'/>
             <int32_t comment='v0.40.01'/>
             <int8_t comment='v0.40.01'/>
-            <int32_t comment='v0.40.01'/>
-<!--
-            <compound name='last_attack_dir' type-name='coord2d'/>
-            <uint16_t name='unk_2ec'/> reset to 0 together with x,y on job_counter reroll, so maybe z
--->
-            <compound type-name='coord2d'/>
-            <int16_t comment='v0.40.01'/>
+            <int32_t name='gait_buildup'/>
+
+            <compound name='climb_hold' type-name='coord'/>
 
             <pointer comment='df_job' name='current_job' type-name='job'/>
             <enum base-type='int16_t' type-name='job_skill' name='mood_skill'/>
-            <uint32_t name='unk_2fc'/> in advmode, lets non-player unit have job_counter update if nonzero
             <int32_t name='mood_timeout' comment='counts down from 50000, insanity upon reaching zero'/>
-
-<!--
-            <uint16_t name='siege_morale' init-value='100' comment='guess'/>
-            <uint16_t name='morale_recovery_timer' comment='0-1000'/>
-            <uint32_t name='unk_304'/>
--->
+            <int32_t name='unk_39c'/>
         </compound>
 
         <compound name='body'>
@@ -706,14 +696,8 @@
             <stl-vector name='colors' type-name='int32_t'/>
         </compound>
 
-        <stl-vector comment='v0.40.01'>
-            <pointer>
-                <int32_t name="unk_0" init-value='-1'/>
-                <int32_t name="unk_4"/>
-                <padding name="unk_8" size="84" comment='uninitialized'/>
-            </pointer>
-        </stl-vector>
-        <int32_t comment='v0.40.01'/>
+        <stl-vector name='actions' pointer-type='unit_action'/>
+        <int32_t name='next_action_id'/>
 
         <compound name='counters'>
             <int32_t name='think_counter'/> // 53c decrements every job_counter reroll, set when changing jobs
@@ -721,7 +705,7 @@
             <int32_t name='swap_counter' comment='dec per job_counter reroll, can_swap if 0'/>
 
             <enum name='death_cause' base-type='int16_t' type-name='death_type'/>
-            <int32_t name='death_id' ref-target='death_info' comment='v0.34.01'/>
+            <int32_t name='death_id' ref-target='incident'/>
 
             <int16_t name='winded'/>
             <int16_t name='stunned'/> // 54c decrements every tick, unstun at 0
@@ -944,8 +928,8 @@
             <stl-vector name='unk_850'/>
             <stl-vector name='witness_reports'>
                 <pointer>
-                    <int32_t name='death_id' ref-target='death_info'/>
-                    <int32_t name='crime_id' ref-target='criminal_case'/>
+                    <int32_t name='death_id' ref-target='incident'/>
+                    <int32_t name='crime_id' ref-target='crime'/>
                     <int32_t name='unk1' comment='0 accuses, 1 corpse'/>
                     <int32_t name='year'/>
                     <int32_t name='year_tick'/>
@@ -953,22 +937,8 @@
                 </pointer>
             </stl-vector>
 
-
-            <stl-vector name='unk_a5c' comment='v0.40.01'>
-                <pointer>
-                    <int32_t name="unk_0"/>
-                    <int32_t name="unk_4"/>
-                    <int32_t name="unk_8"/>
-                    <padding name="unk_c" size="4"/>
-                    <int32_t name="year"/>
-                    <int32_t name="year_tick"/>
-                    <int32_t name="unk_18"/>
-                    <int32_t name="unk_1c"/>
-                    <int32_t name="unk_20"/>
-                    <int32_t name="unk_24"/>
-                </pointer>
-            </stl-vector>
-            <static-array type-name='int32_t' count='5' comment='v0.40.01'/>
+            <stl-vector name='unk_a5c' pointer-type='entity_event'/>
+            <static-array name='gait_index' type-name='int32_t' count='5' index-enum='gait_type'/>
             <static-array type-name='int32_t' count='10' comment='v0.40.01'/>
             <static-array type-name='int32_t' count='10' comment='v0.40.01'/>
             <static-array type-name='int32_t' count='10' comment='v0.40.01'/>
@@ -1273,6 +1243,8 @@
 
                 <int32_t name="jammed_layer_idx" comment='in compound fracture'
                          refers-to='$$._global._upglobal.caste.ref-target.body_info.layer_idx[$].refers-to'/>
+
+                <int32_t name='unk_v406_1' comment='v0.40.06'/>
             </pointer>
         </stl-vector>
 
@@ -1313,12 +1285,12 @@
     </struct-type>
 
     <struct-type type-name='wound_curse_info'>
+        <int32_t name='unk_v40_1' comment='v0.40.01'/>
+
         <compound name='add_tags1' type-name='cie_add_tag_mask1'/>
         <compound name='rem_tags1' type-name='cie_add_tag_mask1'/>
         <compound name='add_tags2' type-name='cie_add_tag_mask2'/>
         <compound name='rem_tags2' type-name='cie_add_tag_mask2'/>
-
-        <int32_t name='unk_v40_1' comment='v0.40.01'/>
 
         <bool name='name_visible'/>
         <stl-string name='name'/>
@@ -1652,6 +1624,185 @@
         <stl-vector type-name='int16_t' name='unk6'/>
     </struct-type>
 
+    <enum-type type-name='unit_action_type'>
+        <enum-item name='None' value='-1'/>
+        <enum-item name='Move'/>
+        <enum-item name='Attack'/>
+        <enum-item name='Jump'/>
+        <enum-item name='Hold'/>
+        <enum-item name='Release'/>
+        <enum-item name='Climb'/>
+        <enum-item name='Job'/>
+        <enum-item name='Talk'/>
+        <enum-item name='Unsteady'/>
+        <enum-item name='Parry'/>
+        <enum-item name='Block'/>
+        <enum-item name='Dodge'/>
+        <enum-item name='Recover'/>
+        <enum-item name='StandUp'/>
+        <enum-item name='LieDown'/>
+        <enum-item name='Job2'/>
+        <enum-item name='PushObject'/>
+        <enum-item name='SuckBlood'/>
+    </enum-type>
+
+    <struct-type type-name='unit_action'>
+        <enum name='type' type-name='unit_action_type' base-type='int32_t' init-value='None'/>
+
+        <code-helper name='find-instance'>
+            (let ((unit (find-instance $unit $$)))
+              (find-by-id $unit.actions $id $))
+        </code-helper>
+
+        <int32_t name="id" init-value='-1'/>
+        <compound name='data' is-union='true'>
+            <compound name='move'>
+                <int16_t name='x'/>
+                <int16_t name='y'/>
+                <int16_t name='z'/>
+                <int32_t name='timer'/>
+                <int32_t name='timer_init'/>
+                <int32_t name='fatigue'/>
+                <int32_t name='flags'/>
+            </compound>
+            <compound name='attack'>
+                <int32_t name='unk_0'/>
+                <compound name='unk_4'>
+                    <int32_t name='unk_0'/>
+                    <int16_t name='unk_4'/>
+                    <int16_t name='unk_6'/>
+                    <int32_t name='unk_8'/>
+                    <int32_t name='unk_c'/>
+                    <int32_t name='unk_10'/>
+                    <int16_t name='unk_14'/>
+                </compound>
+                <int32_t name='unk_1c'/>
+                <int16_t name='unk_20'/>
+                <int16_t name='unk_22'/>
+                <int32_t name='unk_24'/>
+                <int32_t name='unk_28'/>
+                <int32_t name='unk_2c'/>
+                <int32_t name='unk_30'/>
+                <int32_t name='unk_34' comment='flags'/>
+                <int16_t name='unk_38'/>
+                <int32_t name='unk_3c'/>
+                <int32_t name='timer1'/>
+                <int32_t name='timer2'/>
+            </compound>
+            <compound name='jump'>
+                <int16_t name='x1'/>
+                <int16_t name='y1'/>
+                <int16_t name='z1'/>
+                <int16_t name='x2'/>
+                <int16_t name='y2'/>
+                <int16_t name='z2'/>
+            </compound>
+            <compound name='hold'>
+                <int16_t name='x1'/>
+                <int16_t name='y1'/>
+                <int16_t name='z1'/>
+                <int16_t name='x2'/>
+                <int16_t name='y2'/>
+                <int16_t name='z2'/>
+                <int16_t name='x3'/>
+                <int16_t name='y3'/>
+                <int16_t name='z3'/>
+                <int32_t name='timer'/>
+                <int32_t name='fatigue'/>
+            </compound>
+            <compound name='release'>
+                <int16_t name='x'/>
+                <int16_t name='y'/>
+                <int16_t name='z'/>
+            </compound>
+            <compound name='climb'>
+                <int16_t name='x1'/>
+                <int16_t name='y1'/>
+                <int16_t name='z1'/>
+                <int16_t name='x2'/>
+                <int16_t name='y2'/>
+                <int16_t name='z2'/>
+                <int16_t name='x3'/>
+                <int16_t name='y3'/>
+                <int16_t name='z3'/>
+                <int32_t name='timer'/>
+                <int32_t name='timer_init'/>
+                <int32_t name='fatigue'/>
+            </compound>
+            <compound name='job'>
+                <int16_t name='x'/>
+                <int16_t name='y'/>
+                <int16_t name='z'/>
+                <int32_t name='timer'/>
+            </compound>
+            <compound name='talk'>
+                <int32_t name='unk_0'/>
+                <int32_t name='activity_id' ref-target='activity_entry'/>
+                <int32_t name='activity_event_idx' ref-target='activity_event' aux-value='$$.activity_id'/>
+                <static-array name='event' type-name='int32_t' count='10'/><!-- <compound name='event' type-name='entity_event'/> this fails because codegen generates a constructor for entity_event -->
+                <int32_t name='unk_34'/>
+                <int32_t name='timer'/>
+                <int32_t name='unk_3c'/>
+                <int32_t name='unk_40'/>
+                <int32_t name='unk_44'/>
+                <int32_t name='unk_48'/>
+                <int32_t name='unk_4c'/>
+                <int32_t name='unk_50'/>
+            </compound>
+            <compound name='unsteady'>
+                <int32_t name='timer'/>
+            </compound>
+            <compound name='parry'>
+                <int32_t name='unit_id' ref-target='unit'/>
+                <int32_t name='target_action' ref-target='unit_action' aux-value='$$.unit_id'/>
+                <int32_t name='unk_8'/>
+            </compound>
+            <compound name='block'>
+                <int32_t name='unit_id' ref-target='unit'/>
+                <int32_t name='target_action' ref-target='unit_action' aux-value='$$.unit_id'/>
+                <int32_t name='unk_8'/>
+            </compound>
+            <compound name='dodge'>
+                <int16_t name='x1'/>
+                <int16_t name='y1'/>
+                <int16_t name='z1'/>
+                <int32_t name='timer'/>
+                <int16_t name='x2'/>
+                <int16_t name='y2'/>
+                <int16_t name='z2'/>
+            </compound>
+            <compound name='recover'>
+                <int32_t name='timer'/>
+                <int32_t name='unk_4'/>
+            </compound>
+            <compound name='standup'>
+                <int32_t name='timer'/>
+            </compound>
+            <compound name='liedown'>
+                <int32_t name='timer'/>
+            </compound>
+            <compound name='job2'>
+                <int32_t name='timer'/>
+            </compound>
+            <compound name='pushobject'>
+                <int16_t name='x1'/>
+                <int16_t name='y1'/>
+                <int16_t name='z1'/>
+                <int16_t name='x2'/>
+                <int16_t name='y2'/>
+                <int16_t name='z2'/>
+                <int16_t name='x3'/>
+                <int16_t name='y3'/>
+                <int16_t name='z3'/>
+                <int32_t name='timer'/>
+                <int32_t name='unk_18'/>
+            </compound>
+            <compound name='suckblood'>
+                <int32_t name='unit_id' ref-target='unit'/>
+                <int32_t name='timer'/>
+            </compound>
+        </compound>
+    </struct-type>
 
     <struct-type type-name='unit_skill'>
         <enum base-type='int16_t' name="id" type-name='job_skill'/>

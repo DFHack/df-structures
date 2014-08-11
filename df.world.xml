@@ -44,8 +44,8 @@
         <enum-item name='ANY_BABY2'/>
     </enum-type>
 
-    <struct-type type-name='death_info'
-                 instance-vector='$global.world.deaths.all' key-field='id'>
+    <struct-type type-name='incident'
+                 instance-vector='$global.world.incidents.all' key-field='id'>
         dtor 0x8C1AE10
 
         <int32_t name='id'/>
@@ -69,7 +69,7 @@
         <int32_t name='entity1' ref-target='historical_entity' comment='v0.40.01'/>
         <int32_t name='unk_v40_2c' init-value='-1' comment='v0.40.01'/>
 
-        <int32_t name="crime_id" ref-target='criminal_case'/>
+        <int32_t name="crime_id" ref-target='crime'/>
 
         <int32_t name='site' ref-target='world_site'/>
         <int32_t name='unk_v40_3a' init-value='-1' comment='v0.40.01'/>
@@ -96,8 +96,8 @@
         <int32_t name="unk_80"/>
     </struct-type>
 
-    <struct-type type-name='criminal_case'
-                 instance-vector='$global.world.criminal_cases.all' key-field='id'>
+    <struct-type type-name='crime'
+                 instance-vector='$global.world.crimes.all' key-field='id'>
         dtor 0x8C166D0
 
         <int32_t name='id'/>
@@ -116,9 +116,11 @@
             <enum-item name='BloodDrinking'/>
         </enum>
 
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
+        <compound name='punishment'>
+            <int32_t name='hammerstrikes'/>
+            <int32_t name='prison_time'/>
+            <int32_t name='give_beating'/>
+        </compound>
 
         <int32_t name='criminal' ref-target='unit'/>
         <int32_t name='convicted' ref-target='unit'/>
@@ -131,7 +133,7 @@
                       comment='i.e. the player chooses whom to convict'/>
         </bitfield>
 
-        <int32_t name='death_id' ref-target='death_info'/>
+        <int32_t name='death_id' ref-target='incident'/>
 
         <int32_t name='event_year'/>
         <int32_t name='event_time'/>
@@ -143,8 +145,8 @@
 
         <stl-vector comment='reports'>
             <pointer>
-                <int32_t name='death_id' ref-target='death_info'/>
-                <int32_t name="crime_id" ref-target='criminal_case'/>
+                <int32_t name='death_id' ref-target='incident'/>
+                <int32_t name="crime_id" ref-target='crime'/>
                 <int32_t name="unk1" comment='unk1 of witness_reports; 1 = found body?'/>
                 <int32_t name="event_year"/>
                 <int32_t name="event_time"/>
@@ -674,29 +676,29 @@
             <int16_t name='slots_used'/>
         </compound>
 
-        <compound name='interaction_instances' comment='v0.34.01'>
+        <compound name='interaction_instances'>
             <stl-vector name='all' pointer-type='interaction_instance'/>
             <stl-vector name='bad' has-bad-pointers='true' pointer-type='interaction_instance'/>
         </compound>
 
-        <compound name='written_contents' comment='v0.34.01'>
+        <compound name='written_contents'>
             <stl-vector name='all' pointer-type='written_content'/>
             <stl-vector name='bad' has-bad-pointers='true' pointer-type='written_content'/>
         </compound>
 
-        <compound name='assumed_identities' comment='v0.34.01 - DF calls these identities'>
-            <stl-vector name='all' pointer-type='assumed_identity'/>
-            <stl-vector name='bad' has-bad-pointers='true' pointer-type='assumed_identity'/>
+        <compound name='identities'>
+            <stl-vector name='all' pointer-type='identity'/>
+            <stl-vector name='bad' has-bad-pointers='true' pointer-type='identity'/>
         </compound>
 
-        <compound name='deaths' comment='v0.34.01 - DF calls these incidents'>
-            <stl-vector name='all' pointer-type='death_info'/>
-            <stl-vector name='bad' has-bad-pointers='true' pointer-type='death_info'/>
+        <compound name='incidents'>
+            <stl-vector name='all' pointer-type='incident'/>
+            <stl-vector name='bad' has-bad-pointers='true' pointer-type='incident'/>
         </compound>
 
-        <compound name='criminal_cases' comment='v0.34.01 - DF calls these crimes'>
-            <stl-vector name='all' pointer-type='criminal_case'/>
-            <stl-vector name='bad' has-bad-pointers='true' pointer-type='criminal_case'/>
+        <compound name='crimes'>
+            <stl-vector name='all' pointer-type='crime'/>
+            <stl-vector name='bad' has-bad-pointers='true' pointer-type='crime'/>
         </compound>
 
         <compound name='vehicles' comment='v0.34.08'>
