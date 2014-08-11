@@ -1,22 +1,24 @@
 How to update for a new version.
 
 
-STAGE 1. RESET
+GENERAL PROCESS
 
-  Download the new versions.
+  Download the new versions. The scripts expect the following
+  directory layout:
 
-  Use new-release.pl to automatically perform:
+    ~userhome/
+      Games/
+        DF/
+          df_linux/    - Current DF for linux
+          df_windows/  - Current DF for windows
+          df_osx/      - Current DF for osx
 
-    Use md5sum for linux and winedump for windows to find
-    out the new hash and PE timestamp.
+          metasm/      - Checkout of the library for ruby scripts
+          df_misc/     - Checkout of the ruby scripts
+          dfhack/      - DFHack checkout
 
-    Use the stamps to create new sections in symbols.xml
-    Also paste them into make-csv inside start.lisp
-
-    Create an empty v0.??.??.lst, and change the open-annotations
-    filename in start.lisp.
-
-    Wipe linux/df.globals.xml empty of all the global definitions.
+  Use "new-release.pl v0.??.??" to automatically perform a number of
+  steps. If you get a mismatch error from match-ctors.pl, see "STAGE 1".
 
   Start the linux DF version, and launch the tool.
 
@@ -24,7 +26,120 @@ STAGE 1. RESET
 
   Commit.
 
-STAGE 2. LINUX COMPOUND GLOBALS
+  Use the tool to verify that the layout of the compound globals
+  on linux is correct, and update xml as necessary. Check that
+  unit seems reasonable, etc. Compare the changes in g_src between
+  releases. Delete redundant entries for some linux & osx globals
+  in symbols.xml.
+
+  Compile DFHack without plugins for windows and run devel/find-offsets
+  to find globals there.
+
+  With the windows version in wine, run (check-struct-sizes) to see if
+  any objects changed their size. If nothing is obviously wrong,
+  use (check-struct-sizes :annotate? t) to mark correctly sized
+  objects ALIGNED.
+
+  Commit.
+
+  Check the rest of the document for info on finding still missing globals.
+
+
+RUNNING DWARF FORTRESS
+
+  The lisp tool expects that the game is started in a mode where all
+  allocated memory is automatically filled with a certain byte value.
+
+  On linux this is achieved by simply starting the game like this:
+
+    MALLOC_PERTURB_=45 ./df
+
+  Windows requires applying a patch to a copy of the executable like this:
+
+    cp -f 'Dwarf Fortress.exe' 'Dwarf_Fortress_malloc.exe'
+    ruby -I ~/Games/DF/metasm ~/Games/DF/df_patchmalloc.rb 'Dwarf_Fortress_malloc.exe'
+
+
+AVAILABLE SCRIPTS
+
+  new-release.pl
+
+    Takes the full v0.??.?? version number as one required parameter.
+
+    Uses md5sum for linux and winedump for windows to find
+    out the new hash and PE timestamp.
+
+    Use the stamps to create new sections in symbols.xml
+    Also paste them into make-csv inside start.lisp
+
+    Creates an empty v0.??.??.lst, and change thes open-annotations
+    filename in start.lisp.
+
+    Wipes linux/df.globals.xml empty of all the global definitions.
+
+    Runs make-scans.sh to find out addresses of vtables and
+    many linux/osx globals, and pastes them into symbols.xml
+
+  make-scans.sh
+
+    Runs ruby and perl scripts to extract data from the executables,
+    and writes the output to txt files in subdirectories.
+
+  make-csv.sh
+
+    Uses the lisp tool and some scripts to produce csv files with
+    offsets for linux and windows. These are useful for manual lookup
+    and some scripts.
+
+  start.sh
+
+    Starts the lisp tool. You may pass the process ID as a parameter
+    to avoid the prompt.
+
+  make-keybindings.pl
+
+    Used by make-scans to extract the keybinding enum from g_src
+    in form of df.keybindings.xml
+
+  match-ctors.pl
+
+    Used by make-scans to compare the extracted addresses of the
+    compound linux/osx globals with a saved copy from a previous
+    version and thus determine their names.
+
+  match-vtables.pl
+
+    Used by make-csv.sh to produce a file listing the addresses of
+    all virtual methods in a compact form. Relies on csv files and
+    data from make-scans.sh
+
+
+STAGE 1. LINUX COMPOUND GLOBALS (done by new-release.pl normally)
+
+  Linux and OSX initalize and destruct their complex globals in
+  a way that allows to determine their addresses by disassembling
+  a small section of the executable. This is currently done by
+  ruby scripts called from new-release.pl; it is also possible to do
+  that via the lisp tool for linux.
+
+  The ruby scripts produce a raw dump of the global addresses as
+  linux/ctors.txt. A perl script is then used to compare it with
+  linux/ctors-base.txt (which is manually edited and committed into the
+  repository), and thus derive the names of the globals by their
+  order. The resulting data is written back to linux/ctors.txt,
+  linux/df.globals.xml and linux/cglobals.txt (which is inserted
+  into symbols.xml).
+
+  If the size of a global changes too much, or a new one is added
+  in the middle, this matching may fail. In this case it is necessary
+  to manually match and add the new names to ctors.txt and commit
+  it as ctors-base.txt. After that, run make-scans.sh to rerun
+  the scripts, and paste linux/cglobals.txt into symbols.xml.
+
+  OSX behaves exactly the same as linux in this respect.
+
+
+  This describes the old steps to find linux globals using the lisp tool:
 
   Globals gps, enabler, gview and init are in the export table
   for linking with libgraphics, so they are immediately available
@@ -329,10 +444,3 @@ STAGE 6. Windows primitive globals
 
     Immediately follows d_init; starts 25 25 31 31 24 ...
 
-
-STAGE 7. Verify objects
-
-    With the windows version, run (check-struct-sizes) to see if
-    any objects changed their size. If nothing is obviously wrong,
-    use (check-struct-sizes :annotate? t) to mark correctly sized
-    objects ALIGNED.
