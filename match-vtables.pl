@@ -117,7 +117,8 @@ for (;;) {
             my $vtarg = $vtargs->[$i];
             if ($vmarg && $vtarg) {
                 if (defined $vmarg->[0] && defined $vtarg->[1] && $vmarg->[0] != $vtarg->[1] && !$argcnt_errors{$vtclass}[$i]) {
-                    print STDERR "Method argument size mismatch: $class($vtname)::$name - expected $vtarg->[1], found $vmarg->[0] bytes\n";
+                    printf STDERR "Argument size mismatch: %08x %s(%s)::%s #%d - expected %d, found %d bytes.\n",
+                                  $addr, $class, $vtname, $name, $i, $vtarg->[1], $vmarg->[0];
                     $argcnt_errors{$vtclass}[$i] = 1;
                 }
             }
