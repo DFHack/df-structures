@@ -5,6 +5,7 @@ use warnings;
 
 my %vtable_size;
 my %vtable_names;
+my %vtable_argcounts;
 my %is_class;
 my %superclass;
 
@@ -17,12 +18,15 @@ while (<N>) {
     } elsif ($is_class{$top} && $level == 1 && $addr == 0 &&
                 $name eq '' && $type ne 'pointer') {
         $superclass{$top} = $type;
-    } elsif ($type eq 'vmethod' && $top =~ /^(.*)::vtable$/) {
+    } elsif ($top =~ /^(.*)::vtable$/) {
         my $class = $1;
+        $type =~ /^vmethod(?:\((\d+)\/(\d+)\))?$/ or next;
+        my ($nargs,$asize) = ($1, $2);
         $size /= 4;
         $addr /= 4;
         for (my $i = 0; $i < $size; $i++) {
             $vtable_names{$class}[$addr+$i] = $name . ($i > 0 ? "[$i]" : '');
+            $vtable_argcounts{$class}[$addr+$i] = [ $nargs, $asize ];
         }
         $vtable_size{$class} = $addr+$size;
     }
@@ -31,6 +35,7 @@ close N;
 
 my %vtable_addrs;
 my %vmethod_addrs;
+my %vmethod_arginfo;
 my %addr_names;
 
 open N, "vtables-ext.txt" or die "Cannot open vtables-ext.txt\n";
@@ -40,8 +45,9 @@ while (<N>) {
         $cur_class = $1;
         $vtable_addrs{$1} = hex $2;
         $addr_names{hex $2} = $1.'::_vtable';
-    } elsif (/<vtable-function index='\d+' addr='0x([0-9a-f]+)'/) {
+    } elsif (/<vtable-function index='\d+' addr='0x([0-9a-f]+)'(?: argsize='(\d+)')?(?: retsize='(\d+)')?/) {
         push @{$vmethod_addrs{$cur_class}}, hex $1;
+        push @{$vmethod_arginfo{$cur_class}}, [ $2, $3 ];
     }
 }
 close N;
@@ -73,6 +79,8 @@ sub vtable_class($) {
 
 my %schecked;
 
+my %argcnt_errors;
+
 my %processed;
 for (;;) {
     my $found = 0;
@@ -85,10 +93,12 @@ for (;;) {
 
         my $vtname = vtable_name $class or next;
         my $vmaddrs = $vmethod_addrs{$vtname} || [];
+        my $vmargs = $vmethod_arginfo{$vtname} || [];
         my $num_vmaddrs = @$vmaddrs;
 
         my $vtclass = vtable_class $class or next;
         my $vmnames = $vtable_names{$vtclass} || [];
+        my $vtargs = $vtable_argcounts{$vtclass} || [];
         my $num_vmnames = @$vmnames;
 
         $schecked{$vtclass}++ if $vtclass eq $class;
@@ -102,6 +112,15 @@ for (;;) {
             next if $addr_names{$addr};
             my $name = $vmnames->[$i] || 'vmethod'.$i;
             $addr_names{$addr} = $class.'::'.$name;
+
+            my $vmarg = $vmargs->[$i];
+            my $vtarg = $vtargs->[$i];
+            if ($vmarg && $vtarg) {
+                if (defined $vmarg->[0] && defined $vtarg->[1] && $vmarg->[0] != $vtarg->[1] && !$argcnt_errors{$vtclass}[$i]) {
+                    print STDERR "Method argument size mismatch: $class($vtname)::$name - expected $vtarg->[1], found $vmarg->[0] bytes\n";
+                    $argcnt_errors{$vtclass}[$i] = 1;
+                }
+            }
         }
     }
     last unless $found;
