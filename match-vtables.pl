@@ -109,9 +109,9 @@ for (;;) {
 
         for (my $i = 0; $i < @$vmaddrs; $i++) {
             my $addr = $vmaddrs->[$i];
-            next if $addr_names{$addr};
             my $name = $vmnames->[$i] || 'vmethod'.$i;
-            $addr_names{$addr} = $class.'::'.$name;
+
+            $addr_names{$addr} ||= $class.'::'.$name;
 
             my $vmarg = $vmargs->[$i];
             my $vtarg = $vtargs->[$i];
