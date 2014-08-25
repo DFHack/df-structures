@@ -5,7 +5,7 @@ use warnings;
 
 my ($version, $timestamp, $hash);
 
-open FH, 'version.lisp' or die "Cannot open version";
+open(FH, '<', 'version.lisp') or die "Cannot open version";
 while (<FH>) {
     if (/df-version-str.*\"(.*)\"/) {
         $version = $1;
@@ -20,7 +20,7 @@ close FH;
 sub load_csv(\%$) {
     my ($rhash, $fname) = @_;
 
-    open FH, $fname or die "Cannot open $fname";
+    open(FH, '<', $fname) or die "Cannot open $fname";
     while (<FH>) {
         next unless /^\"([^\"]*)\",\"(\d+)\",\"(?:0x([0-9a-fA-F]+))?\",\"[^\"]*\",\"([^\"]*)\",\"([^\"]*)\",\"([^\"]*)\"/;
         my ($top, $level, $addr, $type, $name, $target) = ($1,$2,$3,$4,$5,$6);
@@ -264,7 +264,7 @@ sub generate_dt_ini($$$$$) {
     my $body_str = join("\n",@lines);
     my $complete_str = ($complete ? 'true' : 'false');
 
-    open OUT, ">$subdir/therapist.ini" or die "Cannot open output file";
+    open(OUT, '>', "$subdir/therapist.ini") or die "Cannot open output file";
     print OUT <<__END__;
 [info]
 checksum=0x$checksum
