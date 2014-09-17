@@ -1,4 +1,4 @@
-(defparameter *df-version-str* "v0.40.12")
-(defparameter *windows-timestamp* #x541088c3)
-(defparameter *linux-hash* "5ad26cb251cc48685707163a8d370787")
-(defparameter *osx-hash* "701549c08ec11b4c31df92ee8a8013ff")
+(defparameter *df-version-str* "v0.40.13")
+(defparameter *windows-timestamp* #x5419c537)
+(defparameter *linux-hash* "db688bd7654e1e3897d9964769d511ac")
+(defparameter *osx-hash* "cf35dbe91cf4f9abc7637a4a8b03b54b")
