@@ -73,15 +73,21 @@
         <int16_t name='fraction' init-value='0'/>
     </struct-type>
 
-    <struct-type type-name='contaminant'>
+    <struct-type type-name='spatter_common'>
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name='mat_index'/>
         <enum type-name='matter_state' base-type='int16_t' name='mat_state'/>
         <compound name='temperature' type-name='temperaturest'/>
         <int32_t name='size' comment='1-24=spatter, 25-49=smear, 50-* = coating'/>
-        <int16_t name='unk_4013_1' comment='v0.40.13'/>
-        <padding size='2'/>
-        <int16_t name='body_part_id' init-value='-1'/>
+        <bitfield base-type='uint16_t' name='base_flags' comment='v0.40.13'>
+            <flag-bit name='evaporates' comment='does not contaminate tile when washed away'/>
+        </bitfield>
+        <padding size='2' comment='needed for proper alignment of spatter on gcc'/>
+    </struct-type>
+
+    <struct-type type-name='spatter' inherits-from='spatter_common'>
+        <int16_t name='body_part_id'
+                 refers-to='$$._global._parent._global.body.body_plan.body_parts[$]'/>
         <bitfield base-type='uint16_t' name='flags'>
             <flag-bit name='water_soluble'/>
         </bitfield>
@@ -664,7 +670,7 @@
         </pointer>
 
         <pointer name='contaminants'>
-            <stl-vector pointer-type='contaminant'/>
+            <stl-vector pointer-type='spatter'/>
         </pointer>
 
         <compound name='temperature' type-name='temperaturest'/>
