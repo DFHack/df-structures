@@ -133,9 +133,10 @@
         </prim-type>
 
         <prim-type ld:meta='primitive' ld:subtype='stl-string'/>
+        <prim-type ld:meta='primitive' ld:subtype='stl-fstream'/>
     </ld:primitive-types>
 
-    <xsl:template match='int8_t|uint8_t|int16_t|uint16_t|int32_t|uint32_t|int64_t|uint64_t|bool|flag-bit|s-float|d-float|padding|static-string|ptr-string|stl-string'>
+    <xsl:template match='int8_t|uint8_t|int16_t|uint16_t|int32_t|uint32_t|int64_t|uint64_t|bool|flag-bit|s-float|d-float|padding|static-string|ptr-string|stl-string|stl-fstream'>
         <xsl:param name='level' select='-1'/>
         <ld:field>
             <xsl:apply-templates select='@*'/>

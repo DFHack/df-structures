@@ -241,6 +241,13 @@ Primitive fields can be classified as following:
 
     These tags correspond to ``char[bytes]``, ``char*``, and ``std::string``.
 
+4)  File Stream::
+
+        <stl-fstream name='id'/>
+
+    This is not really a primitive type, but classified as such since it is
+    treated as a predefined opaque object (a-la padding).
+
 Primitives support the following attributes:
 
 ``refers-to='expr'``
