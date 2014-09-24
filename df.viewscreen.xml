@@ -1,4 +1,20 @@
 <data-definition>
+    <struct-type type-name='file_compressorst' custom-methods='true'>
+        Note: the assign operator is manually implemented
+
+        <bool name='compressed'/>
+        <stl-fstream name='f'/>
+
+        <pointer name='in_buffer' type-name='uint8_t' is-array='true'/>
+        <int32_t name='in_buffersize'/>
+        <int32_t name='in_buffer_amount_loaded'/>
+        <int32_t name='in_buffer_position'/>
+
+        <pointer name='out_buffer' type-name='uint8_t' is-array='true'/>
+        <int32_t name='out_buffersize'/>
+        <int32_t name='out_buffer_amount_written'/>
+    </struct-type>
+
     <enum-type type-name='interface_breakdown_types' base-type='int8_t'>
         <enum-item name='NONE'/>
         <enum-item name='QUIT'/>
@@ -1158,7 +1174,7 @@
     </class-type>
 
     <struct-type type-name='loadgame_save_info'>
-        <static-array name='save_info' type-name='int32_t' count='32'/> misc data read from savefile
+        <static-array name='save_info' type-name='int32_t' count='32'/> all of the next_id globals
         <enum base-type='int16_t' name='game_type' type-name='game_type'/> only 0 (fort) 1 (adv) 3(reclaim) are valid
         <stl-string name='fort_name'/>
         <stl-string name='world_name'/>
@@ -1166,16 +1182,45 @@
         <stl-string name='folder_name'/>
     </struct-type>
 
+    <struct-type type-name='matgloss_list'>
+        <stl-vector/>
+        <stl-vector name='generated_inorganics'/>
+        <stl-vector name='generated_plants'/>
+        <stl-vector name='generated_items'/>
+        <stl-vector name='generated_creatures'/>
+        <stl-vector name='generated_entities'/>
+        <stl-vector name='generated_interactions'/>
+        <stl-vector name='generated_languages'/>
+        <stl-vector name='inorganics' pointer-type='stl-string'/>
+        <stl-vector name='plants' pointer-type='stl-string'/>
+        <stl-vector name='bodies' pointer-type='stl-string'/>
+        <stl-vector name='bodyglosses' pointer-type='stl-string'/>
+        <stl-vector name='creatures' pointer-type='stl-string'/>
+        <stl-vector name='items' pointer-type='stl-string'/>
+        <stl-vector name='buildings' pointer-type='stl-string'/>
+        <stl-vector name='entities' pointer-type='stl-string'/>
+        <stl-vector name='words' pointer-type='stl-string'/>
+        <stl-vector name='symbols' pointer-type='stl-string'/>
+        <stl-vector name='translations' pointer-type='stl-string'/>
+        <stl-vector name='colors' pointer-type='stl-string'/>
+        <stl-vector name='shapes' pointer-type='stl-string'/>
+        <stl-vector name='patterns' pointer-type='stl-string'/>
+        <stl-vector name='reactions' pointer-type='stl-string'/>
+        <stl-vector name='material_templates' pointer-type='stl-string'/>
+        <stl-vector name='tissue_templates' pointer-type='stl-string'/>
+        <stl-vector name='body_detail_plans' pointer-type='stl-string'/>
+        <stl-vector name='creature_variations' pointer-type='stl-string'/>
+        <stl-vector name='interactions' pointer-type='stl-string'/>
+    </struct-type>
+
     <class-type type-name='viewscreen_loadgamest' inherits-from='viewscreen'>
-        <int32_t name='unk_v40_1a' comment='v0.40'/>
+        <int32_t name='cur_step'/>
         <int32_t name='unk_v40_1b' comment='v0.40'/>
         <int8_t name='loading'/>
         <int32_t name='sel_idx'/>
         <stl-vector name='saves' pointer-type='loadgame_save_info'/>
-        <padding size='224' comment='TODO; larger on linux than on windows'/>
-        <static-array count='28' comment='different stuff, just grouping for now'>
-            <stl-vector type-name='pointer'/>
-        </static-array>
+        <compound type-name='file_compressorst' name='compressor'/>
+        <compound type-name='matgloss_list' name='glosses'/>
         <int32_t name='unk_v40_2'/>
         <compound name='cur_save' type-name='loadgame_save_info'/>
     </class-type>
@@ -1326,8 +1371,10 @@
     </class-type>
 
     <class-type type-name='viewscreen_savegamest' inherits-from='viewscreen'>
-        <int8_t/>
         <stl-string/>
+        <int32_t name='cur_step'/>
+        <int32_t name='unk_v40_1b' comment='v0.40'/>
+        <compound type-name='file_compressorst' name='compressor'/>
     </class-type>
 
     <class-type type-name='viewscreen_selectitemst' inherits-from='viewscreen'>

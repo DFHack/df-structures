@@ -79,6 +79,7 @@ sub add_simple_init($);
 
 my %custom_primitive_handlers = (
     'stl-string' => sub { return "std::string"; },
+    'stl-fstream' => sub { return "std::fstream"; },
 );
 
 my %custom_primitive_inits = (
