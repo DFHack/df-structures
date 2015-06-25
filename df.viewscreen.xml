@@ -583,25 +583,38 @@
     <class-type type-name='viewscreen_kitchenprefst' inherits-from='viewscreen'>
         <int32_t name="cursor"/>
         <int32_t name="page"/>
-        <stl-vector name='item_type'>
-            <enum base-type='int16_t' type-name='item_type'/>
-        </stl-vector>
-        <stl-vector name="item_subtype">
-            <int16_t refers-to='(item-subtype-target $$._global.group_item_type[$$._key] $)'/>
-        </stl-vector>
-        <stl-vector name="mat_type">
-            <int16_t ref-target='material' aux-value='$$._global.group_mat_index[$._key]'/>
-        </stl-vector>
-        <stl-vector name="mat_index" type-name='int32_t'/>
-        <stl-vector name="count" type-name='int32_t'/>
-        <stl-vector name="forbidden" type-name='uint8_t' comment='1 cook, 2 brew'/>
-        <stl-vector name="possible" type-name='uint8_t' comment='1 cook, 2 brew'/>
-        <stl-vector name="unk_6c" type-name='uint8_t' />
-        <static-array name="unk_78" count='12'><pointer type-name='uint32_t'/></static-array>
-        <static-array name="unk_a8" count='12'><pointer type-name='uint8_t'/></static-array>
-        <static-array name="unk_d8" count='12'><pointer type-name='uint8_t'/></static-array>
-        <static-array name="unk_108" count='12'><pointer type-name='uint32_t'/></static-array>
-        <static-array name="unk_138" count='12'><pointer type-name='uint8_t'/></static-array>
+
+        -- by page:
+        <static-array name='item_type' count='4'>
+            <stl-vector>
+                <enum base-type='int16_t' type-name='item_type'/>
+            </stl-vector>
+        </static-array>
+        <static-array name='item_subtype' count='4'>
+            <stl-vector>
+                <int16_t refers-to='(item-subtype-target $$._global.item_type[$$._parent.key][$$._key] $)'/>
+            </stl-vector>
+        </static-array>
+        <static-array name='mat_type' count='4'>
+            <stl-vector>
+                <int16_t ref-target='material' aux-value='$$._global.mat_index[$$._key][$._key]'/>
+            </stl-vector>
+        </static-array>
+        <static-array name='mat_index' count='4'>
+            <stl-vector type-name='int32_t'/>
+        </static-array>
+        <static-array name='count' count='4'>
+            <stl-vector type-name='int32_t'/>
+        </static-array>
+        <static-array name='forbidden' count='4'>
+            <stl-vector type-name='uint8_t' comment='1 cook, 2 brew'/>
+        </static-array>
+        <static-array name='possible' count='4'>
+            <stl-vector type-name='uint8_t' comment='1 cook, 2 brew'/>
+        </static-array>
+        <static-array name='item_str' count='4'>
+            <stl-vector pointer-type='stl-string'/>
+        </static-array>
     </class-type>
 
     <class-type type-name='viewscreen_layer_arena_creaturest'
@@ -1613,7 +1626,15 @@
         <stl-vector type-name="int32_t" name="menu_line_id"/>
         <stl-vector type-name="int32_t" name="submenu_line_id"/>
         <stl-vector pointer-type="stl-string" name="submenu_line_text"/>
-        <stl-vector pointer-type="stl-string" name="start_savegames"/>
+        <stl-vector name="start_savegames">
+            <pointer>
+                <compound name='world_name' type-name='language_name'/>
+                <stl-string name='world_name_str'/>
+                <static-array name='unk1' type-name='int8_t' count='15'/>
+                <static-array name='unk2' type-name='int32_t' count='28'/>
+                <stl-string name='save_dir'/>
+            </pointer>
+        </stl-vector>
         <stl-vector pointer-type="stl-string" name="continue_savegames"/>
         <stl-string name="str_slaves"/>
         <stl-string name="str_chapter"/>
