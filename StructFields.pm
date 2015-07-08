@@ -451,7 +451,7 @@ sub render_field_metadata_rec($$) {
         my @items = $field->findnodes('ld:item');
         my $count = 0;
         $count |= 1 if is_attr_true($field, 'is-array');
-        $count |= 2 if $in_union;
+        $count |= 2 if $in_union || is_attr_true($field, 'has-bad-pointers');
 
         push @field_defs, [ "${FLD}(POINTER, $name)", auto_identity_reference($items[0]), $count, $enum ];
     } elsif ($meta eq 'static-array') {
