@@ -144,8 +144,9 @@ sub render_enum_tables($$$$) {
             emit "static const base_type last_item_value = ", ($base+$count-1), ";";
             emit_block {
                 # Cast the enum to integer in order to avoid GCC assuming the value range is correct.
-                emit "return (base_type(value) >= first_item_value && ",
-                             "base_type(value) <= last_item_value);";
+                emit "volatile base_type *value2 = (base_type*)&value;";
+                emit "return (base_type(*value2) >= base_type(first_item_value) && ",
+                             "base_type(*value2) <= base_type(last_item_value));";
             } "static inline bool is_valid(enum_type value) ";
             emit "static const enum_type first_item = (enum_type)first_item_value;";
             emit "static const enum_type last_item = (enum_type)last_item_value;";
