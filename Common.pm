@@ -58,7 +58,7 @@ our $filename;
 sub parse_address($;$) {
     my ($str,$in_bits) = @_;
     return undef unless defined $str;
-    
+
     # Parse the format used by offset attributes in xml
     $str =~ /^0x([0-9a-f]+)(?:\.([0-7]))?$/
         or die "Invalid address syntax: $str\n";
@@ -69,7 +69,7 @@ sub parse_address($;$) {
 
 sub check_bad_attrs($;$$) {
     my ($tag, $allow_size, $allow_align) = @_;
-    
+
     die "Cannot use size, alignment or offset for ".$tag->nodeName."\n"
         if ((!$allow_size && defined $tag->getAttribute('size')) ||
             defined $tag->getAttribute('offset') ||
@@ -126,7 +126,7 @@ sub add_global_to_hash($) {
 our @lines;
 our $indentation = 0;
 
-sub with_emit(&;$) { 
+sub with_emit(&;$) {
     # Executes the code block, and returns emitted lines
     my ($blk, $start_indent) = @_;
     local @lines;
@@ -303,6 +303,9 @@ sub with_header_file(&$) {
         my $def = type_header_def($header_name);
         emit "#ifndef $def";
         emit "#define $def";
+        emit "#ifdef __GNUC__";
+        emit "#pragma GCC system_header";
+        emit "#endif";
 
         for my $strong (sort { $a cmp $b } keys %strong_refs) {
             my $sdef = type_header_def($strong);
