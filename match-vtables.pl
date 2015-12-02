@@ -140,7 +140,7 @@ sub prefix_class($) {
 }
 
 for my $vtname (sort keys %vtable_addrs) {
-    my $vmaddrs = $vmethod_addrs{$vtname};
+    my $vmaddrs = $vmethod_addrs{$vtname} or next;
     my $vtclass = prefix_class $vtname || '';
     my $vmnames = $vtable_names{$vtclass} || [];
     for (my $i = 0; $i < @$vmaddrs; $i++) {
