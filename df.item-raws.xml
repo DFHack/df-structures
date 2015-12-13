@@ -426,7 +426,7 @@
         <df-flagarray name='base_flags' comment='v0.34.08; [0] = generated'/>
 
         <int32_t name='source_hfid' ref-target='historical_figure' comment='v0.40.01'/>
-        <int32_t name='unk_v4201_1' init-value='-1' comment='v0.42.01'/>
+        <int32_t name='source_enid' ref-target='historical_entity' comment='v0.42.01'/>
         <stl-vector name='raw_strings' pointer-type='stl-string'/>
 
         <code-helper name='describe'>$.id</code-helper>
@@ -552,7 +552,21 @@
     </class-type>
 
     <enum-type type-name='instrument_flags'>
-        <enum-item name='HARD_MAT'/>
+        <enum-item name='INDEFINITE_PITCH'/>
+        <enum-item name='PLACED_AS_BUILDING'/>
+        <enum-item name='METAL_MAT'/>
+        <enum-item name='STONE_MAT'/>
+        <enum-item name='WOOD_MAT'/>
+        <enum-item name='GLASS_MAT'/>
+        <enum-item name='CERAMIC_MAT'/>
+        <enum-item name='SHELL_MAT'/>
+
+        <enum-item name='BONE_MAT'/>
+        <enum-item name=''/>
+        <enum-item name=''/>
+        <enum-item name=''/>
+        <enum-item name=''/>
+        <enum-item name=''/>
     </enum-type>
 
     <class-type type-name='itemdef_instrumentst' inherits-from='itemdef'
@@ -561,34 +575,174 @@
         <stl-string name="name_plural"/>
         <df-flagarray name='flags' index-enum='instrument_flags'/>
 
-        0.42.01
-        <int16_t name="unk_84"/>
-        <int32_t name="unk_88"/>
-        <padding name="unk_8c" size="4"/>
-        <int32_t name="unk_90"/>
-        <stl-vector name="unk_94"/>
-        <stl-string name="unk_a4"/>
-        <int32_t name="unk_c0"/>
-        <int32_t name="unk_c4"/>
-        <int32_t name="unk_c8"/>
-        <int32_t name="unk_cc"/>
-        <stl-vector name="unk_d0"/>
-        <stl-vector name="unk_e0"/>
-        <stl-vector name="unk_f0"/>
+        <enum type-name='job_skill' name="music_skill"/>
+        <int32_t name="size"/>
+        <int32_t name='value'/>
+        <int32_t name="material_size"/>
+        <stl-vector pointer-type='instrument_piece' name="pieces"/>
+        <stl-string name="dominant_instrument_piece"/>
+        <int32_t name="pitch_range_min"/>
+        <int32_t name="pitch_range_max"/>
+        <int32_t name="volume_mb_min"/>
+        <int32_t name="volume_mb_max"/>
+        <stl-vector type-name='sound_production_type' name="sound_production"/>
+        <stl-vector pointer-type='stl-string' name="sound_production_parm1"/>
+        <stl-vector pointer-type='stl-string' name="sound_production_parm2"/>
         <stl-vector name="unk_100"/>
         <stl-vector name="unk_110"/>
-        <stl-vector name="unk_120"/>
-        <stl-vector name="unk_130"/>
-        <stl-vector name="unk_140"/>
+        <stl-vector type-name='pitch_choice_type' name="pitch_choice"/>
+        <stl-vector pointer-type='stl-string' name="pitch_choice_parm1"/>
+        <stl-vector pointer-type='stl-string' name="pitch_choice_parm2"/>
         <stl-vector name="unk_150"/>
         <stl-vector name="unk_160"/>
-        <stl-vector name="unk_170"/>
-        <stl-vector name="unk_180"/>
+        <stl-vector type-name='tuning_type' name="tuning"/>
+        <stl-vector pointer-type='stl-string' name="tuning_parm"/>
         <stl-vector name="unk_190"/>
-        <stl-vector name="unk_1a0"/>
-        <stl-vector name="unk_1b0"/>
-        <stl-string name="unk_1c0"/>
+        <stl-vector pointer-type='instrument_register' name="register"/>
+        <stl-vector type-name='timbre_type' name="timbre"/>
+        <stl-string name="description"/>
     </class-type>
+
+    <enum-type type-name='sound_production_type'>
+        <enum-item name='PLUCKED_BY_BP'/>
+        <enum-item name='PLUCKED'/>
+        <enum-item name='BOWED'/>
+        <enum-item name='STRUCK_BY_BP'/>
+        <enum-item name='STRUCK'/>
+        <enum-item name='VIBRATE_BP_AGAINST_OPENING'/>
+        <enum-item name='BLOW_AGAINST_FIPPLE'/>
+        <enum-item name='BLOW_OVER_OPENING_SIDE'/>
+
+        <enum-item name='BLOW_OVER_OPENING_END'/>
+        <enum-item name='BLOW_OVER_SINGLE_REED'/>
+        <enum-item name='BLOW_OVER_DOUBLE_REED'/>
+        <enum-item name='BLOW_OVER_FREE_REED'/>
+        <enum-item name='STRUCK_TOGETHER'/>
+        <enum-item name='SHAKEN'/>
+        <enum-item name='SCRAPED'/>
+        <enum-item name='FRICTION'/>
+
+        <enum-item name='RESONATOR'/>
+        <enum-item name='BAG_OVER_REED'/>
+        <enum-item name='AIR_OVER_REED'/>
+        <enum-item name='AIR_OVER_FREE_REED'/>
+        <enum-item name='AIR_AGAINST_FIPPLE'/>
+    </enum-type>
+
+    <enum-type type-name='pitch_choice_type'>
+        <enum-item name='MEMBRANE_POSITION'/>
+        <enum-item name='SUBPART_CHOICE'/>
+        <enum-item name='KEYBOARD'/>
+        <enum-item name='STOPPING_FRET'/>
+        <enum-item name='STOPPING_AGAINST_BODY'/>
+        <enum-item name='STOPPING_HOLE'/>
+        <enum-item name='STOPPING_HOLE_KEY'/>
+        <enum-item name='SLIDE'/>
+
+        <enum-item name='HARMONIC_SERIES'/>
+        <enum-item name='VALVE_ROUTES_AIR'/>
+        <enum-item name='BP_IN_BELL'/>
+        <enum-item name='FOOT_PEDALS'/>
+    </enum-type>
+
+    <enum-type type-name='tuning_type'>
+        <enum-item name='PEGS'/>
+        <enum-item name='ADJUSTABLE_BRIDGES'/>
+        <enum-item name='CROOKS'/>
+        <enum-item name='TIGHTENING'/>
+        <enum-item name='LEVERS'/>
+    </enum-type>
+
+    <enum-type type-name='timbre_type'>
+        <enum-item name='CLEAR'/>
+        <enum-item name='NOISY'/>
+        <enum-item name='FULL'/>
+        <enum-item name='THIN'/>
+        <enum-item name='ROUND'/>
+        <enum-item name='SHARP'/>
+        <enum-item name='SMOOTH'/>
+        <enum-item name='CHOPPY'/>
+
+        <enum-item name='STEADY'/>
+        <enum-item name='EVOLVING'/>
+        <enum-item name='STRONG'/>
+        <enum-item name='DELICATE'/>
+        <enum-item name='BRIGHT'/>
+        <enum-item name='GRACEFUL'/>
+        <enum-item name='SPARSE'/>
+        <enum-item name='BREATHY'/>
+
+        <enum-item name='STRAINED'/>
+        <enum-item name='BROAD'/>
+        <enum-item name='LIGHT'/>
+        <enum-item name='MELLOW'/>
+        <enum-item name='WOBBLING'/>
+        <enum-item name='FOCUSED'/>
+        <enum-item name='EVEN'/>
+        <enum-item name='FLUID'/>
+
+        <enum-item name='VIBRATING'/>
+        <enum-item name='QUAVERING'/>
+        <enum-item name='EERIE'/>
+        <enum-item name='FRAGILE'/>
+        <enum-item name='BRITTLE'/>
+        <enum-item name='PURE'/>
+        <enum-item name='PIERCING'/>
+        <enum-item name='STRIDENT'/>
+
+        <enum-item name='WAVERING'/>
+        <enum-item name='HARSH'/>
+        <enum-item name='REEDY'/>
+        <enum-item name='NASAL'/>
+        <enum-item name='BUZZY'/>
+        <enum-item name='ROUGH'/>
+        <enum-item name='WARM'/>
+        <enum-item name='RUGGED'/>
+
+        <enum-item name='HEAVY'/>
+        <enum-item name='FLAT'/>
+        <enum-item name='DARK'/>
+        <enum-item name='CRISP'/>
+        <enum-item name='SONOROUS'/>
+        <enum-item name='WATERY'/>
+        <enum-item name='GENTLE'/>
+        <enum-item name='SLICING'/>
+
+        <enum-item name='LIQUID'/>
+        <enum-item name='RAUCOUS'/>
+        <enum-item name='BREEZY'/>
+        <enum-item name='RASPY'/>
+        <enum-item name='WISPY'/>
+        <enum-item name='SHRILL'/>
+        <enum-item name='MUDDY'/>
+        <enum-item name='RICH'/>
+
+        <enum-item name='DULL'/>
+        <enum-item name='FLOATING'/>
+        <enum-item name='RINGING'/>
+        <enum-item name='RESONANT'/>
+        <enum-item name='SWEET'/>
+        <enum-item name='RIPPLING'/>
+        <enum-item name='SPARKLING'/>
+    </enum-type>
+
+    <struct-type type-name='instrument_piece'>
+        <stl-string/>
+        <stl-string/>
+        <int32_t/>
+        <stl-string/>
+        <stl-string/>
+        <bitfield base-type='uint32_t' name='flags'>
+            <flag-bit name='always_singular'/>
+            <flag-bit name='always_plural'/>
+        </bitfield>
+    </struct-type>
+
+    <struct-type type-name='instrument_register'>
+        <int32_t/>
+        <int32_t/>
+        <stl-vector type-name='timbre_type' name='timbres'/>
+    </struct-type>
 
     <enum-type type-name='pants_flags'>
         <enum-item name='METAL_ARMOR_LEVELS'/>
