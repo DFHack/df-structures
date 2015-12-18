@@ -157,6 +157,12 @@
         <enum-item name="Rollers">
             <item-attr name='classname' value='building_rollersst'/>
         </enum-item>
+        <enum-item name="Instrument">
+            <item-attr name='classname' value='building_instrumentst'/>
+        </enum-item>
+        <enum-item name="Bookcase">
+            <item-attr name='classname' value='building_bookcasest'/>
+        </enum-item>
     </enum-type>
 
     <bitfield-type type-name='building_flags'>
@@ -279,11 +285,13 @@
             <vmethod name='countHospitalSupplies'>
                 <pointer name='supplies' type-name='hospital_supplies'/>
             </vmethod>
+            <vmethod name='countTavernSupplies'>
+                <pointer name='supplies'/>
+            </vmethod>
             <vmethod name='getStockpileLinks'>
                 <ret-type><pointer type-name='stockpile_links'/></ret-type>
             </vmethod>
             <vmethod name='detachWorldData' comment='?'/>
-            <vmethod/> 0.42.01
             <vmethod ret-type='bool' name='canLinkToStockpile'
                      comment='used by the give to building ui of stockpile'/>
             <vmethod name='getUsers'>
@@ -456,6 +464,7 @@
             <vmethod name='getSpecificPosition' ret-type='int32_t'/>
             <vmethod name='setSpecificSquadPos'><int32_t/><int32_t/></vmethod>
             <vmethod name='clearSpecificSquad'/>
+            <vmethod comment='v0.42.01, related to tavern beds'/>
 
             -- 95
 
@@ -525,12 +534,12 @@
 
     <enum-type type-name='civzone_type' base-type='int16_t'>
         <enum-item name="Home"/>
-        <enum-item name="CraftShop"/>
-        <enum-item name="Basement"/>
-        <enum-item name="WeaponsmithsShop"/>
-        <enum-item name="ArmorsmithsShop"/>
-        <enum-item name="GeneralStore"/>
-        <enum-item name="FoodShop"/>
+        <enum-item name="Depot"/>
+        <enum-item name="Stockpile"/>
+        <enum-item name="NobleQuarters"/>
+        <enum-item/> Invalid Type
+        <enum-item/> Invalid Type
+        <enum-item/> Invalid Type
         <enum-item name="MeadHall"/>
         <enum-item name="ThroneRoom"/>
         <enum-item name="ActivityZone"/>
@@ -546,6 +555,53 @@
         <enum-item name="Library"/>
         <enum-item name="Plot"/>
         <enum-item name="MarketStall"/>
+        <enum-item/> Invalid Type
+        <enum-item name='Campground'/>
+        <enum-item name='CommandTent'/>
+        <enum-item name='Tent'/>
+        <enum-item name='CommandTentBld'/>
+        <enum-item name='TentBld'/>
+        <enum-item name='MechanismRoom'/>
+        <enum-item name='DungeonCell'/>
+        <enum-item name='AnimalPit'/>
+        <enum-item name='ClothPit'/>
+        <enum-item name='TanningPit'/>
+        <enum-item name='ClothClothingPit'/>
+        <enum-item name='LeatherClothingPit'/>
+        <enum-item name='BoneCarvingPit'/>
+        <enum-item name='GemCuttingPit'/>
+        <enum-item name='WeaponsmithingPit'/>
+        <enum-item name='BowmakingPit'/>
+        <enum-item name='BlacksmithingPit'/>
+        <enum-item name='ArmorsmithingPit'/>
+        <enum-item name='MetalCraftingPit'/>
+        <enum-item name='LeatherworkingPit'/>
+        <enum-item name='CarpentryPit'/>
+        <enum-item name='StoneworkingPit'/>
+        <enum-item name='ForgingPit'/>
+        <enum-item name='FightingPit'/>
+        <enum-item/> Invalid Type
+        <enum-item/> Invalid Type
+        <enum-item/> Invalid Type
+        <enum-item/> Invalid Type
+        <enum-item/> Invalid Type
+        <enum-item/> Invalid Type
+        <enum-item name='AnimalWorkshop'/>
+        <enum-item name='ClothWorkshop'/>
+        <enum-item name='TanningWorkshop'/>
+        <enum-item name='ClothClothingWorkshop'/>
+        <enum-item name='LeatherClothingWorkshop'/>
+        <enum-item name='BoneCarvingWorkshop'/>
+        <enum-item name='GemCuttingWorkshop'/>
+        <enum-item name='WeaponsmithingWorkshop'/>
+        <enum-item name='BowmakingWorkshop'/>
+        <enum-item name='BlacksmithingWorkshop'/>
+        <enum-item name='ArmorsmithingWorkshop'/>
+        <enum-item name='MetalCraftingWorkshop'/>
+        <enum-item name='LeatherworkingShop'/>
+        <enum-item name='CarpentryWorkshop'/>
+        <enum-item name='StoneworkingWorkshop'/>
+        <enum-item name='ForgingWorkshop'/>
     </enum-type>
 
     <class-type type-name='building_civzonest' inherits-from='building'>
@@ -750,6 +806,8 @@
         <compound name='users' type-name='building_users'/>
     </class-type>
 
+    <class-type type-name='building_bookcasest' inherits-from='building_actual'/>
+
     <class-type type-name='building_boxst' inherits-from='building_actual'>
         <int16_t/>
         <stl-vector name='squads' pointer-type='building_squad_use'/>
@@ -902,6 +960,10 @@
         <int32_t name='gather_timer' comment='down from 1200'/>
     </class-type>
 
+    <class-type type-name='building_instrumentst' inherits-from='building_actual'>
+        <int32_t/>
+    </class-type>
+
     <class-type type-name='building_nestst' inherits-from='building_actual'/>
 
     <class-type type-name='building_nest_boxst' inherits-from='building_actual'>
@@ -909,8 +971,7 @@
         <int32_t/>
     </class-type>
 
-    <class-type type-name='building_roadst' inherits-from='building_actual'>
-    </class-type>
+    <class-type type-name='building_roadst' inherits-from='building_actual'/>
 
     <class-type type-name='building_road_dirtst' inherits-from='building_roadst'>
         <int32_t name='material_amount'/>
@@ -1047,8 +1108,7 @@
         <int8_t name='stop_trigger_timer' comment='v0.34.08'/>
     </class-type>
 
-    <class-type type-name='building_wagonst' inherits-from='building_actual'>
-    </class-type>
+    <class-type type-name='building_wagonst' inherits-from='building_actual'/>
 
     <class-type type-name='building_weaponst' inherits-from='building_actual'>
         <compound name='gate_flags' type-name='gate_flags' init-value='1'/>
@@ -1082,11 +1142,9 @@
         <int16_t/>
     </class-type>
 
-    <class-type type-name='building_window_glassst' inherits-from='building_windowst'>
-    </class-type>
+    <class-type type-name='building_window_glassst' inherits-from='building_windowst'/>
 
-    <class-type type-name='building_window_gemst' inherits-from='building_windowst'>
-    </class-type>
+    <class-type type-name='building_window_gemst' inherits-from='building_windowst'/>
 </data-definition>
 
 <!--
