@@ -326,7 +326,7 @@
         <stl-vector name='unk_v42_1'>
             <pointer>
                 <int32_t/>
-                <int32_t init-value='-1'/>
+                <int32_t name='item_id' ref-target='item' init-value='-1' comment='is artifact id for some activities ie. copy written'/>
                 <int32_t init-value='0'/>
             </pointer>
         </stl-vector>
@@ -334,7 +334,7 @@
             <pointer>
                 <int32_t/>
                 <int32_t init-value='-1'/>
-                <int32_t init-value='-1'/>
+                <int32_t name='item_id' ref-target='item' init-value='-1'/>
                 <int32_t init-value='0'/>
             </pointer>
         </stl-vector>
@@ -609,14 +609,9 @@
     </class-type>
 
     <class-type type-name='activity_event_prayerst' inherits-from='activity_event'>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int16_t/>
+	<compound name='participants' type-name='activity_event_participants'/>
+        <int32_t name='histfig_id' ref-target='historical_figure' comment='deity'/>
+        <enum base-type='int16_t' type-name='sphere_type' name='topic' comment='-1 when praying'/>
         <int32_t/>
         <int32_t/>
         <int32_t/>
@@ -624,26 +619,14 @@
     </class-type>
 
     <class-type type-name='activity_event_socializest' inherits-from='activity_event'>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <int32_t/>
-        <int32_t/>
-
-        <int32_t/>
+	<compound name='participants' type-name='activity_event_participants'/>
         <int32_t/>
         <int32_t/>
         <int32_t/>
     </class-type>
 
     <class-type type-name='activity_event_worshipst' inherits-from='activity_event'>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <int32_t/>
-        <int32_t/>
+	<compound name='participants' type-name='activity_event_participants'/>
 
         <int32_t/>
         <int32_t/>
@@ -651,20 +634,31 @@
         <int32_t/>
     </class-type>
 
-    <class-type type-name='activity_event_performancest' inherits-from='activity_event'>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <int32_t/>
-        <int32_t/>
+    <enum-type type-name='performance_event_type'>
+        <enum-item name='STORY'/>
+        <enum-item name='POETRY'/>
+        <enum-item name='MUSIC'/>
+        <enum-item name='DANCE'/>
+    </enum-type>
 
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
+    <enum-type type-name='performance_participant_type'>
+        <enum-item name='TELL_STORY'/>
+        <enum-item name='RECITE_POETRY'/>
+        <enum-item name='MAKE_MUSIC'/>
+        <enum-item name='PERFORM_DANCE'/>
+        <enum-item name='LISTEN'/>
+        <enum-item name='HEAR'/>
+    </enum-type>
+
+    <class-type type-name='activity_event_performancest' inherits-from='activity_event'>
+	<compound name='participants' type-name='activity_event_participants'/>
+
+	<enum name='type' base-type='int32_t' type-name='performance_event_type'/>
+        <int32_t name='event' ref-target='history_event' comment='used for story'/>
+        <int32_t name='poem' ref-target='written_content'/>
+        <int32_t name='poetic_form' ref-target='poetic_form'/>
+        <int32_t name='music_form' ref-target='musical_form'/>
+        <int32_t name='dance_form' ref-target='dance_form'/>
         <int32_t/>
         <int32_t/>
         <int32_t/>
@@ -673,12 +667,12 @@
         <int32_t/>
         <stl-vector>
             <pointer>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
+                <enum name='type' base-type='int32_t' type-name='performance_participant_type'/>
+                <int32_t name='sub_type' comment='depends on type. if music: 0 = sing, gt 0 => instrument index in musical form'/>
+                <int32_t name='unit_id' ref-target='unit'/>
+                <int32_t name='histfig_id' ref-target='historical_figure'/>
+		<int32_t/>
+		<int32_t/>
                 <int16_t/>
                 <int16_t/>
                 <int16_t/>
@@ -738,42 +732,26 @@
     </class-type>
 
     <class-type type-name='activity_event_researchst' inherits-from='activity_event'>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <int32_t/>
-        <int32_t/>
+	<compound name='participants' type-name='activity_event_participants'/>
         <int32_t/>
         <int32_t/>
         <int32_t/>
     </class-type>
 
     <class-type type-name='activity_event_ponder_topicst' inherits-from='activity_event'>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <int32_t/>
-        <int32_t/>
+	<compound name='participants' type-name='activity_event_participants'/>
         <int32_t/>
         <int32_t/>
         <int32_t/>
 
         <int32_t/>
-        <int32_t/>
-        <int32_t/>
-
+        <int32_t name='knowledge_category'/>
+        <int32_t name='knowledge_flag'/>
         <int32_t/>
     </class-type>
 
     <class-type type-name='activity_event_discuss_topicst' inherits-from='activity_event'>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <int32_t/>
-        <int32_t/>
+	<compound name='participants' type-name='activity_event_participants'/>
         <int32_t/>
         <int32_t/>
         <int32_t/>
@@ -782,18 +760,11 @@
         <int32_t/>
         <int32_t/>
 
-        <int32_t/>
-        <int32_t/>
         <int32_t/>
     </class-type>
 
     <class-type type-name='activity_event_readst' inherits-from='activity_event'>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <int32_t/>
-        <int32_t/>
+	<compound name='participants' type-name='activity_event_participants'/>
         <int32_t/>
         <int32_t/>
         <int32_t/>
@@ -802,19 +773,14 @@
     </class-type>
 
     <class-type type-name='activity_event_fill_service_orderst' inherits-from='activity_event'>
-        <int32_t/>
-        <int32_t/>
+        <int32_t name='histfig_id' ref-target='historical_figure'/>
+        <int32_t name='unit_id' ref-target='unit'/>
         <int32_t/>
         <int32_t/>
     </class-type>
 
     <class-type type-name='activity_event_writest' inherits-from='activity_event'>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <int32_t/>
-        <int32_t/>
+	<compound name='participants' type-name='activity_event_participants'/>
         <int32_t/>
         <int32_t/>
         <int32_t/>
@@ -829,8 +795,8 @@
     </class-type>
 
     <class-type type-name='activity_event_copy_written_contentst' inherits-from='activity_event'>
-        <int32_t/>
-        <int32_t/>
+        <int32_t name='histfig_id' ref-target='historical_figure'/>
+        <int32_t name='unit_id' ref-target='unit'/>
         <int32_t/>
         <int32_t/>
         <int32_t/>
@@ -841,12 +807,7 @@
     </class-type>
 
     <class-type type-name='activity_event_teach_topicst' inherits-from='activity_event'>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <int32_t/>
-        <int32_t/>
+	<compound name='participants' type-name='activity_event_participants'/>
         <int32_t/>
         <int32_t/>
         <int32_t/>
@@ -861,12 +822,7 @@
     </class-type>
 
     <class-type type-name='activity_event_playst' inherits-from='activity_event'>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <int32_t/>
-        <int32_t/>
+	<compound name='participants' type-name='activity_event_participants'/>
         <int32_t/>
         <static-array type-name='int8_t' count='49'/>
         <int16_t/>
@@ -875,12 +831,7 @@
     </class-type>
 
     <class-type type-name='activity_event_make_believest' inherits-from='activity_event'>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <int32_t/>
-        <int32_t/>
+	<compound name='participants' type-name='activity_event_participants'/>
         <int32_t/>
         <int32_t/>
         <int32_t/>
@@ -891,12 +842,7 @@
     </class-type>
 
     <class-type type-name='activity_event_play_with_toyst' inherits-from='activity_event'>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <int32_t/>
-        <int32_t/>
+	<compound name='participants' type-name='activity_event_participants'/>
         <int32_t/>
         <int32_t/>
         <int32_t/>
