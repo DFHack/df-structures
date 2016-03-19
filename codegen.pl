@@ -189,6 +189,15 @@ mkdir $output_dir;
         $files{$name} = 0;
     }
 
+    # Touch all static.fields-*.inc files
+    for my $group ("a" .. "z") {
+        my $name = $output_dir."/static.fields-$group.inc";
+        unless (-f $name) {
+            open my $fh, ">>", $name;
+            close $fh;
+        }
+    }
+
     # Write an xml file with all types.
     # Always do it, so that its date could be used in make to
     # determine if the script had been run after inputs changed.
