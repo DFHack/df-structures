@@ -196,6 +196,7 @@ mkdir $output_dir;
             open my $fh, ">>", $name;
             close $fh;
         }
+        $files{$name} = 0;
     }
 
     # Write an xml file with all types.
