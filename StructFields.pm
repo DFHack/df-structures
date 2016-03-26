@@ -515,6 +515,7 @@ sub emit_struct_fields($$;%) {
     &render_struct_field($_) for @fields;
 
     my $full_name = fully_qualified_name($tag, $name, 1);
+    my $fields_group = lc(substr($full_name, 0, 1));
     my %info;
 
     if ($in_union_body) {
@@ -533,7 +534,7 @@ sub emit_struct_fields($$;%) {
                     "sizeof($full_name), &allocator_fn<${full_name}>, ",
                     type_identity_reference($tag,-parent => 1), ', ',
                     "\"$name\", NULL, $ftable);";
-        } 'fields';
+        } 'fields-' . $fields_group;
 
         return;
     }
@@ -607,7 +608,7 @@ sub emit_struct_fields($$;%) {
                     ($inherits ? "&${inherits}::_identity" : 'NULL'), ',',
                     "$ftable);";
         }
-    } 'fields';
+    } 'fields-' . $fields_group;
 }
 
 1;
