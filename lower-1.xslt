@@ -34,7 +34,7 @@
         </ld:data-definition>
     </xsl:template>
 
-    <xsl:template match="comment|code-helper|enum-attr|enum-item|item-attr">
+    <xsl:template match="comment|code-helper|enum-attr|enum-item|item-attr|extra-include">
         <xsl:copy>
             <xsl:apply-templates select='@*|node()'/>
         </xsl:copy>

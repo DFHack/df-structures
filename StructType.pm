@@ -190,6 +190,10 @@ sub render_struct_type {
     my $original_name = $tag->getAttribute('original-name');
     my $ispec = '';
 
+    for my $extra ($tag->findnodes('extra-include')) {
+        register_ref $extra->getAttribute('type-name'), 1;
+    }
+
     if ($inherits) {
         register_ref $inherits, 1;
         $ispec = ' : '.$inherits;
