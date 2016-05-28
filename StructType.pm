@@ -112,7 +112,7 @@ sub render_virtual_methods {
             my $is_destructor = is_attr_true($method, 'is-destructor');
             my $name = $is_destructor ? $dtor_id : $method->getAttribute('name');
             if ($name) {
-                die "Duplicate method: $name in ".$type->getAttribute('type-name')."\n"
+                die "Duplicate virtual method: $name in ".$type->getAttribute('type-name')."\n"
                     if exists $name_index{$name};
                 $name_index{$name} = scalar(@vtable);
             }
@@ -184,7 +184,7 @@ sub render_struct_type {
 
     my $tag_name = $tag->getAttribute('ld:meta');
     my $is_class = ($tag_name eq 'class-type');
-    my $custom_methods = is_attr_true($tag, 'custom-methods');
+    my $custom_methods = is_attr_true($tag, 'custom-methods') || $tag->findnodes('custom-methods/cmethod');
     my $has_methods = $is_class || is_attr_true($tag, 'has-methods');
     my $inherits = $tag->getAttribute('inherits-from');
     my $original_name = $tag->getAttribute('original-name');
@@ -211,6 +211,18 @@ sub render_struct_type {
                 if ($custom_methods) {
                     local $indentation = 0;
                     emit '#include "custom/', $typename, '.methods.inc"';
+
+                    my %name_index;
+                    $info{cmethods} = [];
+                    for my $method ($tag->findnodes('custom-methods/cmethod')) {
+                        my $name = $method->getAttribute('name');
+                        die "Custom method has no name in ".$typename."\n"
+                            if not $name;
+                        die "Duplicate custom method: $name in ".$typename."\n"
+                            if exists $name_index{$name};
+                        $name_index{$name} = 1;
+                        push $info{cmethods}, $method;
+                    }
                 }
 
                 if ($is_class) {
