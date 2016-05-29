@@ -495,8 +495,8 @@ sub render_field_metadata($$\@\%) {
     return generate_field_table {
         render_field_metadata_rec($_, $FLD) for @$fields;
 
-        for my $vmtag (@{$info->{vmethods}||[]}) {
-            my $name = $vmtag->getAttribute('name');
+        for my $mtag (@{$info->{vmethods}||[]}, @{$info->{cmethods}||[]}) {
+            my $name = $mtag->getAttribute('name');
             push @field_defs, [ "METHOD(OBJ_METHOD, $name)" ] if $name;
         }
         for my $name (@{$info->{statics}||[]}) {

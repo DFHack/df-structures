@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- 
+<!--
   The original XML format is good for human use, but
   difficult to interpret during code generation. This
   lowers it to more repetitive & verbose, but easier
   for the programs to interpret.
-  
+
   This is the first pass that folds all field tags into ld:field.
  -->
 <xsl:stylesheet version="1.0"
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:ld="http://github.com/peterix/dfhack/lowered-data-definition">
-    <!-- 
+    <!--
         Global templates:
 
         - Copy attributes and simple tags
@@ -40,7 +40,7 @@
         </xsl:copy>
     </xsl:template>
 
-    <xsl:template match="virtual-methods|cond-if|cond-else">
+    <xsl:template match="virtual-methods|custom-methods|cond-if|cond-else">
         <xsl:param name='level' select='-1'/>
         <xsl:copy>
             <xsl:apply-templates select='@*|node()'>
@@ -50,7 +50,7 @@
     </xsl:template>
 
     <!-- Type defs: convert to one common 'global-type' tag name. -->
-    
+
     <xsl:template match='enum-type|bitfield-type|class-type|struct-type'>
         <ld:global-type>
             <xsl:attribute name='ld:meta'><xsl:value-of select='name(.)'/></xsl:attribute>
@@ -150,7 +150,7 @@
 
     <!--
         Compound, enum or bitfield:
-        
+
         - When a proxy: meta='global' subtype='$tag' type-name='blah'
         - When an ad-hoc compound: meta='compound' subtype='$tag'
         - Level not incremented unless it has a name.
@@ -266,10 +266,10 @@
             </xsl:call-template>
         </ld:field>
     </xsl:template>
-    
+
     <!-- Virtual methods -->
 
-    <xsl:template match='vmethod'>
+    <xsl:template match='vmethod|cmethod'>
         <xsl:param name='level' select='-1'/>
         <xsl:copy>
             <xsl:attribute name='ld:level'><xsl:value-of select='$level'/></xsl:attribute>
