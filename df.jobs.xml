@@ -133,9 +133,7 @@
 
         <compound name='unk_v4020_2' type-name='coord' comment='v0.40.20'/>
 
-        <int32_t name='unk_v43_1' init-value='-1' comment='v0.43.01'/>
-        <int32_t name='unk_v43_2' init-value='-1' comment='v0.43.01'/>
-        <int32_t name='unk_v43_3' init-value='-1' comment='v0.43.01'/>
+        <compound name='art_spec' type-name='job_art_specification' comment='v0.43.01'/>
         <int32_t name='unk_v43_4' init-value='-1' comment='v0.43.01'/>
     </struct-type>
 
@@ -347,6 +345,37 @@
         <flag-bit name="active"/>
     </bitfield-type>
 
+    <struct-type type-name='job_art_specification'>
+        <enum base-type='int32_t' name='type'>
+            <enum-item name='None' value='-1'/>
+            <enum-item name='HistoricalFigure'/>
+            <enum-item name='Site'/>
+            <enum-item name='Entity'/>
+            <enum-item name='ArtImage'/>
+        </enum>
+
+        <code-helper name='describe'>
+            (describe-obj $.type)
+            (describe-obj (or $.subid.refers-to $.id.refers-to))
+        </code-helper>
+
+        <int32_t name='id' init-value='-1'>
+            <code-helper name='refers-to'>
+                (case $$._parent.type
+                    ($HistoricalFigure (find-instance $historical_figure $))
+                    ($Site (find-instance $world_site $))
+                    ($Entity (find-instance $historical_entity $))
+                    ($ArtImage (find-instance $art_image_chunk $)))
+            </code-helper>
+        </int32_t>
+        <int32_t name='subid' init-value='-1'>
+            <code-helper name='refers-to'>
+                (case $$._parent.type
+                    ($ArtImage $$._parent.id.refers-to.images[$]))
+            </code-helper>
+        </int32_t>
+    </struct-type>
+
     <struct-type type-name='manager_order'>
         <int32_t name='id'/>
         <enum name='job_type' base-type='int16_t' type-name='job_type'/>
@@ -362,9 +391,7 @@
         <int32_t name="hist_figure_id" ref-target='historical_figure' init-value='-1'/>
         <compound name="material_category" type-name='job_material_category'/>
 
-        <int32_t init-value='-1' />
-        <int32_t init-value='-1' />
-        <int32_t init-value='-1' />
+        <compound name='art_spec' type-name='job_art_specification'/>
 
         <int16_t name="amount_left" />
         <int16_t name="amount_total" />
