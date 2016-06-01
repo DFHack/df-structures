@@ -16,6 +16,33 @@
 (def (class* eas) df-linked-list (sequence-item data-field concrete-item)
   ())
 
+;; Stubs for some dfhack specific tags that don't actually define info about DF itself
+
+(def (class* eas) custom-methods (virtual-methods)
+  ())
+
+(defmethod add-subobject ((obj class-type) (cmethods custom-methods))
+  ;; Discard
+  nil)
+
+(defmethod add-subobject ((obj struct-type) (cmethods custom-methods))
+  ;; Discard
+  nil)
+
+(def (class* eas) cmethod (vmethod)
+  ())
+
+(defmethod add-subobject ((obj virtual-methods) (cmethod cmethod))
+  ;; Discard
+  nil)
+
+(def (class* eas) extra-include (xml-serializer)
+  ((type-name nil :accessor t :type $-keyword-namespace)))
+
+(defmethod add-subobject ((obj global-type-definition) (inc extra-include))
+  ;; Discard
+  nil)
+
 (in-package :cl-linux-debug.data-info)
 
 ;; df-flagarray implementation
