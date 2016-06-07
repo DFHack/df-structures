@@ -221,7 +221,7 @@ sub render_struct_type {
                         die "Duplicate custom method: $name in ".$typename."\n"
                             if exists $name_index{$name};
                         $name_index{$name} = 1;
-                        push $info{cmethods}, $method;
+                        push @{$info{cmethods}}, $method;
                     }
                 }
 
