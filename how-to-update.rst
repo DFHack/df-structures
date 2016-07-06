@@ -18,7 +18,9 @@ directory layout::
                 df_osx/      - Current DF for osx
 
                 metasm/      - Checkout of the library for ruby scripts
+                               from https://github.com/jjyg/metasm
                 df_misc/     - Checkout of the ruby scripts
+                               from https://github.com/jjyg/df_misc
                 dfhack/      - DFHack checkout
 
 - Use "new-release.pl v0.??.??" to automatically perform a number of
