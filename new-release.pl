@@ -55,12 +55,12 @@ for $_ (@symlines) {
     if (/<md5-hash\s+value=[\'\"]([^\'\"]+)[\'\"]\s*\/>/) {
         my $v = lc $1;
         if ($v eq $md5_hash) {
-            die "This md5 hash is already in symbols.xml\n";
+#            die "This md5 hash is already in symbols.xml\n";
         }
     } elsif (/<binary-timestamp\s+value=[\'\"]0x([^\'\"]+)[\'\"]\s*\/>/) {
         my $v = lc $1;
         if ($v eq $timestamp) {
-            die "This timestamp is already in symbols.xml\n";
+#            die "This timestamp is already in symbols.xml\n";
         }
     }
 }
