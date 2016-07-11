@@ -7,7 +7,7 @@ print <<'__END__';
 <data-definition>
     WARNING: THIS FILE IS AUTO-GENERATED - DO NOT EDIT
 
-    <enum-type type-name='interface_key' base-type='int32_t'>
+    <enum-type type-name='interface_key' base-type='int64_t'>
 __END__
 
 my $startname;
