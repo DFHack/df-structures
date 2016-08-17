@@ -455,7 +455,21 @@ sub get_comment($) {
 
     return '' unless $tag;
 
-    if (my $val = $tag->getAttribute('comment')) {
+    my $since = $tag->getAttribute('since');
+    my $comment = $tag->getAttribute('comment');
+    my $val = '';
+
+    if ($since) {
+        $val = $val . 'since ' . $since;
+        if ($comment) {
+            $val = $val . '; ';
+        }
+    }
+    if ($comment) {
+        $val = $val . $comment;
+    }
+
+    if ($val) {
         return ' /*!< '.$val.' */';
     } else {
         return '';
