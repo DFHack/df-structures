@@ -76,8 +76,6 @@ sub render_bitfield_core {
                 emit "mask_", $r->[0], " = ", $r->[2], $r->[3];
             }
         } "enum Mask : $base ", ";";
-
-        emit $name, "($base whole_ = 0) : whole(whole_) {};";
     } "union $name ", ";";
 
     my $full_name = fully_qualified_name($tag, $name, 1);
