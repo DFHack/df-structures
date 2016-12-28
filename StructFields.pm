@@ -536,6 +536,9 @@ sub emit_struct_fields($$;%) {
                     "\"$name\", NULL, $ftable);";
         } 'fields-' . $fields_group;
 
+        # Needed for unions with fields with non-default ctors (e.g. bitfields)
+        emit "$name(){}";
+
         return;
     }
 
