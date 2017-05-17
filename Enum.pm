@@ -121,14 +121,14 @@ sub render_enum_tables($$$$) {
             push @aprefix, '';
         }
 
-        push @field_meta, [ "FLD(PRIMITIVE, $name)", "identity_traits<$atypes[-1]>::get()" ];
+        push @field_meta, [ "FLD(PRIMITIVE, $name)", "identity_traits<$atypes[-1]>::get()", 0, 0 ];
 
         if (is_attr_true($attr, 'is-list')) {
             push @use_list, $#anames;
             $is_list[-1] = $atypes[-1];
             $atypes[-1] = "enum_list_attr<$atypes[-1]>";
             $avals[-1] = "{ 0, NULL }";
-            $field_meta[-1] = [ "FLD(CONTAINER, $name)", "identity_traits<$atypes[-1]>::get()" ];
+            $field_meta[-1] = [ "FLD(CONTAINER, $name)", "identity_traits<$atypes[-1]>::get()", 0, 0 ];
         } elsif (is_attr_true($attr, 'use-key-name')) {
             push @use_key, $#anames;
         }

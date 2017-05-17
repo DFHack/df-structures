@@ -426,15 +426,15 @@ sub render_field_metadata_rec($$) {
 
     if ($meta eq 'number') {
         my $tname = primitive_type_name($subtype);
-        push @field_defs, [ "${FLD}(PRIMITIVE, $name)", "TID($tname)" ];
+        push @field_defs, [ "${FLD}(PRIMITIVE, $name)", "TID($tname)", 0, 0 ];
     } elsif ($meta eq 'bytes') {
         if ($subtype eq 'static-string') {
             my $count = $field->getAttribute('size') || 0;
-            push @field_defs, [ "${FLD}(STATIC_STRING, $name)", 'NULL', $count ];
+            push @field_defs, [ "${FLD}(STATIC_STRING, $name)", 'NULL', $count, 0 ];
         }
     } elsif ($meta eq 'global' || $meta eq 'compound') {
         if (is_attr_true($field, 'ld:enum-size-forced')) {
-            push @field_defs, [ "${FLD}(PRIMITIVE, $name)", type_idfun_reference($field) ];
+            push @field_defs, [ "${FLD}(PRIMITIVE, $name)", type_idfun_reference($field), 0, 0 ];
         } else {
             if ($meta eq 'global') {
                 my $tname = $field->getAttribute('type-name');
@@ -442,9 +442,9 @@ sub render_field_metadata_rec($$) {
             }
 
             if ($subtype && $subtype eq 'enum') {
-                push @field_defs, [ "${FLD}(PRIMITIVE, $name)", type_identity_reference($field) ];
+                push @field_defs, [ "${FLD}(PRIMITIVE, $name)", type_identity_reference($field), 0, 0 ];
             } else {
-                push @field_defs, [ "${FLD}(SUBSTRUCT, $name)", type_identity_reference($field) ];
+                push @field_defs, [ "${FLD}(SUBSTRUCT, $name)", type_identity_reference($field), 0, 0 ];
             }
         }
     } elsif ($meta eq 'pointer') {
@@ -460,7 +460,7 @@ sub render_field_metadata_rec($$) {
 
         push @field_defs, [ "${FLD}(STATIC_ARRAY, $name)", auto_identity_reference($items[0]), $count, $enum ];
     } elsif ($meta eq 'primitive') {
-        push @field_defs, [ "${FLD}(PRIMITIVE, $name)", type_idfun_reference($field) ];
+        push @field_defs, [ "${FLD}(PRIMITIVE, $name)", type_idfun_reference($field), 0, 0 ];
     } elsif ($meta eq 'container') {
         my @items = $field->findnodes('ld:item');
 
@@ -497,10 +497,10 @@ sub render_field_metadata($$\@\%) {
 
         for my $mtag (@{$info->{vmethods}||[]}, @{$info->{cmethods}||[]}) {
             my $name = $mtag->getAttribute('name');
-            push @field_defs, [ "METHOD(OBJ_METHOD, $name)" ] if $name;
+            push @field_defs, [ "METHOD(OBJ_METHOD, $name)", 0, 0 ] if $name;
         }
         for my $name (@{$info->{statics}||[]}) {
-            push @field_defs, [ "METHOD(CLASS_METHOD, $name)" ];
+            push @field_defs, [ "METHOD(CLASS_METHOD, $name)", 0, 0 ];
         }
     } $full_name;
 }
