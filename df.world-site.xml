@@ -1,4 +1,57 @@
 <data-definition>
+    <struct-type type-name='scribejob'>
+        <int32_t name='idmaybe'/>
+        <int32_t comment='not locationid'/>
+        <int32_t name='item_id'/>
+        <int32_t name='written_content_id'/>
+        <int32_t name='unit_id'/>
+        <int32_t name='activity_entry_id'/>
+        <int32_t/>
+        <int16_t/>
+        <int16_t name='locationmaybe'/>
+    </struct-type>
+
+    <struct-type type-name='site_reputation_report'>
+        <int32_t name='site_id'/>
+        <int32_t name='location_id'/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t name='year'/>
+        <int32_t name='tickmaybe'/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int16_t/>
+        <int16_t/>
+        <bitfield-type>
+            <flag-bit/>
+        </bitfield-type>
+    </struct-type>
+
+    <struct-type type-name='site_reputation_info'>
+        <stl-vector pointer-type='site_reputation_report'/>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+    </struct-type>
+
+    <struct-type type-name='location_scribe_jobs'>
+        <stl-vector name='scribejobs' pointer-type='scribejob'/>
+        <int32_t name='nextidmaybe'/>
+        <int32_t name='year'/>
+        <uint16_t/>
+        <int16_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+    </struct-type>
+
     <enum-type type-name='abstract_building_type'>
         <enum-item name='MEAD_HALL'/>
         <enum-item name='KEEP'/>
@@ -80,8 +133,8 @@
         <int32_t name='unk3'/>
         <stl-vector name='unk4' type-name='int32_t'/>
         <int32_t name='site_owner_id' ref-target='historical_entity'/>
-        <pointer name='unk_v42_1' since='v0.42.01'/>
-        <pointer name='unk_v42_2' since='v0.42.01'/>
+        <pointer name='scribeinfo' since='v0.42.01' type-name='location_scribe_jobs'/>
+        <pointer name='reputation_reports' since='v0.42.01' type-name='site_reputation_info'/>
         <pointer name='unk_v42_3' since='v0.42.01'/>
         <int32_t name='site_id' ref-target='world_site'
                  comment='not initialized/saved/loaded, assumed member of base class'/>
@@ -385,19 +438,23 @@
         <int32_t name="id"/>
         <int32_t name="site_id" ref-target='world_site'/>
         <int32_t name="civ_id" ref-target='historical_entity'/>
-        <stl-vector name="unk_c">
+        <stl-vector name='group_log' comment='the circumstances of groups joining or leaving this culture'>
             <pointer>
                 <int32_t name="group_id" ref-target='historical_entity'/>
-                <int32_t name="unk_4" init-value='-1'/>
-                <int32_t name="unk_8" init-value='-1'/>
-                <int32_t name="unk_c" init-value='-1'/>
-                <int32_t name="unk_10" init-value='-1'/>
-                <int32_t name="unk_14" init-value='-1'/>
-                <int32_t name="unk_18" init-value='-1'/>
-                <int32_t name="unk_1c"/>
+                <int32_t name='start_year' init-value='-1' comment='when the group joined the culture, or -1 if it founded the culture'/>
+                <int32_t name='start_tick' init-value='-1'/>
+                <int32_t name='end_year' init-value='-1' comment='when the group left the culture, or -1 if it has not left'/>
+                <int32_t name='end_tick' init-value='-1'/>
+                <int32_t name='unk_14' init-value='-1' comment='copy of start_year'/>
+                <int32_t name='unk_18' init-value='-1' comment='copy of start_tick'/>
+                <enum name='join_type'>
+                    <enum-item name='Peaceful'/>
+                    <enum-item name='CompleteTakeOver' comment='The previous group left the culture.'/>
+                    <enum-item name='TakeOver' comment="The previous group's end_year is still -1."/>
+                </enum>
                 <int32_t name="unk_20"/>
                 <stl-vector name="unk_24" type-name="int32_t"/>
-                <stl-vector name="unk_34" type-name="int32_t"/>
+                <stl-vector name='unk_34' type-name='int32_t' comment='same length as unk_24; elements always sum to 10000'/>
                 <int32_t name="unk_44" init-value='100'/>
             </pointer>
         </stl-vector>
@@ -405,12 +462,12 @@
             <enum base-type='int16_t' type-name='ethic_response'/>
         </static-array>
         <static-array name='values' type-name='int32_t' count='64' index-enum='value_type'/>
-        <stl-vector name="unk_c8" pointer-type='entity_event'/>
-        <int32_t name="unk_d8"/>
+        <stl-vector name='events' pointer-type='entity_event'/>
+        <int32_t name='unk_d8' init-value='-1'/>
         <stl-vector name="unk_dc" type-name='int32_t'/>
-        <int32_t name="unk_ec"/>
-        <int32_t name="unk_f0"/>
-        <int32_t name="unk_f4"/>
+        <int32_t name='unk_ec' init-value='-1'/>
+        <int32_t name='unk_f0' init-value='-1'/>
+        <int32_t name='unk_f4' comment='0 or 800000'/>
         <int32_t name="unk_f8"/>
     </struct-type>
 
@@ -749,7 +806,7 @@
         <int32_t name="base_z" comment="can be below ground, but not above ground"/>
         <int32_t name="door_n_elevation"/>
         <int32_t name="door_s_elevation"/>
-        <int32_t name="soor_e_elevation"/>
+        <int32_t name="door_e_elevation"/>
         <int32_t name="door_w_elevation"/>
         <compound name='door_item' type-name='site_building_item'/>
         <compound name='wall_item' type-name='site_building_item'/>
