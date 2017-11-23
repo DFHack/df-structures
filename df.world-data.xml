@@ -232,33 +232,35 @@
 
         <compound name='end_pos' type-name='coord2d'/>
         <df-flagarray name='flags'/>
+        <comment>
+            Additional river information:
+            The flow element affects the width of the river and seems to follow the
+            formula width = (flow / 40000 * 46) + 1, with a minimum width of 4 and
+            a maximum width of 47. DF uses specific names for rivers with certain flows:
+            - Stream:      less than    5000
+            - Minor River  5000 - 9999
+            - River        10000 - 19999
+            - Major River: greather than 20000
+            Brooks tend to have a flow of 0, but DF has divided the controlling information
+            between this structure, the region map entry (below), and the feature map.
+            Thus, the region map flag 'is_brook' controls whether a water course actually
+            is a (potentially broad) brook or an open water course. Likewise, the 'has_river'
+            flag is needed for DF to properly understand a water course should be present.
+            The exit tile holds the information on which mid level tile the river should
+            exit the region. Presumably the path controls which edge to apply this to.
+            Note that the river up/down/left/right flags of the region map entry should
+            align with the sides rivers enter/exit.
+            The feature map has to have a river entry for the corresponding world tile
+            for a river to be implemented properly. All this is done by DF, but needs
+            to be known if hacking.
+            The world region details (below) data on rivers are generated as the regions
+            are generated.
+            The elevation element affects the level of the river. If the river elevation
+            is lower than the surrounding area DF tends to generate a valley around the
+            river to allow it to reach the correct elevation.
+        </comment>
     </struct-type>
-    --  Additional river information:
-    --  The flow element affects the width of the river and seems to follow the
-    --  formula width = (flow / 40000 * 46) + 1, with a minimum width of 4 and
-    --  a maximum width of 47. DF uses specific names for rivers with certain flows:
-    --  - Stream:      less than    5000
-    --  - Minor River  5000 - 9999
-    --  - River        10000 - 19999
-    --  - Major River: greather than 20000
-    --  Brooks tend to have a flow of 0, but DF has divided the controlling information
-    --  between this structure, the region map entry (below), and the feature map.
-    --  Thus, the region map flag 'is_brook' controls whether a water course actually
-    --  is a (potentially broad) brook or an open water course. Likewise, the 'has_river'
-    --  flag is needed for DF to properly understand a water course should be present.
-    --  The exit tile holds the information on which mid level tile the river should
-    --  exit the region. Presumably the path controls which edge to apply this to.
-    --  Note that the river up/down/left/right flags of the region map entry should
-    --  align with the sides rivers enter/exit.
-    --  The feature map has to have a river entry for the corresponding world tile
-    --  for a river to be implemented properly. All this is done by DF, but needs
-    --  to be known if hacking.
-    --  The world region details (below) data on rivers are generated as the regions
-    --  are generated.
-    --  The elevation element affects the level of the river. If the river elevation
-    --  is lower than the surrounding area DF tends to generate a valley around the
-    --  river to allow it to reach the correct elevation.
- 
+
 
     <enum-type type-name='geo_layer_type' base-type='int16_t'>
         <enum-attr name='flag' type-name='inorganic_flags' use-key-name='true'/>
