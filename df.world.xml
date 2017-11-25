@@ -368,6 +368,31 @@
         </compound>
     </struct-type>
 
+    <class-type type-name='job_handler' original-name='job_handlerst'>
+        <df-linked-list name='list' type-name='job_list_link'/>
+        <stl-vector name='postings' comment='entries never removed'>
+            <pointer>
+                <int32_t name='idx' comment='equal to position in vector'/>
+                <pointer type-name='job' name='job' comment='bad if dead flag is set'/>
+                <bitfield name='flags' base-type='int32_t'>
+                    <flag-bit name='dead'/>
+                </bitfield>
+                <int32_t comment='not saved'/>
+            </pointer>
+        </stl-vector>
+
+        <static-array count='2000'>
+            <int32_t name='unk_0'/>
+            <int32_t/>
+            <pointer/>
+        </static-array>
+        <int32_t comment='next slot'/>
+
+        <virtual-methods>
+            <vmethod name='cancel_job'><pointer type-name='job'/></vmethod>
+        </virtual-methods>
+    </class-type>
+
     <class-type type-name='building_handler' original-name='building_handlerst' custom-methods='true'>
         dtor 85316f0
 
@@ -409,6 +434,7 @@
 
     <struct-type type-name='world'>
         dtor 89fff80
+        <!-- <compound> -->
         <stl-vector name='glowing_barriers' pointer-type='glowing_barrier'/>
         <stl-vector name='deep_vein_hollows' pointer-type='deep_vein_hollow'/>
 
@@ -437,6 +463,7 @@
         <stl-vector name='unk_E4' pointer-type='world_unk_9c'/>
         <stl-vector name='unk_F0' pointer-type='world_unk_6c'/>
         <stl-vector name='unk_FC' pointer-type='coord_rect'/>
+        <!-- </compound> -->
         <stl-vector name='effects' pointer-type='effect_info'/>
 
         <stl-vector name='coin_batches' pointer-type='coin_batch'/>
@@ -493,9 +520,8 @@
             </static-array>
 
             <stl-vector name='bad' has-bad-pointers='true' pointer-type='nemesis_record'/>
+            <bool name='unk4'/>
         </compound>
-
-        <bool name='unk4'/>
 
         -- Items
 
@@ -523,25 +549,7 @@
 
         -- Jobs and projectiles
 
-        <df-linked-list name='job_list' type-name='job_list_link'/>
-        <stl-vector name='job_postings' comment='entries never removed'>
-            <pointer>
-                <int32_t name='idx' comment='equal to position in vector'/>
-                <pointer type-name='job' name='job' comment='bad if dead flag is set'/>
-                <bitfield name='flags' base-type='int32_t'>
-                    <flag-bit name='dead'/>
-                </bitfield>
-                <int32_t comment='not saved'/>
-            </pointer>
-        </stl-vector>
-
-        <static-array count='2000'>
-            <int32_t name='unk_0'/>
-            <int32_t/>
-            <pointer/>
-        </static-array>
-        <int32_t comment='next slot'/>
-        <int32_t/>
+        <compound name='jobs' type-name='job_handler'/>
 
         <df-linked-list name='proj_list' type-name='proj_list_link'/>
 
