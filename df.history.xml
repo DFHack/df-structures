@@ -36,6 +36,44 @@
         <int32_t name='shooter_matindex'/>
     </struct-type>
 
+    <enum-type type-name='reputation_type' base-type='int32_t'>
+        <enum-item name='Hero'/>
+        <enum-item name='Buddy'/>
+        <enum-item name='Grudge'/>
+        <enum-item name='AnimalPartner'/>
+        <enum-item name='Brawler'/>
+        <enum-item name='Psycho'/>
+        <enum-item name='TradePartner'/>
+        <enum-item name='Friendly'/>
+        <enum-item name='Killer'/>
+        <enum-item name='Murderer'/>
+
+        <enum-item name='Comrade'/>
+        <enum-item name='RespectedGroup'/>
+        <enum-item name='HatedGroup'/>
+        <enum-item name='EnemyFighter'/>
+        <enum-item name='FriendlyFighter'/>
+        <enum-item name='Bully'/>
+        <enum-item name='Brigand'/>
+        <enum-item name='LoyalSoldier'/>
+        <enum-item name='Monster'/>
+        <enum-item name='Storyteller'/>
+
+        <enum-item name='Poet'/>
+        <enum-item name='Bard'/>
+        <enum-item name='Dancer'/>
+        <enum-item name='Quarreler'/>
+        <enum-item name='Flatterer'/>
+        <enum-item name='Hunter'/>
+        <enum-item name='ProtectorOfWeak'/>
+        <enum-item name='TreasureHunter'/>
+        <enum-item name='Thief'/>
+        <enum-item name='InformationSource'/>
+
+        <enum-item name='PreserverOfKnowledge'/>
+        <enum-item name='Intruder'/>
+    </enum-type>
+
     <struct-type type-name='historical_figure_info'>
         <pointer name="spheres">
             <stl-vector>
@@ -53,19 +91,23 @@
 
             only a guess since most of figures have 102 (STANDARD); some have stuff like CLERK, SCOUT, BEAST_HUNTER, etc
             <enum base-type='int16_t' name='profession' type-name='profession'/>
+            <int32_t/>
         </pointer>
 
         <pointer name="pets">
             <stl-vector type-name='int16_t' ref-target='creature_raw'/>
         </pointer>
 
-        <pointer name="personality" type-name='unit_personality'/>
+        <pointer name="personality">
+            <compound type-name='unit_personality'/>
+            <int16_t/>
+        </pointer>
 
         <pointer name="masterpieces">
             <stl-vector name="events" type-name='int32_t' ref-target='history_event'/>
             <stl-vector name="events2" type-name='int32_t' ref-target='history_event' comment='ones that were stolen or destroyed?'/>
-            <stl-vector name='unk_v43_1' since='v0.43.01'/>
-            <stl-vector name='unk_v43_2' since='v0.43.01'/>
+            <stl-vector name='unk_v43_1' type-name='int32_t' since='v0.43.01'/>
+            <stl-vector name='unk_v43_2' type-name='int32_t' since='v0.43.01'/>
         </pointer>
 
         <pointer name="unk_14">
@@ -166,6 +208,22 @@
                 <uint32_t name='research_points' comment='research is finished at 100k? amount gained depends on skills, attributes'/>
                 <uint16_t name='times_pondered' comment='one per ponder no matter what. turns into research_points somewhere around 40-60.'/>
             </pointer>
+            <pointer name='unk_a4'>
+                <stl-vector type-name='int32_t'/>
+            </pointer>
+            <pointer name='unk_a8'>
+                <stl-vector>
+                    <pointer>
+                        <int32_t/>
+                        <int32_t/>
+                        <int32_t/>
+                        <int32_t/>
+                        <int32_t/>
+                        <int32_t/>
+                        <static-array type-name='int32_t' count='8'/>
+                    </pointer>
+                </stl-vector>
+            </pointer>
         </pointer>
 
         <pointer name='curse' since='v0.34.01'>
@@ -195,48 +253,14 @@
 
         <pointer name='books' since='v0.34.01'>
             <stl-vector pointer-type='artifact_record'/>
+            <int32_t since='v0.44.01'/>
         </pointer>
 
         <pointer name='reputation' since='v0.34.01'>
             <stl-vector name="wanted">
                 <pointer>
                     <int32_t name='entity_id' ref-target='historical_entity'/>
-                    <stl-vector name='types'>
-                        <enum base-type='int32_t'>
-                            0
-                            <enum-item name='Hero'/>
-                            <enum-item name='Buddy'/>
-                            <enum-item name='Grudge'/>
-                            <enum-item name='Bonded'/>
-                            <enum-item name='Violent'/>
-                            <enum-item name='Psychopath'/>
-                            <enum-item name='TradePartner'/>
-                            <enum-item name='Friendly'/>
-                            <enum-item name='Killer'/>
-                            <enum-item name='Murderer'/>
-
-                            10
-                            <enum-item name='Comrade'/>
-                            <enum-item name='RespectedGroup'/>
-                            <enum-item name='HatedGroup'/>
-                            <enum-item name='EnemyFighter'/>
-                            <enum-item name='FriendlyFighter'/>
-                            <enum-item name='Bully'/>
-                            <enum-item name='Brigand'/>
-                            <enum-item name='LoyalSoldier'/>
-                            <enum-item name='Monster'/>
-                            <enum-item name='Storyteller'/>
-
-                            20
-                            <enum-item name='Poet'/>
-                            <enum-item name='Bard'/>
-                            <enum-item name='Dancer'/>
-                            <enum-item name='Quarreler'/>
-                            <enum-item name='Flatterer'/>
-                            <enum-item name='Hunter'/>
-                            <enum-item name='ProtectorOfWeak'/>
-                        </enum>
-                    </stl-vector>
+                    <stl-vector name='types'><enum base-type='int32_t' type-name='reputation_type'/></stl-vector>
                     <stl-vector name='levels' type-name='int32_t' comment='1 to 100: rumored to legendary'/>
                     <int32_t name="discovered_year"/>
                     <int32_t name="discovered_time"/>
@@ -256,6 +280,30 @@
             <int32_t name="cur_identity" ref-target='identity'/>
             <stl-vector name="all_identities" type-name='int32_t' ref-target='identity'/>
             <int32_t name='next_identity_idx'/>
+            <pointer name='unk_2c'>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <stl-vector>
+                    <pointer>
+                        <int32_t/>
+                        <int32_t/>
+                        <int32_t/>
+                        <int32_t/>
+                        <int32_t/>
+                        <int32_t/>
+                    </pointer>
+                </stl-vector>
+                <stl-vector type-name='int32_t'/>
+            </pointer>
         </pointer>
 
         <pointer name='relationships'>
@@ -271,7 +319,31 @@
                     <int32_t name='year_tick'/>
                 </pointer>
             </stl-vector>
+            <stl-vector since='v0.44.01'>
+                <pointer>
+                    <int32_t/>
+                    <stl-vector type-name='int32_t'/>
+                    <stl-vector type-name='int32_t'/>
+                    <stl-vector type-name='int32_t'/>
+                </pointer>
+            </stl-vector>
+            <stl-vector since='v0.44.01'>
+                <pointer>
+                    <int32_t/>
+                    <stl-vector type-name='int32_t'/>
+                    <stl-vector type-name='int32_t'/>
+                </pointer>
+            </stl-vector>
             <stl-vector name='identities' type-name='int32_t' ref-target='cultural_identity'/>
+            <stl-vector since='v0.44.01'>
+                <pointer>
+                    <int32_t/>
+                    <int32_t/>
+                    <int32_t/>
+                    <int32_t/>
+                    <int32_t/>
+                </pointer>
+            </stl-vector>
         </pointer>
     </struct-type>
 
@@ -416,17 +488,14 @@
 
         <pointer name='info' type-name='historical_figure_info'/>
 
-        <compound name='worldgen'>
-            <pointer name="unk_0" type-name="world_site"/>
-            <pointer name="unk_4" type-name="language_name"/>
-            <pointer name="unk_8" type-name="world_underground_region"/>
-            <pointer name="unk_c">
-                <df-array name="unk_0" type-name='uint8_t'/>
-                <df-array name="unk_8" type-name='int16_t'/>
-            </pointer>
-            <int32_t name="unk_10"/>
-        </compound>
-
+        <pointer name="unk_f0" type-name="world_site"/>
+        <pointer name="unk_f4" type-name="language_name"/>
+        <pointer name="unk_f8" type-name="world_underground_region"/>
+        <pointer name="unk_fc">
+            <df-array name="unk_0" type-name='uint8_t'/>
+            <df-array name="unk_8" type-name='int16_t'/>
+        </pointer>
+        <int32_t name="unk_100"/>
         <int32_t name='unk_v4019_1' init-value='-1' since='v0.40.17-19'/>
     </struct-type>
 
@@ -452,7 +521,131 @@
 
         <int32_t name='birth_year' comment='the fake one, that is'/>
         <int32_t name='birth_second'/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int16_t/>
+        <int32_t/>
+        <stl-vector pointer-type='identity_unk_94'/>
+        <stl-vector pointer-type='identity_unk_94'/>
     </struct-type>
+
+    <struct-type type-name='identity_unk_94'>
+        <stl-vector type-name='int32_t'/>
+        <stl-vector type-name='int32_t'/>
+        <int32_t init-value='-1'/>
+        <int32_t init-value='-1'/>
+        <int32_t/>
+        <int32_t comment='uninitialized'/>
+    </struct-type>
+
+    <enum-type type-name='mental_picture_property_type'>
+        <enum-item name='DATE'/>
+        <enum-item name='ACTION'/>
+        <enum-item name='TOOL'/>
+        <enum-item name='EMOTION'/>
+        <enum-item name='COLOR_PATTERN'/>
+        <enum-item name='SHAPE'/>
+        <enum-item name='ADJECTIVE'/>
+        <enum-item name='POSITION'/>
+        <enum-item name='TIME'/>
+    </enum-type>
+
+    <class-type type-name='mental_picture_propertyst'>
+        <int32_t/>
+        <virtual-methods>
+            <vmethod ret-type='mental_picture_property_type' name='getType'/>
+            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
+            <vmethod name='read_file'>
+                <pointer name='file' type-name='file_compressorst'/>
+                <int32_t name='loadversion'/>
+            </vmethod>
+            <vmethod is-destructor='true'/>
+        </virtual-methods>
+    </class-type>
+
+    <class-type type-name='mental_picture_property_datest' inherits-from='mental_picture_propertyst'>
+        <int32_t/>
+        <int32_t/>
+    </class-type>
+
+    <class-type type-name='mental_picture_property_actionst' inherits-from='mental_picture_propertyst'>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+    </class-type>
+
+    <class-type type-name='mental_picture_property_toolst' inherits-from='mental_picture_propertyst'>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+    </class-type>
+
+    <class-type type-name='mental_picture_property_emotionst' inherits-from='mental_picture_propertyst'>
+        <int32_t/>
+        <int32_t/>
+    </class-type>
+
+    <class-type type-name='mental_picture_property_color_patternst' inherits-from='mental_picture_propertyst'>
+        <int32_t/>
+        <int32_t/>
+    </class-type>
+
+    <class-type type-name='mental_picture_property_shapest' inherits-from='mental_picture_propertyst'>
+        <int32_t/>
+        <int32_t/>
+    </class-type>
+
+    <class-type type-name='mental_picture_property_adjectivest' inherits-from='mental_picture_propertyst'>
+        <int32_t/>
+        <int32_t/>
+    </class-type>
+
+    <class-type type-name='mental_picture_property_positionst' inherits-from='mental_picture_propertyst'>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+    </class-type>
+
+    <class-type type-name='mental_picture_property_timest' inherits-from='mental_picture_propertyst'>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+    </class-type>
+
+
+    <enum-type type-name='mental_picture_element_type'>
+        <enum-item name='HF'/>
+        <enum-item name='SITE'/>
+        <enum-item name='REGION'/>
+    </enum-type>
+
+    <class-type type-name='mental_picture_elementst'>
+        <int32_t/>
+        <virtual-methods>
+            <vmethod ret-type='mental_picture_element_type' name='getType'/>
+            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
+            <vmethod name='read_file'>
+                <pointer name='file' type-name='file_compressorst'/>
+                <int32_t name='loadversion'/>
+            </vmethod>
+            <vmethod is-destructor='true'/>
+        </virtual-methods>
+    </class-type>
+
+    <class-type type-name='mental_picture_element_hfst' inherits-from='mental_picture_elementst'>
+        <int32_t/>
+    </class-type>
+
+    <class-type type-name='mental_picture_element_sitest' inherits-from='mental_picture_elementst'>
+        <int32_t/>
+    </class-type>
+
+    <class-type type-name='mental_picture_element_regionst' inherits-from='mental_picture_elementst'>
+        <int32_t/>
+    </class-type>
+
 
     <enum-type type-name='history_event_type'>
         <enum-item name='WAR_ATTACKED_SITE'/>
@@ -568,6 +761,94 @@
         <enum-item name='ENTITY_SEARCHED_SITE'/>
         <enum-item name='HF_FREED'/>
         <enum-item name='HIST_FIGURE_SIMPLE_ACTION'/>
+    </enum-type>
+
+    <enum-type type-name='history_event_reason'>
+        <enum-item name='insurrection'/>
+        <enum-item name='adventure'/>
+        <enum-item name='guide'/>
+        <enum-item name='rescued'/>
+        <enum-item name='sphere_alignment'/>
+        <enum-item name='maintain_balance_in_universe'/>
+        <enum-item name='highlight_boundaries_between_worlds'/>
+        <enum-item name='sow_the_seeds_of_chaos_in_the_world'/>
+        <enum-item name='provide_opportunities_for_courage'/>
+        <enum-item name='bring_death_to_the_world'/>
+
+        <enum-item name='liked_appearance'/>
+        <enum-item name='because_it_was_destined'/>
+        <enum-item name='great_fortresses_built_and_tested'/>
+        <enum-item name='whim'/>
+        <enum-item name='bring_misery_to_the_world'/>
+        <enum-item name='bring_murder_to_the_world'/>
+        <enum-item name='bring_nightmares_into_reality'/>
+        <enum-item name='bring_thralldom_to_the_world'/>
+        <enum-item name='bring_torture_to_the_world'/>
+        <enum-item name='provide_opportunities_for_acts_of_valor'/>
+
+        <enum-item name='bring_war_to_the_world'/>
+        <enum-item name='find_relative'/>
+        <enum-item name='offer_condolences'/>
+        <enum-item name='be_brought_to_safety'/>
+        <enum-item name='help_with_rescue'/>
+        <enum-item name='insufficient_work'/>
+        <enum-item name='work_request'/>
+        <enum-item name='make_weapon'/>
+        <enum-item name='vent_at_boss'/>
+        <enum-item name='cry_on_boss'/>
+
+        <enum-item name='should_have_reached_goal'/>
+        <enum-item name='insufficient_progress_toward_goal'/>
+        <enum-item name='going_wrong_direction'/>
+        <enum-item name='arrived_at_location'/>
+        <enum-item name='entity_no_longer_rules'/>
+        <enum-item name='left_site'/>
+        <enum-item name='reunited_with_loved_one'/>
+        <enum-item name='violent_disagreement'/>
+        <enum-item name='adopted'/>
+        <enum-item name='true_name_invocation'/>
+
+        <enum-item name='arrived_at_person'/>
+        <enum-item name='eradicate_beasts'/>
+        <enum-item name='entertain_people'/>
+        <enum-item name='make_a_living_as_a_warrior'/>
+        <enum-item name='study'/>
+        <enum-item name='flight'/>
+        <enum-item name='scholarship'/>
+        <enum-item name='be_with_master'/>
+        <enum-item name='become_citizen'/>
+        <enum-item name='prefers_working_alone'/>
+
+        <enum-item name='jealousy'/>
+        <enum-item name='glorify_hf'/>
+        <enum-item name='have_not_performed'/>
+        <enum-item name='prevented_from_leaving'/>
+        <enum-item name='curiosity'/>
+        <enum-item name='hire_on_as_mercenary'/>
+        <enum-item name='hire_on_as_performer'/>
+        <enum-item name='hire_on_as_scholar'/>
+        <enum-item name='drink'/>
+        <enum-item name='admire_architecture'/>
+
+        <enum-item name='pray'/>
+        <enum-item name='relax'/>
+        <enum-item name='danger'/>
+        <enum-item name='cannot_find_artifact'/>
+        <enum-item name='failed_mood'/>
+        <enum-item name='lack_of_sleep'/>
+        <enum-item name='trapped_in_cage'/>
+        <enum-item name='great_deal_of_stress'/>
+        <enum-item name='unable_to_leave_location'/>
+        <enum-item name='sanctify_hf'/>
+
+        <enum-item name='artifact_is_heirloom_of_family_hfid'/>
+        <enum-item name='cement_bonds_of_friendship'/>
+        <enum-item name='as_a_symbol_of_everlasting_peace'/>
+        <enum-item name='on_a_pilgrimage'/>
+        <enum-item name='gather_information'/>
+        <enum-item name='seek_sanctuary'/>
+        <enum-item name='part_of_trade_negotiation'/>
+        <enum-item name='artifact_is_symbol_of_entity_position'/>
     </enum-type>
 
     <struct-type type-name='history_event_context'>
@@ -784,6 +1065,8 @@
         <enum-item name='SLAUGHTER'/>
         <enum-item name='VEHICLE'/>
         <enum-item name='FALLING_OBJECT'/>
+        <enum-item name='LEAPT_FROM_HEIGHT'/>
+        <enum-item name='DROWN_ALT2'/>
     </enum-type>
 
     <class-type type-name='history_event_hist_figure_diedst' inherits-from='history_event'>
@@ -894,6 +1177,12 @@
         <int32_t name='unit' ref-target='unit'/>
         <int32_t name='histfig' ref-target='historical_figure'/>
         <int32_t name='site' ref-target='world_site'/>
+        <int32_t/>
+        <int32_t/>
+        <enum base-type='int32_t' name='circumstance' type-name='unit_thought_type'/>
+        <int32_t name='circumstance_id'/>
+        <enum base-type='int32_t' name='reason' type-name='history_event_reason'/>
+        <int32_t name='reason_id'/>
     </class-type>
 
     <class-type type-name='history_event_artifact_createdst' inherits-from='history_event'>
@@ -902,11 +1191,17 @@
         <int32_t name='hfid' ref-target='historical_figure'/>
         <int32_t name='site' ref-target='world_site'/>
         <uint32_t name='flags2' comment='1 = name_only'/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
     </class-type>
 
     <class-type type-name='history_event_artifact_lostst' inherits-from='history_event'>
         <int32_t name='artifact' ref-target='artifact_record'/>
         <int32_t name='site' ref-target='world_site'/>
+        <int32_t/>
+        <int32_t/>
     </class-type>
 
     <class-type type-name='history_event_artifact_foundst' inherits-from='history_event'>
@@ -921,6 +1216,9 @@
         <int32_t name='unit' ref-target='unit'/>
         <int32_t name='histfig' ref-target='historical_figure'/>
         <int32_t name='site' ref-target='world_site'/>
+        <int32_t name='structure' ref-target='abstract_building'/>
+        <int32_t name='region' ref-target='world_region'/>
+        <int32_t name='layer' ref-target='world_underground_region'/>
     </class-type>
 
     <class-type type-name='history_event_artifact_droppedst' inherits-from='history_event'>
@@ -1129,11 +1427,11 @@
             <enum-item name='Wandering'/>
             <enum-item name='Settled'/>
             <enum-item name='Refugee'/>
+            <enum-item/>
+            <enum-item/>
+            <enum-item name='Visiting'/>
         </enum>
-        <enum base-type='int32_t' name='substate' comment='for state == Wandering'>
-            <enum-item name='Wandered' value='-1'/>
-            <enum-item name='Fled' value='45'/>
-        </enum>
+        <enum base-type='int32_t' name='reason' type-name='history_event_reason'/>
         <int32_t name='site' ref-target='world_site'/>
         <int32_t name='region' ref-target='world_region'/>
         <int32_t name='layer' ref-target='world_underground_region'/>
@@ -1254,6 +1552,11 @@
 
         <compound name='region_pos' type-name='coord2d'/>
 
+        <int32_t/>
+        <enum base-type='int32_t' name='circumstance' type-name='unit_thought_type'/>
+        <int32_t name='circumstance_id'/>
+        <enum base-type='int32_t' name='reason' type-name='history_event_reason'/>
+        <int32_t name='reason_id'/>
         <int32_t/>
     </class-type>
 
@@ -1429,6 +1732,7 @@
         <enum name='action' base-type='int32_t'>
             <enum-item name='Profane'/>
             <enum-item name='Disturb'/>
+            <enum-item name='PrayedInside'/>
         </enum>
         <int32_t name='histfig' ref-target='historical_figure'/>
         <int32_t name='site' ref-target='world_site'/>
@@ -1472,6 +1776,7 @@
         <int32_t name='unit' ref-target='unit'/>
         <int32_t name='histfig' ref-target='historical_figure'/>
         <int32_t name='site' ref-target='world_site'/>
+        <int32_t/>
     </class-type>
 
     <class-type type-name='history_event_agreement_formedst' inherits-from='history_event'>
@@ -1495,55 +1800,10 @@
         <int32_t name='site_2' ref-target='world_site'/>
     </class-type>
 
-    <enum-type type-name='agreement_conclusion_reason'>
-        <enum-item name='None'/>
-        <enum-item/>
-        <enum-item/>
-        <enum-item/>
-        <enum-item/>
-        <enum-item name='PonderMisery'/>
-        <enum-item name='MaintainBalance'/>
-        <enum-item name='CreateMonumentToBoundaries'/>
-        <enum-item name='SowChaos'/>
-        <enum-item name='ProvideOpportunityForCourage'/>
-        <enum-item name='MoreDeath'/>
-        <enum-item name='AllGazeUponGruesomeVisage'/>
-        <enum-item name='TestFortressesInSiege'/>
-        <enum-item name='Whim'/>
-        <enum-item name='BatheInMisery'/>
-        <enum-item name='MoreMurder'/>
-        <enum-item name='MakeNightmaresReal'/>
-        <enum-item name='MakeEveryoneThralls'/>
-        <enum-item name='PerpetrateTorture'/>
-        <enum-item name='ProvideOpportunityForValor'/>
-        <enum-item name='EternalWar'/>
-        <enum-item/>
-        <enum-item/>
-        <enum-item/>
-        <enum-item/>
-        <enum-item/>
-        <enum-item/>
-        <enum-item/>
-        <enum-item/>
-        <enum-item/>
-        <enum-item/>
-        <enum-item name='ShouldHaveReachedGoal'/>
-        <enum-item name='InsufficientProgressTowardGoal'/>
-        <enum-item name='GoingWrongDirection'/>
-        <enum-item name='ArrivedAtLocation'/>
-        <enum-item name='EntityNoLongerRules'/>
-        <enum-item name='LeftSite'/>
-        <enum-item name='ReunitedWithLovedOne'/>
-        <enum-item name='ViolentDisagreement'/>
-        <enum-item name='Adopted'/>
-        <enum-item/>
-        <enum-item name='ArrivedAtPerson'/>
-    </enum-type>
-
     <class-type type-name='history_event_agreement_concludedst' inherits-from='history_event'>
         <int32_t name='agreement_id'/>
         <int32_t name='subject_id'/>
-        <enum name='reason' type-name='agreement_conclusion_reason' base-type='int32_t'/>
+        <enum base-type='int32_t' name='reason' type-name='history_event_reason'/>
         <int32_t name='concluder_hf' ref-target='historical_figure'/>
     </class-type>
 
@@ -1656,9 +1916,9 @@
         <int32_t name='site' ref-target='world_site'/>
         <int32_t name='region' ref-target='world_region'/>
         <int32_t name='layer' ref-target='world_underground_region'/>
-        <int32_t name='circumstance'/>
+        <enum base-type='int32_t' name='circumstance' type-name='unit_thought_type'/>
         <int32_t name='circumstance_id'/>
-        <int32_t name='reason'/>
+        <enum base-type='int32_t' name='reason' type-name='history_event_reason'/>
         <int32_t name='reason_id'/>
     </class-type>
 
@@ -1668,9 +1928,9 @@
         <int32_t name='site' ref-target='world_site'/>
         <int32_t name='region' ref-target='world_region'/>
         <int32_t name='layer' ref-target='world_underground_region'/>
-        <int32_t name='circumstance'/>
+        <enum base-type='int32_t' name='circumstance' type-name='unit_thought_type'/>
         <int32_t name='circumstance_id'/>
-        <int32_t name='reason'/>
+        <enum base-type='int32_t' name='reason' type-name='history_event_reason'/>
         <int32_t name='reason_id'/>
     </class-type>
 
@@ -1680,9 +1940,9 @@
         <int32_t name='site' ref-target='world_site'/>
         <int32_t name='region' ref-target='world_region'/>
         <int32_t name='layer' ref-target='world_underground_region'/>
-        <int32_t name='circumstance'/>
+        <enum base-type='int32_t' name='circumstance' type-name='unit_thought_type'/>
         <int32_t name='circumstance_id'/>
-        <int32_t name='reason'/>
+        <enum base-type='int32_t' name='reason' type-name='history_event_reason'/>
         <int32_t name='reason_id'/>
     </class-type>
 
@@ -1692,10 +1952,132 @@
         <int32_t name='site' ref-target='world_site'/>
         <int32_t name='region' ref-target='world_region'/>
         <int32_t name='layer' ref-target='world_underground_region'/>
-        <int32_t name='circumstance'/>
+        <enum base-type='int32_t' name='circumstance' type-name='unit_thought_type'/>
         <int32_t name='circumstance_id'/>
-        <int32_t name='reason'/>
+        <enum base-type='int32_t' name='reason' type-name='history_event_reason'/>
         <int32_t name='reason_id'/>
+    </class-type>
+
+    <class-type type-name='history_event_change_hf_moodst' inherits-from='history_event'>
+        <int32_t name='histfig' ref-target='historical_figure'/>
+        <enum base-type='int16_t' name='mood' type-name='mood_type'/>
+        <enum base-type='int32_t' name='reason' type-name='history_event_reason'/>
+        <int32_t name='site' ref-target='world_site'/>
+        <int32_t name='region' ref-target='world_region'/>
+        <int32_t name='layer' ref-target='world_underground_region'/>
+        <compound name='region_pos' type-name='coord2d'/>
+    </class-type>
+
+    <class-type type-name='history_event_artifact_claim_formedst' inherits-from='history_event'>
+        <int32_t name='artifact' ref-target='artifact_record'/>
+        <int32_t name='histfig' ref-target='historical_figure'/>
+        <int32_t name='entity' ref-target='historical_entity'/>
+        <int32_t name='position_profile'/>
+        <enum name='claim_type' base-type='int32_t'>
+            <enum-item name='Symbol'/>
+            <enum-item name='Heirloom'/>
+            <enum-item name='Treasure'/>
+            <enum-item name='HolyRelic'/>
+        </enum>
+        <enum base-type='int32_t' name='circumstance' type-name='unit_thought_type'/>
+        <int32_t name='circumstance_id'/>
+        <enum base-type='int32_t' name='reason' type-name='history_event_reason'/>
+        <int32_t name='reason_id'/>
+    </class-type>
+
+    <class-type type-name='history_event_artifact_givenst' inherits-from='history_event'> ?????????????
+        <int32_t name='artifact' ref-target='artifact_record'/>
+        <int32_t name='giver_hf' ref-target='historical_figure'/>
+        <int32_t name='giver_entity' ref-target='historical_entity'/>
+        <int32_t name='receiver_hf' ref-target='historical_figure'/>
+        <int32_t name='receiver_entity' ref-target='historical_entity'/>
+        <enum base-type='int32_t' name='circumstance' type-name='unit_thought_type'/>
+        <int32_t name='circumstance_id'/>
+        <enum base-type='int32_t' name='reason' type-name='history_event_reason'/>
+        <int32_t name='reason_id'/>
+    </class-type>
+
+    <class-type type-name='history_event_hf_act_on_artifactst' inherits-from='history_event'>
+        <enum name='action' base-type='int32_t'>
+            <enum-item name='View'/>
+            <enum-item name='AskAbout'/>
+        </enum>
+        <int32_t name='artifact' ref-target='artifact_record'/>
+        <int32_t name='histfig' ref-target='historical_figure'/>
+        <int32_t name='site' ref-target='world_site'/>
+        <int32_t name='structure' ref-target='abstract_building'/>
+    </class-type>
+
+    <class-type type-name='history_event_hf_recruited_unit_type_for_entityst' inherits-from='history_event'>
+        <int32_t name='entity' ref-target='historical_entity'/>
+        <int32_t name='histfig' ref-target='historical_figure'/>
+        <enum base-type='int16_t' name='profession' type-name='profession'/>
+        <int32_t name='site' ref-target='world_site'/>
+        <int32_t name='region' ref-target='world_region'/>
+        <int32_t name='layer' ref-target='world_underground_region'/>
+    </class-type>
+
+    <class-type type-name='history_event_hfs_formed_reputation_relationshipst' inherits-from='history_event'>
+        <int32_t name='histfig1' ref-target='historical_figure'/>
+        <int32_t name='identity1' ref-target='identity'/>
+        <int32_t name='histfig2' ref-target='historical_figure'/>
+        <int32_t name='identity2' ref-target='identity'/>
+        <enum base-type='int32_t' name='rep1' type-name='reputation_type'/>
+        <enum base-type='int32_t' name='rep2' type-name='reputation_type'/>
+        <int32_t name='site' ref-target='world_site'/>
+        <int32_t name='region' ref-target='world_region'/>
+        <int32_t name='layer' ref-target='world_underground_region'/>
+    </class-type>
+
+    <class-type type-name='history_event_artifact_copiedst' inherits-from='history_event'>
+        <int32_t name='artifact' ref-target='artifact_record'/>
+        <int32_t name='entity_dest' ref-target='historical_entity'/>
+        <int32_t name='entity_src' ref-target='historical_entity'/>
+        <int32_t name='site_dest' ref-target='world_site'/>
+        <int32_t name='site_src' ref-target='world_site'/>
+        <int32_t name='structure_dest' ref-target='abstract_building'/>
+        <int32_t name='structure_src' ref-target='abstract_building'/>
+        <bitfield name='flags' base-type='uint32_t'>
+            <flag-bit name='from_original'/>
+        </bitfield>
+    </class-type>
+
+    <class-type type-name='history_event_sneak_into_sitest' inherits-from='history_event'>
+        <int32_t name='attacker_civ' ref-target='historical_entity'/>
+        <int32_t name='defender_civ' ref-target='historical_entity'/>
+        <int32_t name='site_civ' ref-target='historical_entity'/>
+        <int32_t name='site' ref-target='world_site'/>
+    </class-type>
+
+    <class-type type-name='history_event_spotted_leaving_sitest' inherits-from='history_event'>
+        <int32_t name='spotter_hf' ref-target='historical_figure'/>
+        <int32_t name='leaver_civ' ref-target='historical_entity'/>
+        <int32_t name='site_civ' ref-target='historical_entity'/>
+        <int32_t name='site' ref-target='world_site'/>
+    </class-type>
+
+    <class-type type-name='history_event_entity_searched_sitest' inherits-from='history_event'>
+        <int32_t name='searcher_civ' ref-target='historical_entity'/>
+        <int32_t name='site' ref-target='world_site'/>
+        <int32_t name='result' comment='0 = found nothing'/>
+    </class-type>
+
+    <class-type type-name='history_event_hf_freedst' inherits-from='history_event'>
+        <int32_t name='freeing_civ' ref-target='historical_entity'/>
+        <int32_t name='freeing_hf' ref-target='historical_figure'/>
+        <int32_t name='holding_civ' ref-target='historical_entity'/>
+        <int32_t name='site_civ' ref-target='historical_entity'/>
+        <int32_t name='site' ref-target='world_site'/>
+        <stl-vector name='rescued_hfs' type-name='int32_t' ref-target='historical_figure'/>
+    </class-type>
+
+    <class-type type-name='history_event_hist_figure_simple_actionst' inherits-from='history_event'>
+        <stl-vector name='group_hfs' type-name='int32_t' ref-target='historical_figure'/>
+        <int32_t name='type' comment='0 = hf carouse'/>
+        <int32_t name='site' ref-target='world_site'/>
+        <int32_t name='structure' ref-target='abstract_building'/>
+        <int32_t name='region' ref-target='world_region'/>
+        <int32_t name='layer' ref-target='world_underground_region'/>
     </class-type>
 
     <enum-type type-name='history_event_collection_type'>
@@ -1935,21 +2317,21 @@
     </class-type>
 
     <class-type type-name='history_event_collection_purgest' inherits-from='history_event_collection' comment='0.42.04'>
-        <int32_t/>
-        <stl-vector/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
+        <int32_t name='site' ref-target='world_site'/>
+        <stl-string name='adjective'/>
+        <int32_t name='ordinal'/>
+    </class-type>
+
+    <class-type type-name='history_event_collection_raidst' inherits-from='history_event_collection' comment='0.42.04'>
+        <int32_t name='parent_collection' ref-target='history_event_collection'/>
+        <int32_t name='region' ref-target='world_region'/>
+        <int32_t name='layer' ref-target='world_underground_region'/>
+        <int32_t name='site' ref-target='world_site'/>
+        <compound name='region_pos' type-name='coord2d'/>
+        <int32_t name='attacker_civ' ref-target='historical_entity'/>
+        <int32_t name='defender_civ' ref-target='historical_entity'/>
+        <stl-vector type-name='int32_t'/>
+        <int32_t name='ordinal'/>
     </class-type>
 
     <enum-type type-name='era_type' base-type='int16_t'>

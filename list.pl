@@ -10,6 +10,12 @@ my $output_dir = $ARGV[1] || 'codegen';
 my $separator = $ARGV[2] || "\n";
 
 print "$output_dir/static.inc";
+for my $file (qw(ctors enums fields)) {
+    print "$separator$output_dir/static.$file.inc";
+}
+for my $letter ('a' .. 'z') {
+    print "$separator$output_dir/static.fields-$letter.inc";
+}
 
 for my $filename (glob "$input_dir/*.xml") {
     my $parser = XML::LibXML->new();

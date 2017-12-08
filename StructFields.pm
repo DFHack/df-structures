@@ -614,4 +614,11 @@ sub emit_struct_fields($$;%) {
     } 'fields-' . $fields_group;
 }
 
+for my $letter ('a' .. 'z') {
+    with_emit_static {
+        # make sure even empty files get overwritten
+        emit "";
+    } 'fields-' . $letter;
+}
+
 1;
