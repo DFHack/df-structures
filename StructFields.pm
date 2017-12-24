@@ -502,7 +502,7 @@ sub render_field_metadata($$\@\%) {
         for my $entry (@{$info->{statics}||[]}) {
             if (ref($entry) eq 'HASH') {
                 # 'exposed name' => 'function'
-                while (my ($name, $func) = each $entry) {
+                while (my ($name, $func) = each %{$entry}) {
                     push @field_defs, [ "METHOD_N(CLASS_METHOD, $func, $name)", 0, 0 ];
                 }
             }
