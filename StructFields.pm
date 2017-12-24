@@ -499,8 +499,16 @@ sub render_field_metadata($$\@\%) {
             my $name = $mtag->getAttribute('name');
             push @field_defs, [ "METHOD(OBJ_METHOD, $name)", 0, 0 ] if $name;
         }
-        for my $name (@{$info->{statics}||[]}) {
-            push @field_defs, [ "METHOD(CLASS_METHOD, $name)", 0, 0 ];
+        for my $entry (@{$info->{statics}||[]}) {
+            if (ref($entry) eq 'HASH') {
+                # 'exposed name' => 'function'
+                while (my ($name, $func) = each $entry) {
+                    push @field_defs, [ "METHOD_N(CLASS_METHOD, $func, $name)", 0, 0 ];
+                }
+            }
+            else {
+                push @field_defs, [ "METHOD(CLASS_METHOD, $entry)", 0, 0 ];
+            }
         }
     } $full_name;
 }

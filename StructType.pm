@@ -67,12 +67,18 @@ sub emit_find_instance(\%$) {
     my $instance_vector = translate_lookup $tag->getAttribute('instance-vector');
     if ($instance_vector) {
         emit "static $vectype &get_vector();";
+        # needed for Lua API
+        emit "static $vectype *get_vector_ptr();";
         emit "static $typename *find($keytype id);";
 
         with_emit_static {
             emit_block {
                 emit "return ", $instance_vector, ";";
-            } "std::vector<$typename*>& ${typename}::get_vector() ";
+            } "$vectype& ${typename}::get_vector() ";
+
+            emit_block {
+                emit "return &get_vector();";
+            } "$vectype* ${typename}::get_vector_ptr() ";
 
             emit_block {
                 emit "std::vector<$typename*> &vec_ = get_vector();";
@@ -85,6 +91,7 @@ sub emit_find_instance(\%$) {
             } "$typename *${typename}::find($keytype id_) ";
         };
 
+        push @{$rinfo->{statics}}, {'get_vector' => 'get_vector_ptr'};
         push @{$rinfo->{statics}}, 'find';
     }
 }
