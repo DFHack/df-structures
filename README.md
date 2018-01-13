@@ -1,4 +1,4 @@
-#DF-structures
+# DF-structures
 
 DF-structures is the core information on which
 [DFHack](https://github.com/DFHack/dfhack) depends.
