@@ -76,8 +76,8 @@
             <static-array count='200' type-name='int32_t'/>
         </static-array>
 
-        <padding name='supermoviebuffer' size='800000'/>
-        <padding name='supermoviebuffer_comp' size='1000000'/>
+        <static-array name='supermoviebuffer' count='800000' type-name='uint8_t'/>
+        <static-array name='supermoviebuffer_comp' count='1000000' type-name='uint8_t'/>
 
         <int32_t name='currentblocksize'/>
         <int32_t name='nextfilepos'/>
@@ -161,11 +161,11 @@
     </class-type>
 
     <struct-type type-name='widget_menu'>
-        <padding size='24' comment='lines'/>
+        <padding size='24' comment='lines, std::map'/>
         <int32_t name='selection'/>
         <int32_t name='last_displayheight'/>
         <bool name='bleached'/>
-        <padding size='24' comment='colors'/>
+        <padding size='24' comment='colors, std::map'/>
     </struct-type>
 
     <struct-type type-name='widget_textbox'>
@@ -1855,6 +1855,49 @@
         <enum-item name='Superior'/>
     </enum-type>
 
+    <struct-type type-name='setup_character_info'>
+        <compound type-name='language_name' name='name'/>
+        <int16_t name='race' ref-target='creature_raw'/>
+        <int16_t name='caste' ref-target='caste_raw' aux-value='$$.race'/>
+        <static-array name='skills' count='135' index-enum='job_skill'>
+            <enum type-name='skill_rating'/>
+        </static-array>
+        <int32_t name='entity' ref-target='historical_entity'/>
+        <int32_t name='histfig' refers-to='$global.world.nemesis.all[$]'/>
+        <int32_t name='unk_284'/>
+        <int32_t name='cultural_identity' ref-target='cultural_identity'/>
+        <int16_t name='unk_28c'/>
+        <int32_t name='unk_290'/>?
+        <int32_t name='unk_294'/>?
+        <int16_t name='unk_298'/>
+
+        <static-array count='6' name='physical_levels' index-enum='physical_attribute_type'>
+            <enum type-name='adventurer_attribute_level'/>
+        </static-array>
+        <static-array count='13' name='mental_levels' index-enum='mental_attribute_type'>
+            <enum type-name='adventurer_attribute_level'/>
+        </static-array>
+        <enum base-type='int16_t' name='status'>
+            <enum-item name='Peasant'/>
+            <enum-item name='Hero'/>
+            <enum-item name='Demigod'/>
+        </enum>
+
+        <int32_t name='commander_id' init-value='-1' since='v0.40.01' refers-to='$(find-entity $(find-instance $world_site $$._parent.site_id).cur_owner_id).positions.assignments[$]' comment='-1 is peasant'/>
+        <int32_t name='site_id' ref-target='world_site' since='v0.40.01'/>
+        <int32_t name='deity_id' ref-target='historical_figure' since='v0.40.01'/>
+        <int32_t name='belief_strength' since='v0.40.01'/>
+
+        <compound name='appearance' type-name='unit_appearance'/>
+        <int32_t name='birth_year'/>
+        <int32_t name='birth_tick'/>
+        <int32_t name='old_year' comment='-1 for immortals'/>
+        <int32_t name='old_tick' comment='-1 for immortals'/>
+
+        <compound name='personality' type-name='unit_personality'/>
+        <int8_t name='unk_26_k'/>
+    </struct-type>
+
     <class-type type-name='viewscreen_setupadventurest' inherits-from='viewscreen'>
         <enum name='page' base-type='int32_t'>
             <enum-item name='ChooseRace'/>
@@ -1868,91 +1911,7 @@
             <enum-item name='Background'/>
         </enum>
         <stl-vector name='unk_vec1' since='v0.42.01'/>
-        <compound name='adventurer'>
-            <compound type-name='language_name' name='name'/>
-            <int16_t name='race' ref-target='creature_raw'/>
-            <int16_t name='caste' ref-target='caste_raw' aux-value='$$.race'/>
-            <static-array name='skills' count='135' index-enum='job_skill'>
-                <enum type-name='skill_rating'/>
-            </static-array>
-            <int32_t name='entity' ref-target='historical_entity'/>
-            <int32_t name='histfig' refers-to='$global.world.nemesis.all[$]'/>
-            <int32_t name='unk_284'/>
-            <int32_t name='cultural_identity' ref-target='cultural_identity'/>
-            <int16_t name='unk_28c'/>
-            <int32_t name='unk_290'/>?
-            <int32_t name='unk_294'/>?
-            <int16_t name='unk_298'/>
-
-            <static-array count='6' name='physical_levels' index-enum='physical_attribute_type'>
-                <enum type-name='adventurer_attribute_level'/>
-            </static-array>
-            <static-array count='13' name='mental_levels' index-enum='mental_attribute_type'>
-                <enum type-name='adventurer_attribute_level'/>
-            </static-array>
-            <enum base-type='int16_t' name='status'>
-                <enum-item name='Peasant'/>
-                <enum-item name='Hero'/>
-                <enum-item name='Demigod'/>
-            </enum>
-
-            <int32_t name='commander_id' init-value='-1' since='v0.40.01' refers-to='$(find-entity $(find-instance $world_site $$._parent.site_id).cur_owner_id).positions.assignments[$]' comment='-1 is peasant'/>
-            <int32_t name='site_id' ref-target='world_site' since='v0.40.01'/>
-            <int32_t name='deity_id' ref-target='historical_figure' since='v0.40.01'/>
-            <int32_t name='belief_strength' since='v0.40.01'/>
-
-            <compound name='appearance'>
-                <int32_t name='unk_1'/>
-                <int16_t name='caste_index' refers-to='$global.world.raws.creatures.list_creature[$]' comment='also refers to $global.world.raws.creatures.list_caste[$]'/>
-                <int16_t name='unk_3'/>
-                <int32_t name='unk_4'/>
-                <static-array name='physical_attributes' count='6' type-name='unit_attribute' index-enum='physical_attribute_type'/>
-                <int32_t name='unk_6'/>
-                below vectors populated on PhysicalTraits page; lengths depend on caste
-                <stl-vector name='body_modifiers' type-name='int32_t' index-refers-to='(find-creature $$._parent.race).caste[$$._parent.caste].body_appearance_modifiers[$]'/>
-                <stl-vector name='bp_modifiers' type-name='int32_t' index-refers-to='(find-creature $$._parent.race).caste[$$._parent.caste].bp_appearance.modifiers[$]'/>
-                <int32_t name='unk_9'/>
-                <stl-vector name='tissue_style' type-name='int32_t'/>
-                <stl-vector name='tissue_style_civ_id' type-name='int32_t'/>
-                <stl-vector name='tissue_style_id' type-name='int32_t'/>
-                <stl-vector name='tissue_style_type' type-name='int32_t'/>
-                <stl-vector name='tissue_length' type-name='int32_t'/>
-
-                <pointer name='unk_15_a'/>
-                <int16_t name='appearance_gene_count'/>
-                <pointer name='unk_15_b'/>
-                <int16_t name='color_gene_count'/>
-
-                <stl-vector name='color_modifiers' type-name='int32_t' index-refers-to='(find-creature $$._parent.race).caste[$$._parent.caste].color_modifiers[$]'/>
-            </compound>
-            <int32_t name='unk_17'/>?
-            <int32_t name='unk_18'/>?
-            <int32_t name='birth_year'/>
-            <int32_t name='birth_tick'/>
-            <int32_t name='old_year' comment='-1 for immortals'/>
-            <int32_t name='old_tick' comment='-1 for immortals'/>
-
-            <compound name='unk_468'>
-                <stl-vector name='unk_23_a'/>
-                <stl-vector name='unk_23_b'/>
-                <stl-vector name='unk_23_c'/>
-                <stl-vector name='unk_23_d'/>
-                <int32_t name='unk_23_e'/>
-                <stl-vector name='unk_23_f'/>
-
-                <static-array name='unk_26_a' type-name='int16_t' count='50'/> 50 * 50
-                <static-array name='unk_26_b' type-name='int32_t' count='2'/> -1 * 2
-                <stl-vector name='unk_26_c'/>
-                <stl-vector name='unk_26_d'/>
-                <static-array name='unk_26_e' type-name='int32_t' count='5'/>
-                <stl-vector name='needs'/>
-                <int32_t name='unk_26_g'/>
-                <pointer name='unk_26_h'/>
-                <static-array name='unk_26_i' type-name='int32_t' count='2'/> -1 * 2
-            </compound>
-            <static-array name='unk_26_j' type-name='int32_t' count='2'/> uninitialized? * 2
-            <int8_t name='unk_26_k'/>
-        </compound>
+        <compound type-name='setup_character_info' name='adventurer'/>
 
         <stl-vector name='race_ids' type-name='int32_t' ref-target='creature_raw'/>
         <stl-vector name='highlighted_entity_ids' type-name='int32_t' ref-target='historical_entity'/>
@@ -2055,28 +2014,7 @@
 
     <class-type type-name='viewscreen_setupdwarfgamest' inherits-from='viewscreen'>
         <static-string size='256' name='title'/>
-        <stl-vector name='dwarf_info'>
-            <pointer>
-                <compound name='name' type-name='language_name'/>
-                <padding name="unk_6c" size="4"/>
-                <static-array name="skills" count="135" type-name='int32_t' index-enum='job_skill'/>
-                <int32_t name="unk_244"/>
-                <int16_t name="unk_248"/>
-                <padding name="unk_24a" size="2"/>
-                <padding name="unk_24c" size="8"/>
-                <int16_t name="levels_remaining"/>
-                <padding name="unk_256" size="2"/>
-                <static-array name="unk_258" count="19" comment="Value is 0x0">
-                <int32_t/>
-                </static-array>
-                <int16_t name="unk_2a4"/>
-                <padding name="unk_2a6" size="2"/>
-                <int32_t name="unk_2a8"/>
-                <int32_t name="unk_2ac"/>
-                <int32_t name="unk_2b0"/>
-                <padding name="unk_2b4" size="4"/>
-            </pointer>
-        </stl-vector>
+        <stl-vector name='dwarf_info' pointer-type='setup_character_info'/>
         <stl-vector name='embark_skills'>
             <enum base-type='int16_t' type-name='job_skill'/>
         </stl-vector>
@@ -2094,6 +2032,7 @@
         <int32_t name='supply_column'/>
         <int32_t name='display_row'/>
         <int8_t name='show_play_now'/>
+        <int8_t name='embark_prompt'/>
         <stl-vector name='choice_types'>
             <enum base-type='int8_t' name='choice_types'>
                 <enum-item name='PlayNow'/>
