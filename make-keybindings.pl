@@ -22,6 +22,7 @@ while(<>) {
         if (/^\s+([A-Z_0-9]+)=$startname,\s*$/) {
             $name = $1;
         } else {
+            $startname =~ s/^INTERFACEKEY_//;
             print "        <enum-item name='$startname'/>\n";
             redo;
         }
