@@ -490,6 +490,11 @@ sub emit_comment($;%) {
         } else {
             $val ||= $attr;
         }
+
+        my $since = $tag->getAttribute('since');
+        if ($since) {
+            $val .= "\nSince " . $since;
+        }
     }
 
     if ($val) {
