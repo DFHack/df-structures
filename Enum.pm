@@ -280,7 +280,7 @@ sub render_enum_type {
         emit_block {
             my ($base,$count) = render_enum_core($typename,$tag);
 
-            unless (defined $base) {
+            unless (defined $base or index($typename, "dfhack_") == 0) {
                 print STDERR "Warning: complex enum: $typename\n";
             }
         } "namespace $typename ";
