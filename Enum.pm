@@ -145,9 +145,6 @@ sub render_enum_tables($$$$$) {
                 emit "return (value >= first_item_value && ",
                              "value <= last_item_value);";
             } "static inline bool is_valid(base_type value) ";
-            emit_block {
-                emit "return enum_type(value + 1);";
-            } "static inline enum_type next_item(base_type value) ";
             emit "static const enum_type first_item = (enum_type)first_item_value;";
             emit "static const enum_type last_item = (enum_type)last_item_value;";
             emit "static const char *const key_table[", $count, "];";
@@ -202,6 +199,7 @@ sub render_enum_tables($$$$$) {
                     emit $value . ',';
                 }
             } "const DFHack::enum_identity::ComplexData enum_${traits_name}::complex = ", ";";
+            $complex_ptr = "&enum_${traits_name}::complex";
         }
 
         # Emit attrs
