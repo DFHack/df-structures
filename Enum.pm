@@ -19,13 +19,14 @@ use XML::LibXML;
 
 use Common;
 
-sub render_enum_tables($$$$);
+sub render_enum_tables($$$$$);
 
 sub render_enum_core($$) {
     my ($name,$tag) = @_;
 
     my $base = 0;
     my $count = 0;
+    my $complex = 0;
 
     my $base_type = get_primitive_base($tag, 'int32_t');
 
@@ -38,7 +39,13 @@ sub render_enum_core($$) {
             my $name = ensure_name $item->getAttribute('name');
             my $value = $item->getAttribute('value');
 
-            $base = ($count == 0) ? $value : undef if defined $value;
+            if (defined $value) {
+                if ($count == 0) {
+                    $base = $value;
+                } else {
+                    $complex = 1;
+                }
+            }
             $count++;
 
             emit_comment $item, -attr => 1;
@@ -48,15 +55,15 @@ sub render_enum_core($$) {
         $lines[-1] =~ s/,$//;
     } "enum $name : $base_type ", ";";
 
-    render_enum_tables $name, $tag, $base, $count;
+    render_enum_tables $name, $tag, $base, $count, $complex;
 
-    return ($base, $count);
+    return ($base, $count, $complex);
 }
 
 my $list_entry_id = 0;
 
-sub render_enum_tables($$$$) {
-    my ($name,$tag,$base,$count) = @_;
+sub render_enum_tables($$$$$) {
+    my ($name,$tag,$base,$count,$complex) = @_;
 
     my $is_global = $tag->nodeName eq 'ld:global-type';
     my $base_type = get_primitive_base($tag, 'int32_t');
@@ -70,16 +77,6 @@ sub render_enum_tables($$$$) {
             emit "static enum_identity *get() { return &identity; }";
         } "template<> struct ${export_prefix}identity_$traits_name ", ";";
     };
-
-    unless (defined $base) {
-        with_emit_static {
-            emit "enum_identity identity_${traits_name}::identity(",
-                    "sizeof($full_name), ",
-                    type_identity_reference($tag,-parent => 1), ', ',
-                    "\"$name\", TID($base_type), 0, -1, NULL, NULL, NULL);";
-        } 'enums';
-        return;
-    }
 
     # Enumerate enum attributes
 
@@ -138,6 +135,7 @@ sub render_enum_tables($$$$) {
 
     with_emit_traits {
         emit_block {
+            emit "static const bool is_complex = " . ($complex ? 'true' : 'false') . ";";
             emit "typedef $base_type base_type;";
             emit "typedef $full_name enum_type;";
             emit "static const base_type first_item_value = $base;";
@@ -147,9 +145,15 @@ sub render_enum_tables($$$$) {
                 emit "return (value >= first_item_value && ",
                              "value <= last_item_value);";
             } "static inline bool is_valid(base_type value) ";
+            emit_block {
+                emit "return enum_type(value + 1);";
+            } "static inline enum_type next_item(base_type value) ";
             emit "static const enum_type first_item = (enum_type)first_item_value;";
             emit "static const enum_type last_item = (enum_type)last_item_value;";
             emit "static const char *const key_table[", $count, "];";
+            if ($complex) {
+                emit "static const DFHack::enum_identity::ComplexData complex;";
+            }
             if (@anames) {
                 emit_block {
                     for (my $i = 0; $i < @anames; $i++) {
@@ -178,6 +182,27 @@ sub render_enum_tables($$$$) {
             }
             $lines[-1] =~ s/,$//;
         } "const char *const enum_${traits_name}::key_table[${count}] = ", ";";
+
+        # Emit complex data
+
+        my $complex_ptr = 'NULL';
+        if ($complex) {
+            my @items = $tag->findnodes('child::enum-item');
+            my $last_value = -1;
+
+            emit_block {
+                for my $item (@items) {
+                    my $value = $item->getAttribute('value');
+
+                    unless (defined $value) {
+                        $value = $last_value + 1;
+                    }
+                    $last_value = $value;
+
+                    emit $value . ',';
+                }
+            } "const DFHack::enum_identity::ComplexData enum_${traits_name}::complex = ", ";";
+        }
 
         # Emit attrs
 
@@ -269,6 +294,7 @@ sub render_enum_tables($$$$) {
                 type_identity_reference($tag,-parent => 1), ', ',
                 "\"$name\", TID($base_type), $base, ",
                 ($base+$count-1), ", enum_${traits_name}::key_table,
+                $complex_ptr,
                 $atable_ptr, $atable_meta);";
     } 'enums';
 }
@@ -278,11 +304,7 @@ sub render_enum_type {
 
     emit_block {
         emit_block {
-            my ($base,$count) = render_enum_core($typename,$tag);
-
-            unless (defined $base or index($typename, "dfhack_") == 0) {
-                print STDERR "Warning: complex enum: $typename\n";
-            }
+            render_enum_core($typename, $tag);
         } "namespace $typename ";
     } "namespace enums ";
 
