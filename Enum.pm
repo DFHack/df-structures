@@ -19,10 +19,10 @@ use XML::LibXML;
 
 use Common;
 
-sub render_enum_tables($$$$$);
+sub render_enum_tables($$$$$$);
 
 sub render_enum_core($$) {
-    my ($name,$tag) = @_;
+    my ($ename,$tag) = @_;
 
     my $base = 0;
     my $count = 0;
@@ -32,38 +32,51 @@ sub render_enum_core($$) {
 
     emit_comment $tag, -attr => 1;
 
+    my $last_value = -1;
     emit_block {
         my @items = $tag->findnodes('child::enum-item');
+        my $real_value = 0;
 
         for my $item (@items) {
             my $name = ensure_name $item->getAttribute('name');
             my $value = $item->getAttribute('value');
 
             if (defined $value) {
+                $real_value = $value;
                 if ($count == 0) {
                     $base = $value;
                 } else {
                     $complex = 1;
                 }
             }
+            else {
+                $real_value = $last_value + 1;
+            }
+            if ($count > 0 && $real_value < $last_value) {
+                die("illegal enum value in $ename: $name = $value < $last_value\n");
+            }
             $count++;
+            $last_value = $real_value;
 
             emit_comment $item, -attr => 1;
             emit $name, (defined($value) ? ' = '.$value : ''), ',';
         }
 
         $lines[-1] =~ s/,$//;
-    } "enum $name : $base_type ", ";";
+    } "enum $ename : $base_type ", ";";
 
-    render_enum_tables $name, $tag, $base, $count, $complex;
+    render_enum_tables $ename, $tag, $base, $count, $complex, $last_value;
 
     return ($base, $count, $complex);
 }
 
 my $list_entry_id = 0;
 
-sub render_enum_tables($$$$$) {
-    my ($name,$tag,$base,$count,$complex) = @_;
+sub render_enum_tables($$$$$$) {
+    my ($name,$tag,$base,$count,$complex,$last_value) = @_;
+    if (!$complex && $base+$count-1 != $last_value) {
+        die("in enum $name: unexpected last value: expected " . ($base+$count-1) . ", got $last_value\n");
+    }
 
     my $is_global = $tag->nodeName eq 'ld:global-type';
     my $base_type = get_primitive_base($tag, 'int32_t');
@@ -139,7 +152,7 @@ sub render_enum_tables($$$$$) {
             emit "typedef $base_type base_type;";
             emit "typedef $full_name enum_type;";
             emit "static const base_type first_item_value = $base;";
-            emit "static const base_type last_item_value = ", ($base+$count-1), ";";
+            emit "static const base_type last_item_value = $last_value;";
             # Cast the enum to integer in order to avoid GCC <= 4.5 assuming the value range is correct.
             emit_block {
                 emit "return (value >= first_item_value && ",
