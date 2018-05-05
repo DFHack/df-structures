@@ -89,9 +89,6 @@ Every enum has an integer base type, which defaults to *int32_t* if omitted.
 Like in C++, enum items may either explicitly specify an integer value, or
 rely on auto-increment behavior.
 
-**NOTE:** Due to a codegen limitation, specifying value on any item other
-than the first one prevents using the attribute feature described below.
-
 As in most cases, the *name* attribute may be omitted if unknown; the code
 generator would produce a random identifier to satisfy C++ language requirements.
 
