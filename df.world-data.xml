@@ -931,6 +931,23 @@
                 <pointer name='unk_8' type-name='int16_t' is-array='true'/>
                 <pointer name='unk_c' type-name='int32_t' is-array='true'/>
             </pointer>
+            <comment>
+                Additional feature_map information:
+                The feature_map is a two dimensional structure dividing the world into 16 * 16
+                world tile "feature shells" (and remember that there's a single tile wide shell
+                at the end of each dimension, so a pocket world has a shell dimension of 2 * 2).
+                These shells are loaded and unloaded dynamically, which means trying to access a
+                shell that isn't the one in DF's focus (where the fortress/adventurer/pre embark
+                cursor is) is invalid and can lead to DF crashing.
+                The "features.feature_init" 16 * 16 structure contains the features of each of
+                the corresponding world tiles within the shell. However, DF only loads the
+                feature vectors for the world tiles in focus, although they seem to remain
+                loaded until the shell is unloaded. Until loaded the vectors have a size of 0.
+                Manipulation of the features is usually preserved as feature vectors are
+                unloaded/reloaded, so spires can be elongated and rivers added, but some
+                details, such as river fauna, seem to be generated on loading. Added features
+                may not necessarily be reloaded at the vector index they were created at.
+            </comment>
         </pointer>
 
 <!--
