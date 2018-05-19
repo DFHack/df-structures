@@ -67,7 +67,7 @@
         dtor 0x8C1AE10
 
         <int32_t name='id'/>
-        <int32_t name="subtype"/>
+        <int32_t name="subtype" comment='0=combat, 6=performance, others=unidentified'/>
 
         <stl-vector name="witnesses" type-name='int32_t' ref-target='unit'/>
 
@@ -117,7 +117,7 @@
         <int32_t name="unk_80"/>
 
         <compound name='unk_v42_1' is-union='true' comment='based on subtype'>
-            <pointer type-name='incident_sub6' name='t6'/>
+            <pointer type-name='incident_sub6_performance' name='t6_performance'/>
             <pointer type-name='incident_sub7' name='t7'/>
             <pointer type-name='incident_sub8' name='t8'/>
             <pointer type-name='incident_sub9' name='t9'/>
@@ -125,9 +125,9 @@
         </compound>
     </struct-type>
 
-    <struct-type type-name='incident_sub6'>
-        <int32_t/>
-        <stl-vector>
+    <struct-type type-name='incident_sub6_performance'>
+        <int32_t name='performance_event' type-name='performance_event_type'/>
+        <stl-vector name='participants'>
             <pointer>
                 <int32_t/>
                 <int32_t/>
@@ -135,13 +135,20 @@
                 <int32_t/>
             </pointer>
         </stl-vector>
-        <int32_t/>
-        <int32_t/>
+        <int32_t name='reference_id' comment='history_event id/poetic_form id/musical_form id/dance_form_id or -1'/>
+        <int32_t name='written_content_id' comment='-1 if not used'/>
         <int32_t/>
         <int32_t/>
         <int32_t/>
         <int32_t/>
     </struct-type>
+    --  There ought to be either a type specific reference or a written content one. Not both.
+    --  Story has only been seen with a history event id, not a written content one, but the sample was small.
+    --  Poem has been seen with either a poetic form or a written content reference.
+    --  Music has been seen only with a music form reference, but the sample was small.
+    --    Music has been seen to be "sang" and "spoke" in DF displayed thoughts, but no instrument playing
+    --    or simulation. It's still unknown how to determine what action participants took.
+    --  Dance has been seen only with a dance form reference, but the sample was small.
 
     <struct-type type-name='incident_sub7'>
         <int32_t/>
@@ -388,10 +395,10 @@
     </enum-type>
 
     <struct-type type-name='glowing_barrier'>
-        <int8_t name='triggered' comment='changes from 0 to 1 when glowing barrier vanishes, preventing later HFS events'/>
+        <int8_t/>
         <int32_t/>
-        <stl-vector name='buildings' type-name='int32_t' ref-target='building' comment='when building is deconstructed, causes glowing barrier at pos to vanish and (in fort mode) spawns HFS one z-level below if it has not been set off already'/>
-        <compound name='pos' type-name='coord' comment='coordinates of a GlowingBarrier or GlowingFloor tiletype'/>
+        <stl-vector name='buildings' type-name='int32_t' ref-target='building'/>
+        <compound name='pos' type-name='coord'/>
     </struct-type>
 
     <struct-type type-name='deep_vein_hollow'>
