@@ -512,6 +512,17 @@ These are defined in df-code.lisp:
 
     but allows the GUI to display it as a list.
 
+``<df-linked-list-type type-name='foo_link' item-type='foo'/>``
+
+    Defines a DF-style linked list node. This translates to::
+
+        <struct-type type-name='foo_link'>
+            <pointer name='item' type-name='foo'/>
+            <pointer name='prev' type-name='foo_link'/>
+            <pointer name='next' type-name='foo_link'/>
+        </struct-type>
+
+    with some extra code to make it easier to interact with.
 
 Class type definition
 =====================

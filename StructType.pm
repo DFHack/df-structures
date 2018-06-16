@@ -191,6 +191,7 @@ sub render_struct_type {
 
     my $tag_name = $tag->getAttribute('ld:meta');
     my $is_class = ($tag_name eq 'class-type');
+    my $is_linked_list = (($tag->getAttribute('ld:subtype') or '') eq 'df-linked-list-type');
     my $custom_methods = is_attr_true($tag, 'custom-methods') || $tag->findnodes('custom-methods/cmethod');
     my $has_methods = $is_class || is_attr_true($tag, 'has-methods');
     my $inherits = $tag->getAttribute('inherits-from');
@@ -206,6 +207,8 @@ sub render_struct_type {
         $ispec = ' : '.$inherits;
     } elsif ($is_class) {
         $ispec = ' : virtual_class';
+    } elsif ($is_linked_list) {
+        $ispec = ' : DfLinkedList<'.$typename.', '.$tag->getAttribute('item-type').'>';
     }
 
     with_struct_block {

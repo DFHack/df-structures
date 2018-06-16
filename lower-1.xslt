@@ -61,6 +61,21 @@
         </ld:global-type>
     </xsl:template>
 
+    <xsl:template match='df-linked-list-type'>
+        <ld:global-type ld:meta='struct-type' ld:subtype='df-linked-list-type' ld:level='0' type-name='{@type-name}' item-type='{@item-type}'>
+            <code-helper name="describe"><xsl:text>(describe-obj $.item)</xsl:text></code-helper>
+            <ld:field name='item' type-name='{@item-type}' ld:level='1' ld:meta='pointer' ld:is-container='true'>
+                <ld:item ld:level='2' ld:meta='global' type-name='{@item-type}'/>
+            </ld:field>
+            <ld:field name='prev' type-name='{@type-name}' ld:level='1' ld:meta='pointer' ld:is-container='true'>
+                <ld:item ld:level='2' ld:meta='global' type-name='{@type-name}'/>
+            </ld:field>
+            <ld:field name='next' type-name='{@type-name}' ld:level='1' ld:meta='pointer' ld:is-container='true'>
+                <ld:item ld:level='2' ld:meta='global' type-name='{@type-name}'/>
+            </ld:field>
+        </ld:global-type>
+    </xsl:template>
+
     <!-- Code to properly annotate references to types by name -->
 
     <xsl:key name="primitive-type-lookup" match="prim-type" use="@ld:subtype"/>
