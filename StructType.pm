@@ -192,6 +192,9 @@ sub render_struct_type {
     my $tag_name = $tag->getAttribute('ld:meta');
     my $is_class = ($tag_name eq 'class-type');
     my $is_linked_list = (($tag->getAttribute('ld:subtype') or '') eq 'df-linked-list-type');
+    my $item_type = $tag->getAttribute('item-type');
+    my $list_link_type = $tag->getAttribute('df-list-link-type');
+    my $list_link_field = $tag->getAttribute('df-list-link-field');
     my $custom_methods = is_attr_true($tag, 'custom-methods') || $tag->findnodes('custom-methods/cmethod');
     my $has_methods = $is_class || is_attr_true($tag, 'has-methods');
     my $inherits = $tag->getAttribute('inherits-from');
@@ -208,7 +211,12 @@ sub render_struct_type {
     } elsif ($is_class) {
         $ispec = ' : virtual_class';
     } elsif ($is_linked_list) {
-        $ispec = ' : DfLinkedList<'.$typename.', '.$tag->getAttribute('item-type').'>';
+        register_ref $item_type, 1;
+        $ispec = ' : DfLinkedList<'.$typename.', '.$item_type.'>';
+    }
+
+    if ($list_link_type) {
+        register_ref $list_link_type, 0;
     }
 
     with_struct_block {
@@ -216,6 +224,25 @@ sub render_struct_type {
             my %info;
 
             emit_find_instance(%info, $tag);
+
+            if ($list_link_type) {
+                emit $list_link_type," *dfhack_get_list_link();";
+                emit "void dfhack_set_list_link(",$list_link_type," *);";
+                with_emit_static {
+                    emit_block {
+                        if ($list_link_field) {
+                            emit "return ",$list_link_field,";";
+                        } else {
+                            emit "return nullptr;";
+                        }
+                    } "$list_link_type *${typename}::dfhack_get_list_link()";
+                    emit_block {
+                        if ($list_link_field) {
+                            emit "this->",$list_link_field," = l;";
+                        }
+                    } "void ${typename}::dfhack_set_list_link($list_link_type *l)";
+                };
+            }
 
             if ($has_methods || $custom_methods) {
                 if ($custom_methods) {
