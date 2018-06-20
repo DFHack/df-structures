@@ -58,8 +58,17 @@ sub render_enum_core($$) {
             $count++;
             $last_value = $real_value;
 
+            my $value_out = '';
+            if (defined $value) {
+                $value_out = ' = '.$value;
+            } elsif ($real_value < 0) {
+                $value_out = ' = '.$real_value;
+            } elsif ($real_value >= 0) {
+                $value_out = sprintf(' = 0x%X',$real_value);
+            }
+
             emit_comment $item, -attr => 1;
-            emit $name, (defined($value) ? ' = '.$value : ''), ',';
+            emit $name, $value_out, ',';
         }
 
         $lines[-1] =~ s/,$//;
