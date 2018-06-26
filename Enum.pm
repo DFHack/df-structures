@@ -78,6 +78,8 @@ sub render_enum_tables($$$$$$) {
         die("in enum $name: unexpected last value: expected " . ($base+$count-1) . ", got $last_value\n");
     }
 
+    $tag->setAttribute('last-value',$last_value);
+
     my $is_global = $tag->nodeName eq 'ld:global-type';
     my $base_type = get_primitive_base($tag, 'int32_t');
 
