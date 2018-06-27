@@ -71,6 +71,20 @@ sub get_container_item_type($;%) {
     }
 }
 
+sub get_container_count($;%) {
+    my ($tag) = @_;
+    my $count = $tag->getAttribute('count');
+    if ($count) {
+        return $count;
+    }
+    my $enum = $tag->getAttribute('index-enum');
+    if ($enum) {
+        register_ref(${enum},1);
+        return "enum_traits<${enum}>::last_item_value+1";
+    }
+    return 0;
+}
+
 my %atable = ( 1 => 'char', 2 => 'short', 4 => 'int' );
 
 our $cur_init_field = '';
@@ -229,7 +243,7 @@ sub get_struct_field_type($;%) {
         $prefix = get_container_item_type($tag, -weak => 1, -void => 'void')."*";
     } elsif ($meta eq 'static-array') {
         ($prefix, $suffix) = get_container_item_type($tag);
-        my $count = $tag->getAttribute('count') || 0;
+        my $count = get_container_count($tag);
         $suffix = "[$count]".$suffix;
     } elsif ($meta eq 'primitive') {
         local $_ = $tag;
@@ -366,7 +380,7 @@ sub render_field_init($) {
         }
     } elsif ($meta eq 'static-array') {
         my $idx = ensure_name undef;
-        my $count = $field->getAttribute('count')||0;
+        my $count = get_container_count($field);
         emit_block {
             local $cur_init_field = $cur_init_field."[$idx]";
             render_field_init($_) for $field->findnodes('ld:item');
@@ -456,7 +470,7 @@ sub render_field_metadata_rec($$) {
         push @field_defs, [ "${FLD}(POINTER, $name)", auto_identity_reference($items[0]), $count, $enum ];
     } elsif ($meta eq 'static-array') {
         my @items = $field->findnodes('ld:item');
-        my $count = $field->getAttribute('count')||0;
+        my $count = get_container_count($field);
 
         push @field_defs, [ "${FLD}(STATIC_ARRAY, $name)", auto_identity_reference($items[0]), $count, $enum ];
     } elsif ($meta eq 'primitive') {
