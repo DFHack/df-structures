@@ -466,6 +466,8 @@
             <enum-item name='World'/>
             <enum-item name='Missions'/>
             <enum-item name='MissionSquads'/>
+            <enum-item name='Unk5' since='v0.44.11'/> mission-related
+            <enum-item name='Unk6' since='v0.44.11'/> mission-related
             <enum-item name='People'/>
             <enum-item name='Artifacts'/>
         </enum>
@@ -479,11 +481,11 @@
         <int8_t name='unk_44_11a' since='v0.44.11'/>
         <stl-vector name='unk_44_11b' since='v0.44.11'/>
         unsure about order of these two vectors
-        <stl-vector name='unk_3'/>
-        <int32_t name='unk_4'/>
-        <stl-vector name='unk_5'/>
-        <stl-vector name='unk_6' type-name='int32_t'/>
-        <int32_t name='unk_7'/>
+        <stl-vector name='missions'/>
+        <int32_t name='mission_idx'/>
+        <stl-vector name='squads' pointer-type='squad'/>
+        <stl-vector name='squad_unk' type-name='int32_t'/>
+        <int32_t name='squad_idx'/>
         <stl-vector name='unk_8'/>
         <stl-vector name='unk_9'/>
         <int32_t name='unk_10'/>
@@ -493,11 +495,24 @@
         <int32_t name='unk_14'/>
         <int32_t name='unk_15'/>
         <int32_t name='unk_16'/>
-        <stl-vector name='unk_17a'/>
-        <stl-vector name='unk_17b'/>
-        <int32_t name='unk_17c'/>
-        <int32_t name='unk_17d'/> 22
-        <int32_t name='unk_17e'/> 4
+        <stl-vector name='artifact_records' pointer-type='artifact_record'/>
+        <stl-vector name='artifact_details'>
+            <pointer>
+                <pointer name='unk_1'/>
+                <int32_t name='last_site' ref-target='world_site'/>
+                <int32_t name='unk_3'/> -1 for non-sites
+                <int32_t name='last_holder_hf' ref-target='historical_figure'/>
+                <int32_t name='unk_5'/>
+                <int32_t name='unk_6'/>
+                <int32_t name='unk_7'/> 0x6b
+                <int32_t name='unk_8'/>
+                <int32_t name='unk_9'/> uninitialized
+                <pointer name='unk_10'/>
+            </pointer>
+        </stl-vector>
+        <int32_t name='artifact_idx'/>
+        <int32_t name='artifact_x'/>
+        <int32_t name='artifact_y'/>
 
         <stl-vector name='artifact_desc' pointer-type='stl-string'/>
         <stl-vector name='unk_20'/>
@@ -507,8 +522,8 @@
 
         <stl-vector name='unk_24'/>
         <int32_t name='unk_25'/> 0
-        <int32_t name='unk_26'/> 0x1f
-        <int32_t name='unk_27'/> 0x04
+        <int32_t name='news_x'/>
+        <int32_t name='news_y'/>
 
         <pointer name='unk_28'/> 0
         <int32_t name='unk_29'/> 0
@@ -521,14 +536,18 @@
         <pointer name='unk_2f'/>
 
         <compound name='unk_cache'>
-            osx64: 0x127E14E78 to 0x127E1CC50 = 32216 (lua sizeof was 32016)
-            osx32: 0x038DEF60 to 0x038E6D34 = 32212 (lua sizeof was 32008)
-            <compound name='sub1'>
+            todo: fix layout - some fields in "tmp2" are int8/int32, but many others are uninitialized
+            osx64: 0x127E14E78 to 0x127E1CC50 = 32216 (pre-0.44.11 lua sizeof was 32016)
+            osx32: 0x038DEF60 to 0x038E6D34 = 32212 (pre-0.44.11 lua sizeof was 32008)
+            <compound name='tmp1'>
                 <static-array count='25' type-name='int64_t'/> padding
                 <int32_t/>
             </compound>
+            <compound name='tmp2'>
+                <static-array count='4001' type-name='int64_t'/>
+            </compound>
 
-            <static-array count='1998' type-name='int32_t'/>
+            <!--<static-array count='1000' type-name='int64_t'/>
             <static-array count='1000' type-name='int64_t'/>
             <static-array count='1000' type-name='int8_t'/>
             <static-array count='1000' type-name='int8_t'/>
@@ -540,7 +559,7 @@
             <static-array count='1000' type-name='int8_t'/>
             <static-array count='1000' type-name='int8_t'/>
             <static-array count='1000' type-name='int8_t'/>
-            <int32_t name='slot2'/>
+            <int32_t name='slot2'/>-->
         </compound>
         <stl-vector name='unk_strvec1' pointer-type='stl-string'/>
         near end
