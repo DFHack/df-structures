@@ -204,6 +204,9 @@ sub get_primitive_base($;$) {
     my ($tag, $default) = @_;
 
     my $base = $tag->getAttribute('base-type') || $default || 'uint32_t';
+    if ($base =~ /u?int[136]?[2468]_t/) {
+        header_ref("cstdint");
+    }
     $primitive_types{$base} or die "Must be primitive: $base\n";
 
     return $base;

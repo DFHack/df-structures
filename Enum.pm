@@ -91,6 +91,8 @@ sub render_enum_tables($$$$$$) {
             emit "static enum_identity identity;";
             emit "static enum_identity *get() { return &identity; }";
         } "template<> struct ${export_prefix}identity_$traits_name ", ";";
+        header_ref("Export.h");
+        header_ref("DataDefs.h");
     };
 
     # Enumerate enum attributes
