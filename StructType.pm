@@ -198,7 +198,12 @@ sub render_struct_type {
     my $ispec = '';
 
     for my $extra ($tag->findnodes('extra-include')) {
-        register_ref $extra->getAttribute('type-name'), 1;
+        my $tname = $extra->getAttribute('type-name');
+        if ($tname) {
+            register_ref $tname, 1;
+        } else {
+            header_ref $extra->getAttribute('filename');
+        }
     }
 
     if ($inherits) {

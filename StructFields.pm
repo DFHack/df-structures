@@ -92,8 +92,8 @@ our $cur_init_value = undef;
 sub add_simple_init($);
 
 my %custom_primitive_handlers = (
-    'stl-string' => sub { return "std::string"; },
-    'stl-fstream' => sub { return "std::fstream"; },
+    'stl-string' => sub { header_ref("string"); return "std::string"; },
+    'stl-fstream' => sub { header_ref("fstream"); return "std::fstream"; },
 );
 
 my %custom_primitive_inits = (
@@ -110,17 +110,21 @@ my %custom_container_handlers = (
     'stl-vector' => sub {
         my $item = get_container_item_type($_, -void => 'void*');
         $item = 'char' if $item eq 'bool';
+        header_ref("vector");
         return "std::vector<$item >";
     },
     'stl-deque' => sub {
         my $item = get_container_item_type($_, -void => 'void*');
+        header_ref("deque");
         return "std::deque<$item >";
     },
     'stl-set' => sub {
         my $item = get_container_item_type($_, -void => 'void*');
+        header_ref("set");
         return "std::set<$item >";
     },
     'stl-bit-vector' => sub {
+        header_ref("vector");
         return "std::vector<bool>";
     },
     'df-flagarray' => sub {
@@ -415,6 +419,7 @@ sub render_field_metadata_rec($$) {
     local $_;
     local %weak_refs;
     local %strong_refs;
+    local %header_refs;
 
     my $meta = $field->getAttribute('ld:meta');
     my $subtype = $field->getAttribute('ld:subtype');
