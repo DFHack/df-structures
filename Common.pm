@@ -310,8 +310,7 @@ sub with_header_file(&$) {
     # Add wrapping
     my @all = with_emit {
         my $def = type_header_def($header_name);
-        emit "#ifndef $def";
-        emit "#define $def";
+        emit "#pragma once";
         emit "#ifdef __GNUC__";
         emit "#pragma GCC system_header";
         emit "#endif";
@@ -321,10 +320,7 @@ sub with_header_file(&$) {
         }
 
         for my $strong (sort { $a cmp $b } keys %strong_refs) {
-            my $sdef = type_header_def($strong);
-            emit "#ifndef $sdef";
             emit "#include \"$strong.h\"";
-            emit "#endif";
         }
 
         emit_block {
@@ -341,8 +337,6 @@ sub with_header_file(&$) {
 
             push @lines, @code;
         } "namespace $main_namespace ";
-
-        emit "#endif";
     };
 
     $header_data{$header_name} = \@all;
