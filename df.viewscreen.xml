@@ -466,8 +466,8 @@
             <enum-item name='World'/>
             <enum-item name='Missions'/>
             <enum-item name='MissionSquads'/>
-            <enum-item name='Unk5' since='v0.44.11'/> mission-related
-            <enum-item name='Unk6' since='v0.44.11'/> mission-related
+            <enum-item name='MissionMessengers' since='v0.44.11'/> mission-related
+            <enum-item name='MissionDetails' since='v0.44.11'/>
             <enum-item name='People'/>
             <enum-item name='Artifacts'/>
         </enum>
@@ -477,7 +477,7 @@
         <int32_t name='map_y'/>
         <pointer name='site' type-name='world_site'/>
         <stl-vector name='site_artifacts' pointer-type='artifact_record'/>
-        <stl-vector name='unk_2'/>
+        <stl-vector name='site_prisoners' pointer-type='unit'/>
         <int8_t name='unk_44_11a' since='v0.44.11'/>
         <stl-vector name='unk_44_11b' since='v0.44.11'/>
         unsure about order of these two vectors
@@ -512,26 +512,18 @@
                 <int32_t/>
                 <int32_t/>
                 <stl-vector name='squads' type-name='int32_t'/>
+                <stl-vector name='messengers' type-name='int32_t'/> some strange huge values here but not pointers
 
                 <int32_t/>
                 <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <pointer> size 128
-                    <int32_t name='unk_1'/>
+
+                FIXME: this points to different objects depending on mission type
+                       size 128 for raid, 8 for artifact and person recovery
+                <pointer name='details'> 
+                    recovery: artifact_id for artifact recovery mission, histfig_id for person recovery
+                    raid: 4 - raid  6 - pillage  0 - raze  3 - demand tribute  2 - occupy  1 - take over  5 - explore
+                    <int32_t name='target_id'/> 
                     <int32_t name='unk_2'/>
-                    <int32_t/>
-                    <int32_t/>
-                    <int32_t/>
-                    <int32_t/>
-                    <int32_t/>
-                    <int32_t/>
-                    <int32_t/>
-                    <int32_t/>
 
                     <int32_t/>
                     <int32_t/>
@@ -543,7 +535,6 @@
                     <int32_t/>
                     <int32_t/>
                     <int32_t/>
-
                     <int32_t/>
                     <int32_t/>
                     <int32_t/>
@@ -554,10 +545,18 @@
                     <int32_t/>
                     <int32_t/>
                     <int32_t/>
-
+                    <int32_t name='raid_flags'/> 128 - steal livestok  64 - loot other items  32 - take important treasures  16 - release other prisoners  8 - free captives belonging to your civ.  2 - one-time tribute  4 - ongoing tribute  512 - demand surrender
+                    <int32_t/>
+                    <int32_t/>
+                    <int32_t/>
+                    <int32_t/>
+                    <int32_t/>
+                    <int32_t/>
+                    <int32_t/>
                     <int32_t/>
                     <int32_t/>
                 </pointer>
+
                 <int32_t name='unk_15'/>
                 <int32_t/>
 
@@ -565,17 +564,17 @@
         </stl-vector>
         <int32_t name='mission_idx'/>
         <stl-vector name='squads' pointer-type='squad'/>
-        <stl-vector name='squad_unk' type-name='int32_t'/>
+        <stl-vector name='squads_travelling' type-name='int32_t'/>
         <int32_t name='squad_idx'/>
-        <stl-vector name='unk_8'/>
-        <stl-vector name='unk_9'/>
-        <int32_t name='unk_10'/>
+        <stl-vector name='messengers' pointer-type='historical_figure'/>
+        <stl-vector name='messengers_travelling' type-name='int32_t'/>
+        <int32_t name='messenger_idx'/>
         <stl-vector name='unk_11'/>
         <int32_t name='unk_12'/> uninitialized on x86/x64
-        <stl-vector name='unk_13'/>
-        <int32_t name='unk_14'/>
-        <int32_t name='people_x'/>
-        <int32_t name='people_y'/>
+        <stl-vector name='people' pointer-type='historical_figure'/>
+        <int32_t name='person_idx'/>
+        <int32_t name='person_x'/>
+        <int32_t name='person_y'/>
         <stl-vector name='artifact_records' pointer-type='artifact_record'/>
         <stl-vector name='artifact_details'>
             <pointer>
@@ -596,9 +595,9 @@
         <int32_t name='artifact_y'/>
 
         <stl-vector name='artifact_desc' pointer-type='stl-string'/>
-        <pointer name='unk_20a'/>
-        <pointer name='unk_20b'/>
-        <pointer name='unk_20c'/>
+        <pointer name='artifact_claimed_by_unk1'/>
+        <pointer name='artifact_claimed_by_unk2'/>
+        <pointer name='artifact_claimed_by_hf' type-name='historical_figure'/>
         <pointer name='histfig' type-name='historical_figure'/>
         <pointer name='histfig2' type-name='historical_figure'/>
         <stl-vector name='rumors'>
