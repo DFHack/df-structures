@@ -61,7 +61,7 @@ sub render_enum_core($$) {
             my $value_comment = sprintf(' // %d, 0x%X',$real_value, $real_value);
 
             emit_comment $item, -attr => 1;
-            emit $name, (defined($value)? ' = '.$value : ''), ','.$value_comment;
+            emit $name, (defined($value) ? ' = '.$value : ''), ','.$value_comment;
         }
 
         $lines[-1] =~ s/,$//;
