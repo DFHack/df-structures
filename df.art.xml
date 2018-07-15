@@ -208,55 +208,169 @@
     <struct-type type-name='poetic_form' instance-vector='$global.world.poetic_forms.all' key-field='id'>
         <int32_t name='id'/>
         <compound name='name' type-name='language_name'/>
-        <int32_t name='originating_entity' ref-target='historical_entity'/>
+        <int32_t name='originating_entity' ref-target='historical_entity'/> "originating in ..."
+        <int32_t name='original_author' ref-target='historical_figure'/> "originally devised by ..."
         <int32_t/>
-        <int32_t/>
-        probably a bitfield 1 - 'guides poets during improvised performances' 2 - 'applied by poets to produce individual poems'
-        <int32_t name='purpose'/>
+
+        <int32_t name='usage'/>
+        probably a bitfield
+        1 - 'guides poets during improvised performances'
+        2 - 'applied by poets to produce individual poems'
+
         <stl-vector name='parts' pointer-type='poetic_form_part'/>
         <int32_t/>
         <int32_t/>
         <int32_t/>
-        <stl-vector type-name='int32_t'/>
+        
+        <stl-vector name='common_features' type-name='int32_t'/> "certain lines often ... and they sometimes ..."
+        0 - share an underlying meaning
+        1 - contrast an underlying meaning
+        2 - required to maintain phrasing
+        3 - have similar grammatical structure
+        4 - use the same placement of allusions
+        5 - have reversed word order
+        6 - reverse grammatical structures
+
+        '... is a XX poetic form ...'
+        <int32_t name='mood'/>
+        0 - narrative
+        1 - dramatic
+        2 - reflective
+        3 - riddle
+        4 - ribald
+        5 - light
+        6 - solemn
+
+        <int32_t name='subject'/>
+        -1 - a chosen subject
+        0 - the past
+        1 - current events
+        2 - the future
+        3 - someone recently deceased
+        4 - someone recently retired
+        5 - religion
+        6 - a specific place
+        7 - a specific wilderness region
+        8 - nature
+        9 - a lover
+        10 - family
+        11 - alcoholic beverages
+        12 - a journey
+        13 - war
+        14 - the hunt
+        15 - mining
+        16 - death
+        17 - immortality
+        18 - someone's character
+        19 - a historical figure or specific figure
+        20 - an abstract concept or specific concept
+
+        <compound is-union='true'>
+            <int32_t name='subject_target'/> histfig id for 19
+            <enum name='subject_topic' base-type='int32_t' type-name='sphere_type'/> concept for 20
+        </compound>
+
+        <int32_t name='action'/>
+        0 - describe
+        1 - satirize
+        2 - amuse the audience
+        3 - complain
+        4 - renounce
+        5 - make an apology
+        6 - express pleasure
+        7 - express grief
+        8 - praise
+        9 - teach a moral lesson
+        10 - make an assertion
+        15 - invert the assertion 
+
+
         <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
+        
+        <int32_t name='features'/> bitfield. same as line_features1 below. "use of ... is characteristic of the form"
+        1 - internal rhyme
+        2 - end rhymes don't generally match perfectly
+        4 - alliteration
+        8 - onomatopoeia
+        16 - antanaclasis
+        32 - must feature lines with different readings depending on word breaks
+        64 - must feature lines which can be read backwards as well as forwards
+        128 - must feature lines which can be read orthogonally across the standard lines
+        256 - must feature lines which emerge when reading along certain prescribed paths across the body of the poem
+        512 - assonance
+        1024 - consonance
+        2048 - elision
+        4096 - epenthesis
+        8192 - synchysis
+        32768 - allegory
+        262144 - metaphor
+        simile
+        metonymy
+        vivid imagery
+        juxtaposision
+
+
         <stl-vector pointer-type='poetic_form_sub2'/>
     </struct-type>
 
     <struct-type type-name='poetic_form_part'>
+        <int32_t name='size_type'/> bitfield.
+        1 - line count
+        2 - "brief/full verse paragraphs", depending on size
+
+        <int32_t name='count_min'/>
+        <int32_t name='count_max'/>
+        <int32_t name='size'/> line, couplet, tercet, quatrain, quintain, etc. OR "brief verse" if less than 6, otherwise "full verse"
         <int32_t/>
         <int32_t/>
         <int32_t/>
         <int32_t/>
-        <int32_t/>
+        <stl-vector name='line_endings' type-name='int32_t'/>
+        <stl-vector name='line_feet' type-name='int32_t'/> "the Nth line has XX feet"
+        <stl-vector type-name='int32_t'/>
+        
+        <stl-vector name='line_caesuras' type-name='int32_t'/>
+        0 - initial
+        1 - medial
+        2 - terminal
+
+        <stl-vector name='line_features' type-name='int32_t'/> bitfields
+        1 - must make use of internal rhyme
+        2 - the rhyme at the end of Nth line does not need to match perfectly
+        4 - must make use of alliteration
+        8 - must make use of onomatopoeia
+        16 - must make use of antanaclasis
+        32768 - must make use of allegory
+        65536 - must make use of ambiguity
+        131072 - must make use of symbolism
+
+        "The XX line ZZ of the subject on YY line"
+        <stl-vector name='additional_features' type-name='int32_t'/> ZZ
+        0 - shares the underlying meaning
+        1 - contrasts the underlying meaning
+        2 - is required to maintain the phrasing
+        3 - has the same grammatical structure
+        4 - uses the same placement of allusions
+        5 - reverses the word order
+        6 - reverses the grammatical structure
+        7 - presents a different view
+        8 - must expand the idea
+        <stl-vector name='additional_targets' type-name='int32_t'/> YY
+        <stl-vector name='additional_lines' type-name='int32_t'/> XX
+
+        <stl-vector type-name='int32_t'/>
+        <stl-vector name='line_subjects' type-name='int32_t'/> same as form subject above
+        <stl-vector name='line_subject_targets' type-name='int32_t'/>
+        <stl-vector type-name='int32_t'/>
+        <stl-vector type-name='int32_t'/>
         <int32_t/>
         <int32_t/>
         <int32_t/>
         <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
+        <int32_t name='mood'/> same as the form mood
         <int32_t/>
         <int32_t/>
-        <int32_t/>
-        <stl-vector type-name='int32_t'/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
+        <int32_t name='action'/> same as the form action
         <int32_t/>
         <int32_t/>
     </struct-type>
