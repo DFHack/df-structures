@@ -205,6 +205,125 @@
         <int32_t name='site_id' ref-target='world_site' since='v0.34.01'/>
     </struct-type>
 
+    <enum-type type-name='poetic_form_action' base-type='int32_t'>
+        <enum-item name='Describe'/>
+        <enum-item name='Satirize'/>
+        <enum-item name='AmuseAudience'/>
+        <enum-item name='Complain'/>
+        <enum-item name='Renounce'/>
+        <enum-item name='MakeApology'/>
+        <enum-item name='ExpressPleasure'/>
+        <enum-item name='ExpressGrief'/>
+        <enum-item name='Praise'/>
+        <enum-item name='TeachMoralLesson'/>
+        <enum-item name='MakeAssertion'/>
+        <enum-item name='MakeCounterAssertion'/>
+        <enum-item name='MakeConsession'/>
+        <enum-item name='SynthesizePreviousIdeas'/>
+        <enum-item name='DevelopPreviousIdea'/>
+        <enum-item name='InvertTheAssertion'/>
+        <enum-item name='UndercutAssertion'/>
+        <enum-item name='MoveAwayFromPreviousIdeas'/>
+        <enum-item name='ReflectPreviousIdeas'/>
+        <enum-item name='ConsoleAudience'/>
+        <enum-item name='RefuseConsolation'/>
+        <enum-item name='OfferDifferentPerspective'/>
+    </enum-type>
+
+    A - even, B - uneven for tone patterns, A - unstressed, B - stressed for accent patterns
+    <enum-type type-name='poetic_form_pattern' base-type='int32_t'> 
+        <enum-item name='AA'/>
+        <enum-item name='AB'/>
+        <enum-item name='BA'/>
+        <enum-item name='BB'/>
+        <enum-item name='AAA'/>
+        <enum-item name='BAA'/>
+        <enum-item name='ABA'/>
+        <enum-item name='AAB'/>
+        <enum-item name='ABB'/>
+        <enum-item name='BBA'/>
+        <enum-item name='BAB'/>
+        <enum-item name='BBB'/>
+    </enum-type>
+
+    <enum-type type-name='poetic_form_caesura_position' base-type='int32_t'> 
+        <enum-item name='Initial'/>
+        <enum-item name='Medial'/>
+        <enum-item name='Terminal'/>
+    </enum-type>
+
+    <enum-type type-name='poetic_form_mood' base-type='int32_t'> 
+        <enum-item name='Narrative'/>
+        <enum-item name='Dramatic'/>
+        <enum-item name='Reflective'/>
+        <enum-item name='Riddle'/>
+        <enum-item name='Ribald'/>
+        <enum-item name='Light'/>
+        <enum-item name='Solemn'/>
+    </enum-type>
+
+    <enum-type type-name='poetic_form_subject' base-type='int32_t'> 
+        <enum-item name='None' value='-1'/> "a chosen subject"
+        <enum-item name='Past'/>
+        <enum-item name='CurrentEvents'/>
+        <enum-item name='Future'/>
+        <enum-item name='SomeoneRecentlyDeceased'/>
+        <enum-item name='SomeoneRecentlyRetired'/>
+        <enum-item name='Religion'/>
+        <enum-item name='SpecificPlace'/>
+        <enum-item name='SpecificWildernessRegion'/>
+        <enum-item name='Nature'/>
+        <enum-item name='Lover'/>
+        <enum-item name='Family'/>
+        <enum-item name='AlcoholicBeverages'/>
+        <enum-item name='Journey'/>
+        <enum-item name='War'/>
+        <enum-item name='Hunt'/>
+        <enum-item name='Mining'/>
+        <enum-item name='Death'/>
+        <enum-item name='Immortality'/>
+        <enum-item name='SomeonesCharacter'/>
+        <enum-item name='Histfig'/> "a historical figure" or a specific figure
+        <enum-item name='Concept'/> "an abstract concept" or a specific concept
+    </enum-type>
+
+    <bitfield-type type-name="poetic_form_feature" base-type="uint32_t">
+        <flag-bit name="InternalRhyme"/>
+        <flag-bit name="EndRhymesDontMatch"/>
+        <flag-bit name="Alliteration"/>
+        <flag-bit name="Onomatopoeia"/>
+        <flag-bit name="antanaclasis"/>
+        <flag-bit name="DifferentReadings"/> "different readings depending on word breaks"
+        <flag-bit name="ReadBackwards"/> "can be read backwards as well as forwards"
+        <flag-bit name="ReadOrthogonally"/> "can be read orthogonally across the standard lines"
+        <flag-bit name="Emerge"/> "emerge when reading along certain prescribed paths across the body of the poem"
+        <flag-bit name="Assonance"/>
+        <flag-bit name="Consonance"/>
+        <flag-bit name="Elision"/>
+        <flag-bit name="Epenthesis"/>
+        <flag-bit name="Synchysis"/>
+        <flag-bit name="Allegory"/>
+        <flag-bit name="Ambiguity"/>
+        <flag-bit name="Symbolism"/>
+        <flag-bit name="Metaphor"/>
+        <flag-bit name="Simile"/>
+        <flag-bit name="Metonymy"/>
+        <flag-bit name="VividImagery"/>
+        <flag-bit name="Juxtaposision"/>
+    </bitfield-type>
+
+    <enum-type type-name='poetic_form_additional_feature' base-type='int32_t'> 
+        <enum-item name='SharesUnderlyingMeaning'/>
+        <enum-item name='ContrastsUnderlyingMeaning'/>
+        <enum-item name='RequiredToMaintainPhrasing'/>
+        <enum-item name='SameGrammaticalStructure'/>
+        <enum-item name='SamePlacementOfAllusions'/>
+        <enum-item name='ReverseWordOrder'/>
+        <enum-item name='ReverseGrammaticalStructure'/>
+        <enum-item name='PresentsDifferentView'/>
+        <enum-item name='MustExpandIdea'/>
+    </enum-type>
+
     <struct-type type-name='poetic_form' instance-vector='$global.world.poetic_forms.all' key-field='id'>
         <int32_t name='id'/>
         <compound name='name' type-name='language_name'/>
@@ -212,193 +331,128 @@
         <int32_t name='original_author' ref-target='historical_figure'/> "originally devised by ..."
         <int32_t/>
 
-        <int32_t name='usage'/>
-        probably a bitfield
-        1 - 'guides poets during improvised performances'
-        2 - 'applied by poets to produce individual poems'
+        <bitfield base-type='uint32_t' name='flags'>
+            <flag-bit name='tone_patterns'/> patterns will be tone patterns if set, otherwise accent patterns
+            <flag-bit name='produces_individual_poems'/> 'applied by poets to produce individual poems' if set,  otherwise 'guides poets during improvised performances'
+        </bitfield>
 
         <stl-vector name='parts' pointer-type='poetic_form_part'/>
         <int32_t name='each_line_feet'/>
+        <enum name='each_line_pattern' base-type='int32_t' type-name='poetic_form_pattern'/>
+
+        <enum name='every_line_caesura_position' base-type='int32_t' type-name='poetic_form_caesura_position'/>
         
-        <int32_t name='each_line_tone_pattern'/>
-        0 - even-even
-        1 - even-uneven
-        2 - uneven-even
-        3 - uneven-uneven
-        4 - even-even-even
-        5 - uneven-even-even
-        6 - e-u-e
-        7 - e-e-u
-        8 - e-u-u
-        9 - u-u-e
-        10 - u-e-u
-        11 - u-u-u
-
-        <int32_t name='every_line_caesura'/>
-        0 - initial
-        1 - medial
-        2 - terminal
+        "certain lines often ... and they sometimes ..."
+        <stl-vector name='common_features'> 
+            <enum base-type='int32_t' type-name='poetic_form_additional_feature'/>
+        </stl-vector>
         
-        <stl-vector name='common_features' type-name='int32_t'/> "certain lines often ... and they sometimes ..."
-        0 - share an underlying meaning
-        1 - contrast an underlying meaning
-        2 - required to maintain phrasing
-        3 - have similar grammatical structure
-        4 - use the same placement of allusions
-        5 - have reversed word order
-        6 - reverse grammatical structures
-
-        '... is a XX poetic form ...'
-        <int32_t name='mood'/>
-        0 - narrative
-        1 - dramatic
-        2 - reflective
-        3 - riddle
-        4 - ribald
-        5 - light
-        6 - solemn
-
-        <int32_t name='subject'/>
-        -1 - a chosen subject
-        0 - the past
-        1 - current events
-        2 - the future
-        3 - someone recently deceased
-        4 - someone recently retired
-        5 - religion
-        6 - a specific place
-        7 - a specific wilderness region
-        8 - nature
-        9 - a lover
-        10 - family
-        11 - alcoholic beverages
-        12 - a journey
-        13 - war
-        14 - the hunt
-        15 - mining
-        16 - death
-        17 - immortality
-        18 - someone's character
-        19 - a historical figure or specific figure
-        20 - an abstract concept or specific concept
-
+        "is a narrative/... poetic form"
+        <enum name='mood' base-type='int32_t' type-name='poetic_form_mood'/> 
+        <enum name='subject' base-type='int32_t' type-name='poetic_form_subject'/>
         <compound is-union='true'>
-            <int32_t name='subject_target'/> histfig id for 19
-            <enum name='subject_topic' base-type='int32_t' type-name='sphere_type'/> concept for 20
+            <int32_t name='subject_histfig' ref-target='historical_figure'/> for Histfig subject
+            <enum name='subject_topic' base-type='int32_t' type-name='sphere_type'/> for Concept subject
         </compound>
 
-        <int32_t name='action'/>
-        0 - describe
-        1 - satirize
-        2 - amuse the audience
-        3 - complain
-        4 - renounce
-        5 - make an apology
-        6 - express pleasure
-        7 - express grief
-        8 - praise
-        9 - teach a moral lesson
-        10 - make an assertion
-        11 - make a counter-assertion
-        13 - synthesize previous ideas
-        15 - invert the assertion 
-
+        <enum name='action' base-type='int32_t' type-name='poetic_form_action'/>
 
         <int32_t/>
         
-        <int32_t name='features'/> bitfield. same as line_features1 below. "use of ... is characteristic of the form"
-        1 - internal rhyme
-        2 - end rhymes don't generally match perfectly
-        4 - alliteration
-        8 - onomatopoeia
-        16 - antanaclasis
-        32 - must feature lines with different readings depending on word breaks
-        64 - must feature lines which can be read backwards as well as forwards
-        128 - must feature lines which can be read orthogonally across the standard lines
-        256 - must feature lines which emerge when reading along certain prescribed paths across the body of the poem
-        512 - assonance
-        1024 - consonance
-        2048 - elision
-        4096 - epenthesis
-        8192 - synchysis
-        32768 - allegory
-        262144 - metaphor
-        simile
-        metonymy
-        vivid imagery
-        juxtaposision
+        "use of ... is characteristic of the form" or "must feature lines which ..."
+        <bitfield name='features' type-name='poetic_form_feature'/>
 
-
-        <stl-vector pointer-type='poetic_form_sub2'/>
+        <stl-vector name='perspectives' pointer-type='poetic_form_perspective'/>
     </struct-type>
 
     <struct-type type-name='poetic_form_part'>
-        <int32_t name='size_type'/> bitfield.
-        1 - line count
-        2 - "brief/full verse paragraphs", depending on size
+        <bitfield base-type='uint32_t' name='flags'>
+            <flag-bit name='size_in_lines'/> "line, couplet, tercet" if set, "brief verse paragraphs"/"full verse paragraphs" otherwise
+        </bitfield>
 
+        "has X to Y couplets/..."
         <int32_t name='count_min'/>
         <int32_t name='count_max'/>
-        <int32_t name='size'/> line, couplet, tercet, quatrain, quintain, etc. OR "brief verse" if less than 6, otherwise "full verse"
+        
+        size_in_lines is set: line, couplet, tercet, quatrain, quintain, etc.
+        size_in_lines is not set: "brief verse" if less than 6, otherwise "full verse"
+        <int32_t name='size'/>
+        
         <int32_t/>
         <int32_t/>
         <int32_t/>
         <int32_t/>
         <stl-vector name='line_endings' type-name='int32_t'/>
         <stl-vector name='line_feet' type-name='int32_t'/> "the Nth line has XX feet"
-        <stl-vector name='line_tone_patterns' type-name='int32_t'/>
+        <stl-vector name='line_patterns'>
+            <enum base-type='int32_t' type-name='poetic_form_pattern'/>
+        </stl-vector>
         
-        <stl-vector name='line_caesuras' type-name='int32_t'/>
-        0 - initial
-        1 - medial
-        2 - terminal
+        <stl-vector name='line_caesura_positions'>
+            <enum base-type='int32_t' type-name='poetic_form_caesura_position'/>
+        </stl-vector>
 
-        <stl-vector name='line_features' type-name='int32_t'/> bitfields
-        1 - must make use of internal rhyme
-        2 - the rhyme at the end of Nth line does not need to match perfectly
-        4 - must make use of alliteration
-        8 - must make use of onomatopoeia
-        16 - must make use of antanaclasis
-        32768 - must make use of allegory
-        65536 - must make use of ambiguity
-        131072 - must make use of symbolism
+        "first line must make use of ..."
+        <stl-vector name='line_features'>
+            <bitfield type-name='poetic_form_feature'/>
+        </stl-vector>
 
-        "The XX line ZZ of the subject on YY line"
-        <stl-vector name='additional_features' type-name='int32_t'/> ZZ
-        0 - shares the underlying meaning
-        1 - contrasts the underlying meaning
-        2 - is required to maintain the phrasing
-        3 - has the same grammatical structure
-        4 - uses the same placement of allusions
-        5 - reverses the word order
-        6 - reverses the grammatical structure
-        7 - presents a different view
-        8 - must expand the idea
+        "The XX line ZZ of ... on YY line"
+        <stl-vector name='additional_features'> ZZ
+            <enum base-type='int32_t' type-name='poetic_form_additional_feature'/>
+        </stl-vector>
         <stl-vector name='additional_targets' type-name='int32_t'/> YY
         <stl-vector name='additional_lines' type-name='int32_t'/> XX
 
+        <stl-vector name='line_moods'>
+            <enum base-type='int32_t' type-name='poetic_form_mood'/>
+        </stl-vector>
+        <stl-vector name='line_subjects'>
+            <enum base-type='int32_t' type-name='poetic_form_subject'/>
+        </stl-vector>
+        <stl-vector name='line_subject_targets'>
+            <compound is-union='true'>
+                <int32_t name='subject_histfig' ref-target='historical_figure'/> for Histfig subjects
+                <enum name='subject_topic' base-type='int32_t' type-name='sphere_type'/> for Concept subjects
+            </compound>
+        </stl-vector>
+        <stl-vector name='line_actions'>
+            <enum base-type='int32_t' type-name='poetic_form_action'/>
+        </stl-vector>
         <stl-vector type-name='int32_t'/>
-        <stl-vector name='line_subjects' type-name='int32_t'/> same as form subject above
-        <stl-vector name='line_subject_targets' type-name='int32_t'/>
-        <stl-vector name='line_actions' type-name='int32_t'/> same as the form action above
-        <stl-vector type-name='int32_t'/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
         
-        <stl-vector name='certain_lines_features' type-name='int32_t'/> "certain lines have ..." same as additional_features above
+        <int32_t name='some_lines_syllables'/> "it has lines with ... syllables"
+        <int32_t name='some_lines_pattern'/> "it has lines with a tone/accent pattern of ..."
+        
+        "it has ... caesura in each line"
+        <enum name='each_line_caesura_position' base-type='int32_t' type-name='poetic_form_caesura_position'/>
+        
+        "certain lines have ..." same as additional_features above
+        <stl-vector name='certain_lines_additional_features'>
+            <enum base-type='int32_t' type-name='poetic_form_additional_feature'/>
+        </stl-vector>
 
-        <int32_t name='mood'/> same as the form mood above
+        <enum name='mood' base-type='int32_t' type-name='poetic_form_mood'/>
         <int32_t/>
         <int32_t/>
-        <int32_t name='action'/> same as the form action above
+        <enum name='action' base-type='int32_t' type-name='poetic_form_action'/>
         <int32_t/>
         <int32_t/>
     </struct-type>
 
-    <struct-type type-name='poetic_form_sub2'>
-        <int32_t/>
-        <int32_t/>
+    <struct-type type-name='poetic_form_perspective'>
+        "written from the perspective of ..."
+        <enum name='type' base-type='int32_t'>
+            <enum-item name='Author'/>
+            <enum-item name='Soldier'/>
+            <enum-item name='Traveller'/>
+            <enum-item name='RelativeOfAuthor'/>
+            <enum-item name='PartyOfDebate'/>
+            <enum-item name='FictionalPoet'/>
+            <enum-item name='Histfig'/>
+            <enum-item name='Animal'/>
+        </enum>
+        <int32_t name='histfig' ref-target='historical_figure'/>
         <int32_t/>
     </struct-type>
 
