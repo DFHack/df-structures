@@ -665,7 +665,7 @@
         </stl-vector>
         <stl-vector name='creation_zone_alterations' type-name='pointer'
                     since='v0.40.01' comment='a vtable type'/>
-        <int32_t name='unk_v40_1' since='v0.40.1'/>
+        <int32_t name='unk_v40_1' since='v0.40.01'/>
         <int32_t name="year"/>
         <int32_t name="year_tick"/>
 
@@ -683,6 +683,10 @@
         <stl-vector name='unk_v43_3'/>
         <stl-vector name='unk_v43_4'/>
     </struct-type>
+
+    <enum-type type-name='mountain_peak_flags'>
+        <enum-item name='is_volcano'/>
+    </enum-type>
 
     <struct-type type-name='world_data'>
         <compound name='name' type-name='language_name' comment='name of the world'/>
@@ -845,7 +849,7 @@
             <pointer>
                 <compound name='name' type-name='language_name'/>
                 <compound name='pos' type-name='coord2d'/>
-                <df-flagarray name='flags'/>
+                <df-flagarray name='flags' index-enum='mountain_peak_flags'/>
                 <int16_t name="height"/>
             </pointer>
         </stl-vector>
@@ -931,6 +935,23 @@
                 <pointer name='unk_8' type-name='int16_t' is-array='true'/>
                 <pointer name='unk_c' type-name='int32_t' is-array='true'/>
             </pointer>
+            <comment>
+                Additional feature_map information:
+                The feature_map is a two dimensional structure dividing the world into 16 * 16
+                world tile "feature shells" (and remember that there's a single tile wide shell
+                at the end of each dimension, so a pocket world has a shell dimension of 2 * 2).
+                These shells are loaded and unloaded dynamically, which means trying to access a
+                shell that isn't the one in DF's focus (where the fortress/adventurer/pre embark
+                cursor is) is invalid and can lead to DF crashing.
+                The "features.feature_init" 16 * 16 structure contains the features of each of
+                the corresponding world tiles within the shell. However, DF only loads the
+                feature vectors for the world tiles in focus, although they seem to remain
+                loaded until the shell is unloaded. Until loaded the vectors have a size of 0.
+                Manipulation of the features is usually preserved as feature vectors are
+                unloaded/reloaded, so spires can be elongated and rivers added, but some
+                details, such as river fauna, seem to be generated on loading. Added features
+                may not necessarily be reloaded at the vector index they were created at.
+            </comment>
         </pointer>
 
 <!--

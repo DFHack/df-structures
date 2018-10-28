@@ -13,7 +13,7 @@ function rscript() {
     ruby -I $DFPATH/metasm "$DFPATH/df_misc/$SCRIPT" "$@"
 }
 
-rm -f */vtables.txt */nextid.txt
+rm -f ./*/vtables.txt ./*/nextid.txt
 
 ./make-keybindings.pl < "$DFPATH/df_linux/g_src/keybindings.h" > df.keybindings.xml
 

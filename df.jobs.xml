@@ -45,12 +45,7 @@
         <flag-bit name='milk'/>
     </bitfield-type>
 
-    <struct-type type-name='job_list_link'>
-        <code-helper name='describe'>(describe-obj $.item)</code-helper>
-        <pointer name='item' type-name='job'/>
-        <pointer name='prev' type-name='job_list_link'/>
-        <pointer name='next' type-name='job_list_link'/>
-    </struct-type>
+    <df-linked-list-type type-name='job_list_link' item-type='job'/>
 
     <bitfield-type type-name='job_flags' base-type='uint32_t'>
         <flag-bit name='repeat'/>
@@ -89,7 +84,7 @@
         <enum-item name='RemoveRottenTissue'/>
     </enum-type>
 
-    <struct-type type-name='job' key-field='id'>
+    <struct-type type-name='job' df-list-link-type='job_list_link' df-list-link-field='list_link' key-field='id'>
         <int32_t name='id' init-value='-1'/>
         <pointer name='list_link' type-name='job_list_link'/>
         <int32_t name='posting_index' init-value='-1' since='v0.40.20' comment='index into world.job_postings'/>
@@ -483,7 +478,11 @@
     <struct-type type-name='mandate'>
         <pointer name='unit' type-name='unit'/>
 
-        <int16_t name='mode' comment='0 export, 1 make, 2 guild jobs'/>
+        <enum name='mode' base-type='int16_t'>
+            <enum-item name='Export'/>
+            <enum-item name='Make'/>
+            <enum-item name='Guild'/>
+        </enum>
 
         <enum base-type='int16_t' name='item_type' type-name='item_type'/>
         <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>

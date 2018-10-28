@@ -67,7 +67,7 @@
         dtor 0x8C1AE10
 
         <int32_t name='id'/>
-        <int32_t name="subtype"/>
+        <int32_t name="subtype" comment='0=combat, 6=performance, others=unidentified'/>
 
         <stl-vector name="witnesses" type-name='int32_t' ref-target='unit'/>
 
@@ -117,7 +117,7 @@
         <int32_t name="unk_80"/>
 
         <compound name='unk_v42_1' is-union='true' comment='based on subtype'>
-            <pointer type-name='incident_sub6' name='t6'/>
+            <pointer type-name='incident_sub6_performance' name='t6_performance'/>
             <pointer type-name='incident_sub7' name='t7'/>
             <pointer type-name='incident_sub8' name='t8'/>
             <pointer type-name='incident_sub9' name='t9'/>
@@ -125,9 +125,9 @@
         </compound>
     </struct-type>
 
-    <struct-type type-name='incident_sub6'>
-        <int32_t/>
-        <stl-vector>
+    <struct-type type-name='incident_sub6_performance'>
+        <int32_t name='performance_event' type-name='performance_event_type'/>
+        <stl-vector name='participants'>
             <pointer>
                 <int32_t/>
                 <int32_t/>
@@ -135,13 +135,20 @@
                 <int32_t/>
             </pointer>
         </stl-vector>
-        <int32_t/>
-        <int32_t/>
+        <int32_t name='reference_id' comment='history_event id/poetic_form id/musical_form id/dance_form_id or -1'/>
+        <int32_t name='written_content_id' comment='-1 if not used'/>
         <int32_t/>
         <int32_t/>
         <int32_t/>
         <int32_t/>
     </struct-type>
+    --  There ought to be either a type specific reference or a written content one. Not both.
+    --  Story has only been seen with a history event id, not a written content one, but the sample was small.
+    --  Poem has been seen with either a poetic form or a written content reference.
+    --  Music has been seen only with a music form reference, but the sample was small.
+    --    Music has been seen to be "sang" and "spoke" in DF displayed thoughts, but no instrument playing
+    --    or simulation. It's still unknown how to determine what action participants took.
+    --  Dance has been seen only with a dance form reference, but the sample was small.
 
     <struct-type type-name='incident_sub7'>
         <int32_t/>
@@ -240,20 +247,42 @@
         </stl-vector>
     </struct-type>
 
-    <struct-type type-name='mission'>
-        <stl-vector name='unk_1'/>
+    <struct-type type-name='mission_report'>
+        <stl-vector name='unk_1'/> object size 1800, seems to be an array
         <int32_t name='unk_2'/>
         <int32_t name='unk_3'/>
         <int32_t name='unk_4'/>
         <int32_t name='unk_5'/>
 
-        <pointer name='unk_6'/>
+        <stl-string name="title"/>
         <int32_t name='unk_7'/>
-        <int32_t name='unk_8'/>
-        <int32_t name='unk_9'/>
+        <int32_t name='year'/>
+        <int32_t name='year_tick'/>
         <stl-vector name='unk_10'/>
         <int32_t name='unk_11'/>
         <int32_t name='unk_12'/>
+    </struct-type>
+
+    <struct-type type-name='spoils_report'>
+        <stl-string name="title"/>
+        <int32_t name='unk_1'/>
+        <int32_t name='year'/>
+        <int32_t name='year_tick'/>
+        <int32_t name='unk_4'/>
+
+        <stl-vector name='item_types'>
+            <enum base-type='int16_t' type-name='item_type'/>
+        </stl-vector>
+        <stl-vector name='item_subtypes'>
+            <int16_t refers-to='(item-subtype-target $$._parent._parent.item_types[$$._key] $)'/>
+        </stl-vector>
+        <stl-vector name='mat_types' type-name='int16_t' ref-target='material'/>
+        <stl-vector name='mat_indices' type-name='int32_t'/>
+        <stl-vector name='item_counts' type-name='int32_t'/>
+
+        <stl-vector name='creature_races' type-name='int32_t' ref-target='creature_raw'/>
+        <stl-vector name='creature_castes' type-name='int32_t' ref-target='caste_raw' aux-value='$$._parent.creature_races[$._key]'/>
+        <stl-vector name='creature_counts' type-name='int32_t'/>
     </struct-type>
 
     <struct-type type-name='world_unk_20'>
@@ -388,10 +417,10 @@
     </enum-type>
 
     <struct-type type-name='glowing_barrier'>
-        <int8_t/>
+        <int8_t name='triggered' comment='changes from 0 to 1 when glowing barrier vanishes, preventing later HFS events'/>
         <int32_t/>
-        <stl-vector name='buildings' type-name='int32_t' ref-target='building'/>
-        <compound name='pos' type-name='coord'/>
+        <stl-vector name='buildings' type-name='int32_t' ref-target='building' comment='when building is deconstructed, causes glowing barrier at pos to vanish and (in fort mode) spawns HFS one z-level below if it has not been set off already'/>
+        <compound name='pos' type-name='coord' comment='coordinates of a GlowingBarrier or GlowingFloor tiletype'/>
     </struct-type>
 
     <struct-type type-name='deep_vein_hollow'>
@@ -467,9 +496,9 @@
         </stl-vector>
 
         <static-array count='2000'>
-            <int32_t name='unk_0'/>
-            <int32_t/>
-            <pointer/>
+            <pointer comment="List seems to be processed index 0 first and then removal swaps last to first"/>
+            <int32_t comment="Seems to have very few bits set in lower half, (not copied with the pointer?)"/>
+            <int32_t comment="Seems to have many bits set in lower half, (not copied with the pointer?)"/>
         </static-array>
         <int32_t comment='next slot'/>
 
@@ -516,6 +545,99 @@
             </vmethod>
         </virtual-methods>
     </class-type>
+
+    <struct-type type-name='mental_picture'>
+        <stl-vector name='elements' pointer-type='mental_picture_elementst'/>
+        <int32_t/>
+        <stl-vector name='properties' pointer-type='mental_picture_propertyst'/>
+        <pointer/>
+        <int32_t/> -1
+        <int32_t/> -1
+    </struct-type>
+
+    32bit size is 4 bytes more than should be
+    <struct-type type-name='belief_system' key-field='id' instance-vector='$global.world.belief_systems.all'>
+        <int32_t name='id'/>
+
+        <stl-vector name='mental_pictures'>
+            <pointer>
+                <stl-vector pointer-type='mental_picture'/>
+            </pointer>
+        </stl-vector>
+        <stl-vector name='unk_2' type-name='int32_t'/> e.g. 757
+        <stl-vector name='unk_3' type-name='int32_t'/> e.g. 1000000
+
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+    </struct-type>
 
     <struct-type type-name='world'>
         dtor 89fff80
@@ -588,6 +710,7 @@
             </static-array>
 
             <stl-vector name='bad' has-bad-pointers='true' pointer-type='unit'/>
+            <stl-vector name='unknown' since='v0.44.06'/>
         </compound>
 
         -- Unit and Art Chunks
@@ -791,7 +914,8 @@
             </bitfield>
 
             <static-array type-name='int32_t' count='9' since='v0.40.01'/>
-            <stl-vector name='missions' pointer-type='mission'/>
+            <stl-vector name='mission_reports' pointer-type='mission_report'/>
+            <stl-vector name='spoils_reports' pointer-type='spoils_report' since='v0.44.06'/>
             <int32_t name='display_timer'/>
 
             <static-array name='slots' count='100'>
@@ -912,9 +1036,9 @@
             <stl-vector name='bad' pointer-type='occupation' has-bad-pointers='true'/>
         </compound>
 
-        <compound name='unk_111E18' since='v0.44.01'>
-            <stl-vector name='all' type-name='pointer'/>
-            <stl-vector name='bad' type-name='pointer' has-bad-pointers='true'/>
+        <compound name='belief_systems' since='v0.44.01'>
+            <stl-vector name='all' pointer-type='belief_system'/>
+            <stl-vector name='bad' pointer-type='belief_system' has-bad-pointers='true'/>
         </compound>
 
         <pointer name='selected_building' type-name='building'/>
@@ -960,21 +1084,21 @@
         TODO: why did the alignment actually change here?
 
         <compound name='profession_skills'>
-            <static-array name='primary' count='134' index-enum='profession' since='v0.40.1'>
+            <static-array name='primary' index-enum='profession' since='v0.40.01'>
                 <stl-vector type-name='job_skill'/>
             </static-array>
-            <static-array name='secondary' count='134' index-enum='profession' since='v0.40.1'>
+            <static-array name='secondary' index-enum='profession' since='v0.40.01'>
                 <stl-vector type-name='job_skill'/>
             </static-array>
         </compound>
 
         <compound name='math'>
-            <static-array name='approx' count='40' since='v0.40.1' comment='10 * cosine/sine of the index in units of 1/40 of a circle, rounded towards 0'>
+            <static-array name='approx' count='40' since='v0.40.01' comment='10 * cosine/sine of the index in units of 1/40 of a circle, rounded towards 0'>
                 <int32_t name='cos'/>
                 <int32_t name='sin'/>
             </static-array>
-            <static-array name='cos' count='181' type-name='d-float' since='v0.40.1' comment='100 * cosine of the index in degrees'/>
-            <static-array name='hypot' count='11' since='v0.40.1' comment='square root of the sum of the squares of the indices'>
+            <static-array name='cos' count='181' type-name='d-float' since='v0.40.01' comment='100 * cosine of the index in degrees'/>
+            <static-array name='hypot' count='11' since='v0.40.01' comment='square root of the sum of the squares of the indices'>
                 <static-array count='11' type-name='d-float'/>
             </static-array>
         </compound>
@@ -985,10 +1109,10 @@
             <pointer type-name='z_level_flags' name='z_level_flags'
                      is-array='true' since='v0.34.05'/>
 
-            <stl-vector name='unk_v40_3a' pointer-type='block_square_event' since='v0.40.1'/>
-            <stl-vector name='unk_v40_3b' type-name='int16_t' since='v0.40.1'/>
-            <stl-vector name='unk_v40_3c' type-name='int16_t' since='v0.40.1'/>
-            <stl-vector name='unk_v40_3d' type-name='int16_t' since='v0.40.1'/>
+            <stl-vector name='unk_v40_3a' pointer-type='block_square_event' since='v0.40.01'/>
+            <stl-vector name='unk_v40_3b' type-name='int16_t' since='v0.40.01'/>
+            <stl-vector name='unk_v40_3c' type-name='int16_t' since='v0.40.01'/>
+            <stl-vector name='unk_v40_3d' type-name='int16_t' since='v0.40.01'/>
         </compound>
 
         <pointer name='world_data' type-name='world_data'/>
@@ -1005,7 +1129,7 @@
             <int32_t name='lakes_cur'/>
             <int32_t/>
             <int32_t/>
-            <static-array count='100' type-name='pointer'/>
+            <static-array name='geo_layers' count='100' pointer-type='world_geo_layer'/>
             <static-array count='100' type-name='int8_t'/>
             <static-array count='100' type-name='int16_t'/>
             <int32_t/>
@@ -1016,8 +1140,8 @@
             <int32_t/>
             <int32_t/>
             <int32_t/>
-            <stl-vector type-name='pointer'/>
-            <stl-vector type-name='pointer'/>
+            <stl-vector name='entities' pointer-type='historical_entity'/>
+            <stl-vector name='sites' pointer-type='world_site'/>
             <int32_t name='cursor_x'/>
             <int32_t name='cursor_y'/>
             <stl-vector type-name='pointer'/>
@@ -1038,45 +1162,45 @@
             <bool name='make_cave_civs'/>
             <bool name='place_civs'/>
             <bool name='finished_prehistory'/>
-            <stl-vector type-name='pointer'/>
-            <stl-vector type-name='pointer'/>
+            <stl-vector name='sites2' pointer-type='world_site'/>
+            <stl-vector name='sites3' pointer-type='world_site'/>
             <int32_t/>
             <int8_t/>
             <int8_t/>
             <int8_t/>
             <int8_t/>
-            <stl-vector type-name='pointer'/>
-            <stl-vector type-name='pointer'/>
+            <stl-vector name='entity_raws' pointer-type='entity_raw'/>
+            <stl-vector type-name='int32_t'/>
             <int32_t name='civ_count'/>  --  Only valid during civ placement phase
             <int32_t name='civs_left_to_place'/>  --  Ditto
-            <static-array count='10'>
-                <stl-vector/>
+            <static-array name='regions1' count='10'>
+                <stl-vector pointer-type='world_region'/>
             </static-array>
-            <static-array count='10'>
-                <stl-vector/>
+            <static-array name='regions2' count='10'>
+                <stl-vector pointer-type='world_region'/>
             </static-array>
-            <static-array count='10'>
-                <stl-vector/>
+            <static-array name='regions3' count='10'>
+                <stl-vector pointer-type='world_region'/>
             </static-array>
-            <stl-vector/>
-            <stl-vector/>
-            <stl-vector/>
-            <stl-vector/>
-            <stl-vector/>
-            <stl-vector/>
+            <stl-vector type-name='int32_t'/>
+            <stl-vector type-name='int32_t'/>
+            <stl-vector type-name='int32_t'/>
+            <stl-vector type-name='int32_t'/>
+            <stl-vector type-name='int32_t'/>
+            <stl-vector type-name='int32_t'/>
             <int32_t/>
             <int32_t/>
-           <stl-vector name='unk_10d298' since='v0.40.01'/>
-           <stl-vector name='unk_10d2a4' since='v0.40.01'/>
-           <stl-vector since='v0.42.01'/>
-           <stl-vector since='v0.44.01'/>
-           <stl-vector since='v0.44.01'/>
-           <int32_t since='v0.42.01'/>
+            <stl-vector name='unk_10d298' type-name='int32_t' since='v0.40.01'/>
+            <stl-vector name='unk_10d2a4' type-name='int32_t' since='v0.40.01'/>
+            <stl-vector name='libraries' pointer-type='abstract_building' since='v0.42.01'/>
+            <int32_t since='v0.42.01'/>
+            <stl-vector name='temples' pointer-type='abstract_building' since='v0.44.01'/>
+            <stl-vector name='some_artifacts' pointer-type='artifact_record' since='v0.44.01'/>
         </compound>
 
         <compound name='orphaned_flow_pool' type-name='flow_reuse_pool'/>
 
-        -- RAWs
+        -- raws
 
         <compound name='raws' type-name='world_raws'/>
 
@@ -1235,27 +1359,78 @@
 
         <stl-vector name='entity_populations' pointer-type='entity_population'/>
 
-        <static-array name='unk_v40_6a' since='v0.40.1' count='336'>
-            <stl-vector type-name='int32_t'/>
-        </static-array>
-        <static-array name='unk_v40_6b' since='v0.40.1' count='336'>
-            <stl-vector type-name='int32_t'/>
-        </static-array>
-        <static-array name='unk_v40_6c' since='v0.40.1' count='336'>
-            <stl-vector type-name='int32_t'/>
-        </static-array>
-        <static-array name='unk_v40_6d' since='v0.40.1' count='336'>
-            <stl-vector type-name='int32_t'/>
-        </static-array>
-        <static-array name='unk_v40_6e' since='v0.40.1' count='336'>
-            <stl-vector type-name='int32_t'/>
-        </static-array>
-        <static-array name='unk_v40_6f' since='v0.40.1' count='336'>
-            <stl-vector type-name='int32_t'/>
-        </static-array>
-        <stl-vector name='unk_131ec0' since='v0.42.01'/>
-        <stl-vector name='unk_v40_7' since='v0.40.1'/>
-        <stl-vector name='unk_131ef0' since='v0.44.01'/>
+        <compound name='unk_v40_6'>
+            <static-array name='unk1' since='v0.40.01' count='336'>
+                <stl-vector type-name='int32_t'/>
+            </static-array>
+            <static-array name='unk2' since='v0.40.01' count='336'>
+                <stl-vector type-name='int32_t'/>
+            </static-array>
+            <static-array name='unk3' since='v0.40.01' count='336'>
+                <stl-vector type-name='int32_t'/>
+            </static-array>
+            <static-array name='unk4' since='v0.40.01' count='336'>
+                <stl-vector type-name='int32_t'/>
+            </static-array>
+            <static-array name='unk5' since='v0.40.01' count='336'>
+                <stl-vector type-name='int32_t'/>
+            </static-array>
+            <static-array name='unk6' since='v0.40.01' count='336'>
+                <stl-vector type-name='int32_t'/>
+            </static-array>
+        </compound>
+        <stl-vector name='unk_131ec0' since='v0.42.01'>
+            <pointer> pairs of same or similar values
+                <int32_t/>
+                <int32_t/>
+
+                <int32_t/>
+                <int32_t/>
+
+                <int32_t/>
+                <int32_t/>
+
+                <int32_t/>
+                <int32_t/>
+
+                <int32_t/>
+                <int32_t/>
+
+                <int32_t/>
+                <int32_t/>
+
+                <int32_t/>
+                <int32_t/>
+
+                <int32_t/>
+                <int32_t/>
+            </pointer>
+        </stl-vector>
+        <stl-vector name='languages' since='v0.40.01'> DWARF ELF GOBLIN HUMAN
+            <pointer>
+                <stl-string name='name'/>
+                <int32_t/>
+                <int32_t/>
+            </pointer>
+        </stl-vector>
+        <stl-vector name='unk_131ef0' since='v0.44.01'>
+            <pointer>
+                <int32_t name='unk_1'/>
+                <stl-vector name='unk_2'>
+                    <pointer>
+                        <int32_t/>
+                        <int32_t/>
+                        <int32_t/>
+                        <int32_t/> -1
+                        <int32_t/> -1
+                    </pointer>
+                </stl-vector>
+                <int32_t name='unk_3'/>
+                <int32_t/>
+                <int32_t/>
+            </pointer>
+        </stl-vector>
+
         <int32_t name='unk_131f08' since='v0.44.01'/>
 
         <bool name="reindex_pathfinding" comment='forces map_block.passable to be recomputed'/>
@@ -1306,7 +1481,7 @@
         <int32_t name='unk_v40_3s' since='v0.40.01'/>
         <int32_t name='unk_v40_4s' since='v0.40.01'/>
 
-        <stl-vector name='unk_v40_5s' since='v0.40.01'/>
+        <stl-vector name='unk_v40_5s' since='v0.40.01'/> object size varies 25 28 29 30 32 33 37 etc.
 
         <int32_t name='unk_v40_6s' since='v0.40.01'/>
         <pointer name='unk_v40_7s' since='v0.40.01'/>
@@ -1440,7 +1615,7 @@
             <int32_t/>
             <int32_t/>
         </compound>
-        <int32_t name='unk_26b618' comment='0.40.01'/>
+        <int32_t name='unk_26b618' since='v0.40.01'/>
     </struct-type>
 </data-definition>
 

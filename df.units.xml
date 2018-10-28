@@ -2,8 +2,8 @@
     <bitfield-type type-name='unit_flags1' base-type='uint32_t'>
         <flag-bit name='move_state'
                   comment='Can the dwarf move or are they waiting for their movement timer'/>
-        <flag-bit name='dead'
-                  comment='Dead (might also be set for incoming/leaving critters that are alive)'/>
+        <flag-bit name='inactive'
+                  comment='Set for dead units and incoming/leaving critters that are alive but off-map'/>
         <flag-bit name='has_mood' comment='Currently in mood'/>
         <flag-bit name='had_mood' comment='Had a mood already'/>
 
@@ -775,7 +775,7 @@
             <enum name='soldier_mood' base-type='int16_t' init-value='None'>
                 <enum-item name='None' value='-1'/>
                 <enum-item name='MartialTrance'/>
-                <enum-item name='Enranged'/>
+                <enum-item name='Enraged'/>
                 <enum-item name='Tantrum'/>
                 <enum-item name='Depressed'/>
                 <enum-item name='Oblivious'/>
@@ -1065,8 +1065,8 @@
                         </pointer>
                     </stl-vector>
                     <int32_t name='unk_1'/>
-                    <int32_t name='unk_2'/>
-                    <int32_t name='unk_3'/>
+                    <int32_t name='year'/>
+                    <int32_t name='year_tick'/>
                     <int32_t name='unk_4'/>
                     <int32_t name='unk_5'/>
                     <int32_t name='unk_6'/>
@@ -1075,6 +1075,7 @@
             </compound>
 
             <int32_t name='enemy_status_slot' init-value='-1' comment='also combat_side_id'/>
+            <df-flagarray name='unk_4406_1' since='v0.44.06'/>
             <int32_t name='unk_v4206_1'/>
             <int32_t name='unk_874_cntr'/> // age ? incremented every tick
 
@@ -1106,12 +1107,12 @@
         </pointer>
         <stl-vector name='occupations' pointer-type='occupation' since='v0.42.01'/>
         <stl-string name='adjective' comment='from physical descriptions for use in adv'/>
-        
+
         <virtual-methods>
             <vmethod ret-type='uint8_t' name='getCreatureTile'/>
             <vmethod ret-type='uint8_t' name='getCorpseTile'/>
             <vmethod ret-type='uint8_t' name='getGlowTile'/>
-        </virtual-methods>        
+        </virtual-methods>
     </class-type>
 
     <enum-type type-name='ghost_goal' base-type='int16_t'>
@@ -1458,19 +1459,11 @@
         <enum-item name='WantsDrink' comment='auto-increment to 403200'>
             <item-attr name='tag' value='ALCOHOLIC'/>
         </enum-item>
-        <enum-item name='LikesOutdoors'>
-            <item-attr name='tag' value='MOUNTAIN'/>
-        </enum-item>
-        <enum-item name='Hardened'>
-            <item-attr name='tag' value='COMBATHARDNESS'/>
-        </enum-item>
+        <enum-item comment='formerly LikesOutdoors'/>
+        <enum-item comment='formerly Hardened'/>
 
-        <enum-item name='TimeSinceBreak'>
-            <item-attr name='tag' value='TIME_SINCE_BREAK'/>
-        </enum-item>
-        <enum-item name='OnBreak'>
-            <item-attr name='tag' value='ON_BREAK'/>
-        </enum-item>
+        <enum-item comment='formerly TimeSinceBreak'/>
+        <enum-item comment='formerly OnBreak'/>
         <enum-item name='PrepareToDie' comment='auto-decrement'/>
         <enum-item name='CaveAdapt'>
             <item-attr name='tag' value='CAVE_ADAPT'/>
@@ -1745,6 +1738,8 @@
                     <flag-bit name='unk1'/>
                     <flag-bit name='unk2'/>
                     <flag-bit name='unk3'/>
+                    <flag-bit name='unk4'/>
+                    <flag-bit name='remembered' comment='Recollection of past experience rather than current'/>
                 </bitfield>
                 <int32_t name='unk7'/>
                 <int32_t name='year'/>
@@ -1786,10 +1781,10 @@
         <stl-vector type-name='int16_t' name='unk6'/>
 
         <int32_t name='stress_level'/>
-        <int32_t name='unk_v4014_2' since='v0.40.14'/>
-        <int32_t name='unk_v4014_3' since='v0.40.14'/>
-        <int32_t name='unk_v4019_1' since='v0.40.17-19'/>
-        <int32_t name='unk_v4019_2' since='v0.40.17-19'/>
+        <int32_t name='stress_drain' since='v0.40.14' comment='range 0-806400, higher values cause stress to decrease quicker'/>
+        <int32_t name='stress_boost' since='v0.40.14' comment='range 0-806400, higher values cause stress to increase quicker'/>
+        <int32_t name='likes_outdoors' comment='migrated from misc_traits'/>
+        <int32_t name='combat_hardened' comment='migrated from misc_traits'/>
 
         <stl-vector name="needs" since='v0.42.01'>
             <pointer>
@@ -1808,6 +1803,7 @@
         </pointer>
         <int32_t name="unk_v4201_3" init-value='-1' since='v0.42.01'/>
         <int32_t name="unk_v4201_4" init-value='-1' since='v0.42.01'/>
+        <pointer is-array='true' type-name='int32_t' name='unk_v4410_1' comment='length is multiple of 9?'/>
         <int32_t name="current_focus" comment='weighted sum of needs focus_level-s'/>
         <int32_t name="undistracted_focus" comment='usually number of needs multiplied by 4'/>
     </struct-type>
