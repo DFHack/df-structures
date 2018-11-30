@@ -1118,13 +1118,15 @@
         </static-array>
     </class-type>
 
-    <class-type type-name='viewscreen_layer_arena_creaturest'
-                inherits-from='viewscreen_layer'>
-        <int8_t name="unk_1c"/>
-        <int16_t name="unk_1e"/>
-        <int16_t name="unk_20"/>
-        <int16_t name="unk_22"/>
-        <int32_t name="unk_24"/>
+    <class-type type-name='viewscreen_layer_arena_creaturest' inherits-from='viewscreen_layer'>
+        <bool name="in_adding_item"/> if set, the screen will add the item specified below the next tick and unset
+
+        these values are updated by the child viewscreen_selectitemst when it's closed
+        <enum name='item_type' base-type='int16_t' type-name='item_type'/>
+        <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
+        <int16_t name="mat_type" ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name="mat_index"/>
+
         <int32_t name="cur_side"/>
         <int32_t name="cur_interaction" refers-to='$global.world.arena_spawn.interactions[$]'/>
         <stl-string name='filter'/>
@@ -1166,7 +1168,15 @@
         <pointer name='entity' type-name='historical_entity'/>
         <pointer name='name' type-name='language_name'/>
         <int32_t name='unk1a'/>
-        <int32_t name='unk1b'/>
+        <enum name='current_component' base-type='int32_t'>
+            <enum-item name='FrontCompound'/>
+            <enum-item name='RearCompound'/>
+            <enum-item name='FirstAdjective'/>
+            <enum-item name='SecondAdjective'/>
+            <enum-item name='HyphenCompound'/>
+            <enum-item name='TheX'/>
+            <enum-item name='OfX'/>
+        </enum>
         <int32_t name='unk1c'/>
         <compound name='dictionary' type-name='language_word_table'/>
         <stl-vector name='list_word' type-name='int32_t' ref-target='language_word'/>
@@ -1347,6 +1357,27 @@
 
     <class-type type-name='viewscreen_layer_musicsoundst' inherits-from='viewscreen_layer'/>
 
+    <struct-type type-name='unit_storage_status'>
+        <compound name='floor_pos' type-name='coord'/>
+        <compound name='chest_pos' type-name='coord'/>
+        <int16_t name='chest_capacity'/>
+        <compound name='cabinet_pos' type-name='coord'/>
+        <int16_t name='cabinet_capacity' />
+        <compound name='weaponrack_pos'  type-name='coord'/>
+        <int16_t name='weaponrack_capacity' />
+        <static-array name='armorstand_capacity' count='6'> armor, helm, shoes, gloves, pants, shield
+            <int8_t/>
+        </static-array>
+        <static-array name='armorstand_pos' count='6'>
+            <compound type-name='coord'/>
+        </static-array>
+        <int32_t name='num_owned_items'/>
+        <int32_t name='num_owned_chests'/>
+        <int32_t name='num_owned_cabinets'/>
+        <int32_t name='num_owned_weaponracks'/>
+        <int32_t name='num_owned_armorstands'/>
+    </struct-type>
+
     <class-type type-name='viewscreen_layer_noblelistst' inherits-from='viewscreen_layer'>
         <enum name='mode' base-type='int16_t'>
             <enum-item name='List'/>
@@ -1358,7 +1389,7 @@
             <pointer>
                 <pointer name="unit" type-name="unit"/>
                 <pointer name="nemesis" type-name="nemesis_record"/>
-                <pointer name="unk_8"/>
+                <pointer name="storage_status" type-name='unit_storage_status'/>
                 <pointer name="position" type-name="entity_position"/>
                 <pointer name="assignment" type-name="entity_position_assignment"/>
                 <int32_t name="group" ref-target='historical_entity'/>
@@ -1911,7 +1942,7 @@
         <stl-vector name='worldgen_presets'/> LARGE_ISLAND etc
 
         advanced settings
-        <int8_t name='unk_2'/>
+        <bool name='unk_2'/>
         <bool name='in_worldgen'/>
         <int32_t name='cursor_paramset'/>
         <stl-string name='random_seed'/>
@@ -1920,15 +1951,15 @@
         <bool name='editing_title'/>
         <bool name='popup_deleteset'/>
         <bool name='popup_changedimensions'/>
-        <int8_t name='unk_11'/>
+        <bool name='unk_11'/>
         <uint16_t name='custom_size_x'/>
         <uint16_t name='custom_size_y'/>
         <bool name='popup_abort'/>
         <bool name='popup_goon'/>
         <bool name='unsaved_changes'/>
-        <int8_t name='simple_mode' comment='0=advanced params, 1=create new world'/>
-        <int8_t name='unk_20'/>
-        <int8_t name='unk_21'/>
+        <bool name='simple_mode' comment='0=advanced params, 1=create new world'/>
+        <bool name='unk_20'/>
+        <bool name='unk_21'/>
 
         create new world
         <int16_t name='cursor_line'/>
@@ -1943,12 +1974,12 @@
 
         <bool name='worldgen_paused'/>
         <bool name='worldgen_rejected'/>
-        <stl-vector name='unk_32' pointer-type='stl-string' comment='rejection related'/>
+        <stl-vector name='rejection_msg' pointer-type='stl-string' comment='rejection popup'/>
         <stl-vector name='welcome_msg' pointer-type='stl-string' comment='fullscreen popup'/>
 
         -- v0.40.01
-        <stl-string name="unk_98"/>
-        <int8_t name="unk_b4"/>
+        <stl-string name="raw_folder"/>
+        <bool name="load_world_params"/> if set, the screen will "load the world params" the next tick and unset
         <int32_t name="unk_b8"/>
         <int32_t name="unk_bc"/>
     </class-type>
