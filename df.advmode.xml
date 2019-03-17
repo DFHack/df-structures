@@ -56,6 +56,8 @@
         45
         <enum-item name='Unk45'/>
         <enum-item name='Build'/>
+        <enum-item name='AssumeIdentity'/>
+        <enum-item name='NameItem'/>
     </enum-type>
 
     <struct-type type-name='conversation'>
@@ -373,9 +375,9 @@
         <enum base-type='int16_t' name='menu' type-name='ui_advmode_menu'/>
 
         <int8_t name='site_level_zoom' comment='when set, the travel map is zoomed in to show site details'/>
-        <int32_t name='unk_1'/>
-        <int32_t name='unk_2'/>
-        <int32_t name='unk_3'/>
+        <int32_t name='travel_origin_x'/>
+        <int32_t name='travel_origin_y'/>  Coordinates of the player on the map when the travel screen is opened. Determine the displayed position whilst travel_not_moved is set 
+        <int32_t name='travel_origin_z'/>
         <bool name='travel_clouds'/>
         <enum base-type='int8_t' name='travel_right_map'>
             <enum-item name='MapNone'/>
@@ -419,7 +421,7 @@
 
         <int32_t name='bogeymen_timer' comment='initialized to 4-7 when the cackling starts'/>
         <int32_t name='bogeymen_killed'/>
-        <int32_t name='unk_17' comment='initialized to 60 when the cackling starts'/>
+        <int32_t name='bogeymen_ambush_delay' comment='initialized to 60 when the cackling starts, prevents bogeyman ambushes until it decreases to 0'/>
         <int32_t name='unk_18'/>
 
         <stl-vector type-name='int32_t' name='searched_x'/>
@@ -446,8 +448,8 @@
         <static-array name='unk_32' type-name='int32_t' count='1000'/>
 
         <int32_t name='unk_33'/>
-        <int32_t name='unk_34'/>
-        <int32_t name='unk_35'/>
+        <int32_t name='view_tracks_odors' comment='The value of view_tracks_odors determines the combination of local/travel mode track/odor screens currently displayed. Opening the local tracks screen increments this value by 1, opening travel mode tracks+odors increments by 2, opening local odors increments by 4. Closing the screens decrements respectively.'/>
+        <int32_t name='tracks_visible' comment='The quantity of visible tracks.'/>
 
         <static-array name='unk_36' type-name='int16_t' count='9'/>
         <static-array name='unk_37' type-name='int16_t' count='9'/>
@@ -466,12 +468,12 @@
         <static-array name='unk_41' type-name='int32_t' count='9'/>
         <static-array name='unk_42' type-name='int8_t' count='9'/>
 
-        <int32_t comment='race'/>
-        <int32_t comment='caste'/>
+        <int32_t name='odor_race' ref-target='creature_raw' comment='race ID of strongest odor creature'/>
+        <int32_t name='odor_caste' ref-target='caste_raw' aux-value='$$.odor_race' comment='caste ID of strongest odor creature'/>
 
-        <int8_t name='unk_43'/>
-        <int32_t name='unk_44'/>
-        <int32_t name='unk_45'/>
+        <int8_t name='odor_death' comment='Overrides creature odor with odor of Death'/>
+        <int32_t name='travel_odor_race' ref-target='creature_raw' comment='race ID of strongest odor creature in fast travel mode'>
+        <int32_t name='travel_odor_caste' ref-target='caste_raw' aux-value='$$.travel_odor_race' comment='caste ID of strongest odor creature in fast travel mode'/>
         <int8_t name='unk_46'/>
 
         <int32_t name='unk_47'/>
@@ -570,9 +572,9 @@
         <int8_t name='unk_61'/>
 
         <int16_t name='unk_62'/>
-        <int16_t name='unk_63'/>
-        <int16_t name='unk_64'/>
-        <int16_t name='unk_65'/>
+        <int16_t name='travel_start_x'/>
+        <int16_t name='travel_start_y'/>  Coordinates of the player on the map right after their first fast travel move
+        <int16_t name='travel_start_z'/>
         <int32_t name='player_id' refers-to='$global.world.nemesis.all[$]'/>
         <int16_t name='unk_66'/>
         <int16_t name='unk_67'/>
@@ -622,13 +624,13 @@
         <stl-vector name='movements' pointer-type='adventure_movement_optionst'/>
         <stl-vector name='unk_75' since='v0.34.08'/>
 
-        <int32_t name='unk_76'/>
-        <int8_t name='unk_77'/>
+        <int32_t name='sleep_hours'/>
+        <int8_t name='sleep_until_dawn' comment='1 = sleep until dawn'/>
         <int8_t name='unk_78'/>
-        <int8_t name='unk_79'/>
+        <int8_t name='sleep_wait' comment='0 = sleep, 1 = wait'/>
         <int8_t name='unk_80'/>
         <int8_t name='unk_81'/>
-        <int8_t name='unk_82'/>
+        <int8_t name='player_control_state' comment='Set to 2 when adventurer is unconscious, etc to prevent player from controlling the unit'/>
         <int8_t name='unk_83'/>
         <int32_t name='unk_84'/>
 
@@ -716,11 +718,11 @@
         </compound>
 
         <pointer name='unk_91'/>
-        <compound name='unk_v44_1' comment='assumed identity?'>
-            <int32_t/>
+        <compound name='assume_identity' comment='Manages the Assume Identity UI when the AssumeIdentity menu is open'>
+            <int32_t name='mode' comment='0 = SelectIdentity, 1 = CreateIdentity, 2 = SelectProfession, 3 = SelectWorship, 4 = SelectOrigin'/>
             <compound name='name' type-name='language_name'/>
             <int32_t name='worship_object'/>
-            <int32_t/>
+            <int32_t name='profession'/>
             <int32_t name='origin'/>
             <stl-vector/>
             <stl-vector/>
@@ -738,7 +740,7 @@
         <int16_t name='unk_98'/>
         <stl-string name='unk_99'/>
         <int32_t/>
-        <compound type-name='language_name' name='unk_100'/>
+        <compound type-name='language_name' name='name_item' comment='used when naming items'/>
     </struct-type>
 
     <class-type type-name='text_info_elementst'>
