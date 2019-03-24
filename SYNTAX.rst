@@ -89,9 +89,6 @@ Every enum has an integer base type, which defaults to *int32_t* if omitted.
 Like in C++, enum items may either explicitly specify an integer value, or
 rely on auto-increment behavior.
 
-**NOTE:** Due to a codegen limitation, specifying value on any item other
-than the first one prevents using the attribute feature described below.
-
 As in most cases, the *name* attribute may be omitted if unknown; the code
 generator would produce a random identifier to satisfy C++ language requirements.
 
@@ -240,6 +237,13 @@ Primitive fields can be classified as following:
         <stl-string name='id'.../>
 
     These tags correspond to ``char[bytes]``, ``char*``, and ``std::string``.
+
+4)  File Stream::
+
+        <stl-fstream name='id'/>
+
+    This is not really a primitive type, but classified as such since it is
+    treated as a predefined opaque object (a-la padding).
 
 Primitives support the following attributes:
 
@@ -508,6 +512,17 @@ These are defined in df-code.lisp:
 
     but allows the GUI to display it as a list.
 
+``<df-linked-list-type type-name='foo_link' item-type='foo'/>``
+
+    Defines a DF-style linked list node. This translates to::
+
+        <struct-type type-name='foo_link'>
+            <pointer name='item' type-name='foo'/>
+            <pointer name='prev' type-name='foo_link'/>
+            <pointer name='next' type-name='foo_link'/>
+        </struct-type>
+
+    with some extra code to make it easier to interact with.
 
 Class type definition
 =====================

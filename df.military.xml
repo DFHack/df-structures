@@ -1,44 +1,4 @@
 <data-definition>
-    <enum-type type-name='uniform_material_class' base-type='int16_t'>
-        <enum-item name='None' value='-1'/>
-
-        <enum-item comment='BROKEN'/>
-        <enum-item name='Leather'/>
-        <enum-item name='Cloth'/>
-        <enum-item name='Wood'/>
-        <enum-item comment='BROKEN'/>
-
-        <enum-item name='Stone'/>
-        <enum-item comment='BROKEN'/>
-        <enum-item comment='BROKEN'/>
-        <enum-item comment='BROKEN'/>
-        <enum-item comment='BROKEN'/>
-
-        <enum-item comment='BROKEN'/>
-        <enum-item comment='BROKEN'/>
-        <enum-item comment='BROKEN'/>
-        <enum-item comment='BROKEN'/>
-        <enum-item name='Metal'/>
-
-        <enum-item comment='BROKEN'/>
-        <enum-item name='Metal2'/>
-        <enum-item name='Gem'/>
-        <enum-item name='Bone'/>
-        <enum-item name='Shell'/>
-
-        <enum-item name='Pearl'/>
-        <enum-item name='Tooth'/>
-        <enum-item name='Horn'/>
-        <enum-item comment='BROKEN'/>
-        <enum-item comment='BROKEN'/>
-
-        <enum-item comment='BROKEN'/>
-        <enum-item comment='BROKEN'/>
-        <enum-item name='PlantFiber'/>
-        <enum-item name='Silk'/>
-        <enum-item name='Yarn'/>
-    </enum-type>
-
     <bitfield-type type-name='uniform_indiv_choice'>
         <flag-bit name='any'/>
         <flag-bit name='melee'/>
@@ -49,7 +9,7 @@
         <enum base-type='int16_t' name="item_type" type-name='item_type'/>
         <int16_t name="item_subtype" refers-to='(item-subtype-target $$._parent.item_type $)'/>
 
-        <enum base-type='int16_t' name="material_class" type-name='uniform_material_class'/>
+        <enum base-type='int16_t' name="material_class" type-name='entity_material_category'/>
 
         <int16_t name='mattype' ref-target='material' aux-value='$$.matindex'/>
         <int32_t name='matindex'/>
@@ -66,7 +26,7 @@
             <int32_t ref-target='item'/>
         </stl-vector>
 
-        <compound name="indiv_choice" type-name='uniform_indiv_choice'/>
+        <bitfield name="indiv_choice" type-name='uniform_indiv_choice'/>
     </struct-type>
 
     <struct-type type-name='squad_ammo_spec'>
@@ -125,25 +85,19 @@
 
         <code-helper name='describe'>(describe-obj @.occupant)</code-helper>
 
-        <stl-vector name="orders">
-            <pointer type-name='squad_order'/>
-        </stl-vector>
+        <stl-vector name="orders" pointer-type='squad_order'/>
 
         <static-array name='preferences' count='4' index-enum='barrack_preference_category'>
-            <stl-vector>
-                <int32_t ref-target='building'/>
-            </stl-vector>
+            <stl-vector type-name='int32_t' ref-target='building'/>
         </static-array>
 
         <static-array name='uniform' count='7' index-enum='uniform_category'>
-            <stl-vector>
-                <pointer type-name='squad_uniform_spec'/>
-            </stl-vector>
+            <stl-vector pointer-type='squad_uniform_spec'/>
         </static-array>
 
         <stl-string name="unk_c4"/>
 
-        <compound name='flags' type-name='uniform_flags'/>
+        <bitfield name='flags' type-name='uniform_flags'/>
 
         <stl-vector name='assigned_items'>
             <int32_t ref-target='item'/>
@@ -153,15 +107,14 @@
         <int32_t name="backpack" ref-target='item'/>
         <int32_t name="flask" ref-target='item'/>
 
-        -- May be invalid:
+        <int32_t/>
         <static-array name='activities' count='3' index-enum='squad_event_type'
                       type-name='int32_t' ref-target='activity_entry'/>
         <static-array name='events' count='3' index-enum='squad_event_type'
                       type-name='int32_t' ref-target='activity_event'
                       aux-value='$._global.activities[$._key]'/>
 
-        <int32_t name="unk_118"/>
-        <int32_t name="unk_11c"/>
+        <int32_t/>
     </struct-type>
 
     <struct-type type-name='squad_schedule_order'>
@@ -197,13 +150,9 @@
             (describe-obj $.name)
         </code-helper>
 
-        <stl-vector name='positions'>
-            <pointer type-name='squad_position'/>
-        </stl-vector>
+        <stl-vector name='positions' pointer-type='squad_position'/>
 
-        <stl-vector name="orders">
-            <pointer type-name='squad_order'/>
-        </stl-vector>
+        <stl-vector name="orders" pointer-type='squad_order'/>
 
         <stl-vector name="schedule">
             <pointer>
@@ -216,7 +165,7 @@
         <stl-vector name="rooms">
             <pointer>
                 <int32_t name='building_id' ref-target='building'/>
-                <compound name='mode' type-name='squad_use_flags'/>
+                <bitfield name='mode' type-name='squad_use_flags'/>
             </pointer>
         </stl-vector>
 
@@ -226,9 +175,7 @@
         <int32_t name="uniform_priority"/>
         <int32_t name="activity" ref-target='activity_entry'/>
 
-        <stl-vector name="ammunition">
-            <pointer type-name='squad_ammo_spec'/>
-        </stl-vector>
+        <stl-vector name="ammunition" pointer-type='squad_ammo_spec'/>
 
         <stl-vector name="train_weapon_free">
             <int32_t ref-target='item'/>
@@ -246,6 +193,13 @@
 
         <int16_t name="carry_food"/>
         <int16_t name="carry_water"/>
+
+        <int32_t name="entity_id" ref-target='historical_entity' since='v0.40.01'/>
+        <int32_t name="leader_position" since='v0.40.01'
+                 refers-to='(find-by-id $$._global.entity_id.ref-target.positions.own $id $)'/>
+        <int32_t name="leader_assignment" since='v0.40.01'
+                 refers-to='(find-by-id $$._global.entity_id.ref-target.positions.assignments $id $)'/>
+        <int32_t since='v0.44.01'/>
     </struct-type>
 
     <enum-type type-name='squad_order_type'>
@@ -254,6 +208,13 @@
         <enum-item name='DEFEND_BURROWS'/>
         <enum-item name='PATROL_ROUTE'/>
         <enum-item name='TRAIN'/>
+        <enum-item name='DRIVE_ENTITY_OFF_SITE'/>
+        <enum-item name='CAUSE_TROUBLE_FOR_ENTITY'/>
+        <enum-item name='KILL_HF'/>
+        <enum-item name='DRIVE_ARMIES_FROM_SITE'/>
+        <enum-item name='RETRIEVE_ARTIFACT'/>
+        <enum-item name='RAID_SITE'/>
+        <enum-item name='RESCUE_HF'/>
     </enum-type>
 
     <enum-type type-name='squad_order_cannot_reason'>
@@ -274,14 +235,22 @@
         <enum-item name='not_in_squad'/>
         <enum-item name='no_patrol_route'/>
         <enum-item name='no_reachable_point_on_route'/>
+        <enum-item name='invalid_order'/>
     </enum-type>
 
     <class-type type-name='squad_order' original-name='squad_orderst'>
+        <int32_t name='unk_v40_1' init-value='-1' since='v0.40.01'/>
+        <int32_t name='unk_v40_2' init-value='-1' since='v0.40.01'/>
+        <int32_t name='year' since='v0.40.01'/>
+        <int32_t name='year_tick' since='v0.40.01'/>
+        <int32_t name='unk_v40_3' since='v0.40.01'/>
+        <int32_t name='unk_1'/>
+
         <virtual-methods>
             <vmethod name='clone'> <ret-type><pointer type-name='squad_order'/></ret-type> </vmethod>
-            <vmethod name='write_file'> <pointer comment='file_compressorst'/> </vmethod>
+            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
             <vmethod name='read_file'>
-                <pointer comment='file_compressorst'/>
+                <pointer name='file' type-name='file_compressorst'/>
                 <int32_t name='loadversion'/>
             </vmethod>
             <vmethod ret-type='squad_order_type' name='getType'/>
@@ -292,7 +261,7 @@
                 <int16_t/> <int16_t/> <int16_t/>
             </vmethod>
             <vmethod ret-type='bool' name='process'>
-                <pointer name='soldier' type-name='unit'/>
+                <int32_t/> <int32_t/> <pointer name='soldier' type-name='unit'/>
             </vmethod>
             <vmethod ret-type='squad_order_cannot_reason' name='reasonCannot'>
                 <pointer name='soldier' type-name='unit'/>
@@ -301,7 +270,7 @@
                 <pointer name='soldier' type-name='unit'/>
             </vmethod>
 
-            <vmethod name='isFulfilled' ret-type='bool' comment='v0.34.11; true if all killed'/>
+            <vmethod name='isFulfilled' ret-type='bool' since='v0.34.11' comment='true if all killed'/>
             <vmethod name='getTargetUnits'>
                 <ret-type><pointer><stl-vector type-name='int32_t'/></pointer></ret-type>
             </vmethod>
@@ -309,16 +278,14 @@
                 <pointer name='soldier' type-name='unit'/>
             </vmethod>
             <vmethod name='getDescription'> <pointer type-name='stl-string'/> </vmethod>
-            <vmethod name='isInactive' ret-type='bool' comment='always false'/>
+            <vmethod name='isInactive' ret-type='bool' comment='always false'> <int32_t/> </vmethod>
             <vmethod name='isCombat' ret-type='bool' comment='not train'/>
         </virtual-methods>
     </class-type>
 
-    <class-type type-name='squad_order_trainst' inherits-from='squad_order'/>
-
     <class-type type-name='squad_order_movest' inherits-from='squad_order'>
         <compound name='pos' type-name='coord'/>
-        <int32_t name='unk'/>
+        <int32_t name='point_id'/>
     </class-type>
 
     <class-type type-name='squad_order_kill_listst' inherits-from='squad_order'>
@@ -331,50 +298,347 @@
         <stl-string name='title'/>
     </class-type>
 
-    <struct-type type-name='entity_uniform_item'>
-        <int8_t name='unk_0'/>
-        <int8_t name='unk_1'/>
-        <int16_t name='color' ref-target='descriptor_color'/>
-        <int32_t name='unk_4'/>
-        <int16_t name='unk_8'/>
-        <int16_t name='unk_a'/>
-        <int16_t name='unk_c'/>
-        <int16_t name='unk_e'/>
-        <compound name="indiv_choice" type-name='uniform_indiv_choice'/>
-        <int16_t name="mattype" ref-target='material' aux-value='$$.matindex'/>
-        <int32_t name="matindex"/>
-        <enum base-type='int16_t' name="material_class" type-name='uniform_material_class'/>
+    <class-type type-name='squad_order_defend_burrowsst' inherits-from='squad_order'>
+        <stl-vector name='burrows' type-name='int32_t' ref-target='burrow'/>
+    </class-type>
+
+    <class-type type-name='squad_order_patrol_routest' inherits-from='squad_order'>
+        <int32_t name='route_id'/>
+    </class-type>
+
+    <class-type type-name='squad_order_trainst' inherits-from='squad_order'/>
+
+    <class-type type-name='squad_order_drive_entity_off_sitest' inherits-from='squad_order'>
+        <int32_t/>
+        <int32_t/>
+        <stl-string/>
+    </class-type>
+
+    <class-type type-name='squad_order_cause_trouble_for_entityst' inherits-from='squad_order'>
+        <int32_t/>
+        <stl-string/>
+    </class-type>
+
+    <class-type type-name='squad_order_kill_hfst' inherits-from='squad_order'>
+        <int32_t name='histfig_id' ref-target='historical_figure'/>
+        <stl-string name='title'/>
+    </class-type>
+
+    <class-type type-name='squad_order_drive_armies_from_sitest' inherits-from='squad_order'>
+        <int32_t/>
+        <int32_t/>
+        <stl-string/>
+    </class-type>
+
+    <class-type type-name='squad_order_retrieve_artifactst' inherits-from='squad_order'>
+        <int32_t/>
+        <compound type-name='coord'/>
+    </class-type>
+
+    <class-type type-name='squad_order_raid_sitest' inherits-from='squad_order'>
+        <int32_t/>
+        <compound type-name='coord'/>
+    </class-type>
+
+    <class-type type-name='squad_order_rescue_hfst' inherits-from='squad_order'>
+        <int32_t/>
+        <compound type-name='coord'/>
+    </class-type>
+
+    <struct-type type-name='army_controller' key-field='id'
+                 instance-vector='$global.world.army_controllers.all'>
+        <int32_t name="id"/>
+        <int32_t name="entity_id" ref-target='historical_entity'/>
+        <int32_t name="unk_8"/>
+        <int32_t name="pos_x"/>
+        <int32_t name="pos_y"/>
+        <int32_t name="unk_14"/>
+        <int32_t name="unk_18"/>
+        <int32_t name="unk_1c"/>
+        <stl-vector name='unk_20' type-name='int32_t'/>
+        <int32_t name="year"/>
+        <int32_t name="year_tick"/>
+        <int32_t name="unk_34"/>
+        <int32_t name="unk_38"/>
+        <int32_t name="unk_3c"/>
+        <int32_t name="unk_40"/>
+        <stl-vector name="unk_44" type-name='int32_t'/>
+        <int32_t name="unk_50"/>
+        <stl-vector name="unk_54" type-name='int32_t'/>
+        <pointer name='mission_report' type-name='mission_report'/>
+        <stl-vector name='unk_44_11v' since='v0.44.11'/>
+        <compound name='unk_64' is-union='true'>
+            <pointer type-name='army_controller_sub1' name='t1'/>
+            <pointer type-name='army_controller_sub2' name='t2'/>
+            <pointer type-name='army_controller_sub4' name='t4'/>
+            <pointer type-name='army_controller_sub5' name='t5'/>
+            <pointer type-name='army_controller_sub6' name='t6'/>
+            <pointer type-name='army_controller_sub7' name='t7'/>
+            <pointer type-name='army_controller_sub11' name='t11'/>
+            <pointer type-name='army_controller_sub12' name='t12'/>
+            <pointer type-name='army_controller_sub13' name='t13'/>
+            <pointer type-name='army_controller_sub14' name='t14'/>
+            <pointer type-name='army_controller_sub15' name='t15'/>
+            <pointer type-name='army_controller_sub16' name='t16'/>
+            <pointer type-name='army_controller_sub17' name='t17'/>
+            <pointer type-name='army_controller_sub18' name='t18'/>
+        </compound>
+        <int32_t name="type"/>
     </struct-type>
 
-    <struct-type type-name='entity_uniform' key-field='id'>
+    <struct-type type-name='army_controller_sub1'>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+    </struct-type>
+
+    <struct-type type-name='army_controller_sub2'>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <stl-vector>
+            <pointer>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+            </pointer>
+        </stl-vector>
+        <stl-vector type-name='int32_t'/>
+        <stl-vector type-name='int32_t'/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+    </struct-type>
+
+    <struct-type type-name='army_controller_sub4'>
+        <int32_t/>
+        <bitfield name='unk_2'>
+            <flag-bit name='not_sleeping' comment='set to 1 to make army wake up'/>
+        </bitfield>
+    </struct-type>
+
+    <struct-type type-name='army_controller_sub5'>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+    </struct-type>
+
+    <struct-type type-name='army_controller_sub6'>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+    </struct-type>
+
+    <struct-type type-name='army_controller_sub7'>
+        <int32_t/>
+        <int32_t/>
+        <stl-vector>
+            <pointer>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+            </pointer>
+        </stl-vector>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+    </struct-type>
+
+    <struct-type type-name='army_controller_sub11'>
+        <int32_t/>
+        <int32_t/>
+        <stl-vector>
+            <pointer>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+            </pointer>
+        </stl-vector>
+    </struct-type>
+
+    <struct-type type-name='army_controller_sub12'>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <stl-vector>
+            <pointer>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+            </pointer>
+        </stl-vector>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+    </struct-type>
+
+    <struct-type type-name='army_controller_sub13'>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <stl-vector>
+            <pointer>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+            </pointer>
+        </stl-vector>
+    </struct-type>
+
+    <struct-type type-name='army_controller_sub14'>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <stl-vector>
+            <pointer>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+            </pointer>
+        </stl-vector>
+    </struct-type>
+
+    <struct-type type-name='army_controller_sub15'>
+        <int32_t/>
+        <int32_t/>
+        <stl-vector>
+            <pointer>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+            </pointer>
+        </stl-vector>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+    </struct-type>
+
+    <struct-type type-name='army_controller_sub16'>
+        <int32_t/>
+    </struct-type>
+
+    <struct-type type-name='army_controller_sub17'>
+        <int32_t/>
+        <int32_t/>
+    </struct-type>
+
+    <struct-type type-name='army_controller_sub18'>
+        <int32_t/>
+        <int32_t/>
+    </struct-type>
+
+    <enum-type type-name='army_flags'>
+        <enum-item name='player'/>
+    </enum-type>
+
+    <struct-type type-name='army' key-field='id'
+                 instance-vector='$global.world.armies.all'>
         <int32_t name="id"/>
-        <int16_t name="unk_4"/>
-
-        <code-helper name='describe'>
-            (describe-obj $.name)
-        </code-helper>
-
-        <static-array name='uniform_item_types' count='7' index-enum='uniform_category'>
-            <stl-vector>
-                <enum base-type='int16_t' type-name='item_type'/>
-            </stl-vector>
-        </static-array>
-
-        <static-array name='uniform_item_subtypes' count='7' index-enum='uniform_category'>
-            <stl-vector>
-                <int16_t refers-to='(item-subtype-target $$._parent._parent._parent.uniform_item_types[$$._parent._key][$$._key] $)'/>
-            </stl-vector>
-        </static-array>
-
-        <static-array name='uniform_item_info' count='7' index-enum='uniform_category'>
-            <stl-vector>
-                <pointer type-name='entity_uniform_item'/>
-            </stl-vector>
-        </static-array>
-
-        <stl-string name="name"/>
-
-        <compound name='flags' type-name='uniform_flags'/>
+        <compound type-name='coord' name="pos"/>
+        <compound type-name='coord' name="last_pos"/> guess
+        <int16_t name="unk_10"/>
+        <int32_t name="unk_14"/>
+        <int32_t name="unk_18"/>
+        <stl-vector name="members">
+            <pointer>
+                <int32_t name="nemesis_id" init-value='-1'/>
+                <int32_t name="hunger_timer"/>
+                <int32_t name="thirst_timer"/>
+                <int32_t name="stored_fat"/>
+                <int32_t name="unk_10"/>
+                <int32_t name="unk_14"/>
+                <int32_t name="unk_18"/>
+                <int32_t name="unk_1c" init-value='-1000000'/>
+                <int32_t name="unk_20" init-value='-1000000'/>
+                <int32_t name="unk_24" init-value='-1000000'/>
+                <int32_t name="unk_28"/>
+                <int32_t since='v0.44.01'/>
+                <int32_t name="unk_2c" init-value='100'/>
+                <int32_t name="unk_30"/>
+                <int32_t name="unk_34"/>
+                <stl-vector name="unk_38"/>
+                <int32_t name='unk_v42_1' since='v0.42.01'/>
+            </pointer>
+        </stl-vector>
+        <stl-vector name="unk_2c">
+            <pointer>
+                <int32_t name="count"/> next five checks out in created units
+                <int32_t name="race"/>
+                <int32_t name="population_id"/>
+                <int32_t name="civ_id"/>
+                <int32_t name="unk_10"/> same as unk_c0 in unit
+                <int32_t name="cultural_identity"/>
+                <int32_t name="unk_18"/> made creatures undead, so not sure maybe affliction?
+                <int32_t name="unk_1c"/> crashed df...
+                <int32_t name="unk_20"/>
+                <int32_t name="unk_24"/>
+                <int32_t name="unk_28"/>
+            </pointer>
+        </stl-vector>
+        <int32_t name="unk_3c"/>
+        <int32_t since='v0.44.01'/>
+        <int32_t name="controller_id" ref-target='army_controller'/>
+        <pointer name="controller" type-name="army_controller"/>
+        <df-flagarray name="flags" index-enum='army_flags'/>
+        <stl-vector name="unk_pos_x" type-name="int32_t"/> probably path
+        <stl-vector name="unk_pos_y" type-name="int32_t"/>
+        <stl-vector name="unk_70" type-name="int32_t"/>
+        <stl-vector name="unk_80" type-name="int32_t"/>
+        <int32_t name="unk_90"/>
+        <int32_t name="unk_94"/>
+        <int32_t name="unk_98"/>
+        <int32_t name="unk_9c"/>
+        <int32_t name="unk_a0"/>
+        <int32_t name="unk_a4"/>
+        <stl-vector name="unk_a8"/>
+        <stl-vector name='creature_class' pointer-type='stl-string'/>
+        <enum type-name='item_type' base-type='int16_t' name='item_type'/>
+        <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+        <stl-vector name='unk_4407_1' since='v0.44.07'/>
     </struct-type>
 </data-definition>
 

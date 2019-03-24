@@ -71,6 +71,20 @@ sub get_container_item_type($;%) {
     }
 }
 
+sub get_container_count($;%) {
+    my ($tag) = @_;
+    my $count = $tag->getAttribute('count');
+    if ($count) {
+        return $count;
+    }
+    my $enum = $tag->getAttribute('index-enum');
+    if ($enum) {
+        register_ref(${enum},1);
+        return "enum_traits<${enum}>::last_item_value+1";
+    }
+    return 0;
+}
+
 my %atable = ( 1 => 'char', 2 => 'short', 4 => 'int' );
 
 our $cur_init_field = '';
@@ -79,6 +93,7 @@ sub add_simple_init($);
 
 my %custom_primitive_handlers = (
     'stl-string' => sub { return "std::string"; },
+    'stl-fstream' => sub { return "std::fstream"; },
 );
 
 my %custom_primitive_inits = (
@@ -228,7 +243,7 @@ sub get_struct_field_type($;%) {
         $prefix = get_container_item_type($tag, -weak => 1, -void => 'void')."*";
     } elsif ($meta eq 'static-array') {
         ($prefix, $suffix) = get_container_item_type($tag);
-        my $count = $tag->getAttribute('count') || 0;
+        my $count = get_container_count($tag);
         $suffix = "[$count]".$suffix;
     } elsif ($meta eq 'primitive') {
         local $_ = $tag;
@@ -365,7 +380,7 @@ sub render_field_init($) {
         }
     } elsif ($meta eq 'static-array') {
         my $idx = ensure_name undef;
-        my $count = $field->getAttribute('count')||0;
+        my $count = get_container_count($field);
         emit_block {
             local $cur_init_field = $cur_init_field."[$idx]";
             render_field_init($_) for $field->findnodes('ld:item');
@@ -425,15 +440,15 @@ sub render_field_metadata_rec($$) {
 
     if ($meta eq 'number') {
         my $tname = primitive_type_name($subtype);
-        push @field_defs, [ "${FLD}(PRIMITIVE, $name)", "TID($tname)" ];
+        push @field_defs, [ "${FLD}(PRIMITIVE, $name)", "TID($tname)", 0, 0 ];
     } elsif ($meta eq 'bytes') {
         if ($subtype eq 'static-string') {
             my $count = $field->getAttribute('size') || 0;
-            push @field_defs, [ "${FLD}(STATIC_STRING, $name)", 'NULL', $count ];
+            push @field_defs, [ "${FLD}(STATIC_STRING, $name)", 'NULL', $count, 0 ];
         }
     } elsif ($meta eq 'global' || $meta eq 'compound') {
         if (is_attr_true($field, 'ld:enum-size-forced')) {
-            push @field_defs, [ "${FLD}(PRIMITIVE, $name)", type_idfun_reference($field) ];
+            push @field_defs, [ "${FLD}(PRIMITIVE, $name)", type_idfun_reference($field), 0, 0 ];
         } else {
             if ($meta eq 'global') {
                 my $tname = $field->getAttribute('type-name');
@@ -441,25 +456,25 @@ sub render_field_metadata_rec($$) {
             }
 
             if ($subtype && $subtype eq 'enum') {
-                push @field_defs, [ "${FLD}(PRIMITIVE, $name)", type_identity_reference($field) ];
+                push @field_defs, [ "${FLD}(PRIMITIVE, $name)", type_identity_reference($field), 0, 0 ];
             } else {
-                push @field_defs, [ "${FLD}(SUBSTRUCT, $name)", type_identity_reference($field) ];
+                push @field_defs, [ "${FLD}(SUBSTRUCT, $name)", type_identity_reference($field), 0, 0 ];
             }
         }
     } elsif ($meta eq 'pointer') {
         my @items = $field->findnodes('ld:item');
         my $count = 0;
         $count |= 1 if is_attr_true($field, 'is-array');
-        $count |= 2 if $in_union;
+        $count |= 2 if $in_union || is_attr_true($field, 'has-bad-pointers');
 
         push @field_defs, [ "${FLD}(POINTER, $name)", auto_identity_reference($items[0]), $count, $enum ];
     } elsif ($meta eq 'static-array') {
         my @items = $field->findnodes('ld:item');
-        my $count = $field->getAttribute('count')||0;
+        my $count = get_container_count($field);
 
         push @field_defs, [ "${FLD}(STATIC_ARRAY, $name)", auto_identity_reference($items[0]), $count, $enum ];
     } elsif ($meta eq 'primitive') {
-        push @field_defs, [ "${FLD}(PRIMITIVE, $name)", type_idfun_reference($field) ];
+        push @field_defs, [ "${FLD}(PRIMITIVE, $name)", type_idfun_reference($field), 0, 0 ];
     } elsif ($meta eq 'container') {
         my @items = $field->findnodes('ld:item');
 
@@ -494,12 +509,20 @@ sub render_field_metadata($$\@\%) {
     return generate_field_table {
         render_field_metadata_rec($_, $FLD) for @$fields;
 
-        for my $vmtag (@{$info->{vmethods}||[]}) {
-            my $name = $vmtag->getAttribute('name');
-            push @field_defs, [ "METHOD(OBJ_METHOD, $name)" ] if $name;
+        for my $mtag (@{$info->{vmethods}||[]}, @{$info->{cmethods}||[]}) {
+            my $name = $mtag->getAttribute('name');
+            push @field_defs, [ "METHOD(OBJ_METHOD, $name)", 0, 0 ] if $name;
         }
-        for my $name (@{$info->{statics}||[]}) {
-            push @field_defs, [ "METHOD(CLASS_METHOD, $name)" ];
+        for my $entry (@{$info->{statics}||[]}) {
+            if (ref($entry) eq 'HASH') {
+                # 'exposed name' => 'function'
+                while (my ($name, $func) = each %{$entry}) {
+                    push @field_defs, [ "METHOD_N(CLASS_METHOD, $func, $name)", 0, 0 ];
+                }
+            }
+            else {
+                push @field_defs, [ "METHOD(CLASS_METHOD, $entry)", 0, 0 ];
+            }
         }
     } $full_name;
 }
@@ -514,6 +537,7 @@ sub emit_struct_fields($$;%) {
     &render_struct_field($_) for @fields;
 
     my $full_name = fully_qualified_name($tag, $name, 1);
+    my $fields_group = lc(substr($full_name, 0, 1));
     my %info;
 
     if ($in_union_body) {
@@ -532,7 +556,10 @@ sub emit_struct_fields($$;%) {
                     "sizeof($full_name), &allocator_fn<${full_name}>, ",
                     type_identity_reference($tag,-parent => 1), ', ',
                     "\"$name\", NULL, $ftable);";
-        } 'fields';
+        } 'fields-' . $fields_group;
+
+        # Needed for unions with fields with non-default ctors (e.g. bitfields)
+        emit "$name(){}";
 
         return;
     }
@@ -576,18 +603,22 @@ sub emit_struct_fields($$;%) {
         }
     } 'ctors';
 
-    if ($want_ctor) {
-        emit "$name($ctor_args$ctor_arg_init);";
-    }
-
     %info = $flags{-addmethods}->($tag) if $flags{-addmethods};
+
+    my $alloc_fn = $info{nodtor} ? 'allocator_nodel_fn' : 'allocator_fn';
+
+    if ($want_ctor) {
+        outdent { emit $flags{-class} ? "protected:" : "public:"; };
+        emit "$name($ctor_args$ctor_arg_init);";
+        if ($flags{-class}) {
+            emit "friend void *${main_namespace}::${alloc_fn}<${full_name}>(void*,const void*);";
+        }
+    }
 
     with_emit_static {
         my $ftable = render_field_metadata $tag, $full_name, @fields, %info;
 
         if ($flags{-class}) {
-            my $alloc_fn = $info{nodtor} ? 'allocator_nodel_fn' : 'allocator_fn';
-
             emit "virtual_identity ${full_name}::_identity(",
                     "sizeof($full_name), &${alloc_fn}<${full_name}>, ",
                     "\"$name\",",
@@ -602,7 +633,14 @@ sub emit_struct_fields($$;%) {
                     ($inherits ? "&${inherits}::_identity" : 'NULL'), ',',
                     "$ftable);";
         }
-    } 'fields';
+    } 'fields-' . $fields_group;
+}
+
+for my $letter ('a' .. 'z') {
+    with_emit_static {
+        # make sure even empty files get overwritten
+        emit "";
+    } 'fields-' . $letter;
 }
 
 1;

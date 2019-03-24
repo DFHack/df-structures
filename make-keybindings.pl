@@ -7,7 +7,7 @@ print <<'__END__';
 <data-definition>
     WARNING: THIS FILE IS AUTO-GENERATED - DO NOT EDIT
 
-    <enum-type type-name='interface_key' base-type='int32_t'>
+    <enum-type type-name='interface_key' base-type='long'>
 __END__
 
 my $startname;
@@ -22,6 +22,7 @@ while(<>) {
         if (/^\s+([A-Z_0-9]+)=$startname,\s*$/) {
             $name = $1;
         } else {
+            $startname =~ s/^INTERFACEKEY_//;
             print "        <enum-item name='$startname'/>\n";
             redo;
         }

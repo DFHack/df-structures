@@ -6,11 +6,11 @@ use warnings;
 my $fn = $ARGV[0] || 'df.globals.xml';
 my $fn_old = $ARGV[1] || 'df.globals.xml-old';
 
-open FH, $fn or die "Can't open globals\n";
+open(FH, '<', $fn) or die "Can't open globals\n";
 my @globals = <FH>;
 close FH;
 
-open FH, $fn_old or die "Can't open old globals\n";
+open(FH, '<', $fn_old) or die "Can't open old globals\n";
 my @old_globals = <FH>;
 close FH;
 
@@ -61,7 +61,7 @@ for (my $i = 0; $i <= $#globals; $i++) {
 die "Global count mismatch: $gidx vs $#names\n" if $gidx != @names;
 
 if ($save) {
-    open FH, '>'.$fn or die "Can't open globals for write\n";
+    open(FH, '>', $fn) or die "Can't open globals for write\n";
     print FH @globals;
     close FH;
 }

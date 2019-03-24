@@ -1,26 +1,38 @@
 <data-definition>
+    <struct-type type-name='large_integer' is-union='true'>
+        <compound>
+            <long name='low_part'/>
+            <long name='high_part'/>
+        </compound>
+        <compound name='u'>
+            <long name='low_part'/>
+            <long name='high_part'/>
+        </compound>
+        <int64_t name='quad_part'/>
+    </struct-type>
+
     <struct-type type-name='graphic'>
-        <int32_t name='screenx'/>
-        <int32_t name='screeny'/>
+        <long name='screenx'/>
+        <long name='screeny'/>
         <int8_t name='screenf'/>
         <int8_t name='screenb'/>
         <int8_t name='screenbright'/>
 
         <pointer type-name='uint8_t' name='screen' is-array='true'/>
-        <pointer type-name='int32_t' name='screentexpos' is-array='true'/>
+        <pointer type-name='long' name='screentexpos' is-array='true'/>
         <pointer type-name='int8_t' name='screentexpos_addcolor' is-array='true'/>
         <pointer type-name='uint8_t' name='screentexpos_grayscale' is-array='true'/>
         <pointer type-name='uint8_t' name='screentexpos_cf' is-array='true'/>
         <pointer type-name='uint8_t' name='screentexpos_cbr' is-array='true'/>
 
-        <static-array type-name='int32_t' name='clipx' count='2'/>
-        <static-array type-name='int32_t' name='clipy' count='2'/>
-        <static-array type-name='int32_t' name='tex_pos' count='1'/>
+        <static-array type-name='long' name='clipx' count='2'/>
+        <static-array type-name='long' name='clipy' count='2'/>
+        <static-array type-name='long' name='tex_pos' count='1'/>
 
-        <int32_t name='rect_id'/>
+        <long name='rect_id'/>
 
-        <static-array type-name='int64_t' name='print_time' count='100'/>
-        <int32_t name='print_index'/>
+        <static-array type-name='large_integer' name='print_time' count='100'/>
+        <long name='print_index'/>
         <int8_t name='display_frames'/>
 
         <int16_t name='force_full_display_count'/>
@@ -38,14 +50,14 @@
 
     <class-type type-name='renderer'>
         <pointer type-name='uint8_t' name='screen' is-array='true'/>
-        <pointer type-name='int32_t' name='screentexpos' is-array='true'/>
+        <pointer type-name='long' name='screentexpos' is-array='true'/>
         <pointer type-name='int8_t' name='screentexpos_addcolor' is-array='true'/>
         <pointer type-name='uint8_t' name='screentexpos_grayscale' is-array='true'/>
         <pointer type-name='uint8_t' name='screentexpos_cf' is-array='true'/>
         <pointer type-name='uint8_t' name='screentexpos_cbr' is-array='true'/>
 
         <pointer type-name='uint8_t' name='screen_old' is-array='true'/>
-        <pointer type-name='int32_t' name='screentexpos_old' is-array='true'/>
+        <pointer type-name='long' name='screentexpos_old' is-array='true'/>
         <pointer type-name='int8_t' name='screentexpos_addcolor_old' is-array='true'/>
         <pointer type-name='uint8_t' name='screentexpos_grayscale_old' is-array='true'/>
         <pointer type-name='uint8_t' name='screentexpos_cf_old' is-array='true'/>
@@ -79,7 +91,7 @@
         <enum-item name='zoom_resetgrid'/>
     </enum-type>
 
-    <struct-type type-name='enabler'>
+    <class-type type-name='enabler' original-name='enablerst' custom-methods='true'>
         <bool name='fullscreen'/>
 
         <stl-deque name='overridden_grid_sizes'>
@@ -162,7 +174,7 @@
             <static-array count='3' type-name='s-float'/>
         </static-array>
 
-        <bitfield name='flag'>
+        <bitfield name='flag' base-type='long'>
             <flag-bit name='render'/>
             <flag-bit name='maxfps'/>
         </bitfield>
@@ -196,7 +208,17 @@
         </compound>
 
         <uint32_t name='clock'/>
-    </struct-type>
+
+        <virtual-methods>
+            <vmethod ret-type='stl-string' name='GetKeyDisplay'>
+                <enum type-name='interface_key' base-type='int32_t'/>
+            </vmethod>
+        </virtual-methods>
+
+        <custom-methods>
+            <cmethod name='zoom_display'/>
+        </custom-methods>
+    </class-type>
 </data-definition>
 
 <!--

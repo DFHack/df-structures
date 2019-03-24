@@ -3,6 +3,11 @@
         <int16_t name='x' init-value='-30000'/>
         <int16_t name='y' init-value='-30000'/>
 
+        <custom-methods>
+            <cmethod name='isValid'/>
+            <cmethod name='clear'/>
+        </custom-methods>
+
         <code-helper name='describe'>(fmt "(~A,~A)" $.x $.y)</code-helper>
     </struct-type>
 
@@ -10,6 +15,10 @@
         <stl-vector type-name='int16_t' name='x'/>
         <stl-vector type-name='int16_t' name='y'/>
 
+        <custom-methods>
+            <cmethod name='size'/>
+            <cmethod name='erase'/>
+        </custom-methods>
         <code-helper name='describe'>
             (fmt "[~A]" $.x.count)
             (loop for i from 0 below (min $.x.count 3)
@@ -23,6 +32,11 @@
         <int16_t name='y' init-value='-30000'/>
         <int16_t name='z' init-value='-30000'/>
 
+        <custom-methods>
+            <cmethod name='isValid'/>
+            <cmethod name='clear'/>
+        </custom-methods>
+
         <code-helper name='describe'>(fmt "(~A,~A,~A)" $.x $.y $.z)</code-helper>
     </struct-type>
 
@@ -30,6 +44,13 @@
         <stl-vector type-name='int16_t' name='x'/>
         <stl-vector type-name='int16_t' name='y'/>
         <stl-vector type-name='int16_t' name='z'/>
+
+        <custom-methods>
+            <cmethod name='empty'/>
+            <cmethod name='size'/>
+            <cmethod name='clear'/>
+            <cmethod name='erase'/>
+        </custom-methods>
 
         <code-helper name='describe'>
             (fmt "[~A]" $.x.count)
@@ -122,6 +143,10 @@
         <flag-bit name='carve_track_south'/>
         <flag-bit name='carve_track_east'/>
         <flag-bit name='carve_track_west'/>
+        <flag-bit name='unk22'/>
+        <flag-bit name='unk23'/>
+        <flag-bit name='dig_marked'/>
+        <flag-bit name='dig_auto'/>
     </bitfield-type>
 
     <bitfield-type type-name='block_flags'>
@@ -176,50 +201,53 @@
         <static-array name='bits' count='16'>
             <uint16_t/>
         </static-array>
+        <custom-methods>
+            <cmethod name='clear'/>
+            <cmethod name='set_all'/>
+            <cmethod name='has_assignments'/>
+        </custom-methods>
     </struct-type>
 
-    <struct-type type-name='block_burrow' custom-methods='true'>
+    <struct-type type-name='block_burrow' df-list-link-type='block_burrow_link' df-list-link-field='link' custom-methods='true'>
         <int32_t name='id' ref-target='burrow'/>
 
         <compound name='tile_bitmask' type-name='tile_bitmask'/>
 
         <pointer name="link" type-name='block_burrow_link'/>
+
+        <custom-methods>
+            <cmethod name='has_assignments'/>
+        </custom-methods>
     </struct-type>
 
-    <struct-type type-name='block_burrow_link'>
-        <pointer name='item' type-name='block_burrow'/>
-        <pointer name='prev' type-name='block_burrow_link'/>
-        <pointer name='next' type-name='block_burrow_link'/>
-    </struct-type>
+    <df-linked-list-type type-name='block_burrow_link' item-type='block_burrow'/>
 
     <struct-type type-name='map_block'>
-        <compound name='flags' type-name='block_flags'/>
+        <bitfield name='flags' type-name='block_flags'/>
 
-        <stl-vector name='block_events'>
-            <pointer type-name='block_square_event'/>
-        </stl-vector>
+        <stl-vector name='block_events' pointer-type='block_square_event'/>
 
         <df-linked-list name='block_burrows' type-name='block_burrow_link'/>
 
         <int32_t name='local_feature' init-value='-1' comment='index into world_data.region_map'/>
         <int32_t name='global_feature' init-value='-1' ref-target='world_underground_region'/>
         <int32_t name='unk2' init-value='-1'/>
-        <int32_t name='unk3' comment='undef'/>
+
+        This is compared to unit.animal.population.depth when a revealed
+        necromancer searches for a map edge tile to run away to:
+        <int16_t name='layer_depth' comment='uninitialized'/>
+
         <int32_t name='dsgn_check_cooldown'/>
-        <compound type-name='tile_designation' name='default_liquid'/>
+        <bitfield type-name='tile_designation' name='default_liquid'/>
 
         <stl-vector name='items'>
             <int32_t ref-target='item'/>
         </stl-vector>
-        <stl-vector name='flows'>
-            <pointer type-name='flow_info'/>
-        </stl-vector>
+        <stl-vector name='flows' pointer-type='flow_info'/>
 
         <compound name='flow_pool' type-name='flow_reuse_pool'/>
 
-        <stl-vector name='plants'>
-            <pointer type-name='plant'/>
-        </stl-vector>
+        <!--<stl-vector name='plants' pointer-type='plant'/>-->
 
         <compound name='map_pos' type-name='coord'/>
         <compound name='region_pos' type-name='coord2d'/>
@@ -231,19 +259,17 @@
         </static-array>
         <static-array name='designation' count='16'>
             <static-array count='16'>
-                <compound type-name='tile_designation'/>
+                <bitfield type-name='tile_designation'/>
             </static-array>
         </static-array>
         <static-array name='occupancy' count='16'>
             <static-array count='16'>
-                <compound type-name='tile_occupancy'/>
+                <bitfield type-name='tile_occupancy'/>
             </static-array>
         </static-array>
 
-        <static-array name='unk9' count='16'>
-            <static-array count='16'>
-                <int8_t/>
-            </static-array>
+        <static-array name='fog_of_war' count='16' comment='for adventure mode'>
+            <static-array count='16' type-name='uint8_t'/>
         </static-array>
 
         <static-array name='path_cost' count='16'>
@@ -289,7 +315,7 @@
         </static-array>
         <static-array name='liquid_flow' count='16'>
             <static-array count='16'>
-                <compound type-name='tile_liquid_flow'/>
+                <bitfield type-name='tile_liquid_flow'/>
             </static-array>
         </static-array>
 
@@ -298,22 +324,18 @@
         </static-array>
     </struct-type>
 
-    <struct-type type-name='cave_column_link'>
-        <pointer name='item' type-name='cave_column'/>
-        <pointer name='prev' type-name='cave_column_link'/>
-        <pointer name='next' type-name='cave_column_link'/>
-    </struct-type>
+    <df-linked-list-type type-name='cave_column_link' item-type='cave_column'/>
 
-    <class-type type-name='cave_column' original-name='cave_columnst'>
+    <class-type type-name='cave_column' df-list-link-type='cave_column_link' df-list-link-field='' original-name='cave_columnst'>
         <int16_t/>
         <int16_t/>
         <int16_t init-value='30000'/>
         <int8_t/>
 
         <virtual-methods>
-            <vmethod name='write_file'> <pointer comment='file_compressorst'/> </vmethod>
+            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
             <vmethod name='read_file'>
-                <pointer comment='file_compressorst'/>
+                <pointer name='file' type-name='file_compressorst'/>
                 <int32_t name='loadversion'/>
             </vmethod>
         </virtual-methods>
@@ -332,9 +354,9 @@
         <int32_t/>
 
         <virtual-methods>
-            <vmethod name='write_file'> <pointer comment='file_compressorst'/> </vmethod>
+            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
             <vmethod name='read_file'>
-                <pointer comment='file_compressorst'/>
+                <pointer name='file' type-name='file_compressorst'/>
                 <int32_t name='loadversion'/>
             </vmethod>
         </virtual-methods>
@@ -362,18 +384,22 @@
             </static-array>
         </static-array>
 
-        <stl-vector name='column_rectangles'>
-            <pointer type-name='cave_column_rectangle'/>
-        </stl-vector>
+        <stl-vector name='column_rectangles' pointer-type='cave_column_rectangle'/>
 
         <int16_t name='z_shift' comment='seems to be 0 originally, but updated when map is shifted'/>
 
-        <df-flagarray name='flags'/>
+        <df-flagarray name='flags' comment='0 process cave columns for caveins'/>
+
+        <static-array name='unk_v40_1' count='16' since='v0.40.01'>
+            <static-array count='16' type-name='int16_t' init-value='100'/>
+        </static-array>
 
         <compound name='map_pos' type-name='coord2d' comment='top left in tiles'/>
         <int16_t name='unk_c3c' comment='uninitialized'/>
 
         <compound name='region_pos' type-name='coord2d'/>
+
+        <stl-vector name='plants' pointer-type='plant'/>
     </struct-type>
 
     <enum-type type-name='block_square_event_type'>
@@ -382,14 +408,17 @@
         <enum-item name='world_construction'/>
         <enum-item name='material_spatter'/>
         <enum-item name='grass'/>
+        <enum-item name='spoor'/>
+        <enum-item name='item_spatter'/>
+        <enum-item name='designation_priority'/>
     </enum-type>
 
     <class-type type-name='block_square_event' original-name='block_square_eventst'>
         <virtual-methods>
             <vmethod ret-type='block_square_event_type' name='getType'/>
-            <vmethod name='write_file'> <pointer comment='file_compressorst'/> </vmethod>
+            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
             <vmethod name='read_file'>
-                <pointer comment='file_compressorst'/>
+                <pointer name='file' type-name='file_compressorst'/>
                 <int32_t name='loadversion'/>
             </vmethod>
             <vmethod ret-type='bool' name='isEmpty'/>
@@ -413,6 +442,9 @@
             <flag-bit name='cluster_small'/>
             <flag-bit name='cluster_one'/>
         </bitfield>
+        <custom-methods>
+            <cmethod name='has_assignments'/>
+        </custom-methods>
     </class-type>
 
     <class-type type-name='block_square_event_frozen_liquidst' inherits-from='block_square_event'>
@@ -451,6 +483,53 @@
         </static-array>
     </class-type>
 
+    <class-type type-name='block_square_event_spoorst' inherits-from='block_square_event'>
+        <static-array count='16'>
+            <static-array count='16' type-name='int16_t'/>
+        </static-array>
+        <static-array count='16'>
+            <static-array count='16' type-name='int8_t'/>
+        </static-array>
+        <static-array count='16'>
+            <static-array count='16' type-name='int32_t'/>
+        </static-array>
+        <static-array count='16'>
+            <static-array count='16' type-name='int32_t'/>
+        </static-array>
+        <static-array count='16'>
+            <static-array count='16' type-name='int32_t'/>
+        </static-array>
+        <static-array count='16'>
+            <static-array count='16' type-name='int32_t'/>
+        </static-array>
+        <int32_t/>
+        <int32_t/>
+    </class-type>
+
+    <class-type type-name='block_square_event_item_spatterst' inherits-from='block_square_event'>
+        <enum base-type='int16_t' name='item_type' type-name='item_type'/>
+        <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
+        <int16_t name='mattype' ref-target='material' aux-value='$$.matindex'/>
+        <int32_t name='matindex'/>
+
+        <int32_t name='unk1' />
+        <static-array name='amount' count='16'>
+            <static-array count='16' type-name='int32_t'/>
+        </static-array>
+        <static-array name='unk2' count='16'>
+            <static-array count='16' type-name='int8_t'/>
+        </static-array>
+
+        <uint16_t name='temp1'/>
+        <uint16_t name='temp2'/>
+    </class-type>
+
+    <class-type type-name='block_square_event_designation_priorityst' inherits-from='block_square_event'>
+        <static-array name='priority' count='16'>
+            <static-array count='16' type-name='int32_t'/>
+        </static-array>
+    </class-type>
+
     <enum-type type-name='feature_type'>
         <enum-item name='outdoor_river'/>
         <enum-item name='cave'/>
@@ -461,13 +540,11 @@
         <enum-item name='deep_surface_portal'/>
         <enum-item name='subterranean_from_layer'/>
         <enum-item name='magma_core_from_layer'/>
-        <enum-item name='feature_underworld_from_layer'/>
+        <enum-item name='underworld_from_layer'/>
     </enum-type>
 
     <class-type type-name='feature' original-name='featurest'>
-        <stl-vector name='population'>
-            <pointer type-name='world_population'/>
-        </stl-vector>
+        <stl-vector name='population' pointer-type='world_population'/>
 
         <int32_t/>
         <int16_t/>
@@ -478,12 +555,12 @@
 
         <virtual-methods>
             <vmethod ret-type='feature_type' name='getType'/>
-            <vmethod name='write_file'> <pointer comment='file_compressorst'/> </vmethod>
+            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
             <vmethod name='read_file'>
-                <pointer comment='file_compressorst'/>
+                <pointer name='file' type-name='file_compressorst'/>
                 <int32_t name='loadversion'/>
             </vmethod>
-            <vmethod/>
+            <vmethod><int32_t/><int32_t/><int32_t/></vmethod>
             <vmethod/>
 
             <vmethod is-destructor='true'/>
@@ -524,10 +601,10 @@
 
         <virtual-methods>
             <vmethod ret-type='feature_type' name='getType'/>
-            <vmethod name='write_file'> <pointer comment='file_compressorst'/> </vmethod>
+            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> <int32_t/> </vmethod>
             <vmethod name='read_file'>
-                <pointer comment='file_compressorst'/>
-                <int32_t name='loadversion'/>
+                <pointer name='file' type-name='file_compressorst'/>
+                <int32_t name='loadversion'/> <int32_t/>
             </vmethod>
             <vmethod name='createFeature'>
                 <ret-type><pointer type-name='feature'/></ret-type>
@@ -559,11 +636,11 @@
                 <pointer name='name' type-name='stl-string'/>
             </vmethod>
 
-            <vmethod ret-type='bool'/>
-            <vmethod ret-type='bool'/>
-            <vmethod ret-type='bool'/>
-            <vmethod ret-type='bool'/>
-            <vmethod ret-type='bool'/>
+            <vmethod name='isWater' ret-type='bool'/>
+            <vmethod name='isSubterranean' ret-type='bool'/>
+            <vmethod name='isMagma' ret-type='bool'/>
+            <vmethod name='isChasm' ret-type='bool'/>
+            <vmethod name='isLayer' ret-type='bool'/>
 
             <vmethod ret-type='bool'/>
             <vmethod ret-type='int32_t' name='getLayer'/>
@@ -627,9 +704,9 @@
     <class-type type-name='feature_alteration' original-name='feature_alterationst'>
         <virtual-methods>
             <vmethod ret-type='feature_alteration_type' name='getType'/>
-            <vmethod name='write_file'> <pointer comment='file_compressorst'/> </vmethod>
+            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
             <vmethod name='read_file'>
-                <pointer comment='file_compressorst'/>
+                <pointer name='file' type-name='file_compressorst'/>
                 <int32_t name='loadversion'/>
             </vmethod>
             <vmethod is-destructor='true'/>
@@ -665,38 +742,37 @@
 
         <virtual-methods>
             <vmethod ret-type='world_construction_type' name='getType'/>
-            <vmethod name='write_file'> <pointer comment='file_compressorst'/> </vmethod>
+            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
             <vmethod name='read_file'>
-                <pointer comment='file_compressorst'/>
+                <pointer name='file' type-name='file_compressorst'/>
                 <int32_t name='loadversion'/>
             </vmethod>
             <vmethod is-destructor='true'/>
-            <vmethod comment='10 parms, possibly responsible for actually placing it on the map'/>
         </virtual-methods>
     </class-type>
 
     <class-type type-name='world_construction_square_roadst' inherits-from='world_construction_square'>
-        <int16_t/>
-        <int16_t/>
-        <int16_t/>
-        <int32_t/>
+        <enum type-name='item_type' base-type='int16_t' name='item_type'/>
+        <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
     </class-type>
 
     <class-type type-name='world_construction_square_tunnelst' inherits-from='world_construction_square'/>
 
     <class-type type-name='world_construction_square_bridgest' inherits-from='world_construction_square'>
-        <int32_t/>
-        <int16_t/>
-        <int16_t/>
-        <int16_t/>
-        <int32_t/>
+        <int32_t name='road_id' ref-target='world_construction' comment='guess'/>
+        <enum type-name='item_type' base-type='int16_t' name='item_type'/>
+        <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
     </class-type>
 
     <class-type type-name='world_construction_square_wallst' inherits-from='world_construction_square'>
-        <int16_t/>
-        <int16_t/>
-        <int16_t/>
-        <int32_t/>
+        <enum type-name='item_type' base-type='int16_t' name='item_type'/>
+        <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
     </class-type>
 
     <class-type type-name='world_construction' original-name='world_constructionst'
@@ -709,9 +785,9 @@
         <virtual-methods>
             <vmethod ret-type='world_construction_type' name='getType'/>
             <vmethod name='getName'><ret-type><pointer type-name='language_name'/></ret-type></vmethod>
-            <vmethod name='write_file'> <pointer comment='file_compressorst'/> </vmethod>
+            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
             <vmethod name='read_file'>
-                <pointer comment='file_compressorst'/>
+                <pointer name='file' type-name='file_compressorst'/>
                 <int32_t name='loadversion'/>
             </vmethod>
             <vmethod is-destructor='true'/>
@@ -799,7 +875,7 @@
         <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name='mat_index'/>
-        <compound type-name='construction_flags' name='flags'/>
+        <bitfield type-name='construction_flags' name='flags'/>
         <enum base-type='int16_t' type-name='tiletype' name='original_tile'/>
     </struct-type>
 
@@ -817,6 +893,7 @@
         <enum-item name='MaterialVapor'/>
         <enum-item name='OceanWave'/>
         <enum-item name='SeaFoam'/>
+        <enum-item name='ItemCloud'/>
     </enum-type>
 
     <struct-type type-name='flow_info'>
@@ -828,7 +905,7 @@
         <compound name='dest' type-name='coord'/>
         <bool name='expanding' init-value='1'/>
         <bool name='reuse'/>
-        <int32_t name='unk3' init-value='-1'/>
+        <int32_t name='guide_id' ref-target='flow_guide'/>
     </struct-type>
 
     <struct-type type-name='flow_reuse_pool'>
@@ -838,8 +915,44 @@
         </bitfield>
     </struct-type>
 
+    <enum-type type-name='flow_guide_type'>
+        <enum-item name='TrailingFlow'/>
+        <enum-item name='ItemCloud'/>
+    </enum-type>
+
+    <class-type type-name='flow_guide' original-name='flow_guidest'
+                key-field='id' instance-vector='$global.world.flow_guides.all'>
+        <int32_t name='id'/>
+        <int8_t name='unk_8'/>
+        <virtual-methods>
+            <vmethod ret-type='flow_guide_type' name='getType'/>
+            <vmethod><int16_t name='x'/><int16_t name='y'/><int16_t name='z'/></vmethod>
+            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
+            <vmethod name='read_file'>
+                <pointer name='file' type-name='file_compressorst'/>
+                <int32_t name='loadversion'/>
+            </vmethod>
+            <vmethod><pointer type-name='flow_info'/></vmethod>
+            <vmethod is-destructor='true'/>
+        </virtual-methods>
+    </class-type>
+
+    <class-type type-name='flow_guide_trailing_flowst' inherits-from='flow_guide'>
+        <static-array type-name='coord' count='15'/>
+    </class-type>
+
+    <class-type type-name='flow_guide_item_cloudst' inherits-from='flow_guide'>
+        <enum base-type='int16_t' name='item_type' type-name='item_type'/>
+        <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
+        <int16_t name='mattype' ref-target='material' aux-value='$$.matindex'/>
+        <int32_t name='matindex'/>
+        <int32_t name="unk_18"/>
+        <int32_t name="unk_1c"/>
+        <static-array type-name='coord' count='15'/>
+    </class-type>
+
     <struct-type type-name='effect_info'>
-        <int32_t comment='uninit'/>
+        <int32_t name='id' comment='assigned during Save'/>
         <pointer type-name='job'/>
         <int16_t name='type' comment='2 = falling into chasm'/>
         <int16_t name='foreground'/>
@@ -848,6 +961,28 @@
         <compound type-name='coord' name='pos'/>
         <int32_t name='timer'/>
     </struct-type>
+
+    <enum-type type-name='region_block_event_type'>
+        <enum-item name='SphereField'/>
+    </enum-type>
+
+    <class-type type-name='region_block_eventst'>
+        <virtual-methods>
+            <vmethod ret-type='region_block_event_type' name='getType'/>
+            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
+            <vmethod name='read_file'>
+                <pointer name='file' type-name='file_compressorst'/>
+                <int32_t name='loadversion'/>
+            </vmethod>
+            <vmethod ret-type='bool'/>
+            <vmethod is-destructor='true'/>
+        </virtual-methods>
+    </class-type>
+
+    <class-type type-name='region_block_event_sphere_fieldst' inherits-from='region_block_eventst'>
+        <static-array type-name='int16_t' count='16'/>
+    </class-type>
+
 </data-definition>
 
 <!--

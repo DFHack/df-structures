@@ -32,6 +32,10 @@
         <enum-item name='BODY_APPEARANCE_MODIFIER'/>
         <enum-item name='BP_APPEARANCE_MODIFIER'/>
         <enum-item name='DISPLAY_NAME'/>
+        <enum-item name='SENSE_CREATURE_CLASS'/>
+        <enum-item name='FEEL_EMOTION'/>
+        <enum-item name='CHANGE_PERSONALITY'/>
+        <enum-item name='ERRATIC_BEHAVIOR'/>
     </enum-type>
 
     <bitfield-type type-name='creature_interaction_effect_flags' base-type='uint32_t'>
@@ -41,6 +45,10 @@
         <flag-bit name='MUSCULAR_ONLY'/>
         <flag-bit name='RESISTABLE'/>
         <flag-bit name='LOCALIZED'/>
+        <flag-bit name='MOON_PHASE'/>
+        <flag-bit name='COUNTER_TRIGGER'/>
+        <flag-bit name='ABRUPT_START'/>
+        <flag-bit name='ABRUPT_END'/>
     </bitfield-type>
 
     <bitfield-type type-name='cie_add_tag_mask1'>
@@ -89,36 +97,35 @@
         <flag-bit name='FIT_FOR_RESURRECTION'/>
     </bitfield-type>
 
+    <enum-type type-name='creature_interaction_effect_target_mode' base-type='int16_t'>
+        <enum-item name='BY_TYPE'/>
+        <enum-item name='BY_TOKEN'/>
+        <enum-item name='BY_CATEGORY'/>
+    </enum-type>
+
     <struct-type type-name='creature_interaction_effect_target'>
         <stl-vector name='mode'>
-            <enum base-type='int16_t'>
-                <enum-item name='BY_TYPE'/>
-                <enum-item name='BY_TOKEN'/>
-                <enum-item name='BY_CATEGORY'/>
-            </enum>
+            <enum base-type='int16_t' type-name='creature_interaction_effect_target_mode'/>
         </stl-vector>
-        <stl-vector name='key'>
-            <pointer type-name='stl-string'/>
-        </stl-vector>
-        <stl-vector name='tissue'>
-            <pointer type-name='stl-string'/>
-        </stl-vector>
+        <stl-vector name='key' pointer-type='stl-string'/>
+        <stl-vector name='tissue' pointer-type='stl-string'/>
     </struct-type>
 
     <class-type type-name='creature_interaction_effect' original-name='creature_interaction_effectst'
-                instance-vector='$global.world.raws.effects.all' key-field='id'>
-        <compound name='flags' type-name='creature_interaction_effect_flags'/>
+                instance-vector='$global.world.raws.effects.all'>
+        <bitfield name='flags' type-name='creature_interaction_effect_flags'/>
         <int32_t name='prob'/>
         <int32_t name='start'/>
         <int32_t name='peak'/>
         <int32_t name='end'/>
+        <int32_t name='dwf_stretch'/>
 
         <int32_t name='syn_id' ref-target='syndrome'/>
         <int32_t name='id'/>
         <int32_t name='syn_index' comment='index in syndrome'/>
 
-        <int32_t name="unk_4"/>
-        <int32_t name="unk_8"/>
+        <int32_t name="moon_phase_min"/>
+        <int32_t name="moon_phase_max"/>
 
         <compound name='counter_trigger'>
             <stl-vector name="counter">
@@ -135,33 +142,33 @@
                 <ret-type><pointer type-name='creature_interaction_effect'/></ret-type>
             </vmethod>
             <vmethod is-destructor='true'/>
-            <vmethod>
-                <pointer/>
-                <pointer/>
-                <int32_t/>
-                <int32_t/>
-                <int16_t/>
-                <int16_t/>
-                <int32_t/>
+            <vmethod name='doAction'>
+                <pointer type-name='unit'/>
+                <pointer type-name='unit_syndrome'/>
+                <pointer type-name='syndrome'/>
+                <int32_t name='intensity'/>
+                <int16_t name='bp_index'/>
+                <int16_t name='bp_layer'/>
+                <pointer pointer-type='unit_wound'/>
             </vmethod>
-            <vmethod ret-type='bool'/>
+            <vmethod name='isUntargeted' ret-type='bool'/>
 
-            <vmethod name='getVector1'>
-                <ret-type><pointer><stl-vector/></pointer></ret-type>
+            <vmethod name='getTargetModes'>
+                <ret-type><pointer><stl-vector><enum base-type='int16_t' type-name='creature_interaction_effect_target_mode'/></stl-vector></pointer></ret-type>
             </vmethod>
-            <vmethod name='getVector2'>
-                <ret-type><pointer><stl-vector/></pointer></ret-type>
+            <vmethod name='getTargetKeys'>
+                <ret-type><pointer><stl-vector pointer-type='stl-string'/></pointer></ret-type>
             </vmethod>
-            <vmethod name='getVector3'>
-                <ret-type><pointer><stl-vector/></pointer></ret-type>
+            <vmethod name='getTargetTissues'>
+                <ret-type><pointer><stl-vector pointer-type='stl-string'/></pointer></ret-type>
             </vmethod>
             <vmethod name='checkAddFlag1' ret-type='bool'><uint32_t/></vmethod>
             <vmethod name='setBodyMatInteractionName'><pointer/></vmethod>
 
             <vmethod name='parseSynAcquireType'><pointer name='type'/></vmethod>
             <vmethod name='setBodyTransform'><pointer name='race'/><pointer name='caste'/></vmethod>
-            <vmethod name='checkMoonPhase'><pointer/><pointer/><pointer/></vmethod>
-            <vmethod name='checkCounter'><pointer/><pointer/><pointer/><pointer/></vmethod>
+            <vmethod name='addPeriodic'><pointer/><pointer/><pointer/></vmethod>
+            <vmethod name='addCounterTrigger'><pointer/><pointer/><pointer/><pointer/></vmethod>
             <vmethod><pointer/></vmethod>
 
             <vmethod/>
@@ -274,6 +281,12 @@
         <int32_t/>
     </class-type>
 
+    <class-type type-name='creature_interaction_effect_body_appearance_modifierst'
+                inherits-from='creature_interaction_effect'>
+        <int16_t name="unk_60"/>
+        <int32_t name="unk_64"/>
+    </class-type>
+
     <class-type type-name='creature_interaction_effect_bp_appearance_modifierst'
                 inherits-from='creature_interaction_effect'>
         <int16_t name="unk_6c"/>
@@ -328,14 +341,14 @@
 
     <class-type type-name='creature_interaction_effect_add_simple_flagst'
                 inherits-from='creature_interaction_effect'>
-        <compound name='tags1' type-name='cie_add_tag_mask1'/>
-        <compound name='tags2' type-name='cie_add_tag_mask2'/>
+        <bitfield name='tags1' type-name='cie_add_tag_mask1'/>
+        <bitfield name='tags2' type-name='cie_add_tag_mask2'/>
     </class-type>
 
     <class-type type-name='creature_interaction_effect_remove_simple_flagst'
                 inherits-from='creature_interaction_effect'>
-        <compound name='tags1' type-name='cie_add_tag_mask1'/>
-        <compound name='tags2' type-name='cie_add_tag_mask2'/>
+        <bitfield name='tags1' type-name='cie_add_tag_mask1'/>
+        <bitfield name='tags2' type-name='cie_add_tag_mask2'/>
     </class-type>
 
     <class-type type-name='creature_interaction_effect_speed_changest'
@@ -366,38 +379,32 @@
 
     <class-type type-name='creature_interaction_effect_can_do_interactionst'
                 inherits-from='creature_interaction_effect'>
-        <stl-vector name="unk_6c"/>
-        <stl-vector name="unk_7c"/>
-        <stl-string name="unk_8c"/>
-        <stl-string name="unk_a8"/>
-        <stl-string name="unk_c4"/>
-        <int16_t name="unk_e0"/>
-        <padding name="unk_e2" size="2"/>
-        <static-array type-name='stl-string' name="verb" count='3'/>
-        <stl-string name="unk_138"/>
-        <stl-string name="unk_154"/>
-        <stl-string name="unk_170"/>
-        <stl-string name="unk_18c"/>
-        <stl-string name="interaction_name"/>
-        <int32_t name="type_id"/>
-        <stl-vector name="unk_1c8"/>
-        <stl-vector name="unk_1d8"/>
-        <int32_t name="unk_1e8"/>
-        <stl-vector name="unk_1ec">
-            <pointer/>
-        </stl-vector>
-        <stl-vector name="unk_1fc">
-            <int32_t/>
-        </stl-vector>
-        <stl-vector name="unk_20c">
-            <int32_t/>
-        </stl-vector>
-        <stl-vector name="unk_21c"/>
-        <stl-vector name="unk_22c"/>
-        <stl-vector name="unk_23c"/>
-        <stl-vector name="unk_24c"/>
-        <stl-string name="name"/>
-        <int32_t name="usage_delay"/>
+        <compound name='interaction' type-name='creature_interaction'/>
+    </class-type>
+
+    <class-type type-name='creature_interaction_effect_sense_creature_classst'
+                inherits-from='creature_interaction_effect'>
+        <stl-string name="class_name"/>
+        <int8_t name="unk_88"/>
+        <int16_t name="unk_8a"/>
+        <int16_t name="unk_8c"/>
+        <int16_t name="unk_8e"/>
+    </class-type>
+
+    <class-type type-name='creature_interaction_effect_feel_emotionst'
+                inherits-from='creature_interaction_effect'>
+        <enum type-name='emotion_type' name='emotion'/>
+        <int32_t name='sev'/>
+    </class-type>
+
+    <class-type type-name='creature_interaction_effect_change_personalityst'
+                inherits-from='creature_interaction_effect'>
+        <static-array type-name='int16_t' name='facets' count='50' index-enum='personality_facet_type'/>
+    </class-type>
+
+    <class-type type-name='creature_interaction_effect_erratic_behaviorst'
+                inherits-from='creature_interaction_effect'>
+        <int32_t name='sev'/>
     </class-type>
 
     <bitfield-type type-name='syndrome_flags' base-type='uint32_t'>
@@ -409,65 +416,24 @@
     </bitfield-type>
 
     <struct-type type-name='syndrome'
-                 instance-vector='$global.world.raws.syndromes.all' key-field='id'>
+                 instance-vector='$global.world.raws.syndromes.all'>
         <stl-string name='syn_name'/>
 
         <code-helper name='describe'>$.syn_name</code-helper>
 
-        <stl-vector name='ce'>
-            <pointer type-name='creature_interaction_effect'/>
-        </stl-vector>
-        <stl-vector name='syn_affected_class'>
-            <pointer type-name='stl-string'/>
-        </stl-vector>
-        <stl-vector name='syn_affected_creature'>
-            <pointer type-name='stl-string'/>
-        </stl-vector>
-        <stl-vector name='syn_affected_caste'>
-            <pointer type-name='stl-string'/>
-        </stl-vector>
-        <stl-vector name='syn_immune_class'>
-            <pointer type-name='stl-string'/>
-        </stl-vector>
-        <stl-vector name='syn_immune_creature'>
-            <pointer type-name='stl-string'/>
-        </stl-vector>
-        <stl-vector name='syn_immune_caste'>
-            <pointer type-name='stl-string'/>
-        </stl-vector>
-        <stl-vector name='syn_class' comment='v0.34.01'>
-            <pointer type-name='stl-string'/>
-        </stl-vector>
-
-        <compound name='flags' type-name='syndrome_flags'/>
+        <stl-vector name='ce' pointer-type='creature_interaction_effect'/>
+        <stl-vector name='syn_affected_class' pointer-type='stl-string'/>
+        <stl-vector name='syn_affected_creature' pointer-type='stl-string'/>
+        <stl-vector name='syn_affected_caste' pointer-type='stl-string'/>
+        <stl-vector name='syn_immune_class' pointer-type='stl-string'/>
+        <stl-vector name='syn_immune_creature' pointer-type='stl-string'/>
+        <stl-vector name='syn_immune_caste' pointer-type='stl-string'/>
+        <stl-vector name='syn_class' since='v0.34.01' pointer-type='stl-string'/>
+        <stl-string name='syn_identifier' since='v0.42.01'/>
+        <bitfield name='flags' type-name='syndrome_flags'/>
+        <static-array type-name='int32_t' name='syn_concentration_added' count='2' since='v0.42.01'/>
         <int32_t name='id'/>
     </struct-type>
-
-    <struct-type type-name='interaction'
-                 instance-vector='$global.world.raws.interactions' key-field='id'>
-        <stl-string name="name"/>
-        <int32_t name="id"/>
-
-        <code-helper name='describe'>$.name</code-helper>
-
-        <stl-vector name="str">
-            <pointer type-name='stl-string'/>
-        </stl-vector>
-
-        <df-flagarray name='flags'/>
-
-        <stl-vector name="sources">
-            <pointer/>
-        </stl-vector>
-        <stl-vector name="targets">
-            <pointer/>
-        </stl-vector>
-        <stl-vector name="effects" pointer-type='interaction_effect'/>
-    </struct-type>
-
-    <class-type type-name='interaction_effect' original-name='interaction_effectst'>
-        ...
-    </class-type>
 </data-definition>
 
 <!--

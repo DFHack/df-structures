@@ -58,7 +58,7 @@ our $filename;
 sub parse_address($;$) {
     my ($str,$in_bits) = @_;
     return undef unless defined $str;
-    
+
     # Parse the format used by offset attributes in xml
     $str =~ /^0x([0-9a-f]+)(?:\.([0-7]))?$/
         or die "Invalid address syntax: $str\n";
@@ -69,7 +69,7 @@ sub parse_address($;$) {
 
 sub check_bad_attrs($;$$) {
     my ($tag, $allow_size, $allow_align) = @_;
-    
+
     die "Cannot use size, alignment or offset for ".$tag->nodeName."\n"
         if ((!$allow_size && defined $tag->getAttribute('size')) ||
             defined $tag->getAttribute('offset') ||
@@ -126,7 +126,7 @@ sub add_global_to_hash($) {
 our @lines;
 our $indentation = 0;
 
-sub with_emit(&;$) { 
+sub with_emit(&;$) {
     # Executes the code block, and returns emitted lines
     my ($blk, $start_indent) = @_;
     local @lines;
@@ -173,6 +173,7 @@ sub emit_block(&;$$%) {
 my @primitive_type_list =
     qw(int8_t uint8_t int16_t uint16_t
        int32_t uint32_t int64_t uint64_t
+       long
        s-float d-float
        bool flag-bit
        padding static-string);
@@ -303,6 +304,9 @@ sub with_header_file(&$) {
         my $def = type_header_def($header_name);
         emit "#ifndef $def";
         emit "#define $def";
+        emit "#ifdef __GNUC__";
+        emit "#pragma GCC system_header";
+        emit "#endif";
 
         for my $strong (sort { $a cmp $b } keys %strong_refs) {
             my $sdef = type_header_def($strong);
@@ -451,7 +455,21 @@ sub get_comment($) {
 
     return '' unless $tag;
 
-    if (my $val = $tag->getAttribute('comment')) {
+    my $since = $tag->getAttribute('since');
+    my $comment = $tag->getAttribute('comment');
+    my $val = '';
+
+    if ($since) {
+        $val = $val . 'since ' . $since;
+        if ($comment) {
+            $val = $val . '; ';
+        }
+    }
+    if ($comment) {
+        $val = $val . $comment;
+    }
+
+    if ($val) {
         return ' /*!< '.$val.' */';
     } else {
         return '';
@@ -471,6 +489,11 @@ sub emit_comment($;%) {
             $val = $attr."\n".$val;
         } else {
             $val ||= $attr;
+        }
+
+        my $since = $tag->getAttribute('since');
+        if ($since) {
+            $val .= "\nSince " . $since;
         }
     }
 

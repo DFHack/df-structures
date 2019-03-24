@@ -5,11 +5,7 @@
         <enum-item name='Magic'/>
     </enum-type>
 
-    <struct-type type-name='proj_list_link'>
-        <pointer name='item' type-name='projectile'/>
-        <pointer name='prev' type-name='proj_list_link'/>
-        <pointer name='next' type-name='proj_list_link'/>
-    </struct-type>
+    <df-linked-list-type type-name='proj_list_link' item-type='projectile'/>
 
     <bitfield-type type-name='projectile_flags'>
         <flag-bit name='no_impact_destroy'/>
@@ -26,9 +22,10 @@
         <flag-bit name='unk9'/>
         <flag-bit name='unk10'/>
         <flag-bit name='no_collide'/>
+        <flag-bit name='safe_landing'/>
     </bitfield-type>
 
-    <class-type type-name='projectile' original-name='projst' key-field='id'>
+    <class-type type-name='projectile' original-name='projst' df-list-link-type='proj_list_link' df-list-link-field='link' key-field='id'>
         <pointer name='link' type-name='proj_list_link'/>
 
         <int32_t name='id'/>
@@ -44,7 +41,7 @@
         <int32_t name='min_hit_distance'/>
         <int32_t name='min_ground_distance'/>
 
-        <compound name='flags' type-name='projectile_flags'/>
+        <bitfield name='flags' type-name='projectile_flags'/>
 
         <int16_t name='fall_counter' comment='counts down from delay to 0, then it moves'/>
         <int16_t name='fall_delay'/>
@@ -57,6 +54,8 @@
         -- Parabolic projectile info:
         <int32_t name="unk_item_id" ref-target='item'/>
         <int32_t name="unk_unit_id" ref-target='unit'/>
+        <int32_t name="unk_v40_1" since='v0.40.01' comment='uninitialized+saved'/>
+
         <int32_t name="pos_x"/>
         <int32_t name="pos_y"/>
         <int32_t name="pos_z"/>
@@ -73,11 +72,11 @@
                 <bool name='noDamageFloor'/>
             </vmethod>
             <vmethod ret-type='bool' name='checkMovement'/>
-            <vmethod name='write_file'> <pointer comment='file_compressorst'/> </vmethod>
             <vmethod name='read_file'>
-                <pointer comment='file_compressorst'/>
+                <pointer name='file' type-name='file_compressorst'/>
                 <int32_t name='loadversion'/>
             </vmethod>
+            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
             <vmethod>
                 <pointer/>
             </vmethod>

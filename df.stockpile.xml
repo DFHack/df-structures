@@ -71,6 +71,7 @@
         <enum-item name='Wood'/>
         <enum-item name='Weapons'/>
         <enum-item name='Armor'/>
+        <enum-item name='Sheets'/>
         <enum-item name='Custom'/>
     </enum-type>
 
@@ -92,10 +93,12 @@
         <flag-bit name='wood'/>
         <flag-bit name='weapons'/>
         <flag-bit name='armor'/>
+
+        <flag-bit name='sheet'/>
     </bitfield-type>
 
     <struct-type type-name='stockpile_settings'>
-        <compound name='flags' type-name='stockpile_group_set'/>
+        <bitfield name='flags' type-name='stockpile_group_set'/>
 
         <compound name='animals'>
             <bool name='empty_cages'/>
@@ -298,6 +301,11 @@
             <bool name='unusable'/>
         </compound>
 
+        <compound name='sheet'>
+            <stl-vector type-name='bool' name='paper'/>
+            <stl-vector type-name='bool' name='parchment'/>
+        </compound>
+
         <bool name='allow_organic' init-value='true'/>
         <bool name='allow_inorganic' init-value='true'/>
     </struct-type>
@@ -387,12 +395,14 @@
         <enum-item name='RoughGlass'/>
         <enum-item name='CutGem'/>
         <enum-item name='CutGlass'/>
+        <enum-item name='CutStone'/>
         <enum-item name='Goods'>
             <item-attr name='is_category' value='true'/>
         </enum-item>
         <enum-item name='GoodsType'/>
         <enum-item name='GoodsStone'/>
         <enum-item name='GoodsMetal'/>
+        <enum-item name='GoodsGem'/>
         <enum-item name='GoodsOther'/>
         <enum-item name='GoodsCoreQuality'/>
         <enum-item name='GoodsTotalQuality'/>
@@ -436,6 +446,11 @@
         <enum-item name='ArmorOther'/>
         <enum-item name='ArmorCoreQuality'/>
         <enum-item name='ArmorTotalQuality'/>
+        <enum-item name='Sheet'>
+            <item-attr name='is_category' value='true'/>
+        </enum-item>
+        <enum-item name='SheetPaper'/>
+        <enum-item name='SheetParchment'/>
         <enum-item name='AdditionalOptions'>
             <item-attr name='is_category' value='true'/>
         </enum-item>
@@ -445,9 +460,7 @@
                  instance-vector='$global.ui.hauling.routes' key-field='id'>
         <int32_t name='id'/>
         <stl-string name="name"/>
-        <stl-vector name="stops">
-            <pointer type-name='hauling_stop'/>
-        </stl-vector>
+        <stl-vector name="stops" pointer-type='hauling_stop'/>
         <stl-vector name="vehicle_ids">
             <int32_t ref-target='vehicle'/>
         </stl-vector>
@@ -463,12 +476,8 @@
 
         <compound name='settings' type-name='stockpile_settings'/>
 
-        <stl-vector name='conditions'>
-            <pointer type-name='stop_depart_condition'/>
-        </stl-vector>
-        <stl-vector name='stockpiles'>
-            <pointer type-name='route_stockpile_link'/>
-        </stl-vector>
+        <stl-vector name='conditions' pointer-type='stop_depart_condition'/>
+        <stl-vector name='stockpiles' pointer-type='route_stockpile_link'/>
 
         <int32_t name='time_waiting'/>
         <int32_t name='cart_id' ref-target='item'/>
@@ -519,7 +528,11 @@
         <int32_t name='speed_y'/>
         <int32_t name='speed_z'/>
 
-        <padding size='16' comment='0'/>
+        <int32_t name='unk_20'/>
+        <int32_t name='unk_24'/>
+        <int32_t name='unk_28'/>
+        <int32_t name='unk_2c'/>
+
         <int32_t name='route_id' ref-target='hauling_route'/>
         <compound name='pos' type-name='coord'/>
 

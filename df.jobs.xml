@@ -1,18 +1,19 @@
 <data-definition>
     <bitfield-type type-name='job_material_category' base-type='uint32_t'>
         <flag-bit name='plant'/>
-        <flag-bit name='wood'/>
+        <flag-bit name='wood' comment='wood log'/>
         <flag-bit name='cloth'/>
         <flag-bit name='silk'/>
         <flag-bit name='leather'/>
         <flag-bit name='bone'/>
         <flag-bit name='shell'/>
-        <flag-bit name='wood2'/>
+        <flag-bit name='wood2' comment='wood material'/>
         <flag-bit name='soap'/>
         <flag-bit name='tooth'/>
         <flag-bit name='horn'/>
         <flag-bit name='pearl'/>
         <flag-bit name='yarn'/>
+        <flag-bit name='strand'/>
     </bitfield-type>
 
     <bitfield-type type-name='dfhack_material_category' base-type='uint32_t'>
@@ -34,6 +35,7 @@
         <flag-bit name='horn'/>
         <flag-bit name='pearl'/>
         <flag-bit name='yarn'/>
+        <flag-bit name='strand'/>
         <!-- DFHack-specific fields -->
         <flag-bit name='metal'/>
         <flag-bit name='stone'/>
@@ -43,12 +45,7 @@
         <flag-bit name='milk'/>
     </bitfield-type>
 
-    <struct-type type-name='job_list_link'>
-        <code-helper name='describe'>(describe-obj $.item)</code-helper>
-        <pointer name='item' type-name='job'/>
-        <pointer name='prev' type-name='job_list_link'/>
-        <pointer name='next' type-name='job_list_link'/>
-    </struct-type>
+    <df-linked-list-type type-name='job_list_link' item-type='job'/>
 
     <bitfield-type type-name='job_flags' base-type='uint32_t'>
         <flag-bit name='repeat'/>
@@ -65,9 +62,9 @@
             </comment>
         </flag-bit>
         <flag-bit name='item_lost' comment='set when a Hauled item is removed; causes cancel'/>
-        <flag-bit/>
+        <flag-bit name='noise' count='2' comment='on the sleep job causes thoughts'/>
 
-        <flag-bit/>
+        --
         <flag-bit name='by_manager'/>
         <flag-bit name='store_item'/>
         <flag-bit name='quality' count='3' comment='set by improvement code'/>
@@ -76,6 +73,8 @@
         <flag-bit/>
 
         <flag-bit name='on_break' comment='job displayed as On Break'/>
+        <flag-bit/>
+        <flag-bit name='do_now'/>
     </bitfield-type>
 
     <enum-type type-name='job_subtype_surgery'>
@@ -85,9 +84,11 @@
         <enum-item name='RemoveRottenTissue'/>
     </enum-type>
 
-    <struct-type type-name='job' key-field='id'>
+    <struct-type type-name='job' df-list-link-type='job_list_link' df-list-link-field='list_link' key-field='id'>
         <int32_t name='id' init-value='-1'/>
         <pointer name='list_link' type-name='job_list_link'/>
+        <int32_t name='posting_index' init-value='-1' since='v0.40.20' comment='index into world.job_postings'/>
+
         <enum name='job_type' base-type='int16_t' type-name='job_type'/>
         <int32_t name='job_subtype' init-value='-1'/>   surgery only ?
 
@@ -95,11 +96,11 @@
 
         <compound name='pos' type-name='coord'/>
 
-        <int32_t name='completion_timer' init-value='-1' comment='-1 per 10 frames'/>
+        <int32_t name='completion_timer' init-value='-1' comment='-1 every time unit.counters.job_counter is below 0' />
 
         <uint32_t name='unk4' comment='garbage, but serialized'/>
 
-        <compound name='flags' type-name='job_flags'/>
+        <bitfield name='flags' type-name='job_flags'/>
 
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name='mat_index' init-value='-1'/>
@@ -107,34 +108,30 @@
         <enum base-type='int16_t' name='item_type' type-name='item_type' comment='for Bait Trap jobs'/>
         <int16_t name='item_subtype' init-value='-1' comment='for StoreInStockpile: hauler_type'/>
 
-        <compound name="item_category" type-name='stockpile_group_set'/>
+        -- For building construction, bit 0 marks if location was updated:
+        <bitfield name="item_category" type-name='stockpile_group_set'/>
         <int32_t name="hist_figure_id" ref-target='historical_figure'/>
-        <compound name='material_category' type-name='job_material_category'/>
+        <bitfield name='material_category' type-name='job_material_category'/>
 
         <stl-string name='reaction_name'/>
 
         <int32_t name='expire_timer' comment='for stockpiling, +1 per 50 ticks if no worker; del when 20'/>
         <int16_t name='recheck_cntdn' comment='for process_jobs'/>
-        <int16_t name='unk10b_cntdn'/>
-        <int32_t name='unk11' init-value='-1' comment='v0.34.08'/>
+        <int16_t name='wait_timer' comment='for units to leave build sites; to recheck stockpiles'/>
+        <int32_t name='unk11' init-value='-1' since='v0.34.08'/>
 
-        <stl-vector name='items'>
-            <pointer type-name='job_item_ref'/>
-        </stl-vector>
+        <stl-vector name='items' pointer-type='job_item_ref'/>
+        <stl-vector name='specific_refs' pointer-type='specific_ref'/>
+        <stl-vector name='general_refs' pointer-type='general_ref'/>
+        <stl-vector name='job_items' pointer-type='job_item'/>
 
-        <stl-vector name='specific_refs'>
-            <pointer type-name='specific_ref'/>
-        </stl-vector>
-        <stl-vector name='general_refs'>
-            <pointer type-name='general_ref'/>
-        </stl-vector>
+        <compound name='guide_path' type-name='coord_path' since='v0.34.08'/>
+        <int32_t name='cur_path_index' since='v0.34.08'/>
 
-        <stl-vector name='job_items'>
-            <pointer type-name='job_item'/>
-        </stl-vector>
+        <compound name='unk_v4020_2' type-name='coord' since='v0.40.20'/>
 
-        <compound name='guide_path' type-name='coord_path' comment='v0.34.08'/>
-        <int32_t name='cur_path_index' comment='v0.34.08'/>
+        <compound name='art_spec' type-name='job_art_specification' since='v0.43.01'/>
+        <int32_t name='unk_v43_4' init-value='-1' since='v0.43.01'/>
     </struct-type>
 
     <struct-type type-name='job_item_ref'>
@@ -241,6 +238,11 @@
         <flag-bit name="any_craft" comment='FIGURINE, AMULET, SCEPTER, CROWN, RING, EARRING, BRACLET'/>
         <flag-bit name="hard" comment='check for material flag ITEMS_HARD'/>
         <flag-bit name="food_storage" comment='vtable[15]'/>
+        <flag-bit name='metal'/>
+        <flag-bit name='sand'/>
+        <flag-bit/>
+        <flag-bit name='written_on'/>
+        <flag-bit name='edged'/>
     </bitfield-type>
 
     <struct-type type-name='job_item'>
@@ -249,14 +251,14 @@
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name='mat_index' init-value='-1'/>
 
-        <compound name='flags1' type-name='job_item_flags1'/>
+        <bitfield name='flags1' type-name='job_item_flags1'/>
 
         <int32_t name='quantity' init-value='1'/>
         <enum base-type='int16_t' name='vector_id'
               type-name='job_item_vector_id' init-value='IN_PLAY'/>
 
-        <compound name='flags2' type-name='job_item_flags2'/>
-        <compound name='flags3' type-name='job_item_flags3'/>
+        <bitfield name='flags2' type-name='job_item_flags2'/>
+        <bitfield name='flags3' type-name='job_item_flags3'/>
         <uint32_t name='flags4'/>
         <uint32_t name='flags5'/>
 
@@ -271,6 +273,11 @@
         <stl-vector type-name='int32_t' name='contains' comment='used with custom reactions'/>
         <int32_t name='reaction_id' ref-target='reaction'/>
         <enum base-type='int16_t' name='has_tool_use' type-name='tool_uses'/>
+
+        <int32_t name='unk_v43_1' since='v0.43.01'/>
+        <int16_t name='unk_v43_2' init-value='-1' since='v0.43.01'/>
+        <int32_t name='unk_v43_3' init-value='-1' since='v0.43.01'/>
+        <int32_t name='unk_v43_4' since='v0.43.01'/>
     </struct-type>
 
     <struct-type type-name='job_item_filter'>
@@ -279,20 +286,18 @@
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name='mat_index' init-value='-1'/>
 
-        <compound name="flags1" type-name='job_item_flags1'/>
+        <bitfield name="flags1" type-name='job_item_flags1'/>
 
         <pointer name="item_vector">
-            <stl-vector>
-                <pointer type-name='item'/>
-            </stl-vector>
+            <stl-vector pointer-type='item'/>
         </pointer>
 
         <bool name="use_mat_index"/>
 
-        <compound name="flags2" type-name='job_item_flags2'/>
+        <bitfield name="flags2" type-name='job_item_flags2'/>
         <bool name="use_flags2"/>
 
-        <compound name="flags3" type-name='job_item_flags3'/>
+        <bitfield name="flags3" type-name='job_item_flags3'/>
         <bool name="use_flags3"/>
 
         <uint32_t name='flags4'/>
@@ -317,62 +322,151 @@
 
         <enum base-type='int16_t' name='has_tool_use' type-name='tool_uses'/>
         <enum base-type='int16_t' name='has_melee_skill'
-              type-name='job_skill' comment='v0.34.01-02'/>
+              type-name='job_skill' since='v0.34.01'/>
+
+        <int8_t name='unk_v40_1' comment='noticed in v0.40.24'/>
 
         <compound name='pos' type-name='coord'/>
 
         <pointer name="unit" type-name='unit'/>
         <pointer name="job" type-name='job'/>
         <pointer name="building" type-name='building'/>
+        <pointer name="unk_74"/>
 
-        <int32_t name="unk_74"/>
+        <int32_t name='unk_v4305_1' since='v0.43.05'/>
 
-        <stl-vector name='burrows'>
-            <int32_t ref-target='burrow'/>
-        </stl-vector>
+        <stl-vector name='burrows' type-name='int32_t' ref-target='burrow'/>
         <bool name="use_burrows"/>
 
-        <pointer name='take_from' comment='v0.34.08'>
-            <stl-vector>
-                <pointer type-name='building'/>
-            </stl-vector>
+        <pointer name='take_from' since='v0.34.08'>
+            <stl-vector pointer-type='building'/>
         </pointer>
     </struct-type>
 
-    <struct-type type-name='manager_order'>
-        <enum name='job_type' base-type='int16_t' type-name='job_type'/>
-        <int16_t name="unk_2"/>
+    <bitfield-type type-name='manager_order_status' base-type='int32_t'>
+        <flag-bit name="validated"/>
+        <flag-bit name="active"/>
+    </bitfield-type>
 
-        <int16_t name="item_subtype"/>
+    <struct-type type-name='job_art_specification'>
+        <enum base-type='int32_t' name='type'>
+            <enum-item name='None' value='-1'/>
+            <enum-item name='HistoricalFigure'/>
+            <enum-item name='Site'/>
+            <enum-item name='Entity'/>
+            <enum-item name='ArtImage'/>
+        </enum>
+
+        <code-helper name='describe'>
+            (describe-obj $.type)
+            (describe-obj (or $.subid.refers-to $.id.refers-to))
+        </code-helper>
+
+        <int32_t name='id' init-value='-1'>
+            <code-helper name='refers-to'>
+                (case $$._parent.type
+                    ($HistoricalFigure (find-instance $historical_figure $))
+                    ($Site (find-instance $world_site $))
+                    ($Entity (find-instance $historical_entity $))
+                    ($ArtImage (find-instance $art_image_chunk $)))
+            </code-helper>
+        </int32_t>
+        <int32_t name='subid' init-value='-1'>
+            <code-helper name='refers-to'>
+                (case $$._parent.type
+                    ($ArtImage $$._parent.id.refers-to.images[$]))
+            </code-helper>
+        </int32_t>
+    </struct-type>
+
+    <struct-type type-name='manager_order'>
+        <int32_t name='id'/>
+        <enum name='job_type' base-type='int16_t' type-name='job_type'/>
+        <enum base-type='int16_t' name='item_type' type-name='item_type' init-value='NONE'/>
+        <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)' init-value='-1'/>
 
         <stl-string name="reaction_name"/>
 
-        <int16_t name="mat_type" ref-target='material' aux-value='$$.mat_index'/>
-        <int32_t name="mat_index"/>
+        <int16_t name="mat_type" ref-target='material' aux-value='$$.mat_index' init-value='-1'/>
+        <int32_t name="mat_index" init-value='-1'/>
 
-        <compound name="item_category" type-name='stockpile_group_set'/>
-        <int32_t name="hist_figure_id" ref-target='historical_figure'/>
-        <compound name="material_category" type-name='job_material_category'/>
+        <bitfield name="item_category" type-name='stockpile_group_set'/>
+        <int32_t name="hist_figure_id" ref-target='historical_figure' init-value='-1'/>
+        <bitfield name="material_category" type-name='job_material_category'/>
 
-        <int16_t name="amount_left"/>
-        <int16_t name="amount_total"/>
-        <int32_t name="is_validated"/>
+        <compound name='art_spec' type-name='job_art_specification'/>
+
+        <int16_t name="amount_left" />
+        <int16_t name="amount_total" />
+        <bitfield name="status" type-name='manager_order_status'/>
+        <enum base-type='int32_t' name="frequency">
+            <enum-item name='OneTime'/>
+            <enum-item name='Daily'/>
+            <enum-item name='Monthly'/>
+            <enum-item name='Seasonally'/>
+            <enum-item name='Yearly'/>
+        </enum>
+        <int32_t name="finished_year" init-value='-1'/>
+        <int32_t name="finished_year_tick" init-value='-1'/>
+        <int32_t name="workshop_id" ref-target='building' init-value='-1'/>
+        <int32_t name="max_workshops" comment='0 is unlimited'/>
+        <stl-vector name="item_conditions" pointer-type='manager_order_condition_item'/>
+        <stl-vector name='order_conditions' pointer-type='manager_order_condition_order'/>
+        <pointer><stl-vector pointer-type='job_item'/></pointer>
+    </struct-type>
+
+    <struct-type type-name='manager_order_condition_item'>
+        <enum base-type='int32_t' name="compare_type">
+            <enum-item name='AtLeast'/>
+            <enum-item name='AtMost'/>
+            <enum-item name='GreaterThan'/>
+            <enum-item name='LessThan'/>
+            <enum-item name='Exactly'/>
+            <enum-item name='Not'/>
+        </enum>
+        <int32_t name='compare_val'/>
+        <enum base-type='int16_t' name='item_type' type-name='item_type' init-value='NONE'/>
+        <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)' init-value='-1'/>
+        <int16_t name="mat_type" ref-target='material' aux-value='$$.mat_index' init-value='-1'/>
+        <int32_t name="mat_index" init-value='-1'/>
+        <bitfield name='flags1' type-name='job_item_flags1'/>
+        <bitfield name='flags2' type-name='job_item_flags2'/>
+        <bitfield name='flags3' type-name='job_item_flags3'/>
+        <uint32_t name='flags4'/>
+        <uint32_t name='flags5'/>
+        <stl-string name='reaction_class'/>
+        <stl-string name='has_material_reaction_product'/>
+        <int32_t name='inorganic_bearing' ref-target='inorganic_raw'/>
+        <int32_t/>
+        <stl-vector type-name='int32_t'/>
+        <int32_t/>
+        <enum base-type='int16_t' name='has_tool_use' type-name='tool_uses'/>
+    </struct-type>
+
+    <struct-type type-name='manager_order_condition_order'>
+        <int32_t name='order_id' ref-target='manager_order'/>
+        <enum base-type='int32_t' name="condition" init-value='Completed'>
+            <enum-item name='Activated'/>
+            <enum-item name='Completed'/>
+        </enum>
+        <int32_t/>
     </struct-type>
 
     <struct-type type-name='manager_order_template'>
         <enum name='job_type' base-type='int16_t' type-name='job_type'/>
         <stl-string name="reaction_name"/>
-        <int16_t init-value='-1'/>
-        <int16_t name="item_subtype"/>
+        <enum base-type='int16_t' name='item_type' type-name='item_type' init-value='NONE'/>
+        <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
         <int16_t name="mat_type" ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name="mat_index"/>
-        <compound name="item_category" type-name='stockpile_group_set'/>
-        <int32_t init-value='-1'/>
-        <compound name="material_category" type-name='job_material_category'/>
-        <int8_t init-value='1'/>
+        <bitfield name="item_category" type-name='stockpile_group_set'/>
+        <int32_t name="hist_figure_id" ref-target='historical_figure' init-value='-1'/>
+        <bitfield name="material_category" type-name='job_material_category'/>
+        <int32_t init-value='1'/>
     </struct-type>
 
-    <enum-type type-name='guild_id'>
+    <enum-type type-name='guild_id' base-type='int16_t'>
+        <enum-item name='None' value='-1'/>
         <enum-item name='Miners'/>
         <enum-item name='Carpenters'/>
         <enum-item name='Masons'/>
@@ -384,7 +478,11 @@
     <struct-type type-name='mandate'>
         <pointer name='unit' type-name='unit'/>
 
-        <int16_t name='mode' comment='0 export, 1 make, 2 guild jobs'/>
+        <enum name='mode' base-type='int16_t'>
+            <enum-item name='Export'/>
+            <enum-item name='Make'/>
+            <enum-item name='Guild'/>
+        </enum>
 
         <enum base-type='int16_t' name='item_type' type-name='item_type'/>
         <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
@@ -398,10 +496,12 @@
         <int32_t name='timeout_counter' comment='counts once per 10 frames'/>
         <int32_t name='timeout_limit' comment='once counter passes limit, mandate ends'/>
 
-        <int32_t comment='v0.34.01'/>
-        <int32_t comment='v0.34.01'/>
-        <int32_t name='unk2'/>
-        <uint8_t name='unk3'/>
+        <compound name='punishment'>
+            <int32_t name='hammerstrikes'/>
+            <int32_t name='prison_time'/>
+            <int32_t name='give_beating'/>
+        </compound>
+        <uint8_t name='punish_multiple'/>
         <int32_t name='unk4'/>
     </struct-type>
 
@@ -411,11 +511,12 @@
         <int32_t name="animal_id" ref-target='unit'/>
         <int32_t name="trainer_id" ref-target='unit'/>
 
-        <enum base-type='int32_t' name="auto_mode">
-            <enum-item name='None'/>
-            <enum-item name='Any'/>
-            <enum-item name='AnyUnassigned'/>
-        </enum>
+        <bitfield name='flags'>
+            <flag-bit name='any_trainer'/>
+            <flag-bit name='any_unassigned_trainer'/>
+            <flag-bit name='train_war'/>
+            <flag-bit name='train_hunt'/>
+        </bitfield>
     </struct-type>
 
     <struct-type type-name='unit_demand'>

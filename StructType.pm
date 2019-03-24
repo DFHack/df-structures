@@ -67,12 +67,18 @@ sub emit_find_instance(\%$) {
     my $instance_vector = translate_lookup $tag->getAttribute('instance-vector');
     if ($instance_vector) {
         emit "static $vectype &get_vector();";
+        # needed for Lua API
+        emit "static $vectype *get_vector_ptr();";
         emit "static $typename *find($keytype id);";
 
         with_emit_static {
             emit_block {
                 emit "return ", $instance_vector, ";";
-            } "std::vector<$typename*>& ${typename}::get_vector() ";
+            } "$vectype& ${typename}::get_vector() ";
+
+            emit_block {
+                emit "return &get_vector();";
+            } "$vectype* ${typename}::get_vector_ptr() ";
 
             emit_block {
                 emit "std::vector<$typename*> &vec_ = get_vector();";
@@ -85,6 +91,7 @@ sub emit_find_instance(\%$) {
             } "$typename *${typename}::find($keytype id_) ";
         };
 
+        push @{$rinfo->{statics}}, {'get_vector' => 'get_vector_ptr'};
         push @{$rinfo->{statics}}, 'find';
     }
 }
@@ -112,7 +119,7 @@ sub render_virtual_methods {
             my $is_destructor = is_attr_true($method, 'is-destructor');
             my $name = $is_destructor ? $dtor_id : $method->getAttribute('name');
             if ($name) {
-                die "Duplicate method: $name in ".$type->getAttribute('type-name')."\n"
+                die "Duplicate virtual method: $name in ".$type->getAttribute('type-name')."\n"
                     if exists $name_index{$name};
                 $name_index{$name} = scalar(@vtable);
             }
@@ -184,17 +191,32 @@ sub render_struct_type {
 
     my $tag_name = $tag->getAttribute('ld:meta');
     my $is_class = ($tag_name eq 'class-type');
-    my $custom_methods = is_attr_true($tag, 'custom-methods');
+    my $is_linked_list = (($tag->getAttribute('ld:subtype') or '') eq 'df-linked-list-type');
+    my $item_type = $tag->getAttribute('item-type');
+    my $list_link_type = $tag->getAttribute('df-list-link-type');
+    my $list_link_field = $tag->getAttribute('df-list-link-field');
+    my $custom_methods = is_attr_true($tag, 'custom-methods') || $tag->findnodes('custom-methods/cmethod');
     my $has_methods = $is_class || is_attr_true($tag, 'has-methods');
     my $inherits = $tag->getAttribute('inherits-from');
     my $original_name = $tag->getAttribute('original-name');
     my $ispec = '';
+
+    for my $extra ($tag->findnodes('extra-include')) {
+        register_ref $extra->getAttribute('type-name'), 1;
+    }
 
     if ($inherits) {
         register_ref $inherits, 1;
         $ispec = ' : '.$inherits;
     } elsif ($is_class) {
         $ispec = ' : virtual_class';
+    } elsif ($is_linked_list) {
+        register_ref $item_type, 1;
+        $ispec = ' : DfLinkedList<'.$typename.', '.$item_type.'>';
+    }
+
+    if ($list_link_type) {
+        register_ref $list_link_type, 0;
     }
 
     with_struct_block {
@@ -203,10 +225,41 @@ sub render_struct_type {
 
             emit_find_instance(%info, $tag);
 
+            if ($list_link_type) {
+                emit $list_link_type," *dfhack_get_list_link();";
+                emit "void dfhack_set_list_link(",$list_link_type," *);";
+                with_emit_static {
+                    emit_block {
+                        if ($list_link_field) {
+                            emit "return ",$list_link_field,";";
+                        } else {
+                            emit "return nullptr;";
+                        }
+                    } "$list_link_type *${typename}::dfhack_get_list_link()";
+                    emit_block {
+                        if ($list_link_field) {
+                            emit "this->",$list_link_field," = l;";
+                        }
+                    } "void ${typename}::dfhack_set_list_link($list_link_type *l)";
+                };
+            }
+
             if ($has_methods || $custom_methods) {
                 if ($custom_methods) {
                     local $indentation = 0;
                     emit '#include "custom/', $typename, '.methods.inc"';
+
+                    my %name_index;
+                    $info{cmethods} = [];
+                    for my $method ($tag->findnodes('custom-methods/cmethod')) {
+                        my $name = $method->getAttribute('name');
+                        die "Custom method has no name in ".$typename."\n"
+                            if not $name;
+                        die "Duplicate custom method: $name in ".$typename."\n"
+                            if exists $name_index{$name};
+                        $name_index{$name} = 1;
+                        push @{$info{cmethods}}, $method;
+                    }
                 }
 
                 if ($is_class) {

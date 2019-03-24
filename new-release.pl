@@ -13,25 +13,25 @@
 use strict;
 use warnings;
 
+use Digest::MD5;
+
 my $version = $ARGV[0] or die "Usage: new-release.pl <version> [path]\n";
 my $path = $ARGV[1] || glob("~/Games/DF/");
 
 # Find the new md5 and timestamp
 
 sub compute_md5($) {
-    my ($fn) = @_;
-
-    my $md5_hash = `md5sum "$fn"`;
-    $md5_hash =~ s/\s.*$//s;
-    $md5_hash =~ /^[0-9a-fA-F]+$/ or die "Could not determine md5 hash: $fn\n";
-    return lc $md5_hash;
+    open(my $fh, '<', shift);
+    my $md5_hash = Digest::MD5->new->addfile($fh)->hexdigest;
+    close($fh);
+    return($md5_hash);
 }
 
 my $md5_hash = compute_md5 "$path/df_linux/libs/Dwarf_Fortress";
 my $osx_md5 = compute_md5 "$path/df_osx/dwarfort.exe";
 
 my $timestamp;
-if (open FH, "winedump '$path/df_windows/Dwarf Fortress.exe'|") {
+if (open(FH, '-|', "winedump '$path/df_windows/Dwarf Fortress.exe'")) {
     while (<FH>) {
         next unless /TimeDateStamp:\s+([0-9A-F]+)\s/;
         $timestamp = $1;
@@ -47,7 +47,7 @@ print "New version $version, timestamp $timestamp, hash $md5_hash, osx hash $osx
 
 # Load symbols
 
-open FH, 'symbols.xml' or die "Can't open symbols.\n";
+open(FH, '<', 'symbols.xml') or die "Can't open symbols.\n";
 my @symlines = <FH>;
 close FH;
 
@@ -55,12 +55,12 @@ for $_ (@symlines) {
     if (/<md5-hash\s+value=[\'\"]([^\'\"]+)[\'\"]\s*\/>/) {
         my $v = lc $1;
         if ($v eq $md5_hash) {
-            die "This md5 hash is already in symbols.xml\n";
+#            die "This md5 hash is already in symbols.xml\n";
         }
     } elsif (/<binary-timestamp\s+value=[\'\"]0x([^\'\"]+)[\'\"]\s*\/>/) {
         my $v = lc $1;
         if ($v eq $timestamp) {
-            die "This timestamp is already in symbols.xml\n";
+#            die "This timestamp is already in symbols.xml\n";
         }
     }
 }
@@ -84,12 +84,14 @@ for $_ (@symlines) {
 }
 @template or die "Could not find the symtable template\n";
 
+our @lines;
+
 sub import_genfile($$$;$) {
     my ($dir, $fn, $pfix, $substl) = @_;
     local *IFH;
     local $_;
     local @lines;
-    if (open IFH, "${dir}/${fn}.txt") {
+    if (open(IFH, '<', "${dir}/${fn}.txt")) {
         @lines = <IFH>;
         close IFH;
     }
@@ -101,7 +103,7 @@ sub import_genfile($$$;$) {
     }
 }
 
-open FH, '>symbols.xml' or die "Can't write symbols.\n";
+open(FH, '>', 'symbols.xml') or die "Can't write symbols.\n";
 for $_ (@symlines) {
     if (/<!--\s*end windows\s*-->/) {
         for my $line (@template) {
@@ -163,17 +165,17 @@ sub copy_globals($) {
 
     rename "$dir/df.globals.xml", "$dir/df.globals.xml-old";
 
-    open IN, 'defs.xml-empty';
-    open OUT, ">$dir/df.globals.xml";
+    open(IN, '<', 'defs.xml-empty');
+    open(FH, '>', "$dir/df.globals.xml");
     while (<IN>) {
         if (/(\s*)<!-- defs -->/) {
             import_genfile $dir, 'ctors', $1, $_;
         } else {
-            print OUT $_;
+            print FH $_;
         }
     }
     close IN;
-    close OUT;
+    close FH;
 }
 
 copy_globals 'linux';
@@ -184,7 +186,7 @@ system "touch '$version.lst'";
 
 # Lisp
 
-open FH, '>version.lisp' or die "Can't write version.lisp.\n";
+open(FH, '>', 'version.lisp') or die "Can't write version.lisp.\n";
 print FH <<END;
 (defparameter *df-version-str* "$version")
 (defparameter *windows-timestamp* #x$timestamp)

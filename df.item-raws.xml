@@ -248,10 +248,10 @@
             <item-attr name='caption' value='leather'/>
             <item-attr name='classname' value='item_skin_tannedst'/>
         </enum-item>
-        <enum-item name='LEAVES' comment='Leaves, usually from quarry bushes.'>
-            <item-attr name='caption' value='leaves'/>
+        <enum-item name='PLANT_GROWTH' comment='Assorted plant growths, including leaves and berries'>
+            <item-attr name='caption' value='plant growth'/>
             <item-attr name='is_stackable' value='true'/>
-            <item-attr name='classname' value='item_leavesst'/>
+            <item-attr name='classname' value='item_plant_growthst'/>
         </enum-item>
         <enum-item name='THREAD' comment='Thread gathered from webs or made at the farmers workshop.'>
             <item-attr name='caption' value='thread'/>
@@ -397,6 +397,14 @@
             <item-attr name='caption' value='book'/>
             <item-attr name='classname' value='item_bookst'/>
         </enum-item>
+        <enum-item name='SHEET' comment='Sheets of paper'>
+            <item-attr name='caption' value='sheet'/>
+            <item-attr name='classname' value='item_sheetst'/>
+        </enum-item>
+        <enum-item name='BRANCH' comment='Tree branches'>
+            <item-attr name='caption' value='branch'/>
+            <item-attr name='classname' value='item_branchst'/>
+        </enum-item>
     </enum-type>
 
     <struct-type type-name='weapon_attack'>
@@ -407,21 +415,31 @@
         <stl-string name='verb_2nd'/>
         <stl-string name='verb_3rd'/>
         <stl-string name='noun'/>
+        <int32_t name="prepare" since='v0.40.01'/>
+        <int32_t name="recover" since='v0.40.01'/>
+        <bitfield name='flags' since='v0.40.01'>
+            <flag-bit name='independent_multiattack'/>
+            <flag-bit name='bad_multiattack'/>
+        </bitfield>
     </struct-type>
 
     <class-type type-name='itemdef' original-name='itemdefst'>
         <stl-string name="id"/>
         <int16_t name="subtype"/>
 
-        <df-flagarray name='base_flags' comment='v0.34.08; [0] = generated'/>
-        <stl-vector name='raw_strings'>
-            <pointer type-name='stl-string'/>
-        </stl-vector>
+        <df-flagarray name='base_flags' since='v0.34.08; [0] = generated'/>
+
+        <int32_t name='source_hfid' ref-target='historical_figure' since='v0.40.01'/>
+        <int32_t name='source_enid' ref-target='historical_entity' since='v0.42.01'/>
+        <stl-vector name='raw_strings' pointer-type='stl-string'/>
 
         <code-helper name='describe'>$.id</code-helper>
 
         <virtual-methods>
+            <vmethod/>
             <vmethod name='parseRaws'>
+                <pointer/>
+                <pointer/>
                 <pointer/>
                 <pointer/>
                 <pointer/>
@@ -441,6 +459,7 @@
                 instance-vector='$global.world.raws.itemdefs.ammo'>
         <stl-string name="name"/>
         <stl-string name="name_plural"/>
+        <stl-string name="adjective" since='v0.40.01'/>
         <stl-string name="ammo_class"/>
 
         <df-flagarray name='flags' index-enum='ammo_flags'/>
@@ -448,9 +467,7 @@
         <int32_t name="size" comment='divided by 10'/>
         <int32_t name="value"/>
 
-        <stl-vector name="attacks">
-            <pointer type-name='weapon_attack'/>
-        </stl-vector>
+        <stl-vector name="attacks" pointer-type='weapon_attack'/>
     </class-type>
 
     <enum-type type-name='armor_general_flags'>
@@ -486,6 +503,8 @@
         <stl-string name="name_plural"/>
         <stl-string name="name_preplural"/>
         <stl-string name="material_placeholder"/>
+        <stl-string name="adjective" since='v0.40.01'/>
+
         <int32_t name="value"/>
         <int8_t name="armorlevel"/>
         <int16_t name="ubstep"/>
@@ -511,6 +530,7 @@
                 instance-vector='$global.world.raws.itemdefs.gloves'>
         <stl-string name="name"/>
         <stl-string name="name_plural"/>
+        <stl-string name="adjective" since='v0.40.01'/>
         <int32_t name="value"/>
         <int8_t name='armorlevel'/>
         <int16_t name="upstep"/>
@@ -527,6 +547,7 @@
                 instance-vector='$global.world.raws.itemdefs.helms'>
         <stl-string name="name"/>
         <stl-string name="name_plural"/>
+        <stl-string name="adjective" since='v0.40.01'/>
         <int32_t name="value"/>
         <int8_t name='armorlevel'/>
         <df-flagarray name='flags' index-enum='helm_flags'/>
@@ -535,7 +556,16 @@
     </class-type>
 
     <enum-type type-name='instrument_flags'>
-        <enum-item name='HARD_MAT'/>
+        <enum-item name='INDEFINITE_PITCH'/>
+        <enum-item name='PLACED_AS_BUILDING'/>
+        <enum-item name='METAL_MAT'/>
+        <enum-item name='STONE_MAT'/>
+        <enum-item name='WOOD_MAT'/>
+        <enum-item name='GLASS_MAT'/>
+        <enum-item name='CERAMIC_MAT'/>
+        <enum-item name='SHELL_MAT'/>
+
+        <enum-item name='BONE_MAT'/>
     </enum-type>
 
     <class-type type-name='itemdef_instrumentst' inherits-from='itemdef'
@@ -543,7 +573,175 @@
         <stl-string name="name"/>
         <stl-string name="name_plural"/>
         <df-flagarray name='flags' index-enum='instrument_flags'/>
+
+        <enum type-name='job_skill' name="music_skill"/>
+        <int32_t name="size"/>
+        <int32_t name='value'/>
+        <int32_t name="material_size"/>
+        <stl-vector pointer-type='instrument_piece' name="pieces"/>
+        <stl-string name="dominant_instrument_piece"/>
+        <int32_t name="pitch_range_min"/>
+        <int32_t name="pitch_range_max"/>
+        <int32_t name="volume_mb_min"/>
+        <int32_t name="volume_mb_max"/>
+        <stl-vector type-name='sound_production_type' name="sound_production"/>
+        <stl-vector pointer-type='stl-string' name="sound_production_parm1"/>
+        <stl-vector pointer-type='stl-string' name="sound_production_parm2"/>
+        <stl-vector name="unk_100"/>
+        <stl-vector name="unk_110"/>
+        <stl-vector type-name='pitch_choice_type' name="pitch_choice"/>
+        <stl-vector pointer-type='stl-string' name="pitch_choice_parm1"/>
+        <stl-vector pointer-type='stl-string' name="pitch_choice_parm2"/>
+        <stl-vector name="unk_150"/>
+        <stl-vector name="unk_160"/>
+        <stl-vector type-name='tuning_type' name="tuning"/>
+        <stl-vector pointer-type='stl-string' name="tuning_parm"/>
+        <stl-vector name="unk_190"/>
+        <stl-vector pointer-type='instrument_register' name="registers"/>
+        <stl-vector type-name='timbre_type' name="timbre"/>
+        <stl-string name="description"/>
     </class-type>
+
+    <enum-type type-name='sound_production_type'>
+        <enum-item name='PLUCKED_BY_BP'/>
+        <enum-item name='PLUCKED'/>
+        <enum-item name='BOWED'/>
+        <enum-item name='STRUCK_BY_BP'/>
+        <enum-item name='STRUCK'/>
+        <enum-item name='VIBRATE_BP_AGAINST_OPENING'/>
+        <enum-item name='BLOW_AGAINST_FIPPLE'/>
+        <enum-item name='BLOW_OVER_OPENING_SIDE'/>
+
+        <enum-item name='BLOW_OVER_OPENING_END'/>
+        <enum-item name='BLOW_OVER_SINGLE_REED'/>
+        <enum-item name='BLOW_OVER_DOUBLE_REED'/>
+        <enum-item name='BLOW_OVER_FREE_REED'/>
+        <enum-item name='STRUCK_TOGETHER'/>
+        <enum-item name='SHAKEN'/>
+        <enum-item name='SCRAPED'/>
+        <enum-item name='FRICTION'/>
+
+        <enum-item name='RESONATOR'/>
+        <enum-item name='BAG_OVER_REED'/>
+        <enum-item name='AIR_OVER_REED'/>
+        <enum-item name='AIR_OVER_FREE_REED'/>
+        <enum-item name='AIR_AGAINST_FIPPLE'/>
+    </enum-type>
+
+    <enum-type type-name='pitch_choice_type'>
+        <enum-item name='MEMBRANE_POSITION'/>
+        <enum-item name='SUBPART_CHOICE'/>
+        <enum-item name='KEYBOARD'/>
+        <enum-item name='STOPPING_FRET'/>
+        <enum-item name='STOPPING_AGAINST_BODY'/>
+        <enum-item name='STOPPING_HOLE'/>
+        <enum-item name='STOPPING_HOLE_KEY'/>
+        <enum-item name='SLIDE'/>
+
+        <enum-item name='HARMONIC_SERIES'/>
+        <enum-item name='VALVE_ROUTES_AIR'/>
+        <enum-item name='BP_IN_BELL'/>
+        <enum-item name='FOOT_PEDALS'/>
+    </enum-type>
+
+    <enum-type type-name='tuning_type'>
+        <enum-item name='PEGS'/>
+        <enum-item name='ADJUSTABLE_BRIDGES'/>
+        <enum-item name='CROOKS'/>
+        <enum-item name='TIGHTENING'/>
+        <enum-item name='LEVERS'/>
+    </enum-type>
+
+    <enum-type type-name='timbre_type'>
+        <enum-item name='CLEAR'/>
+        <enum-item name='NOISY'/>
+        <enum-item name='FULL'/>
+        <enum-item name='THIN'/>
+        <enum-item name='ROUND'/>
+        <enum-item name='SHARP'/>
+        <enum-item name='SMOOTH'/>
+        <enum-item name='CHOPPY'/>
+
+        <enum-item name='STEADY'/>
+        <enum-item name='EVOLVING'/>
+        <enum-item name='STRONG'/>
+        <enum-item name='DELICATE'/>
+        <enum-item name='BRIGHT'/>
+        <enum-item name='GRACEFUL'/>
+        <enum-item name='SPARSE'/>
+        <enum-item name='BREATHY'/>
+
+        <enum-item name='STRAINED'/>
+        <enum-item name='BROAD'/>
+        <enum-item name='LIGHT'/>
+        <enum-item name='MELLOW'/>
+        <enum-item name='WOBBLING'/>
+        <enum-item name='FOCUSED'/>
+        <enum-item name='EVEN'/>
+        <enum-item name='FLUID'/>
+
+        <enum-item name='VIBRATING'/>
+        <enum-item name='QUAVERING'/>
+        <enum-item name='EERIE'/>
+        <enum-item name='FRAGILE'/>
+        <enum-item name='BRITTLE'/>
+        <enum-item name='PURE_'/>
+        <enum-item name='PIERCING'/>
+        <enum-item name='STRIDENT'/>
+
+        <enum-item name='WAVERING'/>
+        <enum-item name='HARSH'/>
+        <enum-item name='REEDY'/>
+        <enum-item name='NASAL'/>
+        <enum-item name='BUZZY'/>
+        <enum-item name='ROUGH'/>
+        <enum-item name='WARM'/>
+        <enum-item name='RUGGED'/>
+
+        <enum-item name='HEAVY'/>
+        <enum-item name='FLAT'/>
+        <enum-item name='DARK'/>
+        <enum-item name='CRISP'/>
+        <enum-item name='SONOROUS'/>
+        <enum-item name='WATERY'/>
+        <enum-item name='GENTLE'/>
+        <enum-item name='SLICING'/>
+
+        <enum-item name='LIQUID'/>
+        <enum-item name='RAUCOUS'/>
+        <enum-item name='BREEZY'/>
+        <enum-item name='RASPY'/>
+        <enum-item name='WISPY'/>
+        <enum-item name='SHRILL'/>
+        <enum-item name='MUDDY'/>
+        <enum-item name='RICH'/>
+
+        <enum-item name='DULL'/>
+        <enum-item name='FLOATING'/>
+        <enum-item name='RINGING'/>
+        <enum-item name='RESONANT'/>
+        <enum-item name='SWEET'/>
+        <enum-item name='RIPPLING'/>
+        <enum-item name='SPARKLING'/>
+    </enum-type>
+
+    <struct-type type-name='instrument_piece'>
+        <stl-string name='type'/>
+        <stl-string name='id'/>
+        <int32_t name ='index'/>
+        <stl-string name="name"/>
+        <stl-string name="name_plural"/>
+        <bitfield base-type='uint32_t' name='flags'>
+            <flag-bit name='always_singular'/>
+            <flag-bit name='always_plural'/>
+        </bitfield>
+    </struct-type>
+
+    <struct-type type-name='instrument_register'>
+        <int32_t name ='pitch_range_min'/>
+        <int32_t name ='pitch_range_max'/>
+        <stl-vector type-name='timbre_type' name='timbres'/>
+    </struct-type>
 
     <enum-type type-name='pants_flags'>
         <enum-item name='METAL_ARMOR_LEVELS'/>
@@ -555,6 +753,8 @@
         <stl-string name="name_plural"/>
         <stl-string name="name_preplural"/>
         <stl-string name="material_placeholder"/>
+        <stl-string name="adjective" since='v0.40.01'/>
+
         <int32_t name="value"/>
         <int8_t name="armorlevel"/>
         <df-flagarray name='flags' index-enum='pants_flags'/>
@@ -568,6 +768,7 @@
                 instance-vector='$global.world.raws.itemdefs.shields'>
         <stl-string name="name"/>
         <stl-string name="name_plural"/>
+        <stl-string name="adjective" since='v0.40.01'/>
         <int32_t name="value"/>
         <int32_t name="blockchance"/>
         <int8_t name='armorlevel'/>
@@ -583,6 +784,7 @@
                 instance-vector='$global.world.raws.itemdefs.shoes'>
         <stl-string name="name"/>
         <stl-string name="name_plural"/>
+        <stl-string name="adjective" since='v0.40.01'/>
         <int32_t name="value"/>
         <int8_t name='armorlevel'/>
         <int16_t name="upstep"/>
@@ -609,6 +811,17 @@
         <enum-item name='WOOD_MAT'/>
         <enum-item name='INVERTED_TILE'/>
         <enum-item name='FURNITURE'/>
+        <enum-item name='LEATHER_MAT'/>
+        <enum-item name='SILK_MAT'/>
+        <enum-item name='THREAD_PLANT_MAT'/>
+        <enum-item name='GLASS_MAT'/>
+        <enum-item name='CERAMIC_MAT'/>
+        <enum-item name='STONE_MAT'/>
+        <enum-item name='SHELL_MAT'/>
+        <enum-item name='BONE_MAT'/>
+        <enum-item name='NO_DEFAULT_JOB'/>
+        <enum-item name='INCOMPLETE_ITEM'/>
+        <enum-item name='SHEET_MAT'/>
     </enum-type>
 
     <enum-type type-name='tool_uses' base-type='int16_t'>
@@ -630,6 +843,12 @@
         <enum-item name='SMALL_OBJECT_STORAGE'/>
         <enum-item name='TRACK_CART'/>
         <enum-item name='HEAVY_OBJECT_HAULING'/>
+        <enum-item name='STAND_AND_WORK_ABOVE'/>
+        <enum-item name='ROLL_UP_SHEET'/>
+        <enum-item name='PROTECT_FOLDED_SHEETS'/>
+        <enum-item name='CONTAIN_WRITING'/>
+        <enum-item name='BOOKCASE'/>
+        <enum-item name='DISPLAY_OBJECT'/>
     </enum-type>
 
     <class-type type-name='itemdef_toolst' inherits-from='itemdef'
@@ -653,14 +872,22 @@
         <int32_t name="minimum_size"/>
         <int32_t name="material_size"/>
 
-        <stl-vector name="attacks">
-            <pointer type-name='weapon_attack'/>
-        </stl-vector>
+        <stl-vector name="attacks" pointer-type='weapon_attack'/>
 
         <int32_t name="shoot_force"/>
         <int32_t name="shoot_maxvel"/>
 
         <int32_t name="container_capacity"/>
+
+        <stl-string name="description" since='v0.42.01'/>
+        <stl-vector name="default_improvements" since='v0.42.01'>
+            <pointer>
+                <enum base-type="int32_t" type-name="improvement_type" name="type"/>
+                <enum base-type="int32_t" type-name="itemimprovement_specific_type" name="specific_type"/>
+                <stl-string name="instrument_part"/>
+                <enum base-type="int32_t" type-name="tool_flags" name="restriction"/>
+            </pointer>
+        </stl-vector>
     </class-type>
 
     <enum-type type-name='toy_flags'>
@@ -673,7 +900,7 @@
         <stl-string name="name_plural"/>
         <df-flagarray name='flags' index-enum='toy_flags'/>
     </class-type>
-    
+
     <enum-type type-name='trapcomp_flags'>
         <enum-item name='IS_SCREW'/>
         <enum-item name='IS_SPIKE'/>
@@ -695,9 +922,7 @@
 
         <df-flagarray name='flags' index-enum='trapcomp_flags'/>
 
-        <stl-vector name="attacks">
-            <pointer type-name='weapon_attack'/>
-        </stl-vector>
+        <stl-vector name="attacks" pointer-type='weapon_attack'/>
     </class-type>
 
     <enum-type type-name='weapon_flags'>
@@ -720,9 +945,7 @@
         <int32_t name="minimum_size"/>
         <int32_t name="material_size"/>
         <df-flagarray name='flags' index-enum='weapon_flags'/>
-        <stl-vector name="attacks">
-            <pointer type-name='weapon_attack'/>
-        </stl-vector>
+        <stl-vector name="attacks" pointer-type='weapon_attack'/>
         <int32_t name="shoot_force"/>
         <int32_t name="shoot_maxvel"/>
     </class-type>

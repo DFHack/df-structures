@@ -1,22 +1,22 @@
 <data-definition>
-    <enum-type type-name='language_word_flags'>
-        <enum-item name='FRONT_COMPOUND_NOUN_SING'/>
-        <enum-item name='FRONT_COMPOUND_NOUN_PLUR'/>
-        <enum-item name='FRONT_COMPOUND_ADJ'/>
-        <enum-item name='FRONT_COMPOUND_PREFIX'/>
-        <enum-item name='REAR_COMPOUND_NOUN_SING'/>
-        <enum-item name='REAR_COMPOUND_NOUN_PLUR'/>
-        <enum-item name='REAR_COMPOUND_ADJ'/>
-        <enum-item name='THE_NOUN_SING'/>
-        <enum-item name='THE_NOUN_PLUR'/>
-        <enum-item name='THE_COMPOUND_NOUN_SING'/>
-        <enum-item name='THE_COMPOUND_NOUN_PLUR'/>
-        <enum-item name='THE_COMPOUND_ADJ'/>
-        <enum-item name='THE_COMPOUND_PREFIX'/>
-        <enum-item name='OF_NOUN_SING'/>
-        <enum-item name='OF_NOUN_PLUR'/>
-        <enum-item name='STANDARD_VERB'/>
-    </enum-type>
+    <bitfield-type type-name='language_word_flags'>
+        <flag-bit name='front_compound_noun_sing'/>
+        <flag-bit name='front_compound_noun_plur'/>
+        <flag-bit name='front_compound_adj'/>
+        <flag-bit name='front_compound_prefix'/>
+        <flag-bit name='rear_compound_noun_sing'/>
+        <flag-bit name='rear_compound_noun_plur'/>
+        <flag-bit name='rear_compound_adj'/>
+        <flag-bit name='the_noun_sing'/>
+        <flag-bit name='the_noun_plur'/>
+        <flag-bit name='the_compound_noun_sing'/>
+        <flag-bit name='the_compound_noun_plur'/>
+        <flag-bit name='the_compound_adj'/>
+        <flag-bit name='the_compound_prefix'/>
+        <flag-bit name='of_noun_sing'/>
+        <flag-bit name='of_noun_plur'/>
+        <flag-bit name='standard_verb'/>
+    </bitfield-type>
 
     <enum-type type-name='part_of_speech'>
         <enum-item name='Noun'/>
@@ -30,7 +30,7 @@
         <enum-item name='VerbGerund'/>
     </enum-type>
 
-    <enum-type type-name='sphere_type'>
+    <enum-type type-name='sphere_type' base-type='int16_t'>
         <enum-item name='AGRICULTURE'/>
         <enum-item name='ANIMALS'/>
         <enum-item name='ART'/>
@@ -175,7 +175,9 @@
 
         <padding size='7' comment='looks like garbage'/>
 
-        <df-flagarray name='flags' index-enum='language_word_flags'/>
+        <bitfield name='flags' type-name='language_word_flags'/>
+
+        <stl-vector pointer-type='stl-string' name='str' since='v0.40.01'/>
     </struct-type>
 
     <struct-type type-name='language_translation'
@@ -187,9 +189,10 @@
         <stl-vector name='unknown1' comment='empty'/>
         <stl-vector name='unknown2' comment='empty'/>
 
-        <stl-vector name='words' index-refers-to='$global.world.raws.language.words[$]'>
-            <pointer type-name='stl-string'/>
-        </stl-vector>
+        <stl-vector name='words' index-refers-to='$global.world.raws.language.words[$]' pointer-type='stl-string'/>
+
+        <int32_t name='flags' since='v0.40.01' comment='1 = generated'/>
+        <stl-vector pointer-type='stl-string' name='str' since='v0.40.01'/>
     </struct-type>
 
     <struct-type type-name='language_symbol'
@@ -201,6 +204,9 @@
         <stl-vector name='words'>
             <int32_t ref-target='language_word'/>
         </stl-vector>
+
+        <int32_t name='flags' since='v0.40.01'/>
+        <stl-vector pointer-type='stl-string' name='str' since='v0.40.01'/>
     </struct-type>
 
     <struct-type type-name='language_name'>
@@ -214,7 +220,7 @@
             <enum base-type='int16_t' type-name='part_of_speech'/>
         </static-array>
 
-        <int32_t name='language' ref-target='language_translation'/>
+        <int32_t name='language' init-value='0' ref-target='language_translation'/>
         <int16_t name='unknown'/>
 
         <bool name='has_name'/>
@@ -250,6 +256,90 @@
                       (flatten (get-english 6 6)))))))
         </code-helper>
     </struct-type>
+
+    <struct-type type-name='language_word_table'>
+        <static-array name='words' count='6'>
+            <stl-vector index-refers-to='$$._parent._parent.parts[$$._key][$]'>
+                <int32_t ref-target='language_word'/>
+            </stl-vector>
+        </static-array>
+        <static-array name='parts' count='6'>
+            <stl-vector>
+                <enum base-type='int32_t' type-name='part_of_speech'/>
+            </stl-vector>
+        </static-array>
+    </struct-type>
+
+    <enum-type type-name='language_name_category'>
+        <enum-item name='Unit'/>
+        <enum-item name='Artifact'/>
+        <enum-item name='ArtifactEvil'/>
+        <enum-item name='Swamp'/>
+        <enum-item name='Desert'/>
+        <enum-item name='Forest'/>
+        <enum-item name='Mountains'/>
+        <enum-item name='Lake'/>
+        <enum-item name='Ocean'/>
+        <enum-item name='Glacier'/>
+
+        <enum-item name='Tundra'/>
+        <enum-item name='Grassland'/>
+        <enum-item name='Hills'/>
+        <enum-item name='Region'/>
+        <enum-item name='Cave'/>
+        <enum-item name='SwampEvil'/>
+        <enum-item name='DesertEvil'/>
+        <enum-item name='ForestEvil'/>
+        <enum-item name='MountainsEvil'/>
+        <enum-item name='LakeEvil'/>
+
+        <enum-item name='OceanEvil'/>
+        <enum-item name='GlacierEvil'/>
+        <enum-item name='TundraEvil'/>
+        <enum-item name='GrasslandEvil'/>
+        <enum-item name='HillsEvil'/>
+        <enum-item name='SwampGood'/>
+        <enum-item name='DesertGood'/>
+        <enum-item name='ForestGood'/>
+        <enum-item name='MountainsGood'/>
+        <enum-item name='LakeGood'/>
+
+        <enum-item name='OceanGood'/>
+        <enum-item name='GlacierGood'/>
+        <enum-item name='TundraGood'/>
+        <enum-item name='GrasslandGood'/>
+        <enum-item name='HillsGood'/>
+        <enum-item name='ArtImage'/>
+        <enum-item name='MountainPeak'/>
+        <enum-item name='Unknown1'/>
+        <enum-item name='Volcano'/>
+        <enum-item name='SmallIsland'/>
+
+        <enum-item name='Island'/>
+        <enum-item name='Continent'/>
+        <enum-item name='CommonReligion'/>
+        <enum-item name='Temple'/>
+        <enum-item name='Keep'/>
+        <enum-item name='Unknown2'/>
+        <enum-item name='SymbolArtifice'/>
+        <enum-item name='SymbolViolent'/>
+        <enum-item name='SymbolProtect'/>
+        <enum-item name='SymbolDomestic'/>
+
+        <enum-item name='SymbolFood'/>
+        <enum-item name='War'/>
+        <enum-item name='Battle'/>
+        <enum-item name='Siege'/>
+        <enum-item name='Road'/>
+        <enum-item name='Wall'/>
+        <enum-item name='Bridge'/>
+        <enum-item name='Tunnel'/>
+        <enum-item name='Tomb'/>
+        <enum-item name='SymbolProtect2'/>
+
+        <enum-item name='Library'/>
+        <enum-item name='Festival'/>
+    </enum-type>
 </data-definition>
 
 <!--

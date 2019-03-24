@@ -1,0 +1,19 @@
+sudo: false
+language: generic
+addons:
+  apt:
+    packages:
+      - libxml2-utils
+      - libxml-libxml-perl
+      - libxml-libxslt-perl
+script:
+- xmllint --noout df.*.xml symbols.xml
+- perl ./codegen.pl | tee codegen-out.txt
+- if grep -i error codegen-out.txt; then false; else true; fi
+notifications:
+  email: false
+  irc:
+    channels:
+      - "chat.freenode.net#dfhack"
+    on_success: change
+    on_failure: always

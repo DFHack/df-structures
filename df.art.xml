@@ -10,9 +10,9 @@
     <class-type type-name='art_image_element'  original-name='art_image_elementst'>
         <int32_t name='count'/>
         <virtual-methods>
-            <vmethod name='write_file'> <pointer comment='file_compressorst'/> </vmethod>
+            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
             <vmethod name='read_file'>
-                <pointer comment='file_compressorst'/>
+                <pointer name='file' type-name='file_compressorst'/>
                 <int32_t name='loadversion'/>
             </vmethod>
             <vmethod ret-type='art_image_element_type' name='getType'/>
@@ -27,12 +27,12 @@
                 <pointer type-name='int32_t'/>
             </vmethod>
             <vmethod name='getName1'>
-                <pointer type-name='stl-string'/>
-                <pointer/>
-                <pointer/>
+                <pointer type-name='stl-string' name='name'/>
+                <bool name='useThe'/>
+                <bool name='useName'/>
             </vmethod>
-            <vmethod name='getName2'>
-                <pointer type-name='stl-string'/>
+            <vmethod name='getName2'> seems to return like getName1 but with useName true
+                <pointer type-name='stl-string' name='name'/>
                 <pointer/>
             </vmethod>
             <vmethod/>
@@ -68,7 +68,7 @@
         <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
         <int16_t name='mat_index'/>
-        <compound name='flags' type-name='item_flags'/>
+        <bitfield name='flags' type-name='item_flags'/>
         <int32_t name='item_id' ref-target='item'/>
     </class-type>
 
@@ -80,9 +80,9 @@
     <class-type type-name='art_image_property'  original-name='art_image_propertyst'>
         <df-flagarray name='flags'/>
         <virtual-methods>
-            <vmethod name='write_file'> <pointer comment='file_compressorst'/> </vmethod>
+            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
             <vmethod name='read_file'>
-                <pointer comment='file_compressorst'/>
+                <pointer name='file' type-name='file_compressorst'/>
                 <int32_t name='loadversion'/>
             </vmethod>
             <vmethod ret-type='art_image_property_type' name='getType'/>
@@ -157,7 +157,7 @@
     </class-type>
 
     <class-type type-name='art_image_property_intransitive_verbst' inherits-from='art_image_property'>
-        <int32_t comment='subject'/>
+        <int32_t name='subject'/>
         <enum base-type='int16_t' name="verb" type-name='art_image_property_verb'/>
     </class-type>
 
@@ -172,12 +172,8 @@
         <code-helper name='find-instance'>$(find-instance $art_image_chunk $$).images[$]</code-helper>
         <code-helper name='describe'>(describe-obj $.name)</code-helper>
 
-        <stl-vector name='elements'>
-            <pointer type-name='art_image_element'/>
-        </stl-vector>
-        <stl-vector name='properties'>
-            <pointer type-name='art_image_property'/>
-        </stl-vector>
+        <stl-vector name='elements' pointer-type='art_image_element'/>
+        <stl-vector name='properties' pointer-type='art_image_property'/>
 
         <int32_t name='event' ref-target='history_event'/>
         <compound name='name' type-name='language_name'/>
@@ -205,9 +201,514 @@
     <struct-type type-name='art_image_ref'>
         <int32_t name='id' ref-target='art_image_chunk'/>
         <int16_t name='subid' ref-target='art_image' aux-value='$$.id'/>
-        <int32_t name='civ_id' ref-target='historical_entity' comment='v0.34.01'/>
-        <int32_t name='site_id' ref-target='world_site' comment='v0.34.01'/>
+        <int32_t name='civ_id' ref-target='historical_entity' since='v0.34.01'/>
+        <int32_t name='site_id' ref-target='world_site' since='v0.34.01'/>
     </struct-type>
+
+    <enum-type type-name='poetic_form_action' base-type='int32_t'>
+        <enum-item name='Describe'/>
+        <enum-item name='Satirize'/>
+        <enum-item name='AmuseAudience'/>
+        <enum-item name='Complain'/>
+        <enum-item name='Renounce'/>
+        <enum-item name='MakeApology'/>
+        <enum-item name='ExpressPleasure'/>
+        <enum-item name='ExpressGrief'/>
+        <enum-item name='Praise'/>
+        <enum-item name='TeachMoralLesson'/>
+        <enum-item name='MakeAssertion'/>
+        <enum-item name='MakeCounterAssertion'/>
+        <enum-item name='MakeConsession'/>
+        <enum-item name='SynthesizePreviousIdeas'/>
+        <enum-item name='DevelopPreviousIdea'/>
+        <enum-item name='InvertTheAssertion'/>
+        <enum-item name='UndercutAssertion'/>
+        <enum-item name='MoveAwayFromPreviousIdeas'/>
+        <enum-item name='ReflectPreviousIdeas'/>
+        <enum-item name='ConsoleAudience'/>
+        <enum-item name='RefuseConsolation'/>
+        <enum-item name='OfferDifferentPerspective'/>
+    </enum-type>
+
+    A - even, B - uneven for tone patterns, A - unstressed, B - stressed for accent patterns
+    <enum-type type-name='poetic_form_pattern' base-type='int32_t'>
+        <enum-item name='AA'/>
+        <enum-item name='AB'/>
+        <enum-item name='BA'/>
+        <enum-item name='BB'/>
+        <enum-item name='AAA'/>
+        <enum-item name='BAA'/>
+        <enum-item name='ABA'/>
+        <enum-item name='AAB'/>
+        <enum-item name='ABB'/>
+        <enum-item name='BBA'/>
+        <enum-item name='BAB'/>
+        <enum-item name='BBB'/>
+    </enum-type>
+
+    <enum-type type-name='poetic_form_caesura_position' base-type='int32_t'>
+        <enum-item name='Initial'/>
+        <enum-item name='Medial'/>
+        <enum-item name='Terminal'/>
+    </enum-type>
+
+    <enum-type type-name='poetic_form_mood' base-type='int32_t'>
+        <enum-item name='Narrative'/>
+        <enum-item name='Dramatic'/>
+        <enum-item name='Reflective'/>
+        <enum-item name='Riddle'/>
+        <enum-item name='Ribald'/>
+        <enum-item name='Light'/>
+        <enum-item name='Solemn'/>
+    </enum-type>
+
+    <enum-type type-name='poetic_form_subject' base-type='int32_t'>
+        <enum-item name='None' value='-1'/> "a chosen subject"
+        <enum-item name='Past'/>
+        <enum-item name='CurrentEvents'/>
+        <enum-item name='Future'/>
+        <enum-item name='SomeoneRecentlyDeceased'/>
+        <enum-item name='SomeoneRecentlyRetired'/>
+        <enum-item name='Religion'/>
+        <enum-item name='SpecificPlace'/>
+        <enum-item name='SpecificWildernessRegion'/>
+        <enum-item name='Nature'/>
+        <enum-item name='Lover'/>
+        <enum-item name='Family'/>
+        <enum-item name='AlcoholicBeverages'/>
+        <enum-item name='Journey'/>
+        <enum-item name='War'/>
+        <enum-item name='Hunt'/>
+        <enum-item name='Mining'/>
+        <enum-item name='Death'/>
+        <enum-item name='Immortality'/>
+        <enum-item name='SomeonesCharacter'/>
+        <enum-item name='Histfig'/> "a historical figure" or a specific figure
+        <enum-item name='Concept'/> "an abstract concept" or a specific concept
+    </enum-type>
+
+    <bitfield-type type-name="poetic_form_feature" base-type="uint32_t">
+        <flag-bit name="InternalRhyme"/>
+        <flag-bit name="EndRhymesDontMatch"/>
+        <flag-bit name="Alliteration"/>
+        <flag-bit name="Onomatopoeia"/>
+        <flag-bit name="antanaclasis"/>
+        <flag-bit name="DifferentReadings"/> "different readings depending on word breaks"
+        <flag-bit name="ReadBackwards"/> "can be read backwards as well as forwards"
+        <flag-bit name="ReadOrthogonally"/> "can be read orthogonally across the standard lines"
+        <flag-bit name="Emerge"/> "emerge when reading along certain prescribed paths across the body of the poem"
+        <flag-bit name="Assonance"/>
+        <flag-bit name="Consonance"/>
+        <flag-bit name="Elision"/>
+        <flag-bit name="Epenthesis"/>
+        <flag-bit name="Synchysis"/>
+        <flag-bit name="Allegory"/>
+        <flag-bit name="Ambiguity"/>
+        <flag-bit name="Symbolism"/>
+        <flag-bit name="Metaphor"/>
+        <flag-bit name="Simile"/>
+        <flag-bit name="Metonymy"/>
+        <flag-bit name="VividImagery"/>
+        <flag-bit name="Juxtaposision"/>
+    </bitfield-type>
+
+    <enum-type type-name='poetic_form_additional_feature' base-type='int32_t'>
+        <enum-item name='SharesUnderlyingMeaning'/>
+        <enum-item name='ContrastsUnderlyingMeaning'/>
+        <enum-item name='RequiredToMaintainPhrasing'/>
+        <enum-item name='SameGrammaticalStructure'/>
+        <enum-item name='SamePlacementOfAllusions'/>
+        <enum-item name='ReverseWordOrder'/>
+        <enum-item name='ReverseGrammaticalStructure'/>
+        <enum-item name='PresentsDifferentView'/>
+        <enum-item name='MustExpandIdea'/>
+    </enum-type>
+
+    <struct-type type-name='poetic_form' instance-vector='$global.world.poetic_forms.all' key-field='id'>
+        <int32_t name='id'/>
+        <compound name='name' type-name='language_name'/>
+        <int32_t name='originating_entity' ref-target='historical_entity'/> "originating in ..."
+        <int32_t name='original_author' ref-target='historical_figure'/> "originally devised by ..."
+        <int32_t/>
+
+        <bitfield base-type='uint32_t' name='flags'>
+            <flag-bit name='tone_patterns'/> patterns will be tone patterns if set, otherwise accent patterns
+            <flag-bit name='produces_individual_poems'/> 'applied by poets to produce individual poems' if set,  otherwise 'guides poets during improvised performances'
+        </bitfield>
+
+        <stl-vector name='parts' pointer-type='poetic_form_part'/>
+        <int32_t name='each_line_feet'/>
+        <enum name='each_line_pattern' base-type='int32_t' type-name='poetic_form_pattern'/>
+
+        <enum name='every_line_caesura_position' base-type='int32_t' type-name='poetic_form_caesura_position'/>
+
+        "certain lines often ... and they sometimes ..."
+        <stl-vector name='common_features'>
+            <enum base-type='int32_t' type-name='poetic_form_additional_feature'/>
+        </stl-vector>
+
+        "is a narrative/... poetic form"
+        <enum name='mood' base-type='int32_t' type-name='poetic_form_mood'/>
+        <enum name='subject' base-type='int32_t' type-name='poetic_form_subject'/>
+        <compound is-union='true'>
+            <int32_t name='subject_histfig' ref-target='historical_figure'/> for Histfig subject
+            <enum name='subject_topic' base-type='int32_t' type-name='sphere_type'/> for Concept subject
+        </compound>
+
+        <enum name='action' base-type='int32_t' type-name='poetic_form_action'/>
+
+        <int32_t/>
+
+        "use of ... is characteristic of the form" or "must feature lines which ..."
+        <bitfield name='features' type-name='poetic_form_feature'/>
+
+        <stl-vector name='perspectives' pointer-type='poetic_form_perspective'/>
+    </struct-type>
+
+    <struct-type type-name='poetic_form_part'>
+        <bitfield base-type='uint32_t' name='flags'>
+            <flag-bit name='size_in_lines'/> "line, couplet, tercet" if set, "brief verse paragraphs"/"full verse paragraphs" otherwise
+        </bitfield>
+
+        "has X to Y couplets/..."
+        <int32_t name='count_min'/>
+        <int32_t name='count_max'/>
+
+        size_in_lines is set: line, couplet, tercet, quatrain, quintain, etc.
+        size_in_lines is not set: "brief verse" if less than 6, otherwise "full verse"
+        <int32_t name='size'/>
+
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <stl-vector name='line_endings' type-name='int32_t'/>
+        <stl-vector name='line_feet' type-name='int32_t'/> "the Nth line has XX feet"
+        <stl-vector name='line_patterns'>
+            <enum base-type='int32_t' type-name='poetic_form_pattern'/>
+        </stl-vector>
+
+        <stl-vector name='line_caesura_positions'>
+            <enum base-type='int32_t' type-name='poetic_form_caesura_position'/>
+        </stl-vector>
+
+        "first line must make use of ..."
+        <stl-vector name='line_features'>
+            <bitfield type-name='poetic_form_feature'/>
+        </stl-vector>
+
+        "The XX line ZZ of ... on YY line"
+        <stl-vector name='additional_features'> ZZ
+            <enum base-type='int32_t' type-name='poetic_form_additional_feature'/>
+        </stl-vector>
+        <stl-vector name='additional_targets' type-name='int32_t'/> YY
+        <stl-vector name='additional_lines' type-name='int32_t'/> XX
+
+        <stl-vector name='line_moods'>
+            <enum base-type='int32_t' type-name='poetic_form_mood'/>
+        </stl-vector>
+        <stl-vector name='line_subjects'>
+            <enum base-type='int32_t' type-name='poetic_form_subject'/>
+        </stl-vector>
+        <stl-vector name='line_subject_targets'>
+            <compound is-union='true'>
+                <int32_t name='subject_histfig' ref-target='historical_figure'/> for Histfig subjects
+                <enum name='subject_topic' base-type='int32_t' type-name='sphere_type'/> for Concept subjects
+            </compound>
+        </stl-vector>
+        <stl-vector name='line_actions'>
+            <enum base-type='int32_t' type-name='poetic_form_action'/>
+        </stl-vector>
+        <stl-vector type-name='int32_t'/>
+
+        <int32_t name='some_lines_syllables'/> "it has lines with ... syllables"
+        <int32_t name='some_lines_pattern'/> "it has lines with a tone/accent pattern of ..."
+
+        "it has ... caesura in each line"
+        <enum name='each_line_caesura_position' base-type='int32_t' type-name='poetic_form_caesura_position'/>
+
+        "certain lines have ..." same as additional_features above
+        <stl-vector name='certain_lines_additional_features'>
+            <enum base-type='int32_t' type-name='poetic_form_additional_feature'/>
+        </stl-vector>
+
+        <enum name='mood' base-type='int32_t' type-name='poetic_form_mood'/>
+        <int32_t/>
+        <int32_t/>
+        <enum name='action' base-type='int32_t' type-name='poetic_form_action'/>
+        <int32_t/>
+        <int32_t/>
+    </struct-type>
+
+    <struct-type type-name='poetic_form_perspective'>
+        "written from the perspective of ..."
+        <enum name='type' base-type='int32_t'>
+            <enum-item name='Author'/>
+            <enum-item name='Soldier'/>
+            <enum-item name='Traveller'/>
+            <enum-item name='RelativeOfAuthor'/>
+            <enum-item name='PartyOfDebate'/>
+            <enum-item name='FictionalPoet'/>
+            <enum-item name='Histfig'/>
+            <enum-item name='Animal'/>
+        </enum>
+        <int32_t name='histfig' ref-target='historical_figure'/>
+        <int32_t/>
+    </struct-type>
+
+    <struct-type type-name='musical_form' instance-vector='$global.world.musical_forms.all' key-field='id'>
+        <int32_t name='id'/>
+        <compound name='name' type-name='language_name'/>
+        <int32_t/>
+        <int32_t/>
+        <stl-vector pointer-type='musical_form_sub1'/>
+        <stl-vector name='voices' pointer-type='musical_form_instruments'/>
+        <stl-vector pointer-type='musical_form_sub3'/>
+        <stl-vector pointer-type='musical_form_sub4'/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+    </struct-type>
+
+    <struct-type type-name='musical_form_sub1'>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <stl-vector type-name='int32_t'/>
+        <stl-vector type-name='int32_t'/>
+        <stl-vector type-name='int32_t'/>
+        <stl-vector type-name='int32_t'/>
+        <stl-vector type-name='int32_t'/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <stl-vector pointer-type='musical_form_sub3'/>
+        <int32_t/>
+        <int32_t/>
+    </struct-type>
+
+    <struct-type type-name='musical_form_instruments'>
+        <int32_t name='instrument_subtype' ref-target='itemdef_instrumentst' comment='-1 = vocal'/>
+        <int32_t comment='When instrument_subtype = -1, it seems 0 = speak, 1 = sing, 4 = chant'/>
+        <int32_t/>
+        <int32_t name='minimum_required' comment='tentative'/>
+        <int32_t name='maximum_permitted' comment='tentative'/>
+        <int32_t/>
+        <int32_t/>
+    </struct-type>
+
+    <struct-type type-name='musical_form_sub3'>
+        <int32_t/>
+        <int32_t/>
+        <stl-vector pointer-type='musical_form_sub5'/>
+        <int32_t/>
+    </struct-type>
+
+    <struct-type type-name='musical_form_sub4'>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+    </struct-type>
+
+    <struct-type type-name='musical_form_sub5'>
+        <int32_t/>
+        <int32_t/>
+    </struct-type>
+
+    <struct-type type-name='dance_form' instance-vector='$global.world.dance_forms.all' key-field='id'>
+        <int32_t name='id'/>
+        <compound name='name' type-name='language_name'/>
+        <int32_t name='musical_form_id'/>
+        <int32_t name='music_written_content_id'  ref-target='written_content' comment='at most one of this and musical_form_id is non null'/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <stl-vector type-name='int32_t'/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <stl-vector type-name='int32_t'/>
+        <stl-vector type-name='int32_t'/>
+        <stl-vector type-name='int32_t'/>
+        <stl-vector type-name='int32_t'/>
+        <stl-vector pointer-type='dance_form_sub1'/>
+        <stl-vector pointer-type='dance_form_sub2'/>
+    </struct-type>
+
+    <struct-type type-name='dance_form_sub1'>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <stl-vector type-name='int32_t'/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <stl-vector type-name='int32_t'/>
+        <stl-vector type-name='int32_t'/>
+        <stl-vector type-name='int32_t'/>
+        <stl-vector type-name='int32_t'/>
+        <int32_t/>
+    </struct-type>
+
+    <struct-type type-name='dance_form_sub2'>
+        <stl-string/>
+        <stl-vector type-name='int32_t'/>
+        <stl-vector type-name='int32_t'/>
+        <stl-vector type-name='int32_t'/>
+        <stl-vector type-name='int32_t'/>
+        <int32_t/>
+    </struct-type>
+
+    <struct-type type-name='scale' instance-vector='$global.world.scales.all' key-field='id'>
+        <int32_t name='id'/>
+        <int32_t name='flags'/>
+        <int32_t/>
+        <static-array type-name='int32_t' count='25'/>
+        <int32_t/>
+        <stl-vector pointer-type='scale_sub1'/>
+        <stl-vector pointer-type='scale_sub2'/>
+        <compound name='unk1'>
+            <int32_t/>
+            <static-array type-name='stl-string' count='25'/>
+            <static-array type-name='stl-string' count='25'/>
+            <static-array type-name='int32_t' count='25'/>
+            <int32_t/>
+        </compound>
+    </struct-type>
+
+    <struct-type type-name='scale_sub1'>
+        <stl-string/>
+        <static-array type-name='int32_t' count='5'/>
+        <int32_t/>
+        <int32_t/>
+    </struct-type>
+
+    <struct-type type-name='scale_sub2'>
+        <int32_t/>
+        <stl-string/>
+        <static-array type-name='int32_t' count='7'/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+    </struct-type>
+
+    <struct-type type-name='rhythm' instance-vector='$global.world.rhythms.all' key-field='id'>
+        <int32_t name='id'/>
+        <stl-vector pointer-type='rhythm_sub1'/>
+        <stl-vector pointer-type='rhythm_sub2'/>
+        <int32_t/>
+    </struct-type>
+
+    <struct-type type-name='rhythm_sub1'>
+        <stl-string/>
+        <stl-vector>
+            <pointer>
+                <pointer type-name='int32_t' is-array='true'/>
+                <int32_t name='length'/>
+            </pointer>
+        </stl-vector>
+        <pointer type-name='stl-string'/>
+        <pointer type-name='stl-string'/>
+        <int32_t/>
+    </struct-type>
+
+    <struct-type type-name='rhythm_sub2'>
+        <stl-string/>
+        <stl-vector type-name='int32_t'/>
+        <stl-vector type-name='int32_t'/>
+        <int32_t/>
+    </struct-type>
+
+    <enum-type type-name='occupation_type' base-type='int32_t'>
+        <enum-item name='TAVERN_KEEPER'/>
+        <enum-item name='PERFORMER'/>
+        <enum-item name='SCHOLAR'/>
+        <enum-item name='MERCENARY'/>
+        <enum-item name='MONSTER_SLAYER'/>
+        <enum-item name='SCRIBE'/>
+        <enum-item name='MESSENGER'/>
+    </enum-type>
+
+    <struct-type type-name='occupation' instance-vector='$global.world.occupations.all' key-field='id'>
+        <int32_t name='id'/>
+        <enum name='type' base-type='int32_t' type-name='occupation_type'/>
+        <int32_t name='histfig_id' ref-target='historical_figure'/>
+        <int32_t name='unit_id' ref-target='unit'/>
+        <int32_t name='location_id' ref-target='abstract_building' aux-value='$$.site_id'/>
+        <int32_t name='site_id' ref-target='world_site'/>
+        <int32_t name='group_id' ref-target='historical_entity'/>
+        <stl-vector pointer-type='occupation_sub1'/>
+        <int32_t/>
+        <pointer/>
+        <pointer/>
+    </struct-type>
+
+    <struct-type type-name='occupation_sub1'>
+        <int32_t/>
+        <int32_t/>
+        <int16_t/>
+        <int16_t/>
+        <int16_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+    </struct-type>
+
 </data-definition>
 
 <!--

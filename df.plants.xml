@@ -5,27 +5,52 @@
     </bitfield-type>
 
     <struct-type type-name='plant' instance-vector='$global.world.plants.all'>
-        <compound type-name='language_name' name='name'/>
-        <compound type-name='plant_flags' name='flags'/>
+        <bitfield type-name='plant_flags' name='flags'/>
         <int16_t name='material' ref-target='plant_raw'/>
         <compound name='pos' type-name='coord'/>
 
         <int32_t name='grow_counter'/>
-        <compound name='temperature' type-name='temperaturest'/>
         <bitfield name='damage_flags'>
             <flag-bit name='is_burning'/>
             <flag-bit name='is_drowning'/>
+            <flag-bit/>
         </bitfield>
         <int32_t name='hitpoints'/>
         <int16_t name='update_order'/>
 
-        <stl-vector name='contaminants'>
-            <pointer type-name='contaminant'/>
-        </stl-vector>
-        <int32_t name='temperature_tile_tick'/>
-        <uint16_t name='temperature_tile'/>
-        <uint16_t name='min_safe_temp'/>
-        <uint16_t name='max_safe_temp'/>
+        <int32_t name='site_id' ref-target='world_site'/>
+        <int32_t name='srb_id' ref-target='site_realization_building' aux-value='$$.site_id'/>
+        <stl-vector name='contaminants' pointer-type='spatter_common'/>
+        <pointer name='tree_info' type-name='plant_tree_info'/>
+    </struct-type>
+
+    <bitfield-type type-name='plant_tree_tile' base-type='uint8_t'>
+        <flag-bit name='trunk'/>
+        <flag-bit name='connection_east'/>
+        <flag-bit name='connection_south'/>
+        <flag-bit name='connection_west'/>
+        <flag-bit name='connection_north'/>
+        <flag-bit name='branches'/>
+        <flag-bit name='twigs'/>
+        <flag-bit name='blocked' comment='e.g. by other tree'/>
+    </bitfield-type>
+
+    <struct-type type-name='plant_tree_info'>
+        <pointer name='body' is-array='true' comment='dimension body_height'>
+            <pointer type-name='plant_tree_tile' is-array='true' comment='dimension dim_x*dim_y'/>
+        </pointer>
+        <pointer name='extent_east' type-name='int16_t' is-array='true' comment='dimension body_height'/>
+        <pointer name='extent_south' type-name='int16_t' is-array='true' comment='dimension body_height'/>
+        <pointer name='extent_west' type-name='int16_t' is-array='true' comment='dimension body_height'/>
+        <pointer name='extent_north' type-name='int16_t' is-array='true' comment='dimension body_height'/>
+        <int32_t name='body_height'/>
+        <int32_t name='dim_x'/>
+        <int32_t name='dim_y'/>
+        <pointer name='roots' is-array='true' comment='dimension roots_depth'>
+            <pointer type-name='plant_tree_tile' is-array='true' comment='dimension dim_x*dim_y'/>
+        </pointer>
+        <int32_t name='roots_depth'/>
+        <int16_t name='unk6'/>
     </struct-type>
 </data-definition>
 
