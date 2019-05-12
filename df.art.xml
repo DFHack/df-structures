@@ -357,7 +357,7 @@
 
         <enum name='action' base-type='int32_t' type-name='poetic_form_action'/>
 
-        <int32_t/>
+        <int32_t name='preferred_perspective' comment='if not -1, ALWAYS written from that perspective'/>
 
         "use of ... is characteristic of the form" or "must feature lines which ..."
         <bitfield name='features' type-name='poetic_form_feature'/>
@@ -456,33 +456,159 @@
         <int32_t/>
     </struct-type>
 
+    <enum-type type-name='musical_form_purpose' base-type='int32_t'>
+        <enum-item name='Entertainment'/>
+        <enum-item name='Commemoration'/>
+        <enum-item name='Devotion'/>
+        <enum-item name='Military'/>
+    </enum-type>
+
+    <enum-type type-name='musical_form_style' base-type='int32_t'>
+        <enum-item name='None' value='-1'/>
+
+        -- tempo styles
+        <enum-item name='FreeTempo'/>
+        <enum-item name='VerySlow'/>
+        <enum-item name='Slow'/>
+        <enum-item name='WalkingPace'/>
+        <enum-item name='ModeratelyPaced'/>
+        <enum-item name='ModeratelyFast'/>
+        <enum-item name='Fast'/>
+        <enum-item name='VeryFast'/>
+        <enum-item name='ExtremelyFast'/>
+        <enum-item/>
+
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item name='Accelerates'/>
+        <enum-item name='SlowsAndBroadens'/>
+        <enum-item name='ConsistentlySlowing'/>
+        <enum-item name='HurriedPace'/>
+        <enum-item name='GraduallySlowsAtEnd'/>
+
+        -- dynamic styles
+        <enum-item name='WhisperedUndertones'/>
+        <enum-item name='VerySoft'/>
+        <enum-item name='Soft'/>
+        <enum-item name='ModeratelySoft'/>
+        <enum-item name='ModeratelyLoud'/>
+        <enum-item name='Loud'/>
+        <enum-item name='VeryLoud'/>
+        <enum-item name='BecomeLouderAndLouder'/>
+        <enum-item name='BecomeSofterAndSofter'/>
+        <enum-item name='FadeIntoSilence'/>
+
+        <enum-item name='StartLoudThenImmediatelySoft'/>
+        -- more tempo styles
+        <enum-item name='SlowsAndDiesAwayAtEnd'/>
+        <enum-item name='BecomesCalmerAtEnd'/>
+        <enum-item name='BecomesFrenzied'/>
+        -- overall styles
+        <enum-item name='StressRhythm'/>
+        <enum-item name='BeStately'/>
+        <enum-item name='BeBright'/>
+        <enum-item name='BeLively'/>
+        <enum-item name='BeSkilled'/>
+        <enum-item name='BeVigorous'/>
+
+        <enum-item name='BeSpirited'/>
+        <enum-item name='BeDelicate'/>
+        <enum-item name='BeFiery'/>
+        <enum-item name='BringSenseOfMotion'/>
+        <enum-item name='BeFiery2'/>
+        <enum-item name='FeelAgitated'/>
+        <enum-item name='BePassionate'/>
+        <enum-item name='Sparkle'/>
+        <enum-item name='BeBroad'/>
+        <enum-item name='BeMadeSweetly'/>
+
+        <enum-item name='BeStrong'/>
+        <enum-item name='BeEnergetic'/>
+        <enum-item name='BeForceful'/>
+        <enum-item name='FeelHeroic'/>
+        <enum-item name='BeMadeExpressively'/>
+        <enum-item name='FeelFurious'/>
+        <enum-item name='BeJoyful'/>
+        <enum-item name='BeGrand'/>
+        <enum-item name='BeMerry'/>
+        <enum-item name='BeGraceful'/>
+
+        <enum-item name='BuildAsItProceeds'/>
+        <enum-item name='EvokeTears'/>
+        <enum-item name='BeMelancholic'/>
+        <enum-item name='FeelMournful'/>
+        <enum-item name='BeMadeWithLightTouch'/>
+        <enum-item name='FeelHeavy'/>
+        <enum-item name='FeelMysterious'/>
+        <enum-item name='BeJumpy'/>
+        <enum-item name='FeelPlayful'/>
+        <enum-item name='FeelTender'/>
+
+        <enum-item name='FeelCalm'/>
+        <enum-item name='BeTriumphant'/>
+    </enum-type>
+
+    <enum-type type-name='musical_form_pitch_style' base-type='int32_t'>
+        <enum-item name='SinglePitchesOnly'/>
+        <enum-item name='IntervalsOnly'/>
+        <enum-item name='SparseChords'/>
+        <enum-item name='PitchClusters'/>
+        <enum-item name='ChordLayers'/>
+    </enum-type>
+
+    <bitfield-type type-name="musical_form_feature" base-type="uint32_t">
+        <flag-bit name='GlideFromNoteToNote'/>
+        <flag-bit name='UseGraceNotes'/>
+        <flag-bit name='UseMordents'/>
+        <flag-bit name='MakeTrills'/>
+        <flag-bit name='PlayRapidRuns'/>
+        <flag-bit name='LocallyImprovise'/>
+        <flag-bit name='SpreadSyllablesOverManyNotes'/>
+        <flag-bit name='MatchNotesAndSyllables'/>
+
+        <flag-bit name='Syncopate'/>
+        <flag-bit name='AddFills'/>
+        <flag-bit name='AlternateTensionAndRepose'/>
+        <flag-bit name='ModulateFrequently'/>
+        <flag-bit name='PlayArpeggios'/>
+        <flag-bit name='PlayStaccato'/>
+        <flag-bit name='PlayLegato'/>
+        <flag-bit name='FreelyAdjustBeats'/>
+    </bitfield-type>
+
     <struct-type type-name='musical_form' instance-vector='$global.world.musical_forms.all' key-field='id'>
         <int32_t name='id'/>
         <compound name='name' type-name='language_name'/>
         <int32_t name="originating_entity" ref-target="historical_entity" comment="ID of the entity from which the musical form originated."/>
         <int32_t name="original_author" ref-target="historical_figure" comment="historical figure ID of the composer"/>
-        <stl-vector pointer-type='musical_form_sub1'/>
-        <stl-vector name='voices' pointer-type='musical_form_instruments'/>
-        <stl-vector pointer-type='musical_form_sub3'/>
+        <stl-vector name='scales' pointer-type='musical_form_vocals'/>
+        <stl-vector name='instruments' pointer-type='musical_form_instruments'/>
+        <stl-vector name='melodies' pointer-type='musical_form_melodies'/>
         <stl-vector pointer-type='musical_form_sub4'/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
+        <enum name='tempo_style' base-type='int32_t' type-name='musical_form_style'/>
+        <enum name='dynamic_style' base-type='int32_t' type-name='musical_form_style'/>
+        <enum name='overall_style' base-type='int32_t' type-name='musical_form_style'/>
+        <int32_t name='poetic_form_id' ref-target='poetic_form'/>
+        <int32_t name='written_content_id' ref-target='written_content'/>
+        <int32_t name='scale_id' ref-target='scale'/>
+        <int32_t name='scale_subid' comment='reference to scale_sub2'/>
+        <int32_t name='rhythm_id' ref-target='rhythm'/>
+        <int32_t name='rhythm_subid2' comment='reference to rhythm_sub2'/>
+        <int32_t name='rhythm_subid1' comment='reference to rhythm_sub1'/>
+        <bitfield type-name='musical_form_feature' name='features'/>
+        <enum name='pitch_style' base-type='int32_t' type-name='musical_form_pitch_style'/>
+        <enum name='purpose' base-type='int32_t' type-name='musical_form_purpose'/>
+        <int32_t name='devotion_target' ref-target='historical_figure'/>
+        <bitfield base-type='uint32_t' name='flags'>
+            <flag-bit name='produces_individual_songs'/> 'applied by composers to produce individual pieces of music' if set, otherwise 'guides musicians during improvised performances'
+            <flag-bit name='repeats_as_necessary'/>
+        </bitfield>
     </struct-type>
 
-    <struct-type type-name='musical_form_sub1'>
+    <struct-type type-name='musical_form_vocals'>
         <int32_t/>
         <int32_t/>
         <int32_t/>
@@ -496,35 +622,39 @@
         <int32_t/>
         <int32_t/>
         <stl-vector type-name='int32_t'/>
+        <stl-vector name='vocal_components' type-name='int32_t'/> 0: melody, 1: counterpoint, 2: harmony, 3: rhythm
+        <stl-vector name='phrase_lengths' type-name='int32_t'/> 0: short, 1: mid-length, 2: long, 3: varied length
         <stl-vector type-name='int32_t'/>
         <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
         <int32_t/>
         <int32_t/>
         <int32_t/>
         <int32_t/>
         <int32_t/>
-        <stl-vector pointer-type='musical_form_sub3'/>
+        <stl-vector pointer-type='musical_form_melodies'/>
         <int32_t/>
         <int32_t/>
     </struct-type>
 
     <struct-type type-name='musical_form_instruments'>
         <int32_t name='instrument_subtype' ref-target='itemdef_instrumentst' comment='-1 = vocal'/>
-        <int32_t comment='When instrument_subtype = -1, it seems 0 = speak, 1 = sing, 4 = chant'/>
-        <int32_t/>
+        <bitfield base-type='uint32_t' name='substitutions'>
+            <flag-bit name='singer'/>
+            <flag-bit name='speaker'/>
+            <flag-bit name='chanter'/>
+        </bitfield>
+        <bitfield type-name='musical_form_feature' name='features'/>
         <int32_t name='minimum_required' comment='tentative'/>
         <int32_t name='maximum_permitted' comment='tentative'/>
-        <int32_t/>
-        <int32_t/>
+        <enum name='dynamic_style' base-type='int32_t' type-name='musical_form_style'/>
+        <enum name='overall_style' base-type='int32_t' type-name='musical_form_style'/>
     </struct-type>
 
-    <struct-type type-name='musical_form_sub3'>
-        <int32_t/>
-        <int32_t/>
-        <stl-vector pointer-type='musical_form_sub5'/>
-        <int32_t/>
+    <struct-type type-name='musical_form_melodies'>
+        <int32_t name='style'/> 0: rising, 1: falling, 2: rising-falling, 3: falling-rising
+        <int32_t name='frequency'/> 0: always, 1: often, 2: sometimes
+        <stl-vector name='intervals' pointer-type='musical_form_interval'/>
+        <bitfield type-name='musical_form_feature' name='features'/>
     </struct-type>
 
     <struct-type type-name='musical_form_sub4'>
@@ -536,9 +666,13 @@
         <int32_t/>
     </struct-type>
 
-    <struct-type type-name='musical_form_sub5'>
-        <int32_t/>
-        <int32_t/>
+    <struct-type type-name='musical_form_interval'>
+        <int32_t name='degree'/>
+        <bitfield base-type='uint32_t' name='flags'>
+            <flag-bit name='rising' comment='otherwise falling'/>
+            <flag-bit name='flattened'/>
+            <flag-bit name='sharpened'/>
+        </bitfield>
     </struct-type>
 
     <struct-type type-name='dance_form' instance-vector='$global.world.dance_forms.all' key-field='id'>
@@ -629,7 +763,7 @@
 
     <struct-type type-name='scale_sub2'>
         <int32_t/>
-        <stl-string/>
+        <stl-string name='name'/>
         <static-array type-name='int32_t' count='7'/>
         <int32_t/>
         <int32_t/>
@@ -644,7 +778,7 @@
     </struct-type>
 
     <struct-type type-name='rhythm_sub1'>
-        <stl-string/>
+        <stl-string name='name'/>
         <stl-vector>
             <pointer>
                 <pointer type-name='int32_t' is-array='true'/>
@@ -657,7 +791,7 @@
     </struct-type>
 
     <struct-type type-name='rhythm_sub2'>
-        <stl-string/>
+        <stl-string name='name'/>
         <stl-vector type-name='int32_t'/>
         <stl-vector type-name='int32_t'/>
         <int32_t/>
