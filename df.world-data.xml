@@ -143,7 +143,7 @@
         <enum-item name='Glacier'/>
         <enum-item name='Tundra'/>
         <enum-item name='Steppe'/>
-        <enum-item name='Hills'/>
+        <enum-item name='Hills' comment='Steppe and Hills share the same set of biomes, differing only in Drainage'/>
     </enum-type>
 
     <struct-type type-name='world_region' instance-vector='$global.world.world_data.regions'>
@@ -156,7 +156,7 @@
 
         <compound name='region_coords' type-name='coord2d_path'/>
 
-        <int32_t name="size"/>  --  Number of tiles in the region
+        <int32_t name="size" comment='Number of tiles in the region'/>
         <int32_t name="unk_98"/>
         <int32_t name="unk_9c"/>
         <int32_t name="unk_a0"/>
@@ -298,8 +298,7 @@
         <code-helper name='describe'>(describe-obj $.mat_index.ref-target)</code-helper>
 
         <stl-vector name="vein_mat" type-name='int32_t' ref-target='inorganic_raw'/>
-        <stl-vector name="vein_nested_in">
-            -- Index of the other vein this one is nested in, or -1
+        <stl-vector name="vein_nested_in" comment='Index of the other vein this one is nested in, or -1'>
             <int16_t refers-to='$$._global.vein_mat[$].ref-target'/>
         </stl-vector>
         <stl-vector name="vein_type">
@@ -358,6 +357,11 @@
         <static-array count='17' name='biome'>
             <static-array type-name='int8_t' count='17'
                           comment='lower 4 bits: biome 1..9; |=0x30 if fort'/>
+            <comment>biome field reference:
+                789
+                456
+                123
+                as directions, with 5 = own world tile, 1 = SW, 9 = NE, etc.</comment>
         </static-array>
         <static-array count='17' name='elevation'>
             <static-array type-name='int16_t' count='17'/>
@@ -368,16 +372,48 @@
         </static-array>
 
         <compound name='edges'>
-            In order to determine how biomes cross embark tile edges,
-            the rectangle framing an embark tile is split into 4 corners,
-            and 4 straight edge segments, using ranges measured in tiles:
+            <comment>
+                In order to determine how biomes cross embark tile edges,
+                the rectangle framing an embark tile is split into 4 corners,
+                and 4 straight edge segments, using ranges measured in tiles:
 
-            +-/----/+
-            |       /
-            /   *   |
-            /       /
-            +-/-/---+
+                +-/----/+
+                |       /
+                /   *   |
+                /       /
+                +-/-/---+
 
+                After this, each corner and edge segment is assigned the biome
+                of one of the adjoining 4 or 2 embark tiles, based on the values
+                in these arrays. It may be necessary to access adjacent details
+                objects to collect the full outline:
+
+                c11 x11 | c21
+                y11 *** | y21
+                -------------
+                c12 x12 | c22
+
+                There are also certain rules forcing ocean/lake biomes to lose
+                edges to mountains, and both of them to anything else, no matter
+                what the original array value is. The actual biomes for tiles in
+                the frame are semi-randomly interpolated from this edge spec.
+            
+                For some reason DF provides for all edges of all mid level tiles
+                in a world tile, but not for the corners on the south and east
+                edges: for these you have to go to the next world tile.
+                This has some effect on the corners on the south and east edges of
+                the world where there are no adjacent tiles to get the data from.
+                There the rules are static: the biomes of corners are taken from
+                the easternmost and southernmost of the two touching corners.
+            
+                The rules for corner determination when the biome_corner field has
+                specified a biome that's specified to yield as per the above seems
+                to be to first take the NW corner (0), then the NE (1) one, and
+                then the SW (2) one. If the selected corner doesn't exist (because
+                it's outside of the world) the same fallback corner selection is
+                used, with the exception of a northern row selection of NW (0),
+                where the home corner (3) is selected.
+            </comment>
             <static-array count='16' name='split_x'
                           comment='splits for horizontal edges, x=min y=max'>
                 <static-array type-name='coord2d' count='17'/>
@@ -385,31 +421,22 @@
             <static-array count='17' name='split_y'
                           comment='splits for vertical edges, x=min y=max'>
                 <static-array type-name='coord2d' count='16'/>
-            </static-array>
-
-            After this, each corner and edge segment is assigned the biome
-            of one of the adjoining 4 or 2 embark tiles, based on the values
-            in these arrays. It may be necessary to access adjacent details
-            objects to collect the full outline:
-
-            c11 x11 | c21
-            y11 *** | y21
-            -------------
-            c12 x12 | c22
-
-            There are also certain rules forcing ocean/lake biomes to lose
-            edges to mountains, and both of them to anything else, no matter
-            what the original array value is. The actual biomes for tiles in
-            the frame are semi-randomly interpolated from this edge spec.
+           </static-array>
 
             <static-array name='biome_corner' count='16'
-                          comment='upleft=0,upright=1,downleft=2,downright=3??'>
+                          comment='0=Reference is NW, 1=Reference is N, 2=Reference is W, 3=Reference is current tile'>
+                <static-array type-name='int8_t' count='16'/>
+                <comment>
+                    All 4 corners touching get the same reference (which determines the biome),
+                    i.e. SE corner of the tile to the NW, SW corner of the tile to the
+                    N, NE corner of the tile to the W, and the NW corner of the current
+                    tile, as directed by the biome_corner value.
+                </comment>
+            </static-array>
+            <static-array name='biome_x' count='16' comment='0=Reference is N, 1=Reference is current tile (adopted by S edge to the N)'>
                 <static-array type-name='int8_t' count='16'/>
             </static-array>
-            <static-array name='biome_x' count='16' comment='up=0,down=1'>
-                <static-array type-name='int8_t' count='16'/>
-            </static-array>
-            <static-array name='biome_y' count='16' comment='left=0,right=1'>
+            <static-array name='biome_y' count='16' comment='0=Reference is W, 1=Reference is current tile (Adopted by E edge to the W)'>
                 <static-array type-name='int8_t' count='16'/>
             </static-array>
         </compound>
@@ -537,14 +564,14 @@
         <int32_t name="finder_rank" init-value='-1'/>
         <stl-vector name="sites" pointer-type='world_site'/>
         <df-flagarray name='flags' index-enum='region_map_entry_flags'/>
-        <int16_t name="elevation" comment='~40 ocean -> ~100 plains -> ~200 mointains'/>
-        <int16_t name="rainfall"/>
-        <int16_t name="vegetation"/>
-        <int16_t name="temperature"/>
-        <int16_t name="evilness"/>
-        <int16_t name="drainage"/>
-        <int16_t name="volcanism"/>
-        <int16_t name="savagery"/>
+        <int16_t name="elevation" comment='0-99=Ocean, 150+=Mountains, 100-149: all other biomes. Note that PSV elevation uses 100-299 for normal biomes, with range later cut to 1/4, and Mountains shifted down'/>
+        <int16_t name="rainfall" comment='0-100'/>
+        <int16_t name="vegetation" comment='0-100'/>
+        <int16_t name="temperature" comment='Urists. 10000 Urists=0 Celsius'/>
+        <int16_t name="evilness" comment='0-32=Good, 33-65=Neutral, 66-100=Evil'/>
+        <int16_t name="drainage" comment='0-100'/>
+        <int16_t name="volcanism" comment='0-100'/>
+        <int16_t name="savagery" comment='0-32=Calm, 33-65=Neutral, 66-100=Savage'/>
         <int16_t name="air_temp"/>
         <int16_t name="air_x" comment='Toady: a velocity component?  I dont remember'/>
         <int16_t name="air_y" />
@@ -567,7 +594,7 @@
             <flag-bit name='west_2'/>
         </bitfield>
         <int16_t name="snowfall" comment='0-5000, humidity?'/>
-        <int16_t name="salinity"/>
+        <int16_t name="salinity" comment='0-100'/>
         <compound name='unk_3e' type-name='coord'/>
         <compound name='unk_44' type-name='coord'/>
         <compound name='unk_4a' type-name='coord'/>
