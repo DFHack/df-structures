@@ -96,6 +96,7 @@ with_header_file {
                     my $prefix = get_container_item_type($tag, -weak => 1, -void => 'void');
                     emit_comment $tag;
                     emit 'extern ', $export_prefix, $prefix, ' *', $name, ';', get_comment($tag);
+                    header_ref("Export.h");
 
                     push @items, [ $prefix, $name ];
                     push @fields, $tag->findnodes('ld:item');

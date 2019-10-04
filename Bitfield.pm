@@ -94,6 +94,8 @@ sub render_bitfield_core {
             emit "static bitfield_identity identity;";
             emit "static bitfield_identity *get() { return &identity; }";
         } "template<> struct ${export_prefix}identity_$traits_name ", ";";
+        header_ref("Export.h");
+        header_ref("DataDefs.h");
     };
 
     with_emit_static {
