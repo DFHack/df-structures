@@ -542,6 +542,7 @@ sub emit_struct_fields($$;%) {
     my ($tag, $name, %flags) = @_;
 
     $tag->setAttribute('ld:in-union','true') if $in_union_body;
+    my $is_union = is_attr_true($tag,'is-union') ? 'true' : 'false';
 
     local $_;
     my @fields = get_struct_fields($tag);
@@ -566,7 +567,7 @@ sub emit_struct_fields($$;%) {
             emit "struct_identity ${traits_name}::identity(",
                     "sizeof($full_name), &allocator_fn<${full_name}>, ",
                     type_identity_reference($tag,-parent => 1), ', ',
-                    "\"$name\", NULL, $ftable);";
+                    "\"$name\", NULL, $ftable, $is_union);";
         } 'fields-' . $fields_group;
 
         # Needed for unions with fields with non-default ctors (e.g. bitfields)
@@ -642,7 +643,7 @@ sub emit_struct_fields($$;%) {
                     type_identity_reference($tag,-parent => 1), ', ',
                     "\"$name\",",
                     ($inherits ? "&${inherits}::_identity" : 'NULL'), ',',
-                    "$ftable);";
+                    "$ftable, $is_union);";
         }
     } 'fields-' . $fields_group;
 }
