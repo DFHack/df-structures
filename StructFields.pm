@@ -447,15 +447,15 @@ sub render_field_metadata_rec($$) {
 
     if ($meta eq 'number') {
         my $tname = primitive_type_name($subtype);
-        push @field_defs, [ "${FLD}(PRIMITIVE, $name)", "TID($tname)", 0, 0 ];
+        push @field_defs, [ "${FLD}(PRIMITIVE, $name)", "TID($tname)", 0, 0, 'false' ];
     } elsif ($meta eq 'bytes') {
         if ($subtype eq 'static-string') {
             my $count = $field->getAttribute('size') || 0;
-            push @field_defs, [ "${FLD}(STATIC_STRING, $name)", 'NULL', $count, 0 ];
+            push @field_defs, [ "${FLD}(STATIC_STRING, $name)", 'NULL', $count, 0, 'false' ];
         }
     } elsif ($meta eq 'global' || $meta eq 'compound') {
         if (is_attr_true($field, 'ld:enum-size-forced')) {
-            push @field_defs, [ "${FLD}(PRIMITIVE, $name)", type_idfun_reference($field), 0, 0 ];
+            push @field_defs, [ "${FLD}(PRIMITIVE, $name)", type_idfun_reference($field), 0, 0, 'false' ];
         } else {
             if ($meta eq 'global') {
                 my $tname = $field->getAttribute('type-name');
@@ -463,9 +463,9 @@ sub render_field_metadata_rec($$) {
             }
 
             if ($subtype && $subtype eq 'enum') {
-                push @field_defs, [ "${FLD}(PRIMITIVE, $name)", type_identity_reference($field), 0, 0 ];
+                push @field_defs, [ "${FLD}(PRIMITIVE, $name)", type_identity_reference($field), 0, 0, 'false' ];
             } else {
-                push @field_defs, [ "${FLD}(SUBSTRUCT, $name)", type_identity_reference($field), 0, 0 ];
+                push @field_defs, [ "${FLD}(SUBSTRUCT, $name)", type_identity_reference($field), 0, 0, 'false' ];
             }
         }
     } elsif ($meta eq 'pointer') {
@@ -474,14 +474,14 @@ sub render_field_metadata_rec($$) {
         $count |= 1 if is_attr_true($field, 'is-array');
         $count |= 2 if $in_union || is_attr_true($field, 'has-bad-pointers');
 
-        push @field_defs, [ "${FLD}(POINTER, $name)", auto_identity_reference($items[0]), $count, $enum ];
+        push @field_defs, [ "${FLD}(POINTER, $name)", auto_identity_reference($items[0]), $count, $enum, 'false' ];
     } elsif ($meta eq 'static-array') {
         my @items = $field->findnodes('ld:item');
         my $count = get_container_count($field);
 
-        push @field_defs, [ "${FLD}(STATIC_ARRAY, $name)", auto_identity_reference($items[0]), $count, $enum ];
+        push @field_defs, [ "${FLD}(STATIC_ARRAY, $name)", auto_identity_reference($items[0]), $count, $enum, 'false' ];
     } elsif ($meta eq 'primitive') {
-        push @field_defs, [ "${FLD}(PRIMITIVE, $name)", type_idfun_reference($field), 0, 0 ];
+        push @field_defs, [ "${FLD}(PRIMITIVE, $name)", type_idfun_reference($field), 0, 0, 'false' ];
     } elsif ($meta eq 'container') {
         my @items = $field->findnodes('ld:item');
 
@@ -491,9 +491,9 @@ sub render_field_metadata_rec($$) {
             my @items2 = $items[0]->findnodes('ld:item');
 
             push @field_defs, [ "${FLD}(STL_VECTOR_PTR, $name)",
-                                auto_identity_reference($items2[0]), 0, $enum ];
+                                auto_identity_reference($items2[0]), 0, $enum, 'false' ];
         } else {
-            push @field_defs, [ "${FLD}(CONTAINER, $name)", type_idfun_reference($field), 0, $enum ];
+            push @field_defs, [ "${FLD}(CONTAINER, $name)", type_idfun_reference($field), 0, $enum, 'false' ];
         }
     }
 }
@@ -516,19 +516,23 @@ sub render_field_metadata($$\@\%) {
     return generate_field_table {
         render_field_metadata_rec($_, $FLD) for @$fields;
 
-        for my $mtag (@{$info->{vmethods}||[]}, @{$info->{cmethods}||[]}) {
+        for my $mtag (@{$info->{vmethods}||[]}) {
             my $name = $mtag->getAttribute('name');
-            push @field_defs, [ "METHOD(OBJ_METHOD, $name)", 0, 0 ] if $name;
+            push @field_defs, [ "METHOD(OBJ_METHOD, $name)", 0, 0, 'false' ] if $name;
+        }
+        for my $mtag (@{$info->{cmethods}||[]}) {
+            my $name = $mtag->getAttribute('name');
+            push @field_defs, [ "METHOD(OBJ_METHOD, $name)", 0, 0, 'true' ] if $name;
         }
         for my $entry (@{$info->{statics}||[]}) {
             if (ref($entry) eq 'HASH') {
                 # 'exposed name' => 'function'
                 while (my ($name, $func) = each %{$entry}) {
-                    push @field_defs, [ "METHOD_N(CLASS_METHOD, $func, $name)", 0, 0 ];
+                    push @field_defs, [ "METHOD_N(CLASS_METHOD, $func, $name)", 0, 0, 'true' ];
                 }
             }
             else {
-                push @field_defs, [ "METHOD(CLASS_METHOD, $entry)", 0, 0 ];
+                push @field_defs, [ "METHOD(CLASS_METHOD, $entry)", 0, 0, 'true' ];
             }
         }
     } $full_name;
