@@ -466,9 +466,22 @@ sub render_field_metadata_rec($$) {
         my $tname = primitive_type_name($subtype);
         push @field_defs, [ "${FLD}(PRIMITIVE, $name)", "TID($tname)", 0, 0, 'false' ];
     } elsif ($meta eq 'bytes') {
+        my $count = $field->getAttribute('size') || 0;
+        my $align = $field->getAttribute('alignment') || 1;
         if ($subtype eq 'static-string') {
-            my $count = $field->getAttribute('size') || 0;
             push @field_defs, [ "${FLD}(STATIC_STRING, $name)", 'NULL', $count, 0, 'false' ];
+        } elsif ($subtype eq 'padding') {
+            my $tid = 'TID(int8_t)';
+            # int16_t might be 4-byte aligned, but on those platforms
+            # there probably isn't much anything two-byte
+            # aligned... And presently there is no padding with
+            # alignment specified in the XML files.
+            $tid = 'TID(int16_t)' unless $align % 2;
+            $tid = 'TID(int32_t)' unless $align % 4;
+            $tid = 'TID(int64_t)' unless $align % 8;
+            push @field_defs, [ "${FLD}(STATIC_ARRAY, $name)", $tid, $count, 0, 'false' ];
+        } else {
+            die "don't know how to emit $subtype bytes";
         }
     } elsif ($meta eq 'global' || $meta eq 'compound') {
         if (is_attr_true($field, 'ld:enum-size-forced')) {
