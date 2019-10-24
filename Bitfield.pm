@@ -26,6 +26,8 @@ sub render_bitfield_core {
     my $base = get_primitive_base($tag);
     my @fields = $tag->findnodes('child::ld:field');
 
+    my $base_type = get_primitive_base($tag, 'uint32_t');
+
     emit_comment $tag, -attr => 1;
 
     emit_block {
@@ -115,7 +117,8 @@ sub render_bitfield_core {
         emit "bitfield_identity identity_${traits_name}::identity(",
              "sizeof($full_name), ",
              type_identity_reference($tag,-parent => 1), ', ',
-             "\"$name\", bitfield_${traits_name}::bit_count, bitfield_${traits_name}::bits);";
+             "\"$name\", bitfield_${traits_name}::bit_count, ",
+             "bitfield_${traits_name}::bits, TID($base_type));";
     } 'enums';
 }
 
