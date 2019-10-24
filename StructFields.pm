@@ -170,6 +170,12 @@ sub get_struct_fields($) {
     return $_[0]->findnodes('ld:field');
 }
 
+sub get_param_fields($) {
+    grep {
+        $_->nodeName eq 'ret-type' || $_->nodeName eq'ld:field'
+    } $_[0]->childNodes
+}
+
 sub find_subfield($$) {
     my ($tag, $name) = @_;
     return undef unless $name;
@@ -426,6 +432,17 @@ sub render_field_metadata_rec($$) {
     my $meta = $field->getAttribute('ld:meta');
     my $subtype = $field->getAttribute('ld:subtype');
     my $name = $field->getAttribute('name') || $field->getAttribute('ld:anon-name');
+    if ($FLD eq 'PARAM') {
+        if (defined($name)) {
+            die '"$return" parameter name reserved' if $name eq '$return';
+            die '"$unnamed" parameter name reserved' if $name eq '$unnamed';
+        }
+        if ($field->nodeName eq 'ret-type') {
+            die 'named ret-type' if defined($name);
+            $name = '$return';
+        }
+        $name = '$unnamed' unless defined($name);
+    }
 
     if ($FLD eq 'GFLD') {
         $name = $field->parentNode()->getAttribute('name');
@@ -519,6 +536,16 @@ sub render_field_metadata($$\@\%) {
         for my $mtag (@{$info->{vmethods}||[]}) {
             my $name = $mtag->getAttribute('name');
             push @field_defs, [ "METHOD(OBJ_METHOD, $name)", 0, 0, 'false' ] if $name;
+            $name = $mtag->getAttribute('ld:anon-name') unless $name;
+            die '"$destructor" method name reserved' if $name eq '$destructor';
+            $name = '$destructor' if $mtag->getAttribute('is-destructor');
+            die 'no name for method' unless $name;
+            push @method_names, $name;
+        }
+        for my $mtag (@{$info->{vmethods}||[]}) {
+            local @field_defs;
+            render_field_metadata_rec($_, 'PARAM') for get_param_fields($mtag);
+            push @param_defs, \@field_defs;
         }
         for my $mtag (@{$info->{cmethods}||[]}) {
             my $name = $mtag->getAttribute('name');
@@ -563,7 +590,7 @@ sub emit_struct_fields($$;%) {
         };
 
         with_emit_static {
-            my $ftable = render_field_metadata $tag, $full_name, @fields, %info;
+            my ($ftable) = render_field_metadata $tag, $full_name, @fields, %info;
             emit "struct_identity ${traits_name}::identity(",
                     "sizeof($full_name), &allocator_fn<${full_name}>, ",
                     type_identity_reference($tag,-parent => 1), ', ',
@@ -628,7 +655,8 @@ sub emit_struct_fields($$;%) {
     }
 
     with_emit_static {
-        my $ftable = render_field_metadata $tag, $full_name, @fields, %info;
+        my ($ftable, $mtable, $mntable)
+            = render_field_metadata $tag, $full_name, @fields, %info;
 
         if ($flags{-class}) {
             emit "virtual_identity ${full_name}::_identity(",
@@ -636,7 +664,7 @@ sub emit_struct_fields($$;%) {
                     "\"$name\",",
                     ($original_name ? "\"$original_name\"" : 'NULL'), ',',
                     ($inherits ? "&${inherits}::_identity" : 'NULL'), ',',
-                    "$ftable);";
+                    "$ftable, &$mtable, $mntable);";
         } else {
             emit "struct_identity ${full_name}::_identity(",
                     "sizeof($full_name), &allocator_fn<${full_name}>, ",

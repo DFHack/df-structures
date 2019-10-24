@@ -31,7 +31,7 @@ BEGIN {
         &fully_qualified_name &type_identity_reference
         &get_comment &emit_comment
 
-        *field_defs &generate_field_table
+        *field_defs *param_defs *method_names &generate_field_table
     );
     our %EXPORT_TAGS = ( ); # eg: TAG => [ qw!name1 name2! ],
     our @EXPORT_OK   = qw( );
@@ -521,29 +521,46 @@ sub emit_comment($;%) {
 # Field tables
 
 our @field_defs;
+our @param_defs;
+our @method_names;
 
 sub generate_field_table(&$) {
     my ($blk, $full_name) = @_;
 
     local @field_defs;
+    local @param_defs;
+    local @method_names;
 
-    my $ftable_name = $full_name.'_fields';
-    $ftable_name =~ s/::/_doT_Dot_/g;
-    $ftable_name =~ s/</_lT_/g;
-    $ftable_name =~ s/>/_Gt_/g;
+    my $basename = $full_name;
+    $basename =~ s/::/_doT_Dot_/g;
+    $basename =~ s/</_lT_/g;
+    $basename =~ s/>/_Gt_/g;
+    my $ftable_name = $basename.'_fields';
+    my $mtable_name = $basename.'_own_method_signatures';
+    my $mnametable_name = $basename.'_own_method_names';
 
     &with_anon($blk, 'T_'.$ftable_name);
-
-    return 'NULL' unless @field_defs;
 
     emit "#define CUR_STRUCT $full_name";
     emit_block {
         emit '{ ', join(', ', @$_), ' },' for @field_defs;
         emit "{ FLD_END }";
     } "static const struct_field_info ${ftable_name}[] = ", ";";
+    emit_block {
+        for my $defs (@param_defs) {
+            emit_block {
+                emit 'struct_field_info { ', join(', ', @$_), ' },' for @$defs;
+            } 'std::vector<struct_field_info>', ',';
+        }
+    } "static const std::vector<std::vector<struct_field_info>> ${mtable_name}", ";";
     emit "#undef CUR_STRUCT";
+    my $method_count = @method_names;
+    emit_block {
+        emit qq("$_",) for @method_names;
+    } "static const char *${mnametable_name}[$method_count] = ", ";";
 
-    return $ftable_name;
+    return ((@field_defs ? $ftable_name : 'NULL'),
+            $mtable_name, $mnametable_name);
 }
 
 1;

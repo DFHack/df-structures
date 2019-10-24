@@ -292,7 +292,7 @@ sub render_enum_tables($$$$$$) {
 
             # Emit the info table metadata
             with_emit_static {
-                my $ftable = generate_field_table {
+                my ($ftable) = generate_field_table {
                     @field_defs = @field_meta;
                 } $entry_type;
 
