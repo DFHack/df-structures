@@ -145,6 +145,7 @@
     </bitfield-type>
 
     <enum-type type-name='value_type'>
+        <enum-item name='NONE' value='-1'/>
         <enum-item name='LAW'/>
         <enum-item name='LOYALTY'/>
         <enum-item name='FAMILY'/>
@@ -196,7 +197,8 @@
         <enum-item name='MAKE_A_GREAT_DISCOVERY'/>
     </enum-type>
 
-    <enum-type type-name='personality_facet_type' base-type='uint16_t'>
+    <enum-type type-name='personality_facet_type' base-type='int16_t'>
+        <enum-item name='NONE' value='-1'/>
         <enum-item name='LOVE_PROPENSITY'/>
         <enum-item name='HATE_PROPENSITY'/>
         <enum-item name='ENVY_PROPENSITY'/>
@@ -1712,6 +1714,18 @@
         <int32_t name="experience"/>
     </struct-type>
 
+    <struct-type type-name='unit_emotion_memory'>
+        <enum name='type' base-type='int32_t' type-name='emotion_type'/>
+        <int32_t name='unk2'/>
+        <int32_t name='strength'/>
+        <enum name='thought' base-type='int32_t' type-name='unit_thought_type'/>
+        <int32_t name='subthought' comment='for certain thoughts'/>
+        <int32_t name='severity'/>
+        <int32_t/>
+        <int32_t name='year'/>
+        <int32_t name='year_tick'/>
+    </struct-type>
+
     <struct-type type-name='unit_personality'>
         <stl-vector name='values' since='v0.40.01'>
             <pointer>
@@ -1738,8 +1752,9 @@
                     <flag-bit name='unk1'/>
                     <flag-bit name='unk2'/>
                     <flag-bit name='unk3'/>
-                    <flag-bit name='unk4'/>
-                    <flag-bit name='remembered' comment='Recollection of past experience rather than current'/>
+                    <flag-bit name='remembered_longterm'/>
+                    <flag-bit name='remembered_shortterm'/>
+                    <flag-bit name='remembered_reflected_on'/>
                 </bitfield>
                 <int32_t name='unk7'/>
                 <int32_t name='year'/>
@@ -1803,7 +1818,21 @@
         </pointer>
         <int32_t name="unk_v4201_3" init-value='-1' since='v0.42.01'/>
         <int32_t name="unk_v4201_4" init-value='-1' since='v0.42.01'/>
-        <pointer is-array='true' type-name='int32_t' name='unk_v4410_1' comment='length is multiple of 9?'/>
+        <pointer name="memories">
+            <static-array name='shortterm' type-name='unit_emotion_memory' count='8'/>
+            <static-array name='longterm' type-name='unit_emotion_memory' count='8'/>
+            <stl-vector name='reflected_on'>
+                <pointer>
+                    <compound name='memory' type-name='unit_emotion_memory'/>
+                    <enum name='changed_facet' base-type='int32_t' type-name='personality_facet_type' init-value='NONE'/>
+                    <int32_t/>
+                    <int32_t/>
+                    <enum name='changed_value' base-type='int32_t' type-name='value_type' init-value='NONE'/>
+                    <int32_t/>
+                    <int32_t/>
+                </pointer>
+            </stl-vector>
+        </pointer>
         <int32_t name="current_focus" comment='weighted sum of needs focus_level-s'/>
         <int32_t name="undistracted_focus" comment='usually number of needs multiplied by 4'/>
     </struct-type>
