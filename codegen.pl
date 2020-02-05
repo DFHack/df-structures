@@ -83,7 +83,7 @@ with_header_file {
 
     emit_block {
         emit "void InitGlobals();";
-        emit "extern global_identity _identity;";
+        emit "extern ", $export_prefix, "global_identity _identity;";
 
         for my $name (sort { $a cmp $b } keys %globals) {
             local $typename = $name;
