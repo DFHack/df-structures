@@ -54,6 +54,8 @@
         <enum-item name='UNDERWORLD_SPIRE'/>
         <enum-item name='INN_TAVERN'/>
         <enum-item name='LIBRARY'/>
+        <enum-item name='COUNTINGHOUSE'/>
+        <enum-item name='GUILDHALL'/>
     </enum-type>
 
     <enum-type type-name='abstract_building_flags'>
@@ -85,6 +87,7 @@
 
     <struct-type type-name='abstract_building_contents'> used within Temple, Library, and Inn/Tavern
         <int32_t name="unk_e4"/>
+        <int32_t name="unk_v47_1" since='v0.47.01' comment='only seen 65535'/>        
         <int32_t name="desired_goblets"/>
         <int32_t name="desired_instruments"/>
         <int32_t name="desired_paper"/>
@@ -239,6 +242,16 @@
         <compound name='contents' type-name='abstract_building_contents'/>
     </class-type>
 
+<!-- These don't do anything. On the other hand, the getName virtual method returns garbage as well, so there are probably additional alignment issues.
+    <class-type type-name='abstract_building_countinghousest' inherits-from='abstract_building'>
+        <compound name='name' type-name='language_name'/>
+    </class-type>
+
+    <class-type type-name='abstract_building_guildhallst' inherits-from='abstract_building'>
+        <compound name='name' type-name='language_name'/>
+    </class-type>
+-->
+
     <enum-type type-name='world_site_type' base-type='int16_t'>
         <enum-item name='PlayerFortress'/>
         <enum-item name='DarkFortress'/>
@@ -260,13 +273,39 @@
         <enum-item name='Town' comment='not hamlet'/>
     </enum-type>
 
-    <enum-type type-name="lair_type" base-type="int16_t" comment="Corresponds to the the LAIR creature raw token">
-        <enum-item name="SIMPLE_MOUND" value="0" />
-        <enum-item name="SIMPLE_BURROW" />
-        <enum-item name="LABYRINTH"/>
-        <enum-item name="SHRINE"/>
-        <enum-item name="WILDERNESS_LOCATION"/>
+    <enum-type type-name='fortress_type' base-type='int16_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='CASTLE'/>
+        <enum-item name='TOWER'/>
+        <enum-item name='MONASTERY'/>
+        <enum-item name='FORT'/>
     </enum-type>
+    
+    <enum-type type-name='monument_type' base-type='int16_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='TOMB'/>
+        <enum-item name='VAULT'/>
+    </enum-type>
+    
+    <enum-type type-name='lair_type' base-type='int16_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='SIMPLE_MOUND' comment='Night creatures'/>
+        <enum-item name='SIMPLE_BURROW' comment='animal, (semi)megabeast, night creature(!)'/>
+        <enum-item name='LABYRINTH'/>
+        <enum-item name='SHRINE'/>
+        <enum-item name='WILDERNESS_LOCATION' comment='In mountains, hosting Rocs in vanilla'/>
+    </enum-type>
+        
+    <struct-type type-name='property_ownership'>
+        <int32_t name="index"/>
+        <bool name="is_concrete_property" comment="true if house [property_index = 4 only one seen], or index into buildings"/>
+        <padding size='3'/>
+        <int32_t name='property_index' comment="index into buildings when is_concrete_property is false. Only seen 4 = house with is_concrete_property = true"/>
+        <int32_t name="unk_hfid" init-value='-1' ref-target='historical_figure' comment="Always same as owner_hfid when set, but not always set when that field is."/>    
+        <int32_t name="owner_entity_id" init-value='-1' ref-target='historical_entity' comment='Mutually exclusive with owner_hfid. All seen were merchant companies.'/>    
+        <int32_t name="owner_hfid" init-value='-1' ref-target='historical_figure'/>
+        <int32_t name="unk_owner_entity_id" init-value ='-1' ref-target='historical_entity' comment="Seen only in subset of owner_entity_id case, and always same value"/>    
+    </struct-type>  --  Cannot rule out the type having additional fields, although the 8 following bytes were all 0 in all cases in the save examined.
     
     <struct-type type-name='world_site' key-field='id'
                  instance-vector='$global.world.world_data.sites'>
@@ -370,15 +409,15 @@
                 <int32_t name="unk_30"/>
             </pointer>
         </stl-vector>
-        <stl-vector name="unk_v47_1" sice='0.47.01' comment='Varying types of habitation. Necro infested?'/>
+        <stl-vector name="unk_v47_1" since='0.47.01' comment='Varying types of habitation can have this'/>
         <df-flagarray name='flags' index-enum='world_site_flags'/>
 
         <stl-vector name="buildings" pointer-type='abstract_building'/>
 
         <int32_t name="next_building_id"/>
-        <int32_t name="unk_v47_2" sice='0.47.01' comment='constant 0'/>
-        <stl-vector name="unk_v47_3" sice='0.47.01' comment='Varying types of habitation. Necro infested?'/>
-        <int32_t name="unk_v47_4" sice='0.47.01' comment='0 or various small numbers for habitations'/>
+        <int32_t name="unk_v47_2" since='0.47.01' comment='constant 0'/>
+        <stl-vector name="property_ownership" since='0.47.01' pointer-type='property_ownership'/>
+        <int32_t name="unk_v47_4" since='0.47.01' comment='0 or various small numbers for habitations'/>
         <int32_t name="created_tick"/>
         <int32_t name="created_year"/>
         <int32_t name="unk_170" comment='constant 0'/>
@@ -389,9 +428,9 @@
         <pointer name="realization" type-name='world_site_realization'/>
         
         <pointer name="subtype_info">
-            <int16_t name="is_tower" init-value='-1' comment='1 => not fortress'/>
-            <int16_t name="is_monument" init-value='-1' comment='not tomb'/>
-            <enum name="lair_type" type-name='lair_type' base-type='int16_t'/>
+            <enum base-type='int16_t' name="fortress_type" type-name='fortress_type' init-value='NONE' comment='Only when site.type=Fortress'/>
+            <enum base-type='int16_t' name="monument_type" type-name='monument_type' init-value='NONE' comment='Only when site.type=Monument'/>
+            <enum base-type='int16_t' name="lair_type" type-name='lair_type' init-value='NONE' comment='Only when site.type=LairShrine'/>
             <stl-vector name="unk_8" type-name='int16_t'/>
             <int32_t name="unk_14" init-value='-1000000'/>
             <int32_t name="unk_18" init-value='-1000000'/>
