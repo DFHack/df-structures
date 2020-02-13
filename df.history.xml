@@ -827,27 +827,27 @@
         <enum-item name='SITE_SURRENDERED'/>
         <enum-item name='ENTITY_EXPELS_HF'/>
 
-        <enum-item name='TRADE' since='v0.47.01'/>
-        <enum-item name='ADD_ENTITY_SITE_PROFILE_FLAG' since='v0.47.01'/>
-        <enum-item name='GAMBLE' since='v0.47.01'/>
-        <enum-item name='ADD_HF_ENTITY_HONOR' since='v0.47.01'/>
-        <enum-item name='ENTITY_DISSOLVED' since='v0.47.01'/>
-        <enum-item name='ENTITY_EQUIPMENT_PURCHASE' since='v0.47.01'/>
-        <enum-item name='MODIFIED_BUILDING' since='v0.47.01'/>
-        <enum-item name='BUILDING_PROFILE_ACQUIRED' since='v0.47.01'/>
-        <enum-item name='HF_PREACH' since='v0.47.01'/>
-        <enum-item name='ENTITY_PERSECUTED' since='v0.47.01'/>
-        <enum-item name='ENTITY_BREACH_FEATURE_LAYER' since='v0.47.01'/>
-        <enum-item name='ENTITY_ALLIANCE_FORMED' since='v0.47.01'/>
-        <enum-item name='HF_RANSOMED' since='v0.47.01'/>
-        <enum-item name='HF_ENSLAVED' since='v0.47.01'/>
-        <enum-item name='SABOTAGE' since='v0.47.01'/>
-        <enum-item name='ENTITY_OVERTHROWN' since='v0.47.01'/>
-        <enum-item name='HFS_FORMED_INTRIGUE_RELATIONSHIP' since='v0.47.01'/>
-        <enum-item name='FAILED_INTRIGUE_CORRUPTION' since='v0.47.01'/>
-        <enum-item name='HF_CONVICTED' since='v0.47.01'/>
-        <enum-item name='FAILED_FRAME_ATTEMPT' since='v0.47.01'/>
-        <enum-item name='HF_INTERROGATED' since='v0.47.01'/>
+        <enum-item name='TRADE'/>
+        <enum-item name='ADD_ENTITY_SITE_PROFILE_FLAG'/>
+        <enum-item name='GAMBLE'/>
+        <enum-item name='ADD_HF_ENTITY_HONOR'/>
+        <enum-item name='ENTITY_DISSOLVED'/>
+        <enum-item name='ENTITY_EQUIPMENT_PURCHASE'/>
+        <enum-item name='MODIFIED_BUILDING'/>
+        <enum-item name='BUILDING_PROFILE_ACQUIRED'/>
+        <enum-item name='HF_PREACH'/>
+        <enum-item name='ENTITY_PERSECUTED'/>
+        <enum-item name='ENTITY_BREACH_FEATURE_LAYER'/>
+        <enum-item name='ENTITY_ALLIANCE_FORMED'/>
+        <enum-item name='HF_RANSOMED'/>
+        <enum-item name='HF_ENSLAVED'/>
+        <enum-item name='SABOTAGE'/>
+        <enum-item name='ENTITY_OVERTHROWN'/>
+        <enum-item name='HFS_FORMED_INTRIGUE_RELATIONSHIP'/>
+        <enum-item name='FAILED_INTRIGUE_CORRUPTION'/>
+        <enum-item name='HF_CONVICTED'/>
+        <enum-item name='FAILED_FRAME_ATTEMPT'/>
+        <enum-item name='HF_INTERROGATED'/>
     </enum-type>
 
     <enum-type type-name='history_event_reason' comment="Some of these require at least one parameter of varying type. The text is what DF provides without parameter">
@@ -2550,6 +2550,15 @@
     <class-type type-name='history_event_add_entity_site_profile_flagst' inherits-from='history_event' since='v0.47.01'>
       <int32_t name='entity' ref-target='historical_entity'/>
       <int32_t name='site' ref-target='world_site'/>
+      <int32_t comment='always 65536'/>
+    </class-type>
+
+    <class-type type-name='history_event_gamblest' inherits-from='history_event' since='v0.47.01'>
+      <int32_t name='hf' ref-target='historical_figure'/>
+      <int32_t name='site' ref-target='world_site'/>
+      <int32_t name='structure'/>
+      <int32_t name='account_before'/>
+      <int32_t name='account_after'/>
     </class-type>
 
     <class-type type-name='history_event_add_hf_entity_honorst' inherits-from='history_event' since='v0.47.01'>
@@ -2558,20 +2567,12 @@
       <int32_t name='honor_id' comment='index into historical_entity.honors'/>
     </class-type>
 
-    <class-type type-name='history_event_gamblest' inherits-from='history_event' since='v0.47.01'>
-      <int32_t name='hf' ref-target='historical_figure'/>
-      <int32_t name='site' ref-target='world_site'/>
-      <int32_t name='structure'/>
-      <int32_t name='money_before'/>
-      <int32_t name='money_after'/>
-    </class-type>
-
     <class-type type-name='history_event_entity_dissolvedst' inherits-from='history_event' since='v0.47.01'>
       <int32_t name='entity' ref-target='historical_entity'/>
-      <enum base-type='int32_t' name='circumstance' type-name='unit_thought_type' init-value='None'/>
-      <int32_t name='circumstance_id' init-value='-1'/>
-      <int32_t name='reason' ref-targe='history_event_reason'/>
-      <int32_t name='reason_id' init-value='-1'/>
+      <enum base-type='int32_t' name='circumstance' type-name='unit_thought_type'/>
+      <int32_t name='circumstance_id'/>
+      <enum base-type='int32_t' name='reason' type-name='history_event_reason'/>
+      <int32_t name='reason_id'/>
     </class-type>
 
     <class-type type-name='history_event_entity_equipment_purchasest' inherits-from='history_event' since='v0.47.01'>
@@ -2584,8 +2585,8 @@
       <int32_t name='site' ref-target='world_site'/>
       <int32_t name='structure' comment='index into world_site.buildings'/>
       <int32_t name='hf' ref-target='historical_figure'/>
-      <int32_t/> always 12? maybe a reason? history_event_reason::great_fortresses_built_and_tested
-      <bitfield name='extension_type' base-type='uint32_t'>
+      <int32_t/> always 12?
+      <bitfield name='modification' base-type='uint32_t'>
         <flag-bit name='dungeon'/>
         <flag-bit name='fortifications'/>
         <flag-bit name='courtyard'/>
@@ -2595,19 +2596,20 @@
 
     <class-type type-name='history_event_building_profile_acquiredst' inherits-from='history_event' since='v0.47.01'>
       <int32_t name='site' ref-target='world_site'/>
-      <int32_t name='structure'/>
-      <int32_t name='hf' ref-target='historical_figure'/>
-      <int32_t name='entity' ref-target='historical_entity'/>
-      <int32_t name='inherited' comment='0: purchased, 1: inherited'/>
+      <int32_t name='building_profile'/>
+      <int32_t name='acquirer_hf' ref-target='historical_figure'/>
+      <int32_t name='acquirer_entity' ref-target='historical_entity'/>
+      <int32_t name='acquisition_type' comment='0: purchased, 1: inherited, 2: rebuilt'/>
       <int32_t name='previous_owner_hf' ref-target='historical_figure'/>
+      <int32_t />
     </class-type>
 
     <class-type type-name='history_event_hf_preachst' inherits-from='history_event' since='v0.47.01'>
-      <int32_t name='hf' ref-target='historical_figure'/>
+      <int32_t name='speaker_hf' ref-target='historical_figure'/>
       <int32_t name='site' ref-target='world_site'/>
-      <int16_t name='content' comment='11 = inveighing against, 12 = urging love be shown'/>
-      <int32_t name='preached_to_entity' ref-target='historical_entity'/>
-      <int32_t name='against_entity' ref-target='historical_entity'/>
+      <int16_t name='topic' comment='11 = set entity 1 against entity 2, 12 = entity 1 should love entity 2'/>
+      <int32_t name='entity1' ref-target='historical_entity'/>
+      <int32_t name='entity2' ref-target='historical_entity'/>
     </class-type>
 
     <class-type type-name='history_event_entity_persecutedst' inherits-from='history_event' since='v0.47.01'>
@@ -2615,94 +2617,97 @@
       <int32_t name='persecuting_entity' ref-target='historical_entity'/>
       <int32_t name='target_entity' ref-target='historical_entity'/>
       <int32_t name='site' ref-target='world_site'/>
-      <stl-vector type-name='int32_t' ref-target='historical_figure' comment='subset of expelled_hfs. expelled priests?'/>
-      <stl-vector type-name='int32_t'/>
-      <int32_t/>
+      <stl-vector name='property_confiscated_from_hfs' type-name='int32_t' ref-target='historical_figure'/>
+      <stl-vector name='destroyed_structures' type-name='int32_t'/>
+      <int32_t name='shrines_destroyed'/>
       <stl-vector name='expelled_hfs' type-name='int32_t' ref-target='historical_figure'/>
-      <stl-vector type-name='int32_t'/>
+      <stl-vector name='expelled_populations' type-name='int32_t'/>
       <stl-vector name='expelled_races' type-name='int32_t'/>
       <stl-vector name='expelled_counts' type-name='int32_t'/>
     </class-type>
 
     <class-type type-name='history_event_entity_breach_feature_layerst' inherits-from='history_event' since='v0.47.01'>
       <int32_t name='site' ref-target='world_site'/>
-      <int32_t name='governing_entity' ref-target='historical_entity'/>
+      <int32_t name='site_entity' ref-target='historical_entity'/>
       <int32_t name='civ_entity' ref-target='historical_entity'/>
       <int32_t name='layer' ref-target='world_underground_region'/>
     </class-type>
 
     <class-type type-name='history_event_entity_alliance_formedst' inherits-from='history_event' since='v0.47.01'>
       <int32_t name='entity' ref-target='historical_entity'/>
-      <stl-vector name='allied_entities' type-name='int32_t' ref-target='historical_entity'/>
+      <stl-vector name='joining_entities' type-name='int32_t' ref-target='historical_entity'/>
     </class-type>
 
     <class-type type-name='history_event_hf_ransomedst' inherits-from='history_event' since='v0.47.01'>
-      <int32_t name='hf' ref-target='historical_figure'/>
+      <int32_t name='ransomed_hf' ref-target='historical_figure'/>
       <int32_t name='ransomer_hf' ref-target='historical_figure'/>
-      <int32_t name='paying_hf' ref-target='historical_figure'/>
-      <int32_t name='paying_entity' ref-target='historical_entity'/>
-      <int32_t name='site' ref-target='world_site'/>
+      <int32_t name='payer_hf' ref-target='historical_figure'/>
+      <int32_t name='payer_entity' ref-target='historical_entity'/>
+      <int32_t name='moved_to_site' ref-target='world_site'/>
     </class-type>
 
     <class-type type-name='history_event_hf_enslavedst' inherits-from='history_event' since='v0.47.01'>
-      <int32_t name='hf' ref-target='historical_figure'/>
-      <int32_t name='selling_hf' ref-target='historical_figure'/>
-      <int32_t name='buying_entity' ref-target='historical_entity'/>
-      <int32_t name='site' ref-target='world_site'/>
+      <int32_t name='enslaved_hf' ref-target='historical_figure'/>
+      <int32_t name='seller_hf' ref-target='historical_figure'/>
+      <int32_t name='payer_entity' ref-target='historical_entity'/>
+      <int32_t name='moved_to_site' ref-target='world_site'/>
     </class-type>
 
     <class-type type-name='history_event_sabotagest' inherits-from='history_event' since='v0.47.01'>
-      Have not yet found this event in-game.  Possibly not used yet?
+      <int32_t name='saboteur_hf' ref-target='historical_figure'/>
+      <int32_t name='target_hf' ref-target='historical_figure'/>
+      <int32_t name='target_entity' ref-target='historical_entity'/>
+      <int32_t name='site' ref-target='world_site'/>
     </class-type>
 
     <class-type type-name='history_event_entity_overthrownst' inherits-from='history_event' since='v0.47.01'>
-      <int32_t name='toppled_hf' ref-target='historical_figure'/>
-      <int32_t name='hf' ref-target='historical_figure'/>
-      <int32_t name='master_villain_hf' ref-target='historical_figure'/>
-      <int32_t name='governing_entity' ref-target='historical_entity'/>
-      <int32_t/> 0 or 1?
-      <stl-vector name='supporters' type-name='int32_t' ref-target='historical_figure'/>
+      <int32_t name='overthrown_hf' ref-target='historical_figure'/>
+      <int32_t name='position_taker_hf' ref-target='historical_figure'/>
+      <int32_t name='instigator_hf' ref-target='historical_figure'/>
+      <int32_t name='entity' ref-target='historical_entity'/>
+      <int32_t/>
+      <stl-vector name='conspirator_hfs' type-name='int32_t' ref-target='historical_figure'/>
       <int32_t name='site' ref-target='world_site'/>
     </class-type>
 
     <class-type type-name='history_event_hfs_formed_intrigue_relationshipst' inherits-from='history_event' since='v0.47.01'>
-      <int32_t name='villain_hf' ref-target='historical_figure'/>
-      <int32_t name='villain_identity'/>
+      <int32_t name='corruptor_hf' ref-target='historical_figure'/>
+      <int32_t name='corruptor_identity'/>
       <int32_t name='target_hf' ref-target='historical_figure'/>
       <int32_t name='target_identity'/>
       <int32_t/> ? 6 = plots and schemes, 11 = agent
       <int32_t/> ? 4 = plots and schemes, 21 = agent
       <int32_t name='site' ref-target='world_site'/>
-      <int32_t since='v0.47.02' init-value='-1'/>
-      <int32_t since='v0.47.02' init-value='-1'/>
+      <int32_t name='region' ref-target='world_region' since='v0.47.02' init-value='-1'/>
+      <int32_t name='layer' ref-target='world_underground_region' since='v0.47.02' init-value='-1'/>
     </class-type>
 
     <class-type type-name='history_event_failed_intrigue_corruptionst' inherits-from='history_event' since='v0.47.01'>
-      <int32_t name='villain_hf' ref-target='historical_figure'/>
-      <int32_t name='villain_identity'/>
+      <int32_t name='corruptor_hf' ref-target='historical_figure'/>
+      <int32_t name='corruptor_identity'/>
       <int32_t name='target_hf' ref-target='historical_figure'/>
       <int32_t name='target_identity'/>
       <int32_t name='site' ref-target='world_site'/>
-      <int32_t since='v0.47.02' init-value='-1'/>
-      <int32_t since='v0.47.02' init-value='-1'/>
+      <int32_t name='region' ref-target='world_region' since='v0.47.02' init-value='-1'/>
+      <int32_t name='layer' ref-target='world_underground_region' since='v0.47.02' init-value='-1'/>
     </class-type>
 
     <class-type type-name='history_event_hf_convictedst' inherits-from='history_event' since='v0.47.01'>
-      <int32_t name='hf' ref-target='historical_figure'/>
-      <int32_t name='entity' ref-target='historical_entity'/>
+      <int32_t name='convicted_hf' ref-target='historical_figure'/>
+      <int32_t name='convicter_entity' ref-target='historical_entity'/>
       <int32_t name='recognized_by_entity' ref-target='historical_entity'/>
       <int32_t name='recognized_by_hf' ref-target='historical_figure'/>
-      <stl-vector name='implicated' type-name='int32_t' ref-target='historical_figure'/>
+      <stl-vector name='implicated_hfs' type-name='int32_t' ref-target='historical_figure'/>
       <int32_t name='corrupt_hf' ref-target='historical_figure'/>
       <int32_t name='behest_of_hf' ref-target='historical_figure'/>
       <int32_t name='fooled_hf' ref-target='historical_figure'/>
-      <int32_t name='fooling_hf' ref-target='historical_figure'/>
+      <int32_t name='framer_hf' ref-target='historical_figure'/>
       <int32_t name='surveillance_hf' ref-target='historical_figure'/>
       <int32_t name='co_conspirator_hf' ref-target='historical_figure'/>
       <int32_t name='target_hf' ref-target='historical_figure'/>
-      <int32_t name="crime" comment='references crime::T_mode'/>
-      <int32_t/>
-      <int32_t name='months_sentence'/>
+      <int32_t name='crime' comment='references crime::T_mode'/>
+      <int32_t name='hammerstrokes'/>
+      <int32_t name='prison_months'/>
       <bitfield name='punishment_flags' base-type='uint32_t'>
         <flag-bit name='beaten'/>
         <flag-bit name='exiled'/>
@@ -2722,19 +2727,19 @@
 
     <class-type type-name='history_event_failed_frame_attemptst' inherits-from='history_event' since='v0.47.01'>
       <int32_t name='target_hf' ref-target='historical_figure'/>
-      <int32_t name='fooled_entity' ref-target='historical_entity'/>
-      <int32_t name='master_villain_hf' ref-target='historical_figure'/>
+      <int32_t name='convicter_entity' ref-target='historical_entity'/>
+      <int32_t name='plotter_hf' ref-target='historical_figure'/>
       <int32_t name='fooled_hf' ref-target='historical_figure'/>
-      <int32_t name='villain_hf' ref-target='historical_figure'/>
+      <int32_t name='framer_hf' ref-target='historical_figure'/>
       <int32_t name='crime' comment='references crime::T_mode'/>
     </class-type>
 
     <class-type type-name='history_event_hf_interrogatedst' inherits-from='history_event' since='v0.47.01'>
-      <int32_t name='hf' ref-target='historical_figure'/>
+      <int32_t name='target_hf' ref-target='historical_figure'/>
       <int32_t name='arresting_entity' ref-target='historical_entity'/>
       <int32_t name='interrogator_hf' ref-target='historical_figure'/>
-      <stl-vector/> possibly; only saw all-zeroes
-      <int32_t/>
+      <stl-vector name='implicated_hfs' ref-target='historical_figure' type-name='int32_t' />
+      <int32_t name='interrogation_flags' comment='1: recognized, 2: refused to reveal anything'/>
     </class-type>
 
     <enum-type type-name='history_event_collection_type'>
