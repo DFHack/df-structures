@@ -355,7 +355,10 @@
             <flag-bit name='worshipping'/>
         </bitfield>
 
-        <stl-vector since='v0.47.01' comment='contains int32_t pairs'/>
+        <stl-vector since='v0.47.01'>
+            <int32_t/>
+            <enum name='profession' base-type='uint16_t' type-name='profession'/>
+        </stl-vector>
         <stl-vector name='entity_links' pointer-type='entity_entity_link'/>
         <stl-vector name='site_links' pointer-type='entity_site_link'/>
 
@@ -1226,53 +1229,82 @@
     <struct-type type-name='agreement' key-field='id'
                  instance-vector='$global.world.agreements.all'>
         <int32_t name='id'/>
-        <stl-vector name='parties'>
-            <pointer>
-                <int32_t name='id'/>
-                <stl-vector type-name='int32_t' name='histfig_ids' ref-target='historical_figure'/>
-                <stl-vector type-name='int32_t' name='entity_ids' ref-target='historical_entity'/>
-                <stl-vector>
-                    <pointer>
-                        <int32_t/>
-                        <int32_t/>
-                        <int32_t/>
-                        <int32_t/>
-                    </pointer>
-                </stl-vector>
-            </pointer>
-        </stl-vector>
+        <stl-vector name='parties' pointer-type='agreement_party'/>
         <int32_t name='next_party_id'/>
-        <stl-vector name='details'>
-            <pointer>
-                <int32_t name='id'/>
-                <int32_t name='year'/>
-                <int32_t name='year_tick'/>
-                <compound name='data' is-union='true'>
-                    <pointer name='data0'>
-                        <int32_t/>
-                        <int32_t/>
-                        <int32_t/>
-                        <int32_t/>
-                        <int32_t/>
-                        <int32_t/>
-                    </pointer>
-                    <pointer name='data1'>
-                        <enum name='reason' base-type='int32_t' type-name='history_event_reason'/>
-                        <int32_t/>
-                        <int32_t/>
-                        <int32_t name='site' ref-target='world_site'/>
-                        <int32_t name='artifact' ref-target='artifact_record'/>
-                        <int32_t/>
-                    </pointer>
-                </compound>
-                <int32_t name='type'/>
-            </pointer>
-        </stl-vector>
+        <stl-vector name='details' pointer-type='agreement_details'/>
         <int32_t name='next_details_id'/>
         <int32_t/>
         <int32_t/>
         <int32_t since='v0.42.01'/>
     </struct-type>
+
+    <struct-type type-name='agreement_party' key-field='id'>
+        <int32_t name='id'/>
+        <stl-vector type-name='int32_t' name='histfig_ids' ref-target='historical_figure'/>
+        <stl-vector type-name='int32_t' name='entity_ids' ref-target='historical_entity'/>
+        <stl-vector>
+            <pointer>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+                <int32_t/>
+            </pointer>
+        </stl-vector>
+    </struct-type>
+
+    <struct-type type-name='agreement_details' key-field='id'>
+        <int32_t name='id'/>
+        <int32_t name='year'/>
+        <int32_t name='year_tick'/>
+        <compound name='data' is-union='true'>
+            <pointer name='Residency' type-name='agreement_details_data_residency'/>
+            <pointer name='Citizenship' type-name='agreement_details_data_citizenship'/>
+            <pointer name='Parley' type-name='agreement_details_data_parley'/>
+            <pointer name='Location' type-name='agreement_details_data_location'/>
+        </compound>
+        <enum name='type' base-type='int32_t'>
+            <enum-item/>
+            <enum-item/>
+            <enum-item name='Residency'/>
+            <enum-item name='Citizenship'/>
+            <enum-item name='Parley'/>
+            <enum-item/>
+            <enum-item/>
+            <enum-item/>
+            <enum-item/>
+            <enum-item/>
+            <enum-item/>
+            <enum-item/>
+            <enum-item name='Location'/>
+        </enum>
+    </struct-type>
+
+    <struct-type type-name='agreement_details_data_residency'>
+        <enum name='reason' base-type='int32_t' type-name='history_event_reason'/>
+        <int32_t name='party_id' ref-target='agreement_party'/>
+        <int32_t/>
+        <int32_t name='site' ref-target='world_site'/>
+    </struct-type>
+    <struct-type type-name='agreement_details_data_citizenship'>
+        <int32_t name='party_id' ref-target='agreement_party'/>
+    </struct-type>
+    <struct-type type-name='agreement_details_data_parley'>
+        <int32_t/>
+        <int32_t name='party_id' ref-target='agreement_party'/>
+    </struct-type>
+    <struct-type type-name='agreement_details_data_location'>
+       <int32_t name='party_id' ref-target='agreement_party'/>
+       <int32_t/>
+       <int32_t name='site' ref-target='world_site'/>
+       <enum name='type' base-type='int32_t' type-name='abstract_building_type'/>
+       <int32_t/>
+       <int32_t/>
+       <int32_t/>
+       <enum base-type='int32_t'>
+           <enum-item name='Minor' value='1' comment='temple or guildhall'/>
+           <enum-item name='Major' value='2' comment='temple complex or grand guildhall'/>
+       </enum>
+   </struct-type>
 
 </data-definition>
 
