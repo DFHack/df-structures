@@ -1,5 +1,7 @@
 sudo: false
 language: generic
+services:
+  - docker
 env:
   - PERL_VERSION="5.24"
   - PERL_VERSION="5.22"
@@ -13,15 +15,8 @@ addons:
       - libxml-libxml-perl
       - libxml-libxslt-perl
 script:
-- which -a perlbrew
-- perlbrew --version
-- curl -L https://install.perlbrew.pl | bash
-- which -a perlbrew
-- perlbrew --version
-- perlbrew install "$PERL_VERSION"
-- perlbrew use "$PERL_VERSION"
 - xmllint --noout df.*.xml symbols.xml
-- perl ./codegen.pl | tee codegen-out.txt
+- docker run --rm -v .:/xml perl:${PERL_VERSION}-slim perl /xml/codegen.pl | tee codegen-out.txt
 - if grep -i error codegen-out.txt; then false; else true; fi
 notifications:
   email: false
