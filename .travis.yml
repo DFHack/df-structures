@@ -3,10 +3,10 @@ language: generic
 services:
   - docker
 env:
+  - PERL_VERSION="5.30"
+  - PERL_VERSION="5.28"
   - PERL_VERSION="5.24"
-  - PERL_VERSION="5.22"
   - PERL_VERSION="5.20"
-  - PERL_VERSION="5.18"
   - PERL_VERSION="5.16"
 addons:
   apt:
@@ -16,7 +16,7 @@ addons:
       - libxml-libxslt-perl
 script:
 - xmllint --noout df.*.xml symbols.xml
-- set -o pipefail; docker run --rm -v $PWD:/xml perl:${PERL_VERSION}-slim perl /xml/codegen.pl | tee codegen-out.txt
+- docker run --rm -v $PWD:/xml -v ./travis/run-codegen.bash:/run-codegen.bash -v ./codegen-out.txt:/out.txt perl:${PERL_VERSION}-slim bash /run-codegen.bash
 - if grep -i error codegen-out.txt; then false; else true; fi
 notifications:
   email: false
