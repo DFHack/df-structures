@@ -703,6 +703,20 @@
         <int32_t/>
     </struct-type>
 
+    <struct-type type-name='divination_set_roll'>
+        <stl-vector name='result' type-name='int32_t' comment="if a single element, the value of the die or the sum of the dice. If two numbers the first is the result and the second the die"/>
+        <int32_t name='effect_type' comment="Looks like enum 0-4, presumably controlling the interpretation of 'effect'"/>
+        <int32_t name='effect' comment="Effect? 0-3: 697 - 11600 seen. 4: 0-119 seen"/>
+    </struct-type>
+    
+    <struct-type type-name='divination_set'>
+        <int32_t name='id' comment="currently matches index into vector"/>
+        <int32_t name='unk_v47_2' comment="seems to be mutually exclusive with owner_id, but what does it refer to?"/>
+        <int32_t name='owner_id' ref-target='historical_entity' comment="religion owning the set"/>
+        <stl-vector name='unk_v47_4' type-name='int32_t' comment="seems to increase slightly faster than id. Religion number?"/>
+        <stl-vector name='rolls' pointer-type='divination_set_roll'/>
+    </struct-type>
+
     <struct-type type-name='world'>
         dtor 89fff80
         <!-- <compound> -->
@@ -1143,8 +1157,8 @@
         </compound>
 
         <compound name='divination_sets' since='v0.47.01'>
-            <stl-vector name='all'/>
-            <stl-vector name='bad' has-bad-pointers='true'/>
+            <stl-vector name='all' pointer-type='divination_set'/>
+            <stl-vector name='bad' pointer-type='divination_set' has-bad-pointers='true'/>
         </compound>
 
         <pointer name='selected_building' type-name='building'/>
