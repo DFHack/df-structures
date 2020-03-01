@@ -449,7 +449,8 @@ sub type_identity_reference($%) {
 
     if ($meta eq 'enum-type' || $subtype eq 'enum' ||
         $meta eq 'bitfield-type' || $subtype eq 'bitfield' ||
-        is_attr_true($tag, 'ld:in-union'))
+        is_attr_true($tag, 'ld:in-union') ||
+        is_attr_true($tag, 'is-union'))
     {
         return 'TID('.$fqn.')';
     } else {
