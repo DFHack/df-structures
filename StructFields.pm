@@ -472,7 +472,7 @@ sub render_field_metadata_rec($$) {
         my @items = $field->findnodes('ld:item');
         my $count = 0;
         $count |= 1 if is_attr_true($field, 'is-array');
-        $count |= 2 if $in_union || is_attr_true($field, 'has-bad-pointers');
+        $count |= 2 if is_attr_true($field, 'has-bad-pointers');
 
         push @field_defs, [ "${FLD}(POINTER, $name)", auto_identity_reference($items[0]), $count, $enum ];
     } elsif ($meta eq 'static-array') {
@@ -543,6 +543,13 @@ sub emit_struct_fields($$;%) {
     my @fields = get_struct_fields($tag);
     &render_struct_field($_) for @fields;
 
+    my $identity_type = 'struct_identity';
+    if ($flags{-class}) {
+        $identity_type = 'virtual_identity';
+    } elsif (is_attr_true($tag, 'is-union')) {
+        $identity_type = 'union_identity';
+    }
+
     my $full_name = fully_qualified_name($tag, $name, 1);
     my $fields_group = lc(substr($full_name, 0, 1));
     my %info;
@@ -552,14 +559,14 @@ sub emit_struct_fields($$;%) {
 
         with_emit_traits {
             emit_block {
-                emit "static struct_identity identity;";
-                emit "static struct_identity *get() { return &identity; }";
+                emit "static $identity_type identity;";
+                emit "static $identity_type *get() { return &identity; }";
             } "template<> struct ${export_prefix}$traits_name ", ";";
         };
 
         with_emit_static {
             my $ftable = render_field_metadata $tag, $full_name, @fields, %info;
-            emit "struct_identity ${traits_name}::identity(",
+            emit "$identity_type ${traits_name}::identity(",
                     "sizeof($full_name), &allocator_fn<${full_name}>, ",
                     type_identity_reference($tag,-parent => 1), ', ',
                     "\"$name\", NULL, $ftable);";
@@ -582,11 +589,7 @@ sub emit_struct_fields($$;%) {
     my $inherits = $flags{-inherits};
     my $original_name = $tag->getAttribute('original-name');
 
-    if ($flags{-class}) {
-        emit "static virtual_identity _identity;";
-    } else {
-        emit "static struct_identity _identity;";
-    }
+    emit "static $identity_type _identity;";
 
     with_emit_static {
         local @simple_inits;
@@ -633,7 +636,7 @@ sub emit_struct_fields($$;%) {
                     ($inherits ? "&${inherits}::_identity" : 'NULL'), ',',
                     "$ftable);";
         } else {
-            emit "struct_identity ${full_name}::_identity(",
+            emit "$identity_type ${full_name}::_identity(",
                     "sizeof($full_name), &allocator_fn<${full_name}>, ",
                     type_identity_reference($tag,-parent => 1), ', ',
                     "\"$name\",",
