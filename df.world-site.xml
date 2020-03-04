@@ -66,7 +66,7 @@
         <enum-item name='Unk3'/>
         <enum-item name='AllowVisitors'/>
         <enum-item name='AllowResidents'/>
-        <enum-item name='Unk6'/>
+        <enum-item name='OnlyMembers'/>
         <enum-item name='Unk7'/>
     </enum-type>
 
@@ -87,22 +87,22 @@
     </struct-type>
 
     <struct-type type-name='abstract_building_contents'> used within Temple, Library, and Inn/Tavern
-        <int32_t name="unk_e4"/>
-        <int16_t name="unk_v47_1" since='v0.47.01' init-value='-1'/>
-        <int32_t name="desired_goblets"/>
-        <int32_t name="desired_instruments"/>
-        <int32_t name="desired_paper"/>
-        <int32_t name="desired_copies"/>
+        <int32_t name='unk_e4'/>
+        <enum name='profession' type-name='profession' since='v0.47.01'/>
+        <int32_t name='desired_goblets'/>
+        <int32_t name='desired_instruments'/>
+        <int32_t name='desired_paper'/>
+        <int32_t name='desired_copies' init-value='2'/>
 
         the following is not saved:
-        <int32_t name="count_goblets"/>
-        <int32_t name="count_instruments"/>
-        <int32_t name="count_paper"/>
-        <int32_t name="unk_104"/>
-        <int32_t name="unk_v47_2"/>
-        <int32_t name="unk_v47_3"/>
-        <int32_t name="unk_v47_4"/>
-        <stl-vector name="building_ids" type-name='int32_t' ref-target='building'/>
+        <int32_t name='location_tier'/>
+        <int32_t name='location_value'/>
+        <int32_t name='count_goblets'/>
+        <int32_t name='count_instruments'/>
+        <int32_t name='count_paper'/>
+        <int32_t name='unk_v47_2' init-value='100'/>
+        <int32_t name='unk_v47_3'/>
+        <stl-vector name='building_ids' type-name='int32_t' ref-target='building'/>
     </struct-type>
 
     <class-type type-name='abstract_building' original-name='abstract_buildingst' key-field='id'>
@@ -179,10 +179,20 @@
         <compound name='name' type-name='language_name'/>
     </class-type>
 
+    <enum-type type-name='temple_deity_type' base-type='int32_t'>
+        <enum-item name='None' value='-1'/>
+        <enum-item name='Deity'/>
+        <enum-item name='Religion'/>
+    </enum-type>
+
+    <struct-type type-name='temple_deity_data' is-union='true'>
+        <int32_t name='Deity' ref-target='historical_figure'/>
+        <int32_t name='Religion' ref-target='historical_entity'/>
+    </struct-type>
+
     <class-type type-name='abstract_building_templest' inherits-from='abstract_building'>
-        <int32_t name='deity' ref-target='historical_figure'/>
-        <int32_t name='religion' ref-target='historical_entity'
-                 comment='returned by the vmethod after the destructor'/>
+        <enum name='deity_type' type-name='temple_deity_type'/>
+        <compound name='deity_data' type-name='temple_deity_data'/>
         <compound name='name' type-name='language_name'/>
         <compound name='contents' type-name='abstract_building_contents'/>
     </class-type>
@@ -251,20 +261,7 @@
 
     <class-type type-name='abstract_building_guildhallst' inherits-from='abstract_building'>
         <compound name='name' type-name='language_name'/>
-        <int32_t/>
-        <int16_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <stl-vector type-name='int32_t' comment='4 bytes allocated seen. Too small for pointer'/>
+        <compound name='contents' type-name='abstract_building_contents'/>
     </class-type>
 
     <class-type type-name='abstract_building_towerst' inherits-from='abstract_building'>
