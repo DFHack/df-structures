@@ -386,14 +386,14 @@
         <int16_t name='z'/>
     </struct-type>
 
-    <struct-type type-name='world_unk_9c'>
-        <compound type-name='coord2d' name='region'/>
-        <compound type-name='coord2d' name='embark'/>
+    <struct-type type-name='embark_feature' comment="layers plus river seen">
+        <compound type-name='coord2d' name='world_tile'/>
+        <compound type-name='coord2d' name='mid_level_tile' comment="the MLT the feature resides in"/>
         <int16_t name='local_feature_idx'/>
         <int32_t name='global_feature_idx' ref-target='world_underground_region'/>
         <int32_t name='unk10'/>
         <enum name='layer' type-name='layer_type' base_type='int16_t'/>
-        <compound type-name='coord2d' name='local'/>
+        <compound type-name='coord2d' name='local' comment="the top left corner of the MLT, in embark relative coordinates"/>
         <int16_t name='z_min'/>
         <int16_t name='z_max'/>
     </struct-type>
@@ -739,13 +739,13 @@
         <stl-vector name='ocean_waves' pointer-type='ocean_wave'/>
         <stl-vector name='constructions' pointer-type='construction'/>
         <stl-vector name='murky_pools' pointer-type='coord_rect'/>
-        <stl-vector name='unk_9C' pointer-type='world_unk_9c'/>
+        <stl-vector name='embark_features' pointer-type='embark_feature' comment="populated at embark"/>
         <stl-vector name='unk_A8' pointer-type='world_unk_a8'/>
         <stl-vector name='unk_B4' pointer-type='world_unk_b4'/>
         <stl-vector name='unk_C0' pointer-type='world_unk_c0'/>
         <stl-vector name='unk_CC' pointer-type='engraving'/>
         <stl-vector name='unk_D8' pointer-type='construction'/>
-        <stl-vector name='unk_E4' pointer-type='world_unk_9c'/>
+        <stl-vector name='unk_E4' pointer-type='embark_feature'/>
         <stl-vector name='unk_F0' pointer-type='world_unk_6c'/>
         <stl-vector name='unk_FC' pointer-type='coord_rect'/>
         <!-- </compound> -->
@@ -1307,13 +1307,13 @@
 
         <compound name='raws' type-name='world_raws'/>
 
-        <compound name='unk_59dc4'>
-            <compound name='regions' type-name='coord2d_path'/>
-            <stl-vector name='unk1'>
+        <compound name='area_grasses' comment="grasses in world tiles around embark. Populated at embark">
+            <compound name='world_tiles' type-name='coord2d_path' comment="7*7 world tile area centered around embark, stunted at edges"/>
+            <stl-vector name='layer_grasses' comment="one per layer per world tile">
                 <pointer>
                     <compound name='ref' type-name='world_population_ref'/>
-                    <stl-vector name='unk'>
-                        <int32_t/>
+                    <stl-vector name='grasses'>
+                        <int32_t ref-target='plant_raw'/>
                     </stl-vector>
                 </pointer>
             </stl-vector>
@@ -1526,19 +1526,19 @@
         </stl-vector>
         <stl-vector name='unk_131ef0' since='v0.44.01'>
             <pointer>
-                <int32_t name='unk_1'/>
-                <stl-vector name='unk_2'>
+                <int32_t name='hfid' ref-target='historical_figure' comment="confusing. usually the creator, but sometimes completely unrelated or culled"/>
+                <stl-vector name='claims'>
                     <pointer>
-                        <int32_t/>
-                        <int32_t/>
-                        <int32_t/>
-                        <int32_t/> -1
-                        <int32_t/> -1
+                        <int32_t name='artifact' ref-target='artifact_record'/>
+                        <int32_t comment="only seen 1, and only family heirloom..."/>
+                        <int32_t name='year' comment="matches up with creation or a claim..."/>
+                        <int32_t name='year_tick' init-value='-1'/>
+                        <int32_t init-value='-1' comment="only seen -1"/>
                     </pointer>
                 </stl-vector>
-                <int32_t name='unk_3'/>
-                <int32_t/>
-                <int32_t/>
+                <int32_t name='unk_hfid' ref-target='historical_figure' init-value='-1' comment="hfid or completely unrelated hf seen?"/>
+                <int32_t init-value='0' comment="only seen 0"/>
+                <int32_t init-value='0' comment="only seen 0"/>
             </pointer>
         </stl-vector>
 
@@ -1595,9 +1595,11 @@
         <stl-vector name='unk_v40_5s' since='v0.40.01' type-name='int32_t'/>
 
         <int32_t name='unk_v40_6s' since='v0.40.01'/>
-        <long name='unk_v40_7s' since='v0.40.01' comment='set to 30000000'/>
+        <long name='unk_v40_7s' since='v0.40.01' comment='set to 30000000? see 0?'/>
 
         <compound name='features'>
+            <int32_t name='unk_v47_2' comment="this and the following field added to align map_features and below. Value 0 seen"/>
+            <int32_t name='unk_v47_3' comment="don't know about size and placement, and how much is bitness dependent padding. cur_savegame.name looks ok. Value 0 seen"/>
             <stl-vector name='unk_v47_1' since='0.47.01'/>
             <stl-vector name='map_features' pointer-type='feature_init'/>
             <stl-vector type-name='int16_t' name='feature_x'/>

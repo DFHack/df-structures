@@ -321,9 +321,9 @@
     <struct-type type-name='artifact_claim'>
         <int32_t name='artifact_id' ref-target='artifact_record'/>
         <enum name='claim_type' base-type='int32_t' type-name='artifact_claim_type'/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t init-value='-1'/>
+        <int32_t name='symbol_claim_id' init-value='-1' comment="different small numbers, but all claimed by the greedy necro diplomat, but not complete number range present"/>
+        <int32_t name='claim_year' init-value='-1' comment="Written contents often seem to lack info of being claimed"/>
+        <int32_t name='claim_year_tick' init-value='-1' comment="usually init"/>
         <int32_t init-value='-1'/>
         <pointer type-name='artifact_record'/>
         <int32_t init-value='-1'/>
@@ -335,15 +335,16 @@
         <int32_t init-value='-1'/>
         <int32_t comment='uninitialized'/>
         <pointer/>
+<!--  If these fields actually are part of the claim they're uninitialized, as loading the same save twice gave different contents not being legal pointers
         <pointer type-name='historical_entity'/>
-        <pointer type-name='historical_entity'/>
+        <pointer type-name='historical_entity'/>-->
     </struct-type>
 
-    <struct-type type-name='entity_unk_v47_1' comment='The vectors are of the same length and somehow connected'>
-        <int32_t name='unk_v47_1' comment="some identifier/index? Haven't found anything it could match"/>
+    <struct-type type-name='entity_unk_v47_1' comment='The 3 first vectors are of the same length and somehow connected'>
+        <int32_t name='unk_v47_1' ref-target='historical_figure' comment="seen kobold thieves and goblin snatchers, but not all thieves... seen 1 of several persecuted and expelled"/>
         <int32_t name='unk_v47_2' comment="some enum?"/>
         <stl-vector name='unk_v47_3' type-name='int32_t' comment="some enum?"/>
-        <stl-vector name='unk_v47_4' type-name='int32_t' comment="null/identifier/index?"/>
+        <stl-vector name='agreement' type-name='int32_t' ref-target='agreement'/>
         <stl-vector name='unk_v47_5' type-name='int32_t' comment="boolean?"/>
         <stl-vector name='unk_v47_6' type-name='int32_t' comment="4 byte data size seen, so not pointer"/>
         <stl-vector name='unk_v47_7' type-name='int32_t' comment="4 byte data size seen, so not pointer"/>
@@ -408,10 +409,10 @@
             <flag-bit name='unk26' comment="Set for a significant number of entities"/>
         </bitfield>
 
-        <stl-vector since='v0.47.01'>
+        <stl-vector name='guild_professions' since='v0.47.01' comment="Only seen 1, and only for guilds">  
             <pointer>
-                <int32_t/>
-                <enum name='profession' base-type='uint16_t' type-name='profession'/>
+                <int32_t name='id' comment="Guess, but all are 0, and it matches the standard pattern"/>
+                <enum name='profession' base-type='int16_t' type-name='profession'/>
             </pointer>
         </stl-vector>
         <stl-vector name='entity_links' pointer-type='entity_entity_link'/>
@@ -573,13 +574,13 @@
         <int32_t name='next_uniform_id'/>
 
         <compound name='unknown1b'>
-            <stl-vector name='unk32a' type-name='int32_t'/>
+            <stl-vector name='known_sites' type-name='int32_t' ref-target='world_site' comment="only civs and site government. Fresh player site government has empty vector"/>
             <stl-vector name='deities' type-name='int32_t' ref_target='historical_figure'/>
             <stl-vector name='worship' type-name='int32_t' comment="Same length as deities(?). Some kind of relationship strength?"/>
             <stl-vector name='belief_systems' type-name='int32_t' ref-target="belief_system" comment="In Religion type entities established by prophets after having developed their own belief system, the ID of this belief system is contained here."/>
             <stl-vector name='unk32e'>
                 <pointer>
-                    <stl-vector type-name='int16_t'/>
+                    <stl-vector type-name='int16_t' comment="seems to be the same length as the next one, possibly forming coordinates. Only seen on civs"/>
                     <stl-vector type-name='int16_t'/>
                     <int32_t/>
                     <int32_t/>
@@ -602,11 +603,11 @@
             </stl-vector>
 
             <int16_t name='unk33'/>
-            <stl-vector name='unk34a' type-name='int16_t'/>
+            <stl-vector name='unk34a' type-name='int16_t' comment="same length as unk34b and unk34c"/>
             <stl-vector name='unk34b' type-name='int16_t'/>
             <stl-vector name='unk34c' type-name='int32_t'/>
-            <stl-vector name='unk34d' type-name='int32_t' comment='empty'/>
-            <stl-vector name='unk34e' type-name='int32_t' ref-target='historical_figure' comment='empty'/>
+            <stl-vector name='position' type-name='int32_t' comment="position index (not id)"/>
+            <stl-vector name='official' type-name='int32_t' ref-target='historical_figure' comment="holder of office of corresponding position index"/>
         </compound>
 
         <compound name='positions'>
@@ -672,15 +673,15 @@
         <stl-vector name='honors' pointer-type='honors_type' since='v0.47.01' comment='Only merc companies. Matches #Honors groups in Legends Viewer'/>
         <int32_t name='next_honors_index' since='v0.47.01'/>
 
-        <int32_t since='v0.47.01'/>
-        <int32_t since='v0.47.01'/>
-        <int32_t since='v0.47.01'/>
+        <int32_t name='equipment_purchases' since='v0.47.01' comment="only seen on military units"/>
+        <int32_t name='attack' since='v0.47.01' comment="only seen on military units"/>
+        <int32_t name='total_battles' since='v0.47.01' comment="attacks + defenses. Only seen on military units"/>
 
         <pointer name='unk_v47_1' since='v0.47.01'>
             <stl-vector name='unk_v47_1' pointer-type='entity_unk_v47_1'/>
-            <stl-vector name='unk_v47_2' type-name='int32_t'/>
+            <stl-vector name='foiled_plot_agreements' type-name='int32_t' ref-target='agreement' comment="Mostly a guess. The foiled plot agreement out of 2 appeared here"/>
             <stl-vector name='unk_v47_3'/>
-            <int32_t name='unk_v47_4'/>
+            <int32_t name='unk_v47_4' comment="0 and 1 seen, so might be boolean"/>
         </pointer>
 
         <stl-vector name='divination_sets' type-name='int32_t' since='v0.47.01' comment="Guess. Only on religions, but not all. start at 350 and added sequentially in Religion formation order. Last religion # = last divination set index"/>
