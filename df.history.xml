@@ -1343,11 +1343,15 @@
         <int32_t name='unk_c4' init-value='-1'/>
     </struct-type>
 
+    <enum-type type-name='history_event_flags'>
+        <enum-item name='hidden' comment='event is hidden from legends mode when this is set'/>
+    </enum-type>
+
     <class-type type-name='history_event' original-name='history_eventst'
                 instance-vector='$global.world.history.events' key-field='id'>
         <int32_t name='year'/>
         <int32_t name='seconds'/>
-        <df-flagarray name='flags'/>
+        <df-flagarray name='flags' index-enum='history_event_flags'/>
         <int32_t name='id'/>
 
         <virtual-methods>
@@ -1683,14 +1687,14 @@
 
     <class-type type-name='history_event_artifact_createdst' inherits-from='history_event'>
         <int32_t name='artifact_id' ref-target='artifact_record'/>
-        <int32_t name='unit_id' ref-target='unit'/>
-        <int32_t name='hfid' ref-target='historical_figure'/>
+        <int32_t name='creator_unit_id' ref-target='unit' comment='the unit who created the artifact'/>
+        <int32_t name='creator_hfid' ref-target='historical_figure' comment='the figure who created the artifact'/>
         <int32_t name='site' ref-target='world_site'/>
         <uint32_t name='flags2' comment='1 = name_only'/>
-        <int32_t name='unk_1' init-value='-1' comment="set when victim or donor set. 229 for victim, 231 (always totem) or 230 (everything else) for donor (in tested save)"/>
-        <int32_t name='victim' ref-target='historical_figure' init-value='-1' comment="character whose defeat prompted naming"/>
-        <int32_t name='unk_2' init-value='-1' comment="set to 69 (in tested save) when donor is present"/>
-        <int32_t name='donor' ref-target='historical figure' init-value='-1' comment="character whose body part was used to create the artifact"/>
+        <int32_t name='unk_1' init-value='-1' comment='set when victim_id or reason_id set. 229 for victim_id, 231 (always totem) or 230 (everything else) for reason_id (in tested save)'/>
+        <int32_t name='victim_id' ref-target='historical_figure' init-value='-1' comment='character whose defeat prompted naming of the artifact item'/>
+        <enum base-type='int32_t' name='reason' type-name='history_event_reason' init-value='-1'/>
+        <int32_t name='reason_id' init-value='-1' comment='What this refers to varies depending on the reason, so this is not necessarily a hist fig ID. When the reason is to sanctify a person, this is the hist fig ID of that person.'/>
     </class-type>
 
     <class-type type-name='history_event_artifact_lostst' inherits-from='history_event'>
