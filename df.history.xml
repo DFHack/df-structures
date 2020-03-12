@@ -74,6 +74,27 @@
         <enum-item name='Intruder'/>
     </enum-type>
 
+    <!-- This enum is tentative -->
+    <enum-type type-name='whereabouts_type' base-type='int16_t'>
+        <enum-item name='wanderer' comment="wandering the wilds/region/depths of the world (none/region/underground_region)"/>
+        <enum-item name='settler' comment="site/region, region only for dead 'monsters'"/>
+        <enum-item name='refugee' comment="into region only for dead. refugees and abucted-imprisoned-turned"/>
+        <enum-item name='army_died' comment="either no record of participation in battle, or character died and defender won (character on either side)"/>
+        <enum-item name='army_survived' comment="either no record of participation in battle, or character survived and defender won (character on either side)"/>
+        <enum-item name='visitor' comment="'visited' as last movement seems to be the key"/>
+    </enum-type>
+
+    <!-- This enum is very tentative -->
+    <enum-type type-name='death_condition_type' base-type='int8_t'>
+        <enum-item name='no_statement' comment="alive or dead, but death conditions not registered here"/>
+        <enum-item name='site_battle' comment="parameters: site id + optional structure"/>
+        <enum-item name='region_battle' comment="parameters: two unknown values, usually small, with same pair being the same region, but neither is region_id"/>
+        <enum-item name='wilderness' comment="parameters: region_id + -1"/>
+        <enum-item/>
+        <enum-item name='entombed' comment="same parameters as for site_battle, but structure seems to always be present and be a tomb"/>
+        <enum-item name='site' comment="same parameters as for site_battle, old age and deadly confrontation seen"/>
+    </enum-type>
+
     <struct-type type-name='historical_figure_info'>
         <pointer name="spheres">
             <stl-vector>
@@ -86,26 +107,28 @@
                 <enum base-type='int16_t' type-name='job_skill'/>
             </stl-vector>
             <stl-vector name="points" type-name='int32_t' index-refers-to='$$._parent.skills[$]'/>
-            <stl-vector name="unk_20" type-name='int16_t'/>
-            <stl-vector name="unk_30" type-name='int32_t'/>
+            <stl-vector name="professions_held">
+                <enum base-type='int16_t' type-name='profession'/>
+            </stl-vector>
+            <stl-vector name="profession_years" type-name='int32_t' comment="Number of years on each profession above. Need not be consecutive, so non registered periods can happen"/>
 
             only a guess since most of figures have 102 (STANDARD); some have stuff like CLERK, SCOUT, BEAST_HUNTER, etc
             <enum base-type='int16_t' name='profession' type-name='profession'/>
             <int32_t since='v0.44.01'/>
             <int32_t since='v0.47.02'/>
-            <pointer since='v0.47.02'>
-                <stl-vector>
+            <pointer name='employment_held' since='v0.47.02'>
+                <stl-vector name='employment'>
                     <pointer>
-                        <int32_t/>
+                        <int32_t name='employer' ref-target='historical_entity'/>
                         <stl-vector type-name='int32_t'/>
+                        <int32_t name='years_employed'/>
                         <int32_t/>
-                        <int32_t/>
-                        <int32_t/>
-                        <int32_t/>
+                        <int32_t name='employment_year'/>
+                        <int32_t name='employment_year_tick'/>
                     </pointer>
                 </stl-vector>
-                <int32_t/>
-                <int32_t/>
+                <int32_t name='resignment_year'/>
+                <int32_t name='resignment_year_tick'/>
             </pointer>
         </pointer>
 
@@ -125,23 +148,23 @@
             <stl-vector name='unk_v43_2' type-name='int16_t' since='v0.43.01'/>
         </pointer>
 
-        <pointer name="unk_14">
-            <int16_t name="unk_0"/>
-            <int32_t name="site" ref-target='world_site'/>
-            <int32_t name="region_id" ref-target='world_region'/>
-            <int32_t name="beast_id" init-value='-1' comment='for FB'/>
-            <int32_t name="army_id" ref-target='army'/>
-            <int32_t/>
-            <int32_t/>
-            <int32_t/>
+       <!-- This pointer contents is tentative -->
+       <pointer name='whereabouts'>
+            <enum name='whereabouts_type' type-name='whereabouts_type' base-type='int16_t'/>
+            <int32_t name="site" ref-target='world_site' init-value='-1'/>
+            <int32_t name="region_id" ref-target='world_region' init-value='-1'/>
+            <int32_t name="underground_region_id" ref-target='world_underground_region' init-value='-1'/>
+            <int32_t name="army_id" ref-target='army' init-value='-1'/>
+            <int32_t comment="uninitialized?"/>
+            <int32_t init-value='-1'/>
+            <int32_t comment="this value and the next one seem to always have the same values for the same site. Cannot find any match for them, though"/>
             <int32_t/>
             <compound name='region' type-name='coord2d'/>
-            <int8_t name="unk_14"/>
-            <int32_t name="unk_18"/>
-            <int32_t name="unk_1c"/>
-            <int32_t name="unk_34" since='v0.42.01'/>
-            <int16_t name="unk_38" since='v0.42.01'/>
-            <int16_t name="unk_3a" since='v0.42.01'/>
+            <enum name='death_condition' type-name='death_condition_type' base-type='int8_t'/>
+            <int32_t name='death_condition_parameter_1' comment="-1/site     /?/region_id/?/site     /site"/>
+            <int32_t name='death_condition_parameter_2' comment="-1/structure/?/-1       /?/structure/structure"/>
+            <int32_t name='year' since='v0.42.01' comment="time of arrival at site/region_id, not time of death"/>
+            <int32_t name='year_tick' since='v0.42.01'/>
         </pointer>
 
         <pointer name="kills" type-name='historical_kills'/>
