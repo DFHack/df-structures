@@ -95,6 +95,46 @@
         <enum-item name='site' comment="same parameters as for site_battle, old age and deadly confrontation seen"/>
     </enum-type>
 
+    <enum-type type-name='plot_role_type' base-type='int32_t'>
+        <enum-item name='None' value='-1'/>
+        <enum-item name='Possible_Threat'/>
+        <enum-item name='Rebuffed'/>
+        <enum-item name='Source_Of_Funds'/>
+        <enum-item name='Source_Of_Funds_For_Master'/>
+        <enum-item name='Master'/>
+        <enum-item name='Suspected_Criminal'/>
+        <enum-item name='Asset'/>
+        <enum-item name='Lieutenant'/>
+        <enum-item name='Usable_Thief'/>
+        <enum-item name='Potential_Employer'/>
+        
+        <enum-item/>
+        <enum-item name='Corrupt_Position_Holder'/>
+        <enum-item name='Delivery_Target'/>
+        <enum-item name='Handler'/>
+        <enum-item name='Usable_Assassin'/>
+        <enum-item/>
+        <enum-item name='Enemy'/>
+        <enum-item name='Usable_Snatcher'/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item name='Underworld_Contact'/>
+        <enum-item name='Possibly_Unknown_Director'/>
+    </enum-type>
+
+    <enum-type type-name='plot_strategy_type' base-type='int32_t'>
+        <enum-item name='None' value='-1'/>
+        <enum-item name='Corrupt_And_Pacify'/>
+        <enum-item name='Obey'/>
+        <enum-item name='Avoid'/>
+        <enum-item name='Use'/>
+        <enum-item name='Tax'/>
+        <enum-item name='Neutralize'/>
+        <enum-item name='Monitor'/>
+        <enum-item name='Work_If_Suited'/>
+        <enum-item name='Torment'/>
+    </enum-type>
+
     <struct-type type-name='historical_figure_info'>
         <pointer name="spheres">
             <stl-vector>
@@ -387,9 +427,9 @@
                     <int32_t name='love' comment="-100 - 100"/>
                     <int32_t name='trust' comment="-100 - 100"/>
                     <int32_t comment="0 - 60 seen"/>
-                    <int32_t name='year' comment="probably latest contact. Seen -1"/>
-                    <int32_t name='year_tick'/>
-                    <int32_t/>
+                    <int32_t name='last_meet_year' comment="probably latest contact. Seen -1"/>
+                    <int32_t name='last_meet_seconds72'/>
+                    <int32_t name='meet_count'/>
                     <int32_t/>
                     <int32_t/>
                     <int32_t comment='probably uninitialized'/>
@@ -446,90 +486,90 @@
                 </pointer>
             </stl-vector>
             <int32_t/>
-            <pointer name='unk'>
-                <stl-vector name='unk1' type-name='int32_t'/>
-                <stl-vector name='unk2' type-name='int32_t' comment="usually 4, but seen 6 and relevant entity"/>
-                <stl-vector name='unk3' type-name='int32_t' init-value='-1'/>
-                <stl-vector name='unk4' type-name='int32_t' init-value='-1'/>
-                <stl-vector name='unk5' comment="4 first seem to be preallocated for something?. Only subset of plots kept in vector...">
+            <pointer name='intrigues'>
+                <stl-vector name='unk1' type-name='int32_t' comment="all 4 vectors same length and only 0 and 1 seen. Only values 78-80 seen"/>
+                <stl-vector name='unk2' type-name='int32_t' comment="78:-1,79: historical_entity, 80:4/6"/>
+                <stl-vector name='unk3' type-name='int32_t' init-value='-1' comment="78: 243/244, 79/80:-1"/>
+                <stl-vector name='unk4' type-name='int32_t' init-value='-1' comment="only -1 seen"/>
+                <stl-vector name='plots'>
                     <pointer>
                         <int32_t name='id' comment="starts as index in parent vector"/>
-                        <enum name='unk5_type' base-type='int32_t'>
-                            <enum-item name='unk5_none' value='-1'/>
-                            <enum-item name='unk5_t0'/>
-                            <enum-item name='unk5_t1'/>
-                            <enum-item name='artifact_claim'/>
-                            <enum-item name='unk5_t3'/>
-                            <enum-item name='unk5_t4'/>
-                            <enum-item name='assassination'/>
+                        <enum name='plot_type' base-type='int32_t'>
+                            <enum-item name='None' value='-1'/>
+                            <enum-item name='Grow_Funding_Network'/>
+                            <enum-item name='Grow_Asset_Network'/>
+                            <enum-item name='Acquire_Artifact'/>
+                            <enum-item name='Grow_Corruption_Network'/>
+                            <enum-item name='Attain_Rank'/>
+                            <enum-item name='Assassinate_Actor'/>
                             <enum-item name='unk5_t6'/>
-                            <enum-item name='unk5_t7'/>
-                            <enum-item name='abduction'/>
-                            <enum-item name='unk5_t9'/>
-                            <enum-item name='unk5_t10'/>
-                            <enum-item name='unk5_t11'/>
-                            <enum-item name='unk5_t12'/>
-                            <enum-item name='unk5_t13'/>
-                            <enum-item name='unk5_t14'/>
-                            <enum-item name='unk5_t15'/>
+                            <enum-item name='Frame_Actor'/>
+                            <enum-item name='Kidnap_Actor'/>
+                            <enum-item name='Sabotage_Actor'/>
+                            <enum-item name='Direct_War_To_Actor'/>
+                            <enum-item name='Corrupt_Actors_Government'/>
+                            <enum-item name='Counterintelligence'/>
+                            <enum-item name='Become_Immortal'/>
+                            <enum-item name='Undead_World_Conquest'/>
+                            <enum-item name='Infiltrate_Society'/>
                         </enum>
-                        <int32_t name='parameter' init-value='-1' comment="0:1/2, 2:artifact_record, 3:1/2, 5:7/11/13/15 8:2/7/20, 10:8, 12:historical_entity, 15:entity, member and not seen"/>
-                        <int32_t name='unk5_4' comment="boolean?"/>
-                        <stl-vector name='unk5_5' type-name='int32_t' comment="looks like pointers?"/>
-                        <compound name='unk5_data' is-union='true'>
-                            <pointer name='unk5_none'/>
-                            <pointer name='unk5_t0'/>
-                            <pointer name='unk5_t1'/>
-                            <pointer name='artifact_claim'/>
-                            <pointer name='unk5_t3'/>
-                            <pointer name='unk5_t4'/>
-                            <pointer name='assassination'/>
+                        <int32_t name='parameter' init-value='-1' comment="0/3/5:local_id, 2:artifact_id, 7/8/9/10/11:actor_id, 12/15:entity_id, 1/4:not seen"/>
+                        <bool name='on_hold'/>
+                        <stl-vector name='unk5_5' comment="0:actor_id/plot_role/agreement_id seen + actor_has_messenger in one case"/>
+                        <compound name='plot_data' is-union='true'>
+                            <pointer name='None'/>
+                            <pointer name='Grow_Funding_Network'/>
+                            <pointer name='Grow_Asset_Network'/>
+                            <pointer name='Acquire_Artifact'/>
+                            <pointer name='Grow_Corruption_Network'/>
+                            <pointer name='Attain_Rank'/>
+                            <pointer name='Assassinate_Actor'/>
                             <pointer name='unk5_t6'/>
-                            <pointer name='unk5_t7'/>
-                            <pointer name='abduction'/>
-                            <pointer name='unk5_t9'>
+                            <pointer name='Frame_Actor'/>
+                            <pointer name='Kidnap_Actor'/>
+                            <pointer name='Sabotage_Actor'>
                                 <int32_t init-value='-1'/>
                                 <int32_t init-value='-1'/>
                             </pointer>
-                            <pointer name='unk5_t10'/>
-                            <pointer name='unk5_t11'/>
-                            <pointer name='unk5_t12'/>
-                            <pointer name='unk5_t13'/>
+                            <pointer name='Direct_War_To_Actor'/>
+                            <pointer name='Corrupt_Actors_Government'/>
+                            <pointer name='Counterintelligence'/>
+                            <pointer name='Become_Immortal'/>
 
-                            <pointer name='unk5_t14'>
+                            <pointer name='Undead_World_Conquest'>
                                 <stl-vector name='unk5_t14_1' type-name='int32_t'/>
                             </pointer>
-                            <pointer name='unk5_t15'>
+                            <pointer name='Infiltrate_Society'>
                                 <int32_t name='unk5_t15_1'/>
                                 <int32_t name='unk5_t15_2'/>
                                 <int32_t name='unk5_t15_3'/>
                             </pointer>
                         </compound>
-                        <int32_t name='unk5_7' init-value='-1'/>
-                        <int32_t name='unk5_8' init-value='-1' comment="5:instigator hf"/>
-                        <int32_t name='unk5_9' init-value='-1' comment="5:7/9/10 8:1/4/7"/>
-                        <int32_t name='unk5_10' init-value='-1' comment="5/8:subordinate hf in agreement"/>
-                        <int32_t name='unk5_11' init-value='-1' comment="5/8:agreement"/>
-                        <int32_t name='unk5_12' init-value='-1' comment="0:own nemesis id"/>
-                        <int32_t name='unk5_13' init-value='-1'/>
-                        <int32_t name='unk5_14' init-value='-1'/>
-                        <int32_t name='unk5_15' init-value='-1'/>
+                        <int32_t name='delegated_plot_id' init-value='-1'/>
+                        <int32_t name='delegated_plot_hfid' ref-target='historical_figure' init-value='-1'/>
+                        <int32_t name='parent_plot' init-value='-1'/>
+                        <int32_t name='parent_plot_hfid' ref-target='historical_figure' init-value='-1'/>
+                        <int32_t name='agreement' ref-target='agreement' init-value='-1'/>
+                        <int32_t name='actor_nemesis_id' ref-target='nemesis_record' init-value='-1'/>
+                        <int32_t name='unk5_13' init-value='-1' comment="0-8 seen"/>
+                        <int32_t name='plotter_nemesis_id' ref-target='nemesis_record' init-value='-1'/>
+                        <int32_t name='unk5_15' init-value='-1' comment="0-5 seen"/>
                     </pointer>
                 </stl-vector>
                 <int32_t name='next_id' comment="for the vector above"/>
                 <stl-vector name='revealed_agreements' pointer-type='agreement'/>
                 <stl-vector name='agreemeents' pointer-type='agreement'/>
-                <stl-vector name='unk9'>
+                <stl-vector name='intrigue'>
                     <pointer>
-                        <int32_t name='index' comment="into the parent vector"/>
+                        <int32_t name='id' comment="index into the parent vector (at least initially)"/>
                         <int32_t name='unk9_2' comment="0 seen"/>
-                        <int32_t name='unk9_3' ref-target='historical_figure' init-value='-1' comment="visual relation seen"/>
-                        <int32_t name='unk9_4' ref-target='historical_figure' init-value='-1' comment="visual relation seen"/>
+                        <int32_t name='hf_1' ref-target='historical_figure' init-value='-1' comment="visual relation seen"/>
+                        <int32_t name='hf_2' ref-target='historical_figure' init-value='-1' comment="visual relation seen"/>
                         <int32_t name='unk9_5' init-value='-1'/>
                         <int32_t name='unk9_6' ref-target='historical_entity' comment="site government seen. Target? Possible threat?"/>
-                        <int32_t name='handle_actor_id' init-value='-1' comment="based on xported XML instances"/>
-                        <int32_t name='unk9_8' comment="Enum? -1, 0, 1, 4, 6, 9"/>
-                        <int32_t name='unk9_9' comment="Enum? -1, 0, 3, 6, 7"/>
+                        <int32_t name='handle_actor_id' init-value='-1' comment="based on exported XML instances"/>
+                        <enum name='role' type-name='plot_role_type' base-type='int32_t'/>
+                        <enum name='strategy' type-name='plot_strategy_type' base-type='int32_t'/>
                         <int32_t name='unk9_10' init-value='-1' ref-target='historical_entity' comment="site government seen. Target? Member of/possible threat?"/>
                         <int32_t name='unk9_11' init-value='-1' comment='1 seen'/>
                         <stl-vector name='unk9_12' type-name='int32_t'/>
