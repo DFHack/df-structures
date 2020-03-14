@@ -135,6 +135,13 @@
         <enum-item name='Torment'/>
     </enum-type>
 
+    <struct-type type-name='plot_agreement'>
+        <int32_t name='actor_id' ref-target='historical_figure'/>
+        <enum name='plot_role' type-name='plot_role_type'/>
+        <int32_t name='agreement_id' ref-target='agreement'/>
+        <bool name='agreement_has_messenger'/>
+    </struct-type>
+    
     <struct-type type-name='historical_figure_info'>
         <pointer name="spheres">
             <stl-vector>
@@ -515,34 +522,34 @@
                         </enum>
                         <int32_t name='parameter' init-value='-1' comment="0/3/5:local_id, 2:artifact_id, 7/8/9/10/11:actor_id, 12/15:entity_id, 1/4:not seen"/>
                         <bool name='on_hold'/>
-                        <stl-vector name='unk5_5' comment="0:actor_id/plot_role/agreement_id seen + actor_has_messenger in one case"/>
+                        <stl-vector name='plot_agreements' pointer-type='plot_agreement'/>
                         <compound name='plot_data' is-union='true'>
-                            <pointer name='None'/>
-                            <pointer name='Grow_Funding_Network'/>
-                            <pointer name='Grow_Asset_Network'/>
-                            <pointer name='Acquire_Artifact'/>
-                            <pointer name='Grow_Corruption_Network'/>
-                            <pointer name='Attain_Rank'/>
-                            <pointer name='Assassinate_Actor'/>
+                            <pointer name='None' comment="seems uninitialized"/>
+                            <pointer name='Grow_Funding_Network' comment="seems uninitialized"/>
+                            <pointer name='Grow_Asset_Network' comment="pointer not seen"/>
+                            <pointer name='Acquire_Artifact' comment="seems uninitialized"/>
+                            <pointer name='Grow_Corruption_Network' comment="seems uninitialized"/>
+                            <pointer name='Attain_Rank' comment="pointer not seen"/>
+                            <pointer name='Assassinate_Actor' comment="pointer not seen"/>
                             <pointer name='unk5_t6'/>
-                            <pointer name='Frame_Actor'/>
-                            <pointer name='Kidnap_Actor'/>
+                            <pointer name='Frame_Actor' comment="seems uninitialized"/>
+                            <pointer name='Kidnap_Actor' comment="pointer not seen"/>
                             <pointer name='Sabotage_Actor'>
-                                <int32_t init-value='-1'/>
-                                <int32_t init-value='-1'/>
+                                <int32_t init-value='-1' comment="not seen anything else"/>
+                                <int32_t init-value='-1' comment="not seen anything else"/>
                             </pointer>
-                            <pointer name='Direct_War_To_Actor'/>
-                            <pointer name='Corrupt_Actors_Government'/>
-                            <pointer name='Counterintelligence'/>
-                            <pointer name='Become_Immortal'/>
+                            <pointer name='Direct_War_To_Actor' comment="pointer not seen"/>
+                            <pointer name='Corrupt_Actors_Government' comment="pointer not seen"/>
+                            <pointer name='Counterintelligence' comment="pointer not seen"/>
+                            <pointer name='Become_Immortal' comment="pointer not seen"/>
 
                             <pointer name='Undead_World_Conquest'>
-                                <stl-vector name='unk5_t14_1' type-name='int32_t'/>
+                                <stl-vector name='unk5_t14_1' type-name='int32_t' comment="seems like sorted sequence of double digit numbers"/>
                             </pointer>
                             <pointer name='Infiltrate_Society'>
-                                <int32_t name='unk5_t15_1'/>
-                                <int32_t name='unk5_t15_2'/>
-                                <int32_t name='unk5_t15_3'/>
+                                <int32_t name='action' comment="8:prepare coup, 9:steal treasures and prepare coup. Bitmap?"/>
+                                <int32_t name='unk5_t15_2' init-value='-1' comment="not seen anything else"/>
+                                <int32_t name='unk5_t15_3' init-value='0' comment="not seen anything else"/>
                             </pointer>
                         </compound>
                         <int32_t name='delegated_plot_id' init-value='-1'/>
@@ -556,7 +563,7 @@
                         <int32_t name='unk5_15' init-value='-1' comment="0-5 seen"/>
                     </pointer>
                 </stl-vector>
-                <int32_t name='next_id' comment="for the vector above"/>
+                <int32_t name='next_plot_id'/>
                 <stl-vector name='revealed_agreements' pointer-type='agreement'/>
                 <stl-vector name='agreemeents' pointer-type='agreement'/>
                 <stl-vector name='intrigue'>
@@ -575,7 +582,7 @@
                         <stl-vector name='unk9_12' type-name='int32_t'/>
                     </pointer>
                 </stl-vector>
-                <int32_t name='next_id_2' comment="for the vector above"/>
+                <int32_t name='next_intrigue_id'/>
                 <stl-vector name='unk11' type-name='int32_t' comment="4 bytes allocated observed, which cant' host a pointer"/>
                 <stl-vector name='unk12'/>
                 <int32_t name='unk13'/>
@@ -746,20 +753,10 @@
 
         <pointer name='info' type-name='historical_figure_info'/>
 
-        <pointer name='vague_relationships'>
-            <int32_t name='hfid_1' ref-target='historical_figure'/>
-            <int32_t name='hfid_2' ref-target='historical_figure' init-value='0'/>
-            <int32_t name='hfid_3' ref-target='historical_figure' init-value='0'/>
-            <int32_t name='hfid_4' ref-target='historical_figure' init-value='0'/>
-            <int32_t name='hfid_5' ref-target='historical_figure' init-value='0'/>
-            <int32_t name='hfid_6' ref-target='historical_figure' init-value='0'/>
-            <enum name='relationship_1' type-name='vague_relationship_type'/>
-            <enum name='relationship_2' type-name='vague_relationship_type' comment="uninitialized"/>
-            <enum name='relationship_3' type-name='vague_relationship_type' comment="uninitialized"/>
-            <enum name='relationship_4' type-name='vague_relationship_type' comment="uninitialized"/>
-            <enum name='relationship_5' type-name='vague_relationship_type' comment="uninitialized"/>
-            <enum name='relationship_6' type-name='vague_relationship_type' comment="uninitialized"/>
-            <int32_t name='count' comment="number of hfs/relationships above"/>
+        <pointer name='vague_relationships' comment="Do hot have to be available mutually, i.e. DF can display Legends relations forming for the other party that does not have an entry (plus time and other conditions not located)">
+            <static-array name='hfid' ref-target='historical_figure' type-name='int32_t' init-value='0' count='6'/>
+            <static-array name='relationship' type-name='vague_relationship_type' count='6' comment="unused elements are uninitialized"/>
+            <int32_t name='count' comment="number of hf/relationship pairs above"/>
         </pointer>
         <pointer name="unk_f0" type-name="world_site"/>
         <pointer name="unk_f4" type-name="language_name"/>
