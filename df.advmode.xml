@@ -783,23 +783,44 @@
 
     <class-type type-name='adventure_optionst'>
         <virtual-methods>
-            <vmethod><pointer/></vmethod>
+            <vmethod name='getDescription'><pointer type-name='stl-string'/></vmethod>
             <vmethod is-destructor='true'/>
-            <vmethod ret-type='int32_t'/>
-            <vmethod ret-type='int32_t'><pointer/><pointer/><pointer/></vmethod>
-            <vmethod ret-type='int32_t' comment='coordinate'/>
+            <vmethod name='getIngestedItem'><ret-type><pointer type-name='item'/></ret-type></vmethod>
+            <vmethod name='performAction'>
+                <comment>
+                    for "pick up vermin":
 
-            <vmethod ret-type='int32_t' comment='coordinate'/>
-            <vmethod ret-type='int32_t' comment='coordinate'/>
-            <vmethod ret-type='int32_t' comment='coordinate'/>
-            <vmethod ret-type='int32_t' comment='coordinate'/>
-            <vmethod ret-type='int32_t' comment='coordinate'/>
+                    the first argument is set to the vermin index if an item was allocated and this was the last vermin of its type
+                    the second argument is set to true if an item was allocated, false otherwise
+                    the third argument is set to true if the second argument is false
+                    the first and third arguments are not changed in all other cases
+                    returns an item_verminst pointer
 
-            <vmethod/>
-            <vmethod ret-type='int32_t'/>
-            <vmethod ret-type='bool'/>
-            <vmethod ret-type='int32_t'/>
-            <vmethod ret-type='int32_t'/>
+                    for all other types (as of 0.47.04):
+
+                    does not modify arguments 1 and 2
+                    argument 3 is set to true if a fire was started
+                    returns nullptr
+                </comment>
+                <pointer type-name='int32_t'/>
+                <pointer type-name='bool'/>
+                <pointer type-name='bool'/>
+                <ret-type><pointer type-name='item'/></ret-type>
+            </vmethod>
+
+            <vmethod ret-type='int16_t' name='getPlayerPosX'/>
+            <vmethod ret-type='int16_t' name='getPlayerPosY'/>
+            <vmethod ret-type='int16_t' name='getPlayerPosZ'/>
+
+            <vmethod ret-type='int16_t' name='getTargetPosX'/>
+            <vmethod ret-type='int16_t' name='getTargetPosY'/>
+            <vmethod ret-type='int16_t' name='getTargetPosZ'/>
+
+            <vmethod name='deleteSpatter'/>
+            <vmethod name='getSuckBloodUnitID'><ret-type><int32_t ref-target='unit'/></ret-type></vmethod>
+            <vmethod name='isIngestFromContainer' ret-type='bool'/>
+            <vmethod name='getBuildingContainer'><ret-type><pointer type-name='building'/></ret-type></vmethod>
+            <vmethod name='getItemContainer'><ret-type><pointer type-name='item'/></ret-type></vmethod>
         </virtual-methods>
     </class-type>
 
@@ -811,7 +832,7 @@
     <class-type type-name='adventure_option_eat_item_contaminantst' inherits-from='adventure_optionst'>
         <pointer name='unit' type-name='unit'/>
         <pointer name='inv_item' type-name='unit_inventory_item'/>
-        <pointer/>
+        <pointer name='spatter' type-name='spatter'/>
     </class-type>
 
     <class-type type-name='adventure_option_view_contaminantst' inherits-from='adventure_optionst'>
@@ -820,17 +841,17 @@
     </class-type>
 
     <class-type type-name='adventure_environment_optionst' inherits-from='adventure_optionst'>
-        <compound name='unk1' type-name='coord'/>
-        <compound name='unk2' type-name='coord'/>
+        <compound name='target_pos' type-name='coord'/>
+        <compound name='player_pos' type-name='coord'/>
     </class-type>
 
     <class-type type-name='adventure_environment_place_in_it_containerst' inherits-from='adventure_environment_optionst'>
-        <int32_t/>
+        <pointer type-name='item' name='container'/>
     </class-type>
 
     <class-type type-name='adventure_environment_ingest_from_containerst' inherits-from='adventure_environment_optionst'>
-        <int32_t/>
-        <pointer type-name='item'/>
+        <pointer type-name='item' name='container'/>
+        <pointer type-name='item' name='food'/>
     </class-type>
 
     <class-type type-name='adventure_environment_pickup_ignite_vegst' inherits-from='adventure_environment_optionst'>
@@ -838,9 +859,9 @@
     </class-type>
 
     <class-type type-name='adventure_environment_ingest_materialst' inherits-from='adventure_environment_optionst'>
-        <int16_t/>
-        <int32_t/>
-        <int16_t/>
+        <int16_t name='mat_type'/>
+        <int32_t name='mat_index'/>
+        <enum name='mat_state' type-name='matter_state' base-type='int16_t'/>
     </class-type>
 
     <class-type type-name='adventure_environment_pickup_make_campfirest' inherits-from='adventure_environment_optionst'/>

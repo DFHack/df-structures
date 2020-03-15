@@ -759,7 +759,7 @@
             <int32_t name='count' comment="number of hf/relationship pairs above"/>
         </pointer>
         <pointer name="unk_f0" type-name="world_site"/>
-        <pointer name="unk_f4" type-name="language_name"/>
+        <pointer name="unk_f4" type-name="world_region"/>
         <pointer name="unk_f8" type-name="world_underground_region"/>
         <pointer name="unk_fc">
             <df-array name="unk_0" type-name='uint8_t'/>
@@ -1363,6 +1363,27 @@
         </enum-item>
     </enum-type>
 
+    <struct-type type-name='history_event_reason_info'>
+        <enum name='type' type-name='history_event_reason' base-type='int32_t'/>
+        <compound name='data' is-union='true' init-value='-1'>
+            <int32_t name='glorify_hf' ref-target='historical_figure'/>
+            <int32_t name='artifact_is_heirloom_of_family_hfid' ref-target='historical_figure'/>
+            <int32_t name='artifact_is_symbol_of_entity_position' ref-target='historical_entity'/>
+        </compound>
+    </struct-type>
+
+    <struct-type type-name='history_event_circumstance_info'>
+        <enum name='type' type-name='unit_thought_type' base-type='int32_t'/>
+        <compound name='data' is-union='true' init-value='-1'>
+            <int32_t name='Death' ref-target='historical_figure'/>
+            <int32_t name='Prayer' ref-target='historical_figure'/>
+            <int32_t name='DreamAbout' ref-target='historical_figure'/>
+            <int32_t name='Defeated' ref-target='historical_figure'/>
+            <int32_t name='Murdered' ref-target='historical_figure'/>
+            <int32_t name='HistEventCollection' ref-target='history_event_collection'/>
+        </compound>
+    </struct-type>
+
     <struct-type type-name='history_event_context'>
         <int32_t name='unk_00' init-value='0'/>
         <pointer name='unk_08'>
@@ -1461,8 +1482,8 @@
             <vmethod ret-type='bool' name='wasHistfigRevived'>
                 <int32_t name='histfig' ref-target='historical_figure'/>
             </vmethod>
-            <vmethod><int32_t/></vmethod>
-            <vmethod><int32_t/></vmethod>
+            <vmethod ret-type='int32_t' comment='returns -1'/>
+            <vmethod ret-type='int32_t' comment='returns -1'/>
 
             -- 10
 
@@ -1511,12 +1532,14 @@
             <vmethod ret-type='bool' name='isRelatedToLayerID'>
                 <int32_t name='region' ref-target='world_underground_region'/>
             </vmethod>
-            <vmethod ret-type='bool'><int32_t/></vmethod>
+            <vmethod ret-type='bool' name='isRelatedToAgreementID'>
+                <int32_t name='agreement' ref-target='agreement'/>
+            </vmethod>
             <vmethod ret-type='bool' name='isRelatedToEntityID'>
                 <int32_t name='entity' ref-target='historical_entity'/>
             </vmethod>
 
-            <vmethod ret-type='bool'><int32_t/></vmethod>
+            <vmethod ret-type='bool' comment='always returns false; seems to be related to agreements but broken'/>
             <vmethod name='getSentence'>
                 <pointer type-name='stl-string' name='str'/> "In x, some event happened"
                 <pointer type-name='history_event_context' name='context'/>
@@ -1528,17 +1551,19 @@
             <vmethod name='populateArtImage'>
                 <pointer type-name='art_image' name='image'/>
             </vmethod>
-            <vmethod/>
+            <vmethod ret-type='int32_t' comment='possibly something related to event importance; return values include 10, 20, 25, 50, 100, 120, 140'/>
 
             -- 30
 
-            <vmethod/>
-            <vmethod ret-type='bool'><int32_t/></vmethod>
-            <vmethod/>
-            <vmethod/>
+            <vmethod ret-type='int32_t'/>
+            <vmethod ret-type='bool' name='isChangedHistfigID'>
+                <int32_t name='histfig' ref-target='historical_figure'/>
+            </vmethod>
+            <vmethod name='categorize' comment='inserts event into world_history.events_death if relevant'/>
+            <vmethod name='uncategorize' comment='removes event from world_history.events_death if relevant'/>
             <vmethod name='generate_xml'>
-                <pointer/>
-                <pointer/>
+                <pointer type-name='stl-fstream'/>
+                <int32_t name='indent'/>
             </vmethod>
 
             <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
@@ -1546,7 +1571,7 @@
                 <pointer name='file' type-name='file_compressorst'/>
                 <int32_t name='loadversion'/>
             </vmethod>
-            <vmethod/>
+            <vmethod comment='records event in historical_entity.unknown1b.diplomacy in both directions if applicable'/>
             <vmethod is-destructor='true'/>
         </virtual-methods>
     </class-type>
@@ -1756,10 +1781,8 @@
         <int32_t name='site' ref-target='world_site'/>
         <int32_t name='subregion_id' ref-target='world_region'/>
         <int32_t name='feature_layer_id'/>
-        <enum base-type='int32_t' name='circumstance' type-name='unit_thought_type'/>
-        <int32_t name='circumstance_id'/>
-        <enum base-type='int32_t' name='reason' type-name='history_event_reason'/>
-        <int32_t name='reason_id'/>
+        <compound name='circumstance' type-name='history_event_circumstance_info'/>
+        <compound name='reason' type-name='history_event_reason_info'/>
     </class-type>
 
     <class-type type-name='history_event_artifact_createdst' inherits-from='history_event'>
@@ -2161,10 +2184,8 @@
         <compound name='region_pos' type-name='coord2d'/>
 
         <int32_t/>
-        <enum base-type='int32_t' name='circumstance' type-name='unit_thought_type'/>
-        <int32_t name='circumstance_id'/>
-        <enum base-type='int32_t' name='reason' type-name='history_event_reason'/>
-        <int32_t name='reason_id'/>
+        <compound name='circumstance' type-name='history_event_circumstance_info'/>
+        <compound name='reason' type-name='history_event_reason_info'/>
         <int32_t/>
     </class-type>
 
@@ -2543,10 +2564,8 @@
         <int32_t name='site' ref-target='world_site'/>
         <int32_t name='region' ref-target='world_region'/>
         <int32_t name='layer' ref-target='world_underground_region'/>
-        <enum base-type='int32_t' name='circumstance' type-name='unit_thought_type'/>
-        <int32_t name='circumstance_id'/>
-        <enum base-type='int32_t' name='reason' type-name='history_event_reason'/>
-        <int32_t name='reason_id'/>
+        <compound name='circumstance' type-name='history_event_circumstance_info'/>
+        <compound name='reason' type-name='history_event_reason_info'/>
     </class-type>
 
     <class-type type-name='history_event_musical_form_createdst' inherits-from='history_event'>
@@ -2555,10 +2574,8 @@
         <int32_t name='site' ref-target='world_site'/>
         <int32_t name='region' ref-target='world_region'/>
         <int32_t name='layer' ref-target='world_underground_region'/>
-        <enum base-type='int32_t' name='circumstance' type-name='unit_thought_type'/>
-        <int32_t name='circumstance_id'/>
-        <enum base-type='int32_t' name='reason' type-name='history_event_reason'/>
-        <int32_t name='reason_id'/>
+        <compound name='circumstance' type-name='history_event_circumstance_info'/>
+        <compound name='reason' type-name='history_event_reason_info'/>
     </class-type>
 
     <class-type type-name='history_event_dance_form_createdst' inherits-from='history_event'>
@@ -2567,10 +2584,8 @@
         <int32_t name='site' ref-target='world_site'/>
         <int32_t name='region' ref-target='world_region'/>
         <int32_t name='layer' ref-target='world_underground_region'/>
-        <enum base-type='int32_t' name='circumstance' type-name='unit_thought_type'/>
-        <int32_t name='circumstance_id'/>
-        <enum base-type='int32_t' name='reason' type-name='history_event_reason'/>
-        <int32_t name='reason_id'/>
+        <compound name='circumstance' type-name='history_event_circumstance_info'/>
+        <compound name='reason' type-name='history_event_reason_info'/>
     </class-type>
 
     <class-type type-name='history_event_written_content_composedst' inherits-from='history_event'>
@@ -2579,10 +2594,8 @@
         <int32_t name='site' ref-target='world_site'/>
         <int32_t name='region' ref-target='world_region'/>
         <int32_t name='layer' ref-target='world_underground_region'/>
-        <enum base-type='int32_t' name='circumstance' type-name='unit_thought_type'/>
-        <int32_t name='circumstance_id'/>
-        <enum base-type='int32_t' name='reason' type-name='history_event_reason'/>
-        <int32_t name='reason_id'/>
+        <compound name='circumstance' type-name='history_event_circumstance_info'/>
+        <compound name='reason' type-name='history_event_reason_info'/>
     </class-type>
 
     <class-type type-name='history_event_change_hf_moodst' inherits-from='history_event'>
@@ -2601,22 +2614,18 @@
         <int32_t name='entity' ref-target='historical_entity'/>
         <int32_t name='position_profile'/>        
         <enum base-type='int32_t' name='claim_type' type-name='artifact_claim_type'/>
-        <enum base-type='int32_t' name='circumstance' type-name='unit_thought_type'/>
-        <int32_t name='circumstance_id'/>
-        <enum base-type='int32_t' name='reason' type-name='history_event_reason'/>
-        <int32_t name='reason_id'/>
+        <compound name='circumstance' type-name='history_event_circumstance_info'/>
+        <compound name='reason' type-name='history_event_reason_info'/>
     </class-type>
 
-    <class-type type-name='history_event_artifact_givenst' inherits-from='history_event'> ?????????????
+    <class-type type-name='history_event_artifact_givenst' inherits-from='history_event'>
         <int32_t name='artifact' ref-target='artifact_record'/>
         <int32_t name='giver_hf' ref-target='historical_figure'/>
         <int32_t name='giver_entity' ref-target='historical_entity'/>
         <int32_t name='receiver_hf' ref-target='historical_figure'/>
         <int32_t name='receiver_entity' ref-target='historical_entity'/>
-        <enum base-type='int32_t' name='circumstance' type-name='unit_thought_type'/>
-        <int32_t name='circumstance_id'/>
-        <enum base-type='int32_t' name='reason' type-name='history_event_reason'/>
-        <int32_t name='reason_id'/>
+        <compound name='circumstance' type-name='history_event_circumstance_info'/>
+        <compound name='reason' type-name='history_event_reason_info'/>
         <bool name='inherited' since='v0.47.02'/>
     </class-type>
 
@@ -2802,11 +2811,9 @@
     </class-type>
 
     <class-type type-name='history_event_entity_dissolvedst' inherits-from='history_event' since='v0.47.01'>
-      <int32_t name='entity' ref-target='historical_entity'/>
-      <enum base-type='int32_t' name='circumstance' type-name='unit_thought_type' init-value='None'/>
-      <int32_t name='circumstance_id' init-value='-1'/>
-      <enum base-type='int32_t' name='reason' type-name='history_event_reason' init-value='none'/>
-      <int32_t name='reason_id' init-value='-1'/>
+        <int32_t name='entity' ref-target='historical_entity'/>
+        <compound name='circumstance' type-name='history_event_circumstance_info'/>
+        <compound name='reason' type-name='history_event_reason_info'/>
     </class-type>
 
     <class-type type-name='history_event_entity_equipment_purchasest' inherits-from='history_event' since='v0.47.01'>
@@ -3010,8 +3017,8 @@
         <virtual-methods>
             <vmethod ret-type='history_event_collection_type' name='getType'/>
             <vmethod name='generate_xml'>
-                <pointer/>
-                <pointer/>
+                <pointer type-name='stl-fstream'/>
+                <int32_t name='indent'/>
             </vmethod>
             <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
             <vmethod name='read_file'>
