@@ -446,6 +446,19 @@ sub render_field_metadata_rec($$) {
         $field_defs_extra{$name}{index_enum} = $enum;
         $extra = "&EXTRA($name)";
     }
+    if (my $rt = $field->getAttribute('ref-target')) {
+        static_include_type $rt;
+        my $target = type_identity_reference($types{$rt});
+        $field_defs_extra{$name}{ref_target} = $target;
+        $extra = "&EXTRA($name)";
+    }
+    if (my $utf = $field->getAttribute('union-tag-field')) {
+        $field_defs_extra{$name}{union_tag_field} = "\"$utf\"";
+        if (my $uta = $field->getAttribute('union-tag-attr')) {
+            $field_defs_extra{$name}{union_tag_attr} = "\"$uta\"";
+        }
+        $extra = "&EXTRA($name)";
+    }
 
     if ($meta eq 'number') {
         my $tname = primitive_type_name($subtype);
