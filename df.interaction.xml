@@ -1,4 +1,10 @@
 <data-definition>
+
+    <enum-type type-name='interaction_flags'>
+        <enum-item name='GENERATED'/>
+        <enum-item name='EXPERIMENT_ONLY'/>
+    </enum-type>
+
     <struct-type type-name='interaction'
                  instance-vector='$global.world.raws.interactions' key-field='id'>
         <stl-string name="name"/>
@@ -6,13 +12,13 @@
 
         <code-helper name='describe'>$.name</code-helper>
 
-        <stl-vector name="str" pointer-type='stl-string'/>
+        <stl-vector name="str" pointer-type='stl-string' comment='interaction raws'/>
 
-        <df-flagarray name='flags'/>
+        <df-flagarray name='flags' index-enum='interaction_flags'/>
 
-        <stl-vector name="sources" pointer-type='interaction_source'/>
-        <stl-vector name="targets" pointer-type='interaction_target'/>
-        <stl-vector name="effects" pointer-type='interaction_effect'/>
+        <stl-vector name="sources" pointer-type='interaction_source' comment='I_SOURCE'/>
+        <stl-vector name="targets" pointer-type='interaction_target' comment='I_TARGET'/>
+        <stl-vector name="effects" pointer-type='interaction_effect' comment='I_EFFECT'/>
 
         <int32_t name='source_hfid' ref-target='historical_figure'/>
         <int32_t name='source_enid' ref-target='historical_entity' since='v0.42.01'/>
@@ -40,14 +46,14 @@
     <class-type type-name='interaction_effect' original-name='interaction_effectst'>
         <int32_t name='index' comment='index of the effect within the parent interaction.effects'/>
         <stl-vector name='targets' pointer-type='stl-string'/>
-        <stl-vector name='unk_2' type-name='int32_t'/>
-        <int32_t name='intermittent' comment='0 = weekly'/>
-        <stl-vector name='locations' type-name='interaction_effect_location_hint'/>
+        <stl-vector name='targets_index' type-name='int32_t' comment='for each target used in this effect, list the index of that target within the parent interaction.targets'/>
+        <int32_t name='intermittent' comment='IE_INTERMITTENT, 0 = weekly'/>
+        <stl-vector name='locations' type-name='interaction_effect_location_hint' comment='IE_LOCATION'/>
         <bitfield name='flags' base-type='uint32_t'>
-            <flag-bit name='IMMEDIATE'/>
+            <flag-bit name='IMMEDIATE' comment='IE_IMMEDIATE'/>
         </bitfield>
         <int32_t name='interaction_id' ref-target='interaction'/>
-        <stl-string name='arena_name'/>
+        <stl-string name='arena_name' comment='IE_ARENA_NAME'/>
 
         <virtual-methods>
             <vmethod ret-type='interaction_effect_type' name='getType'/>
@@ -82,8 +88,8 @@
     </class-type>
 
     <class-type type-name='interaction_effect_cleanst' inherits-from='interaction_effect'>
-        <int32_t name='grime_level'/>
-        <bitfield name='syndrome_tag' type-name='syndrome_flags'/>
+        <int32_t name='grime_level' comment='IE_GRIME_LEVEL'/>
+        <bitfield name='syndrome_tag' type-name='syndrome_flags' comment='IE_SYNDROME_TAG'/>
         <int32_t/>
     </class-type>
 
@@ -100,8 +106,8 @@
     </class-type>
 
     <class-type type-name='interaction_effect_change_item_qualityst' inherits-from='interaction_effect'>
-        <int32_t name='quality_added'/>
-        <int32_t/>
+        <int32_t name='quality_added' comment='IE_CHANGE_QUALITY'/>
+        <int32_t name='quality_set' comment='IE_SET_QUALITY'/>
     </class-type>
 
     <class-type type-name='interaction_effect_change_weatherst' inherits-from='interaction_effect'>
@@ -110,15 +116,15 @@
     </class-type>
 
     <class-type type-name='interaction_effect_create_itemst' inherits-from='interaction_effect'>
-        <int16_t name='item_type' type-name='item_type'/>
-        <int16_t name='item_subtype'/>
-        <int16_t name='mat_type'/>
-        <int32_t name='mat_index' init-value='-1'/>
-        <int16_t name='probability'/>
-        <int16_t name='quantity'/>
-        <int32_t name='quality_min'/>
-        <int32_t name='quality_max'/>
-        <int32_t name='create_artifact'/>
+        <int16_t name='item_type' type-name='item_type' comment='IE_ITEM'/>
+        <int16_t name='item_subtype' comment='IE_ITEM'/>
+        <int16_t name='mat_type' comment='IE_ITEM'/>
+        <int32_t name='mat_index' init-value='-1' comment='IE_ITEM'/>
+        <int16_t name='probability' comment='IE_ITEM'/>
+        <int16_t name='quantity' comment='IE_ITEM'/>
+        <int32_t name='quality_min' comment='IE_ITEM_QUALITY'/>
+        <int32_t name='quality_max' comment='IE_ITEM_QUALITY'/>
+        <int32_t name='create_artifact' comment='IE_ITEM_QUALITY:ARTIFACT'/>
         <stl-string/>
         <stl-string/>
         <stl-string/>
@@ -128,23 +134,23 @@
 
     <class-type type-name='interaction_effect_propel_unitst' inherits-from='interaction_effect'>
         <int32_t/>
-        <int32_t name='propel_force'/>
+        <int32_t name='propel_force' comment='IE_PROPEL_FORCE'/>
     </class-type>
 
     <class-type type-name='interaction_effect_summon_unitst' inherits-from='interaction_effect'>
-        <int32_t name='make_pet'/>
-        <stl-string name='race_str'/>
-        <stl-string name='caste_str'/>
+        <int32_t name='make_pet' comment='IE_MAKE_PET_IF_POSSIBLE'/>
+        <stl-string name='race_str' comment='CREATURE'/>
+        <stl-string name='caste_str' comment='CREATURE'/>
         <stl-vector/>
         <stl-vector/>
-        <stl-vector type-name='int32_t' name='required_creature_flags' comment='contains indexes of flags in creature_raw_flags'/>
-        <stl-vector type-name='int32_t' name='forbidden_creature_flags' comment='contains indexes of flags in creature_raw_flags'/>
-        <stl-vector type-name='int32_t' name='required_caste_flags' comment='contains indexes of flags in caste_raw_flags'/>
-        <stl-vector type-name='int32_t' name='forbidden_caste_flags' comment='contains indexes of flags in caste_raw_flags'/>
+        <stl-vector type-name='int32_t' name='required_creature_flags' comment='contains indexes of flags in creature_raw_flags, IE_CREATURE_FLAG'/>
+        <stl-vector type-name='int32_t' name='forbidden_creature_flags' comment='contains indexes of flags in creature_raw_flags, IE_FORBIDDEN_CREATURE_FLAG'/>
+        <stl-vector type-name='int32_t' name='required_caste_flags' comment='contains indexes of flags in caste_raw_flags, IE_CREATURE_CASTE_FLAG'/>
+        <stl-vector type-name='int32_t' name='forbidden_caste_flags' comment='contains indexes of flags in caste_raw_flags, IE_FORBIDDEN_CREATURE_CASTE_FLAG'/>
         <int32_t init-value='-1'/>
         <int32_t init-value='-1'/>
-        <int32_t name='time_range_min'/>
-        <int32_t name='time_range_max'/>
+        <int32_t name='time_range_min' comment='IE_TIME_RANGE'/>
+        <int32_t name='time_range_max' comment='IE_TIME_RANGE'/>
     </class-type>
 
     <enum-type type-name='interaction_source_type'>
@@ -164,13 +170,13 @@
         </code-helper>
 
         <int32_t name='id'/>
-        <int32_t name='frequency'/>
-        <stl-string name='name'/>
-        <stl-string name='hist_string_1'/>
-        <stl-string name='hist_string_2'/>
-        <stl-string/>
-        <stl-string/>
-        <stl-string/>
+        <int32_t name='frequency' comment='IS_FREQUENCY'/>
+        <stl-string name='name' comment='IS_NAME'/>
+        <stl-string name='hist_string_1' comment='IS_HIST_STRING_1'/>
+        <stl-string name='hist_string_2' comment='IS_HIST_STRING_2'/>
+        <stl-string name='trigger_string_second' comment='IS_TRIGGER_STRING_SECOND'/>
+        <stl-string name='trigger_string_third' comment='IS_TRIGGER_STRING_THIRD'/>
+        <stl-string name='trigger_string' comment='IS_TRIGGER_STRING'/>
 
         <virtual-methods>
             <vmethod ret-type='interaction_source_type' name='getType'/>
@@ -239,7 +245,7 @@
 
     <class-type type-name='interaction_source_deityst' inherits-from='interaction_source'>
         <int32_t/>
-        <stl-vector name='usage_hint' type-name='interaction_source_usage_hint'/>
+        <stl-vector name='usage_hint' type-name='interaction_source_usage_hint' comment='IS_USAGE_HINT'/>
     </class-type>
 
     <class-type type-name='interaction_source_attackst' inherits-from='interaction_source'>
@@ -281,10 +287,10 @@
     <class-type type-name='interaction_target' original-name='interaction_targetst'>
         <int32_t name='index'/>
         <stl-string name='name'/>
-        <stl-string name='manual_input'/>
-        <enum name='location' type-name='interaction_target_location_type'/>
-        <stl-string name='reference_name'/>
-        <int32_t name='reference_distance'/>
+        <stl-string name='manual_input' comment='IT_MANUAL_INPUT'/>
+        <enum name='location' type-name='interaction_target_location_type' comment='IT_LOCATION'/>
+        <stl-string name='reference_name' comment='IT_LOCATION:RANDOM_NEARBY_LOCATION'/>
+        <int32_t name='reference_distance' comment='IT_LOCATION:RANDOM_NEARBY_LOCATION'/>
         <virtual-methods>
             <vmethod ret-type='interaction_target_type' name='getType'/>
             <vmethod name='write_file'> <pointer comment='file_compressorst'/> </vmethod>
@@ -304,17 +310,17 @@
 
     <struct-type type-name='interaction_target_info'>
         <static-array name='affected_creature_str' count='2'><stl-vector pointer-type='stl-string'/></static-array>
-        <stl-vector name='affected_creature' type-name='int32_t'/>
-        <stl-vector name='affected_class' pointer-type='stl-string'/>
+        <stl-vector name='affected_creature' type-name='int32_t' comment='IT_AFFECTED_CREATURE'/>
+        <stl-vector name='affected_class' pointer-type='stl-string' comment='IT_AFFECTED_CLASS'/>
 
         <static-array name='immune_creature_str' count='2'><stl-vector pointer-type='stl-string'/></static-array>
-        <stl-vector name='immune_creature' type-name='int32_t'/>
-        <stl-vector name='immune_class' pointer-type='stl-string'/>
+        <stl-vector name='immune_creature' type-name='int32_t' comment='IT_IMMUNE_CREATURE'/>
+        <stl-vector name='immune_class' pointer-type='stl-string' comment='IT_IMMUNE_CLASS'/>
         <stl-vector name='forbidden_syndrome_class' pointer-type='stl-string'/>
-        <int32_t name='requires_1'/>
-        <int32_t name='requires_2'/>
-        <int32_t name='forbidden_1'/>
-        <int32_t name='forbidden_2'/>
+        <int32_t name='requires_1' comment='IT_REQUIRES'/>
+        <int32_t name='requires_2' comment='IT_REQUIRES'/>
+        <int32_t name='forbidden_1' comment='IT_FORBIDDEN'/>
+        <int32_t name='forbidden_2' comment='IT_FORBIDDEN'/>
         <bitfield name='restrictions' base-type='uint32_t'>
             <flag-bit name='CANNOT_TARGET_IF_ALREADY_AFFECTED'/>
         </bitfield>
