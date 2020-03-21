@@ -443,8 +443,7 @@ sub render_field_metadata_rec($$) {
     if (my $xe = $field->getAttribute('index-enum')) {
         static_include_type $xe;
         my $enum = type_identity_reference($types{$xe});
-        my @extra_def = ["index_enum = $enum"];
-        $field_defs_extra{$name} = [ @extra_def ];
+        $field_defs_extra{$name}{index_enum} = $enum;
         $extra = "&EXTRA($name)";
     }
 
