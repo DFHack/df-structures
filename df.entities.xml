@@ -325,18 +325,18 @@
         <int32_t name='claim_year' init-value='-1' comment="Written contents often seem to lack info of being claimed"/>
         <int32_t name='claim_year_tick' init-value='-1' comment="usually init"/>
         <int32_t init-value='-1'/>
-        <pointer type-name='artifact_record'/>
-        <int32_t init-value='-1'/>
-        <int32_t init-value='-1'/>
-        <int32_t init-value='-1'/>
-        <int32_t init-value='-1'/>
-        <int32_t init-value='-1'/>
-        <int32_t init-value='-1'/>
-        <int32_t init-value='-1'/>
+        <pointer name='artifact' type-name='artifact_record'/>
+        <int32_t name='site' ref-target='world_site' init-value='-1'/>
+        <int32_t name='structure_local' init-value='-1'/>
+        <int32_t name='holder_hf' ref-target='historical_figure' init-value='-1' comment="might be owner_hf. all cases encountered have had both field the same when claimed by entity"/>
+        <int32_t name='subregion' ref-target='world_region' init-value='-1'/>
+        <int32_t name='feature_layer_id' ref-target='world_underground_region' init-value='-1'/>
+        <int32_t name='unk_year' init-value='-1' comment="seems to be current year or -1. Matches up with corresponding field of artifact_record"/>
+        <int32_t init-value='-1' comment="only other value seen was 0"/>
         <int32_t comment='uninitialized'/>
         <pointer/>
-        <pointer type-name='historical_entity'/>
-        <pointer type-name='historical_entity'/>
+        <pointer type-name='historical_entity' comment="illegal values seen. Uninitialized?"/>
+        <pointer type-name='historical_entity' comment="illegal values seen. Uninitialized?"/>
     </struct-type>
 
     <struct-type type-name='entity_unk_v47_1' comment='The 3 first vectors are of the same length and somehow connected'>
@@ -572,36 +572,35 @@
         <stl-vector name='uniforms' pointer-type='entity_uniform'/>
         <int32_t name='next_uniform_id'/>
 
-        <compound name='unknown1b'>
+        <compound name='relations'>
             <stl-vector name='known_sites' type-name='int32_t' ref-target='world_site' comment="only civs and site government. Fresh player site government has empty vector"/>
             <stl-vector name='deities' type-name='int32_t' ref-target='historical_figure'/>
             <stl-vector name='worship' type-name='int32_t' comment="Same length as deities(?). Some kind of relationship strength?"/>
             <stl-vector name='belief_systems' type-name='int32_t' ref-target="belief_system" comment="In Religion type entities established by prophets after having developed their own belief system, the ID of this belief system is contained here."/>
-            <stl-vector name='unk32e'>
+            <stl-vector name='constructions' comment="only civs. Usually pairs for source/destination, with destination lacking path and construction. Construction and second entry can be lacking when destination lost(construction destroyed as well?). Also seen only source entry">
                 <pointer>
-                    <stl-vector type-name='int16_t' comment="seems to be the same length as the next one, possibly forming coordinates. Only seen on civs"/>
-                    <stl-vector type-name='int16_t'/>
-                    <int32_t/>
-                    <int32_t/>
-                    <stl-vector type-name='int32_t'/>
-                    <int16_t/>
-                    <int16_t/>
+                    <compound name='path' type-name='coord2d_path' comment="set only for the first source/destination/construction entry in pairs"/>
+                    <int32_t name='source_site' ref-target='world_site'/>
+                    <int32_t name='destination_site' ref-target='world_site'/>
+                    <stl-vector name='construction' ref-target='world_data.T_constructions' type-name='int32_t' comment="set only for the first (source) entry in pairs"/>
+                    <int16_t comment="0 and 1 seen, paired with same value in the next field"/>
+                    <int16_t comment="0 and 1 seen"/>
                 </pointer>
             </stl-vector>
 
             <stl-vector name='diplomacy'> sorted by group_id
                 <pointer>
                     <int32_t name='group_id' ref-target='historical_entity'/>
-                    <int16_t name='relation'/> only 1 and 5 are 'hostile' (from viewscreen_unitlistst::render)
-                    <int32_t/>
+                    <int16_t name='relation' comment="only 1 and 5 are 'hostile' (from viewscreen_unitlistst::render). Seems to be range 0-5, 2 not seen. 0:neutral/currently not at war, 3:parent->child, 4:child->parent, 1/5 both 'WAR' pre embark"/>
+                    <int32_t name='war_event_collection' ref-target='history_event_collection' init-value='-1' comment="always and only with relation = 1/5"/>
                     <stl-vector name='historic_events' type-name='int32_t' ref-target='history_event'/>
-                    <stl-vector name='historic_events_collection' type-name='int32_t' ref-target='history_event_collection'/>
-                    <int32_t/>
-                    <int32_t/>
+                    <stl-vector name='historic_events_collection' type-name='int32_t' ref-target='history_event_collection' comment="seen with war_event_collection set"/>
+                    <int32_t comment="0, 1, 4 seen. Non zero seen with relation 0/1"/>
+                    <int32_t comment="0-3 seen. Non zero seen with relation 3/4"/>
                 </pointer>
             </stl-vector>
 
-            <int16_t name='unk33'/>
+            <int16_t name='unk33' init-value='0' comment="Non zero seen only on site governments (not all) and one nomadic group. Small values"/>
             <stl-vector name='unk34a' type-name='int16_t' comment="same length as unk34b and unk34c"/>
             <stl-vector name='unk34b' type-name='int16_t'/>
             <stl-vector name='unk34c' type-name='int32_t'/>
@@ -635,7 +634,7 @@
         <stl-vector name='squads' type-name='int32_t' ref-target='squad'/>
 
         <compound name='unknown1d'>
-            <int32_t name='unk42'/>
+            <int32_t name='unk42' init-value='-1'/>
             <stl-vector name='unk43' type-name='int32_t' comment='empty'/>
             <int32_t name='unk44'/>
             <int32_t name='unk44a' since='v0.34.01' comment='appears to be a class with a constructor?'/>
@@ -1086,14 +1085,14 @@
             <compound name='invasion'>
                 <int32_t name='entity_id' ref-target='historical_entity'/>
                 <int32_t name='site_id' ref-target='world_site'/>
-                <int32_t/>
-                <int32_t/>
+                <int32_t comment="can't find match. not defender hf/nemesis, for instance"/>
+                <int32_t name='attack_leader_hf' ref-target='historical_figure'/>
             </compound>
             <compound name='abduction'>
                 <int32_t name='histfig_id' ref-target='historical_figure' comment='abductee'/>
                 <int32_t name='site_id' ref-target='world_site'/>
                 <int32_t name='abductor_id' ref-target='historical_figure'/>
-                <int32_t/>
+                <int32_t name='event' ref-target='history_event'/>
             </compound>
             <compound name='incident'>
                 <int32_t/>
@@ -1134,7 +1133,7 @@
                 <int32_t name='behalf_entity_id' ref-target='historical_entity'/>
                 <int32_t name='site_id' ref-target='world_site'/>
                 <int32_t name='reclaimer_entity_id' ref-target='historical_entity'/>
-                <int32_t/>
+                <int32_t name='leader_hf' ref-targt='historical_figure'/>
             </compound>
             <compound name='founded'>
                 <int32_t name='entity_id' ref-target='historical_entity'/>
@@ -1146,7 +1145,7 @@
                 <int32_t name='entity_id' ref-target='historical_entity'/>
                 <int32_t name='site_id' ref-target='world_site'/>
                 <int32_t/>
-                <int32_t/>
+                <int32_t name='first_settler_hf' ref-target='historical_figure' comment="strangely enough not expedition leader (settler #2), nor listed as member of site government"/>
             </compound>
             <compound name='founding'>
                 <int32_t name='entity_id' ref-target='historical_entity'/>
@@ -1228,7 +1227,7 @@
                 <int32_t name='artifact_id' ref-target='artifact_record'/>
                 <int32_t name='site_id' ref-target='world_site'/>
                 <int32_t name='structure_id' ref-target='abstract_building'/>
-                <int32_t/>
+                <int32_t comment="looks uninitialized"/>
             </compound>
             <compound name='artifact_in_subregion'>
                 <int32_t name='artifact_id' ref-target='artifact_record'/>
@@ -1279,8 +1278,8 @@
                 <int32_t/>
             </compound>
         </compound>
-        <int32_t/>
-        <int32_t/>
+        <int32_t name='unk_year' comment="often the same as the other year/tick. Start/stop time?"/>
+        <int32_t name='unk_year_tick'/>
         <int32_t name="year"/>
         <int32_t name="year_tick"/>
         <int32_t/>
@@ -1297,8 +1296,8 @@
         <int32_t/>
         <int32_t/>
         <bitfield since='v0.42.01'>
-            <flag-bit comment='this gets unset by accepting a petition'/>
-            <flag-bit/>
+            <flag-bit name='petition_not_accepted' comment='this gets unset by accepting a petition'/>
+            <flag-bit name='convicted_accepted' comment="convicted for PositionCorruption/accepted for Location"/>
         </bitfield>
     </struct-type>
 
@@ -1316,6 +1315,13 @@
         </stl-vector>
     </struct-type>
 
+    <enum-type type-name='crime_type' base-type='int32_t'>
+        <enum-item name='Bribery'/>
+        <enum-item/>
+        <enum-item name='Treason'/>
+        <enum-item name='Embezzlement'/>
+    </enum-type>
+    
     <enum-type type-name='agreement_details_type' base-type='int32_t'>
         <enum-item name='JoinParty'/>
         <enum-item name='DemonicBinding'/>
@@ -1332,6 +1338,7 @@
         <enum-item name='Location'/>
         <enum-item name='PlotInfiltrationCoup'/>
         <enum-item name='PlotFrameTreason'/>
+        <enum-item name='PlotInduceWar'/>
     </enum-type>
     
     <struct-type type-name='agreement_details' key-field='id'>
@@ -1354,6 +1361,7 @@
             <pointer name='Location' type-name='agreement_details_data_location'/>
             <pointer name='PlotInfiltrationCoup' type-name='agreement_details_data_plot_infiltration_coup'/>
             <pointer name='PlotFrameTreason' type-name='agreement_details_data_plot_frame_treason'/>
+            <pointer name='PlotInduceWar' type-name='agreement_details_data_plot_induce_war'/>
         </compound>
         <enum name='type' base-type='int32_t' type-name='agreement_details_type'/>
     </struct-type>
@@ -1390,38 +1398,38 @@
         <int32_t name='party_id' ref-target='agreement_party'/>
     </struct-type>
     <struct-type type-name='agreement_details_data_position_corruption'>
-        <int32_t/>
-        <int32_t/>
-        <int32_t init-value='-1'/>
-        <int32_t init-value='-1'/>
-        <int32_t/>
-        <int32_t/>
+        <int32_t comment="247-249 seen"/>
+        <int32_t name='actor_index' comment="agreement.parties index"/>
+        <int32_t name='influencer_index' init-value='-1' comment="agreement.parties index"/>
+        <int32_t name='intermediary_index' init-value='-1' comment="agreement.parties index"/>
+        <int32_t name='target_id' ref-target='historical_entity'/>
+        <int32_t name='position_id' comment="position index in the entity's Own entity_position vector"/>
     </struct-type>
     <struct-type type-name='agreement_details_data_plot_steal_artifact'>
-        <int32_t/>
-        <int32_t/>
-        <int32_t init-value='-1'/>
-        <int32_t/>
+        <int32_t name='actor_index' comment="agreement.parties index"/>
+        <int32_t name='influencer_index' comment="agreement.parties index"/>
+        <int32_t name='intermediary_index' init-value='-1' comment="agreement.parties index"/>
+        <int32_t name='artifact_id' ref-target='artifact_record'/>
     </struct-type>
     <struct-type type-name='agreement_details_data_promise_position'>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <stl-vector type-name='int32_t'/>
-        <int32_t/>
+        <int32_t name='beneficiary_index' comment="agreement.parties index"/>
+        <int32_t name='actor_index' comment="agreement.parties index"/>
+        <int32_t name='promisee_index' comment="agreement.parties index"/>
+        <int32_t name='influencer_index' comment="agreement.parties index. May be swapped with beneficiary"/>
+        <stl-vector name='intermediary_indices' type-name='int32_t' comment="agreement.parties index"/>
+        <int32_t name='entity_id' ref-target='historical_entity'/>
     </struct-type>
     <struct-type type-name='agreement_details_data_plot_assassination'>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
+        <int32_t name='actor_index' comment="agreement.parties index"/>
+        <int32_t name='influencer_index' comment="agreement.parties index"/>
+        <int32_t name='intermediary_index' init-value='-1' comment="agreement.parties index"/>
+        <int32_t name='target_id' ref-target='historical_figure'/>
     </struct-type>
     <struct-type type-name='agreement_details_data_plot_abduct'>
-        <int32_t/>
-        <int32_t/>
-        <int32_t init-value='-1'/>
-        <int32_t/>
+        <int32_t name='actor_index' comment="agreement.parties index"/>
+        <int32_t name='influencer_index' comment="agreement.parties index"/>
+        <int32_t name='intermediary_index' init-value='-1' comment="agreement.parties index"/>
+        <int32_t name='target_id' ref-target='historical_figure'/>
     </struct-type>
     <struct-type type-name='agreement_details_data_unk10'>
         <int32_t/>
@@ -1432,8 +1440,8 @@
         <int32_t init-value='-1'/>
     </struct-type>
     <struct-type type-name='agreement_details_data_plot_conviction'>
-        <stl-vector type-name='int32_t'/>
-        <int32_t/>
+        <stl-vector name='criminal_indices' type-name='int32_t' comment="agreement.parties index. All indices listed, regardless of confessions"/>
+        <enum name='crime' type-name='crime_type'/>
     </struct-type>
     <struct-type type-name='agreement_details_data_location'>
         <int32_t name='applicant' ref-target='agreement_party'/>
@@ -1446,17 +1454,23 @@
         <int32_t name='tier' comment='1 = temple or guildhall, 2 = temple complex or grand guildhall; matches location_tier in abstract_building_contents'/>
     </struct-type>
     <struct-type type-name='agreement_details_data_plot_infiltration_coup'>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
+        <int32_t name='actor_index' comment="agreement.parties index"/>
+        <int32_t name='influencer_index' comment="agreement.parties index"/>
+        <int32_t name='target' comment="action=8: site id, 9: entity id"/>
+        <int32_t name='action' comment="8 and 9 seen. Probably matches up with corresponding hist fig Infiltrate_Society action"/>
     </struct-type>
     <struct-type type-name='agreement_details_data_plot_frame_treason'>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
+        <int32_t name='actor_index' comment="agreement.parties index"/>
+        <int32_t name='influencer_index' comment="agreement.parties index"/>
+        <int32_t name='victim_id' ref-target='historical_figure'/>
+        <int32_t name='fool_id' ref-target='historical_figure'/>
+        <int32_t ref-target='historical_figure' comment="only same as fool_id seen, and so may be swapped. Guess it would be sentencer if different from fooled hf, though"/>
+    </struct-type>
+    <struct-type type-name='agreement_details_data_plot_induce_war'>
+        <int32_t name='actor_index' comment="agreement.parties index"/>
+        <int32_t name='influencer_index' comment="agreement.parties index"/>
+        <int32_t name='attacker' ref-target='historical_entity'/>
+        <int32_t name='defender' ref-target='historical_entity'/>
     </struct-type>
 
 </data-definition>

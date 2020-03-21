@@ -16,7 +16,7 @@
         </static-array>
     </struct-type>
 
-    <enum-type type-name="world_population_type">
+    <enum-type base-type='int8_t' type-name="world_population_type">
         <enum-item name='Animal'/>
         <enum-item name='Vermin'/>
         <enum-item name='Unk2'/>
@@ -84,20 +84,20 @@
             <flag-bit name='discovered'/>
             <flag-bit name='extinct' comment='guessed, based on 23a'/>
             <flag-bit name='already_removed' comment='no longer in world.populations'/>
-            <flag-bit name='unk3' comment='prevents it from showing up, related to world.unk_59dc4'/>
+            <flag-bit name='unk3' comment='prevents it from showing up, related to world.unk_59dc4 (now area_grasses?)'/>
         </bitfield>
 
         <compound name='population' type-name='world_population_ref'/>
 
         <int32_t name='wp_unk_10' init-value='-1'/>
         <int32_t name='wp_unk_18' init-value='-1'/>
-        <int32_t name='wp_unk_1c' init-value='-1'/>
-        <int32_t init-value='-1' since='v0.47.01'/>
+        <int32_t name='wp_unk_1c' init-value='-1' comment="only set on subset of animals (including vermin). None seen on fresh embark"/>
+        <int32_t name='unk_v47_1' init-value='-1' since='v0.47.01' comment="set on same animals as wp_unk_1c and only seen 0"/>
     </struct-type>
 
 
     <struct-type type-name='world_population'>
-        <enum base-type='int16_t' name='type' type-name='world_population_type'/>
+        <enum base-type='int8_t' name='type' type-name='world_population_type'/>
 
         <compound is-union='true'>
             <int16_t name="race" ref-target='creature_raw'/>
@@ -188,16 +188,16 @@
             <int16_t ref-target='plant_raw' />
         </stl-vector>
 
-        <int8_t name="dead_percentage" comment="% vegetation dead on embark. Changes during history as evil spread needs death. Seems to always be 100% in those cases"/>
-        <bool name="unk_1e5" comment="Probably optionally set only on good and evil regions"/>
+        <int8_t name="dead_percentage" comment="% vegetation dead on embark. The number increases during world gen history, with the new ones always at 100%"/>
+        <bool name="unk_1e5" comment="Probably optionally set only on good and evil regions during world gen. Number set increases during world gen history and can affect neutral."/>
         <bool name="unk_1e6" comment="Probably optionally set only on neutral regions"/>
         <bool name="reanimating" comment="Indicates that region interaction is reanimating"/>                
-        <int32_t name="unk_1e8" since='v0.47.01'/>       
+        <int32_t name="unk_1e8" init-value='-1' since='v0.47.01' comment="Number set increases during world gen history"/>       
         <bool name='evil'/>
         <bool name='good'/>  -- At most one of 'evil' and 'good' is set at a time by DF.
-        <int16_t name="lake_surface"/>
-        <stl-vector name="forces" type-name='int32_t' ref-target='historical_figure' comment="historical figure IDs of force deities associated with the region"/>
-        <int32_t name="unk_v47_2"/>
+        <int16_t name='lake_surface' init-value='-30000'/>
+        <stl-vector name="forces" type-name='int32_t' ref-target='historical_figure' comment="historical figure IDs of force deities associated with the region. Number set increases during civ placement"/>
+        <int32_t name="unk_v47_2" init-value='0' comment="Number set increases during civ placement"/>
         <int32_t name="mid_x"/>
         <int32_t name="mid_y"/>
         <int32_t name="min_x"/>
@@ -703,9 +703,9 @@
         <int32_t name="year_tick"/>
 
         -- v0.40.14:
-        <stl-vector name="unk_c0"/>
-        <stl-vector name="unk_d0"/>
-        <stl-vector name="unk_e0"/>
+        <stl-vector name='unk_c0' type-name='int16_t' comment="6 bytes allocated seen. Cannot be pointer"/>
+        <stl-vector name="unk_d0" type-name='int16_t' comment="6 bytes allocated seen. Cannot be pointer"/>
+        <stl-vector name="unk_e0" type-name='int16_t' comment="6 bytes allocated seen. Cannot be pointer. Seen on the same element, so c0, d0, and e0 may be connected"/>
         <stl-vector name="unk_f0"/>
         <stl-vector name="unk_100"/>
         <stl-vector name="unk_110"/>

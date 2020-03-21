@@ -147,7 +147,7 @@
         <flag-bit name='unk23'/>
         <flag-bit name='dig_marked'/>
         <flag-bit name='dig_auto'/>
-        <flag-bit name='varied_heavy_aquifer' since='v0.47.01'/>  Set when block_flags.has_aquifer and designation[][].water_table are set and the aquifer isn't light (i.e. varied or heavy). Failed to find flag distinguishing varied from heavy.
+        <flag-bit name='heavy_aquifer' since='v0.47.01' comment="Light/Heavy aquifer flag"/>
     </bitfield-type>
 
     <bitfield-type type-name='block_flags'>
@@ -161,9 +161,12 @@
         <flag-bit name='repath_on_melt'
                   comment='reindex_pathfinding set and flag cleared if temperature above 10000'/>
         <flag-bit name='has_aquifer'
-                  comment='has actual aquifer tiles (?)'/>
+                  comment='has at least one "water_table" designation flag'/>
         <flag-bit name='check_aquifer'
                   comment='has tiles that may get flooded by an adjacent aquifer'/>
+        <flag-bit comment="Seems to be surface or level above surface up to some limit (air biome?), with trees reaching higher than the limit. All have at least one tile of Outside. Cutting all trees in area did not seem to cause any change"/>
+        <flag-bit name='subterranean_water'
+                  comment="has tiles with designation flow_size > 0, liquid_type = true, and subterranean. At embark:not checked how player actions affect this flag"/>
     </bitfield-type>
 
     <bitfield-type type-name='z_level_flags'>
@@ -391,7 +394,7 @@
 
         <df-flagarray name='flags' comment='0 process cave columns for caveins'/>
 
-        <static-array name='unk_v40_1' count='16' since='v0.40.01'>
+        <static-array name='elevation' count='16' since='v0.40.01'>
             <static-array count='16' type-name='int16_t' init-value='100'/>
         </static-array>
 
@@ -400,7 +403,7 @@
 
         <compound name='region_pos' type-name='coord2d'/>
 
-        <stl-vector name='plants' pointer-type='plant'/>
+        <stl-vector name='plants' pointer-type='plant' comment="Only populated for the top left column in each mid level tile"/>
     </struct-type>
 
     <enum-type type-name='block_square_event_type'>
