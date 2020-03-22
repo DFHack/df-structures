@@ -408,7 +408,7 @@
         <int32_t name="unk_120" comment='Subset of caves can have non zero.'/> 
         <int32_t name="unk_124" comment='Monument 0, LairShrine 5, Camp 20, others varying'/> 
         <int32_t name="unk_128" comment=' "site_level" is in here somewhere. Same as for unk_124, but varying ones always less/equal'/>
-        <static-array type-name='int32_t' count='8'/>
+        <static-array type-name='int32_t' count='8' comment="Has all zero for Fortress, Camp, PlayerFortress, Monument, and LairShrine. Cave can have value, while DarkFortress, MountainHalls, ForestRetreat and Town all have at least one non zero value"/>
 
         <stl-vector name="unk_13c" comment='MountainHall, Town, DarkFortress, but not all'>
             <pointer>
@@ -432,10 +432,17 @@
                 <int32_t name="unk_30"/>
             </pointer>
         </stl-vector>
-        <stl-vector name="unk_v47_1" since='0.47.01' comment='Varying types of habitation can have this'>
+        <stl-vector name="unk_v47_1" since='0.47.01' comment='Varying types of habitation can have this. It seems new elements are added to hold all required data as all are full except the last one'>
             <pointer>
                 <compound>
-                    <static-array type-name='int32_t' count='61'/>
+                    <static-array name='unk_1' count='20'>
+                        <compound>
+                            <int32_t name='unk_1' init-value='-1'/>
+                            <int32_t name='unk_2' init-value='0'/>
+                            <int32_t name='unk_3' init-value='0'/>
+                        </compound>
+                    </static-array>
+                    <int32_t name='count' comment="Number of entries in the array above"/>
                 </compound>
             </pointer>
         </stl-vector>
@@ -445,7 +452,7 @@
 
         <int32_t name="next_building_id"/>
         <stl-vector name="property_ownership" since='0.47.01' pointer-type='property_ownership'/>
-        <int32_t name="unk_v47_4" since='0.47.01' comment='0 or various small numbers for habitations'/>
+        <int32_t name="next_property_ownership_id" since='0.47.01'/>
         <int32_t name="created_tick"/>
         <int32_t name="created_year"/>
         <int32_t name="unk_170" comment='constant 0'/>
@@ -474,7 +481,7 @@
             <pointer>
                 <int32_t name="unk_0"/>
                 <int32_t name="race"/>
-                <int32_t name="entity_id" ref-target='historical_entity'/>
+                <int32_t name="entity_id" ref-target='historical_entity' comment="failed to see any connections between these entities and the sites. Might be something else"/>
                 <int32_t name="unk_c"/>
                 <int32_t name="unk_10"/>
                 <int32_t name="unk_14"/>
@@ -487,16 +494,16 @@
         <int32_t name='is_mountain_halls' since='v0.40.01'/>
         <int32_t name='is_fortress' since='v0.40.01'/>
 
-        <int32_t name="unk_v74_2"/>
+        <int32_t name='unk_v74_2' comment="only MountainHalls, but only subset of them"/>
         
         <stl-vector name="unk_v40_4a" since='v0.40.01'>
             <pointer>
-                <int32_t name="unk_0"/>
+                <int32_t name="unk_0" init-value='0'/>
                 <int32_t name="entity_id" ref-target='historical_entity'/>
                 <int32_t name="year"/>
-                <int32_t name="year_tick"/>
-                <int32_t name="unk_10"/>
-                <int32_t name="unk_14" since="v0.44.07"/>
+                <int32_t name="year_tick" init-value='-1'/>
+                <int32_t name="unk_10" init-value='0'/>
+                <int32_t name="unk_14" init-value='0' since="v0.44.07"/>
             </pointer>
         </stl-vector>
         <stl-vector name="unk_v40_4b" since='v0.40.01'>
@@ -514,27 +521,27 @@
                 <int32_t/>
             </pointer>
         </stl-vector>
-        <stl-vector name="unk_v40_4d" since='v0.40.01'>
+        <stl-vector name="unk_v40_4d" since='v0.40.01' comment="only seen once, 13 long, corresponding to 13 attacks from the same entity_id resulting in site taken over in 'might bey year'">
             <pointer>
-                <int32_t/>
+                <int32_t name='id'/>
                 <stl-vector>
                     <pointer>
                         <int32_t/>
+                        <int32_t comment="might be race"/>
                         <int32_t/>
                         <int32_t/>
-                        <int32_t/>
-                        <int32_t/>
-                        <int32_t/>
+                        <int32_t comment="might be year"/>
+                        <int32_t comment="might be year"/>
                         <int32_t/>
                         <int32_t/>
                     </pointer>
                 </stl-vector>
                 <stl-vector type-name='int32_t'/>
-                <int32_t/>
+                <int32_t name='entity_id' ref-target='historical_entity' comment="single attacking site civ is only one seen"/>
             </pointer>
         </stl-vector>
 
-        <int32_t name='unk_v43_1' since='v0.43.01'/>
+        <int32_t name='unk_v40_4d_next_id' init-value='0' since='v0.43.01' comment="only single non zero entry, matching vector above. Might guess 'since' is scrambled"/>
         <stl-vector name='unk_v43_2' since='v0.43.01'>
             <pointer>
                 <int32_t/>
@@ -560,22 +567,22 @@
 
         <int32_t name='unk_v40_5' comment='constant -1?' since='v0.40.01'/>
 
-        <pointer name="unk_188">
+        <pointer name="unk_188" comment="Seen monster in lair, first settler in site, killed defender in site">
             <stl-vector>
                 <pointer>
-                    <int32_t/>
-                    <int32_t/>
-                    <int32_t/>
-                    <int32_t/>
+                    <int32_t comment="looks random"/>
+                    <int32_t init-value='0'/>
+                    <int32_t init-value='0'/>
+                    <int32_t comment="might be year"/>
                     <compound name='unk1'>
                         <int32_t/>
                         <int32_t/>
+                        <int32_t name='hfid' ref-target='historical_figure'/>
                         <int32_t/>
-                        <int32_t/>
-                        <int32_t/>
+                        <int32_t name='site_id' ref-target='world_site'/>
                     </compound>
-                    <int32_t/>
-                    <int32_t/>
+                    <int32_t init-value='-1' comment="1, 2, 3, 11 seen"/>
+                    <int32_t init-value='-1'/>
                 </pointer>
             </stl-vector>
         </pointer>
@@ -673,14 +680,14 @@
     <struct-type type-name='world_site_inhabitant'>
         <int32_t name="count"/>
         <int32_t name="race" ref-target='creature_raw'/>
-        <int32_t name="unk_8"/>
-        <int32_t name="outcast_id" ref-target='historical_entity'/>
+        <int32_t name='unk_8' init-value='-1'/>
+        <int32_t name="outcast_id" ref-target='historical_entity' comment="can be Religion, Civilization, and SiteGovernment as well as Outcast"/>
         <int32_t name="unk_10" init-value='-1' since='v0.40.01'/>
         <int32_t name="unk_14" init-value='-1' since='v0.40.01'/>
         <int32_t name="unk_18" init-value='-1' since='v0.40.01'/>
-        <int32_t name="unk_1c" init-value='-1' since='v0.40.01'/>
-        <int32_t name="unk_20" ref-target='historical_entity' since='v0.40.01'/>
-        <int32_t name="unk_24" init-value='-1' since='v0.40.01'/>
+        <int32_t name="unk_1c" init-value='-1' since='v0.40.01' comment="0 only other value seen"/>
+        <int32_t name='founder_outcast_entity_id' ref-target='historical_entity' since='v0.40.01' comment="Founder if outcast_id=-1, else Outcast and equal to outcast_id"/>
+        <int32_t name="unk_24" init-value='-1' since='v0.40.01' comment="0 and 1 seen"/>
         <int32_t name="unk_28" init-value='-1' since='v0.40.01'/>
     </struct-type>
 
