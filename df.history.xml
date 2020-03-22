@@ -232,8 +232,8 @@
         </pointer>
 
         <pointer name='known_info' since='v0.34.01'>
-            <stl-vector name="interactions" pointer-type='interaction'/>
-            <int32_t name='unk_10' init-value='-1' comment="all are deities knowing interactions, but not all with interactions have this value"/>
+            <stl-vector name='known_secrets' pointer-type='interaction' comment="Interactions inflicted upon the figure through an I_SOURCE:SECRET means are recorded here; this appears to prevent the interaction from affecting the figure again on subsequent exposure (when rereading a necromancy slab, for example). For interactions with both I_SOURCE:SECRET and another source (I_SOURCE:INGESTION, for example), exposure to the interaction through the non-secret route does not result in the interaction being listed here."/>
+            <int32_t name="unk_10"/>
             <stl-vector name='known_written_contents' type-name='int32_t' ref-target='written_content' comment="ID of written_contents known to the historical figure. Aside from the contents of read books, these so-called written contents also include known derivations of poetic forms, dance forms and musical forms"/>
             <stl-vector name="known_identities" type-name='int32_t' ref-target='identity' comment="identity ID of identities known to the historical figure, such as demon true names"/>
             <stl-vector>
@@ -343,9 +343,9 @@
                 <int32_t/>
                 <int32_t/>
             </pointer>
-            <pointer>
+            <pointer name='experiments'>
                 <stl-vector type-name='int32_t'/>
-                <stl-vector type-name='int32_t'/>
+                <stl-vector type-name='int32_t' name='races' comment='contains IDs of races created by the historical figure through experimentation'/>
             </pointer>
         </pointer>
 
@@ -355,7 +355,12 @@
             <int32_t since='v0.47.01' comment="values seen: 0-5"/>
             <static-array type-name='int32_t' count='13' since='v0.44.06' comment="wildly varying contents. Probably unitialized, as at least some change when same save reloaded"/>
             <static-array type-name='int32_t' count='13' since='v0.44.06' comment="ditto"/>
-            <int32_t name='flags' since='v0.44.06' comment="0-3 seen"/>
+            <bitfield name='flags' base-type='uint32_t' since='v0.44.06'>
+                <flag-bit/>
+                <flag-bit/>
+                <flag-bit/>
+                <flag-bit/>
+            </bitfield>
             <int16_t since='v0.44.06' comment='not saved'/>
             <int32_t since='v0.47.01' comment="doesn't seem to be initialized"/>
         </pointer>
@@ -742,7 +747,7 @@
         <df-flagarray name='flags' index-enum='histfig_flags'/>
 
         <int32_t name='unit_id' ref-target='unit'/>
-        <int32_t name='unit_id2' ref-target='unit' since='v0.40.01' comment='sometimes garbage'/>
+        <int32_t name='nemesis_id' ref-target='nemesis_record' since='v0.40.01' comment='sometimes garbage'/>
         <int32_t name='id'/>
 
         <int32_t name='unk4'/>
@@ -1445,11 +1450,15 @@
         <int32_t name='unk_c4' init-value='-1'/>
     </struct-type>
 
+    <enum-type type-name='history_event_flags'>
+        <enum-item name='hidden' comment='event is hidden from legends mode when this is set'/>
+    </enum-type>
+
     <class-type type-name='history_event' original-name='history_eventst'
                 instance-vector='$global.world.history.events' key-field='id'>
         <int32_t name='year'/>
         <int32_t name='seconds'/>
-        <df-flagarray name='flags'/>
+        <df-flagarray name='flags' index-enum='history_event_flags'/>
         <int32_t name='id'/>
 
         <virtual-methods>
@@ -1787,14 +1796,14 @@
 
     <class-type type-name='history_event_artifact_createdst' inherits-from='history_event'>
         <int32_t name='artifact_id' ref-target='artifact_record'/>
-        <int32_t name='unit_id' ref-target='unit'/>
-        <int32_t name='hfid' ref-target='historical_figure'/>
+        <int32_t name='creator_unit_id' ref-target='unit' comment='the unit who created the artifact'/>
+        <int32_t name='creator_hfid' ref-target='historical_figure' comment='the figure who created the artifact'/>
         <int32_t name='site' ref-target='world_site'/>
-        <uint32_t name='flags2' comment='1 = name_only'/>
-        <int32_t name='unk_1' init-value='-1' comment="set when victim or donor set. 229 for victim, 231 (always totem) or 230 (everything else) for donor (in tested save)"/>
-        <int32_t name='victim' ref-target='historical_figure' init-value='-1' comment="character whose defeat prompted naming"/>
-        <int32_t name='unk_2' init-value='-1' comment="set to 69 (in tested save) when donor is present"/>
-        <int32_t name='donor' ref-target='historical figure' init-value='-1' comment="character whose body part was used to create the artifact"/>
+        <bitfield name='flags2' base-type='uint32_t'>
+            <flag-bit name='name_only'/>
+        </bitfield>
+        <compound name='circumstance' type-name='history_event_circumstance_info'/>
+        <compound name='reason' type-name='history_event_reason_info'/>
     </class-type>
 
     <class-type type-name='history_event_artifact_lostst' inherits-from='history_event'>
@@ -1837,7 +1846,9 @@
         <int32_t name='civ' ref-target='historical_entity'/>
         <int32_t name='site_civ' ref-target='historical_entity'/>
         <int32_t name='site' ref-target='world_site'/>
-        <int32_t name='flags2' comment='1 = unretire'/>
+        <bitfield name='flags2' base-type='uint32_t'>
+            <flag-bit name='unretire'/>
+        </bitfield>
     </class-type>
 
     <class-type type-name='history_event_hf_destroyed_sitest' inherits-from='history_event'>
@@ -1851,14 +1862,18 @@
         <int32_t name='civ' ref-target='historical_entity'/>
         <int32_t name='site_civ' ref-target='historical_entity'/>
         <int32_t name='site' ref-target='world_site'/>
-        <int32_t name='flags2' comment='1: abandoned'/>
+        <bitfield name='flags2' base-type='uint32_t'>
+            <flag-bit name='abandoned'/>
+        </bitfield>
     </class-type>
 
     <class-type type-name='history_event_site_retiredst' inherits-from='history_event'>
         <int32_t name='civ' ref-target='historical_entity'/>
         <int32_t name='site_civ' ref-target='historical_entity'/>
         <int32_t name='site' ref-target='world_site'/>
-        <int32_t name='flags2' comment='1: first time'/>
+        <bitfield name='flags2' base-type='uint32_t'>
+            <flag-bit name='first_time'/>
+        </bitfield>
     </class-type>
 
     <class-type type-name='history_event_entity_createdst' inherits-from='history_event'>
@@ -2337,7 +2352,9 @@
         <int32_t name='region' ref-target='world_region'/>
         <int32_t name='layer' ref-target='world_underground_region'/>
         <enum base-type='int16_t' name='ghost_type' type-name='ghost_type'/>
-        <int32_t name='flags2' comment='1:again'/>
+        <bitfield name='flags2' base-type='uint32_t'>
+            <flag-bit name='again'/>
+        </bitfield>
         <int32_t name='actor_hfid' ref-target='historical_figure' since='v0.47.02'/>
         <int32_t name='interaction' ref-target='interaction' since='v0.47.02'/>
         <int32_t since='v0.47.02'/>
@@ -2405,8 +2422,12 @@
     <class-type type-name='history_event_entity_lawst' inherits-from='history_event'>
         <int32_t name='entity' ref-target='historical_entity'/>
         <int32_t name='histfig' ref-target='historical_figure'/>
-        <int32_t name='add_flags'/> 1=harsh
-        <int32_t name='remove_flags'/> 1=harsh
+        <bitfield name='add_flags' base-type='uint32_t'>
+            <flag-bit name='harsh'/>
+        </bitfield>
+        <bitfield name='remove_flags' base-type='uint32_t'>
+            <flag-bit name='harsh'/>
+        </bitfield>
     </class-type>
 
     <class-type type-name='history_event_hf_gains_secret_goalst' inherits-from='history_event'>
@@ -2976,11 +2997,14 @@
     </class-type>
 
     <class-type type-name='history_event_hf_interrogatedst' inherits-from='history_event' since='v0.47.01'>
-      <int32_t name='target_hf' ref-target='historical_figure'/>
-      <int32_t name='arresting_entity' ref-target='historical_entity'/>
-      <int32_t name='interrogator_hf' ref-target='historical_figure'/>
-      <stl-vector name='implicated_hfs' ref-target='historical_figure' type-name='int32_t' />
-      <int32_t name='interrogation_flags' comment='1: recognized, 2: refused to reveal anything'/>
+        <int32_t name='target_hf' ref-target='historical_figure'/>
+        <int32_t name='arresting_entity' ref-target='historical_entity'/>
+        <int32_t name='interrogator_hf' ref-target='historical_figure'/>
+        <stl-vector name='implicated_hfs' ref-target='historical_figure' type-name='int32_t' />
+        <bitfield name='interrogation_flags' base-type='uint32_t'>
+            <flag-bit name='recognized'/>
+            <flag-bit name='refused_to_reveal'/>
+        </bitfield>
     </class-type>
 
     <enum-type type-name='history_event_collection_type'>

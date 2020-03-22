@@ -31,7 +31,7 @@ BEGIN {
         &fully_qualified_name &type_identity_reference
         &get_comment &emit_comment
 
-        *field_defs &generate_field_table
+        *field_defs %field_defs_extra &generate_field_table
     );
     our %EXPORT_TAGS = ( ); # eg: TAG => [ qw!name1 name2! ],
     our @EXPORT_OK   = qw( );
@@ -522,6 +522,7 @@ sub emit_comment($;%) {
 # Field tables
 
 our @field_defs;
+our %field_defs_extra;
 
 sub generate_field_table(&$) {
     my ($blk, $full_name) = @_;
@@ -538,11 +539,26 @@ sub generate_field_table(&$) {
     return 'NULL' unless @field_defs;
 
     emit "#define CUR_STRUCT $full_name";
+    if (%field_defs_extra) {
+        emit "#define EXTRA(name) ${ftable_name}_Extra_ ## name";
+        for my $extra_name (keys %field_defs_extra) {
+            emit_block {
+                emit $field_defs_extra{$extra_name}{index_enum} || 0, ",";
+                emit $field_defs_extra{$extra_name}{ref_target} || 0, ",";
+                emit $field_defs_extra{$extra_name}{union_tag_field} || 0, ",";
+                emit $field_defs_extra{$extra_name}{union_tag_attr} || 0, ",";
+            } "static const struct_field_info_extra EXTRA(${extra_name}) = ", ";";
+        }
+    }
     emit_block {
         emit '{ ', join(', ', @$_), ' },' for @field_defs;
         emit "{ FLD_END }";
     } "static const struct_field_info ${ftable_name}[] = ", ";";
     emit "#undef CUR_STRUCT";
+    if (%field_defs_extra) {
+        emit "#undef EXTRA";
+        %field_defs_extra = ();
+    }
 
     return $ftable_name;
 }

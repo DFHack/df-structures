@@ -439,10 +439,25 @@ sub render_field_metadata_rec($$) {
         return;
     }
 
-    my $enum = 'NULL';
+    my $extra = 0;
     if (my $xe = $field->getAttribute('index-enum')) {
         static_include_type $xe;
-        $enum = type_identity_reference($types{$xe});
+        my $enum = type_identity_reference($types{$xe});
+        $field_defs_extra{$name}{index_enum} = $enum;
+        $extra = "&EXTRA($name)";
+    }
+    if (my $rt = $field->getAttribute('ref-target')) {
+        static_include_type $rt;
+        my $target = type_identity_reference($types{$rt});
+        $field_defs_extra{$name}{ref_target} = $target;
+        $extra = "&EXTRA($name)";
+    }
+    if (my $utf = $field->getAttribute('union-tag-field')) {
+        $field_defs_extra{$name}{union_tag_field} = "\"$utf\"";
+        if (my $uta = $field->getAttribute('union-tag-attr')) {
+            $field_defs_extra{$name}{union_tag_attr} = "\"$uta\"";
+        }
+        $extra = "&EXTRA($name)";
     }
 
     if ($meta eq 'number') {
@@ -474,12 +489,12 @@ sub render_field_metadata_rec($$) {
         $count |= 1 if is_attr_true($field, 'is-array');
         $count |= 2 if is_attr_true($field, 'has-bad-pointers');
 
-        push @field_defs, [ "${FLD}(POINTER, $name)", auto_identity_reference($items[0]), $count, $enum ];
+        push @field_defs, [ "${FLD}(POINTER, $name)", auto_identity_reference($items[0]), $count, $extra ];
     } elsif ($meta eq 'static-array') {
         my @items = $field->findnodes('ld:item');
         my $count = get_container_count($field);
 
-        push @field_defs, [ "${FLD}(STATIC_ARRAY, $name)", auto_identity_reference($items[0]), $count, $enum ];
+        push @field_defs, [ "${FLD}(STATIC_ARRAY, $name)", auto_identity_reference($items[0]), $count, $extra ];
     } elsif ($meta eq 'primitive') {
         push @field_defs, [ "${FLD}(PRIMITIVE, $name)", type_idfun_reference($field), 0, 0 ];
     } elsif ($meta eq 'container') {
@@ -491,9 +506,9 @@ sub render_field_metadata_rec($$) {
             my @items2 = $items[0]->findnodes('ld:item');
 
             push @field_defs, [ "${FLD}(STL_VECTOR_PTR, $name)",
-                                auto_identity_reference($items2[0]), 0, $enum ];
+                                auto_identity_reference($items2[0]), 0, $extra ];
         } else {
-            push @field_defs, [ "${FLD}(CONTAINER, $name)", type_idfun_reference($field), 0, $enum ];
+            push @field_defs, [ "${FLD}(CONTAINER, $name)", type_idfun_reference($field), 0, $extra ];
         }
     }
 }
@@ -631,16 +646,16 @@ sub emit_struct_fields($$;%) {
         if ($flags{-class}) {
             emit "virtual_identity ${full_name}::_identity(",
                     "sizeof($full_name), &${alloc_fn}<${full_name}>, ",
-                    "\"$name\",",
-                    ($original_name ? "\"$original_name\"" : 'NULL'), ',',
-                    ($inherits ? "&${inherits}::_identity" : 'NULL'), ',',
+                    "\"$name\", ",
+                    ($original_name ? "\"$original_name\"" : 'NULL'), ', ',
+                    ($inherits ? "&${inherits}::_identity" : 'NULL'), ', ',
                     "$ftable);";
         } else {
             emit "$identity_type ${full_name}::_identity(",
                     "sizeof($full_name), &allocator_fn<${full_name}>, ",
                     type_identity_reference($tag,-parent => 1), ', ',
-                    "\"$name\",",
-                    ($inherits ? "&${inherits}::_identity" : 'NULL'), ',',
+                    "\"$name\", ",
+                    ($inherits ? "&${inherits}::_identity" : 'NULL'), ', ',
                     "$ftable);";
         }
     } 'fields-' . $fields_group;

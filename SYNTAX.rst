@@ -291,6 +291,23 @@ In the in-place case, omitting *name* has a special meaning
 of defining an anonymous nested struct or union.
 
 
+Tagged unions
+-------------
+
+Union compounds and vectors of union compounds can additionally
+have ``union-tag-field`` and ``union-tag-attr`` attributes.
+
+``union-tag-field`` sets the name of the field that holds the tag
+for the union. Union compounds must have tags that are enumeration
+fields, while vectors of union compounds can have tags that are
+vectors of an enumeration type, or in the case of a union with
+exactly 2 members, a bit vector.
+
+``union-tag-attr`` overrides the name used to find the union member.
+By default, the field with a name equal to the enum key is chosen. When
+this attribute is set, the specified enum attr will be used instead.
+
+
 Enum fields
 -----------
 
