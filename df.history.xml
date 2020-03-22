@@ -355,7 +355,12 @@
             <int32_t since='v0.47.01' comment="values seen: 0-5"/>
             <static-array type-name='int32_t' count='13' since='v0.44.06' comment="wildly varying contents. Probably unitialized, as at least some change when same save reloaded"/>
             <static-array type-name='int32_t' count='13' since='v0.44.06' comment="ditto"/>
-            <int32_t name='flags' since='v0.44.06' comment="0-3 seen"/>
+            <bitfield name='flags' base-type='uint32_t' since='v0.44.06'>
+                <flag-bit/>
+                <flag-bit/>
+                <flag-bit/>
+                <flag-bit/>
+            </bitfield>
             <int16_t since='v0.44.06' comment='not saved'/>
             <int32_t since='v0.47.01' comment="doesn't seem to be initialized"/>
         </pointer>
@@ -1794,11 +1799,11 @@
         <int32_t name='creator_unit_id' ref-target='unit' comment='the unit who created the artifact'/>
         <int32_t name='creator_hfid' ref-target='historical_figure' comment='the figure who created the artifact'/>
         <int32_t name='site' ref-target='world_site'/>
-        <uint32_t name='flags2' comment='1 = name_only'/>
-        <int32_t name='unk_1' init-value='-1' comment='set when victim_id or reason_id set. 229 for victim_id, 231 (always totem) or 230 (everything else) for reason_id (in tested save)'/>
-        <int32_t name='victim_id' ref-target='historical_figure' init-value='-1' comment='character whose defeat prompted naming of the artifact item'/>
-        <enum base-type='int32_t' name='reason' type-name='history_event_reason'/>
-        <int32_t name='reason_id' init-value='-1' comment='What this refers to varies depending on the reason, so this is not necessarily a hist fig ID. When the reason is to sanctify a person, this is the hist fig ID of that person.'/>
+        <bitfield name='flags2' base-type='uint32_t'>
+            <flag-bit name='name_only'/>
+        </bitfield>
+        <compound name='circumstance' type-name='history_event_circumstance_info'/>
+        <compound name='reason' type-name='history_event_reason_info'/>
     </class-type>
 
     <class-type type-name='history_event_artifact_lostst' inherits-from='history_event'>
@@ -1841,7 +1846,9 @@
         <int32_t name='civ' ref-target='historical_entity'/>
         <int32_t name='site_civ' ref-target='historical_entity'/>
         <int32_t name='site' ref-target='world_site'/>
-        <int32_t name='flags2' comment='1 = unretire'/>
+        <bitfield name='flags2' base-type='uint32_t'>
+            <flag-bit name='unretire'/>
+        </bitfield>
     </class-type>
 
     <class-type type-name='history_event_hf_destroyed_sitest' inherits-from='history_event'>
@@ -1855,14 +1862,18 @@
         <int32_t name='civ' ref-target='historical_entity'/>
         <int32_t name='site_civ' ref-target='historical_entity'/>
         <int32_t name='site' ref-target='world_site'/>
-        <int32_t name='flags2' comment='1: abandoned'/>
+        <bitfield name='flags2' base-type='uint32_t'>
+            <flag-bit name='abandoned'/>
+        </bitfield>
     </class-type>
 
     <class-type type-name='history_event_site_retiredst' inherits-from='history_event'>
         <int32_t name='civ' ref-target='historical_entity'/>
         <int32_t name='site_civ' ref-target='historical_entity'/>
         <int32_t name='site' ref-target='world_site'/>
-        <int32_t name='flags2' comment='1: first time'/>
+        <bitfield name='flags2' base-type='uint32_t'>
+            <flag-bit name='first_time'/>
+        </bitfield>
     </class-type>
 
     <class-type type-name='history_event_entity_createdst' inherits-from='history_event'>
@@ -2341,7 +2352,9 @@
         <int32_t name='region' ref-target='world_region'/>
         <int32_t name='layer' ref-target='world_underground_region'/>
         <enum base-type='int16_t' name='ghost_type' type-name='ghost_type'/>
-        <int32_t name='flags2' comment='1:again'/>
+        <bitfield name='flags2' base-type='uint32_t'>
+            <flag-bit name='again'/>
+        </bitfield>
         <int32_t name='actor_hfid' ref-target='historical_figure' since='v0.47.02'/>
         <int32_t name='interaction' ref-target='interaction' since='v0.47.02'/>
         <int32_t since='v0.47.02'/>
@@ -2409,8 +2422,12 @@
     <class-type type-name='history_event_entity_lawst' inherits-from='history_event'>
         <int32_t name='entity' ref-target='historical_entity'/>
         <int32_t name='histfig' ref-target='historical_figure'/>
-        <int32_t name='add_flags'/> 1=harsh
-        <int32_t name='remove_flags'/> 1=harsh
+        <bitfield name='add_flags' base-type='uint32_t'>
+            <flag-bit name='harsh'/>
+        </bitfield>
+        <bitfield name='remove_flags' base-type='uint32_t'>
+            <flag-bit name='harsh'/>
+        </bitfield>
     </class-type>
 
     <class-type type-name='history_event_hf_gains_secret_goalst' inherits-from='history_event'>
@@ -2980,11 +2997,14 @@
     </class-type>
 
     <class-type type-name='history_event_hf_interrogatedst' inherits-from='history_event' since='v0.47.01'>
-      <int32_t name='target_hf' ref-target='historical_figure'/>
-      <int32_t name='arresting_entity' ref-target='historical_entity'/>
-      <int32_t name='interrogator_hf' ref-target='historical_figure'/>
-      <stl-vector name='implicated_hfs' ref-target='historical_figure' type-name='int32_t' />
-      <int32_t name='interrogation_flags' comment='1: recognized, 2: refused to reveal anything'/>
+        <int32_t name='target_hf' ref-target='historical_figure'/>
+        <int32_t name='arresting_entity' ref-target='historical_entity'/>
+        <int32_t name='interrogator_hf' ref-target='historical_figure'/>
+        <stl-vector name='implicated_hfs' ref-target='historical_figure' type-name='int32_t' />
+        <bitfield name='interrogation_flags' base-type='uint32_t'>
+            <flag-bit name='recognized'/>
+            <flag-bit name='refused_to_reveal'/>
+        </bitfield>
     </class-type>
 
     <enum-type type-name='history_event_collection_type'>
