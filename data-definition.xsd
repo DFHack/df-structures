@@ -1,0 +1,570 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:group name="SharedElements">
+        <xs:choice>
+            <xs:element name="comment" type="xs:string" />
+            <xs:element name="code-helper">
+                <xs:complexType>
+                    <xs:simpleContent>
+                        <xs:extension base="xs:string">
+                            <xs:attribute name="name" use="required">
+                            </xs:attribute>
+                        </xs:extension>
+                    </xs:simpleContent>
+                </xs:complexType>
+            </xs:element>
+        </xs:choice>
+    </xs:group>
+
+    <xs:attributeGroup name="SharedAttributes">
+        <xs:attribute name="comment" type="xs:string">
+        </xs:attribute>
+        <xs:attribute name="since" type="xs:string">
+        </xs:attribute>
+    </xs:attributeGroup>
+
+    <xs:element name="data-definition">
+        <xs:complexType mixed="true">
+            <xs:choice>
+                <xs:group ref="TypeDefElements" minOccurs="0" maxOccurs="unbounded" />
+                <xs:group ref="SymbolsElements" minOccurs="0" maxOccurs="unbounded" />
+            </xs:choice>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:group name="TypeDefElements">
+        <xs:choice>
+            <xs:element name="enum-type" type="EnumTypeDef" />
+            <xs:element name="bitfield-type" type="BitfieldTypeDef" />
+            <xs:element name="struct-type" type="StructTypeDef" />
+            <xs:element name="class-type" type="ClassTypeDef" />
+            <xs:element name="df-linked-list-type" type="DFLinkedListTypeDef" />
+            <xs:element name="global-object" type="GlobalObjectDef" />
+        </xs:choice>
+    </xs:group>
+
+    <xs:group name="SymbolsElements">
+        <xs:choice>
+            <xs:element name="symbol-table" type="SymbolTable" />
+        </xs:choice>
+    </xs:group>
+
+    <xs:complexType name="TypeDef" mixed="true" abstract="true">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:group ref="SharedElements" />
+        </xs:choice>
+        <xs:attributeGroup ref="SharedAttributes" />
+        <xs:attribute name="type-name" type="xs:ID" use="required">
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="EnumTypeDef" mixed="true">
+        <xs:complexContent>
+            <xs:extension base="TypeDef">
+                <xs:sequence>
+                    <xs:element name="enum-attr" type="EnumAttr" minOccurs="0" maxOccurs="unbounded" />
+                    <xs:element name="enum-item" type="EnumItem" minOccurs="1" maxOccurs="unbounded" />
+                </xs:sequence>
+                <xs:attribute name="base-type" type="IntegerType" default="int32_t">
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="BitfieldTypeDef" mixed="true">
+        <xs:complexContent>
+            <xs:extension base="TypeDef">
+                <xs:sequence>
+                    <xs:sequence minOccurs="1" maxOccurs="unbounded">
+                        <xs:group ref="SharedElements" minOccurs="0" maxOccurs="unbounded" />
+                        <xs:element name="flag-bit" type="FlagBit" />
+                    </xs:sequence>
+
+                    <xs:group ref="SharedElements" minOccurs="0" maxOccurs="unbounded" />
+                </xs:sequence>
+
+                <xs:attribute name="base-type" type="IntegerType" default="uint32_t">
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="CompoundTypeDef" mixed="true" abstract="true">
+        <xs:complexContent>
+            <xs:extension base="TypeDef">
+                <xs:attribute name="inherits-from">
+                </xs:attribute>
+                <xs:attribute name="key-field">
+                </xs:attribute>
+                <xs:attribute name="instance-vector">
+                </xs:attribute>
+                <xs:attribute name="custom-methods" type="xs:boolean">
+                </xs:attribute>
+                <xs:attribute name="df-list-link-type">
+                </xs:attribute>
+                <xs:attribute name="df-list-link-field">
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="StructTypeDef" mixed="true">
+        <xs:complexContent>
+            <xs:extension base="CompoundTypeDef">
+                <xs:sequence>
+                    <xs:choice minOccurs="0" maxOccurs="unbounded">
+                        <xs:group ref="CompoundField" />
+                        <xs:element name="extra-include" type="ExtraInclude" />
+                    </xs:choice>
+                    <xs:element name="custom-methods" type="CustomMethods" minOccurs="0" maxOccurs="1" />
+                    <xs:group ref="SharedElements" minOccurs="0" maxOccurs="unbounded" />
+                </xs:sequence>
+
+                <xs:attribute name="is-union" type="xs:boolean">
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="ClassTypeDef" mixed="true">
+        <xs:complexContent>
+            <xs:extension base="CompoundTypeDef">
+                <xs:sequence>
+                    <xs:choice minOccurs="0" maxOccurs="unbounded">
+                        <xs:group ref="CompoundField" />
+                        <xs:element name="extra-include" type="ExtraInclude" />
+                    </xs:choice>
+                    <xs:choice minOccurs="0">
+                        <xs:sequence>
+                            <xs:element name="virtual-methods" type="VirtualMethods" />
+                            <xs:element name="custom-methods" type="CustomMethods" minOccurs="0" />
+                        </xs:sequence>
+                        <xs:sequence>
+                            <xs:element name="custom-methods" type="CustomMethods" />
+                            <xs:element name="virtual-methods" type="VirtualMethods" minOccurs="0" />
+                        </xs:sequence>
+                    </xs:choice>
+                    <xs:group ref="SharedElements" minOccurs="0" maxOccurs="unbounded" />
+                </xs:sequence>
+
+                <xs:attribute name="original-name">
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="DFLinkedListTypeDef" mixed="true">
+        <xs:complexContent>
+            <xs:extension base="TypeDef">
+                <xs:attribute name="item-type" use="required">
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="GlobalObjectDef" mixed="true">
+        <xs:complexContent>
+            <xs:extension base="CompoundFieldType">
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="SymbolTable" mixed="true">
+        <xs:sequence>
+            <xs:choice>
+                <xs:element name="binary-timestamp" type="BinaryTimestamp" />
+                <xs:element name="md5-hash" type="MD5Hash" />
+            </xs:choice>
+
+            <xs:element name="global-address" type="GlobalAddress" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="vtable-address" type="VTableAddress" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+
+        <xs:attribute name="os-type" use="required" type="OSType" />
+        <xs:attribute name="name" use="required" />
+    </xs:complexType>
+
+    <xs:group name="CompoundField">
+        <xs:choice>
+            <xs:group ref="SharedElements" />
+            <xs:element name="bool" type="BooleanField" />
+            <xs:element name="int8_t" type="IntegerField" />
+            <xs:element name="int16_t" type="IntegerField" />
+            <xs:element name="int32_t" type="IntegerField" />
+            <xs:element name="int64_t" type="IntegerField" />
+            <xs:element name="long" type="IntegerField" />
+            <xs:element name="uint8_t" type="IntegerField" />
+            <xs:element name="uint16_t" type="IntegerField" />
+            <xs:element name="uint32_t" type="IntegerField" />
+            <xs:element name="uint64_t" type="IntegerField" />
+            <xs:element name="s-float" type="FloatField" />
+            <xs:element name="d-float" type="FloatField" />
+            <xs:element name="stl-string" type="StlStringField" />
+            <xs:element name="stl-vector" type="StlVectorField" />
+            <xs:element name="stl-bit-vector" type="StlBitVectorField" />
+            <xs:element name="stl-deque" type="StlDequeField" />
+            <xs:element name="stl-set" type="StlSetField" />
+            <xs:element name="stl-fstream" type="StlFStreamField" />
+            <xs:element name="df-linked-list" type="DfLinkedListField" />
+            <xs:element name="df-array" type="DfArrayField" />
+            <xs:element name="df-flagarray" type="DfFlagArrayField" />
+            <xs:element name="static-array" type="StaticArrayField" />
+            <xs:element name="enum" type="EnumField" />
+            <xs:element name="bitfield" type="BitfieldField" />
+            <xs:element name="compound" type="EmbeddedCompoundField" />
+            <xs:element name="pointer" type="PointerField" />
+            <xs:element name="ptr-string" type="PtrStringField" />
+            <xs:element name="static-string" type="StaticStringField" />
+            <xs:element name="padding" type="PaddingField" />
+        </xs:choice>
+    </xs:group>
+
+    <xs:complexType name="ExtraInclude">
+        <xs:attribute name="type-name" />
+        <xs:attribute name="filename" />
+    </xs:complexType>
+    <xs:complexType name="CustomMethods" mixed="true">
+        <xs:sequence>
+            <xs:element name="cmethod" type="Method" minOccurs="1" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="VirtualMethods" mixed="true">
+        <xs:sequence>
+            <xs:element name="vmethod" type="Method" minOccurs="1" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="Method" mixed="true">
+        <xs:choice>
+            <xs:sequence>
+                <xs:element name="ret-type">
+                    <xs:complexType mixed="true">
+                        <xs:group ref="CompoundField" />
+                    </xs:complexType>
+                </xs:element>
+                <xs:group ref="CompoundField" minOccurs="0" maxOccurs="unbounded" />
+            </xs:sequence>
+            <xs:sequence>
+                <xs:group ref="CompoundField" minOccurs="0" maxOccurs="unbounded" />
+                <xs:element name="ret-type" minOccurs="0" maxOccurs="1">
+                    <xs:complexType mixed="true">
+                        <xs:group ref="CompoundField" />
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:choice>
+
+        <xs:attributeGroup ref="SharedAttributes" />
+        <xs:attribute name="name">
+        </xs:attribute>
+        <xs:attribute name="ret-type">
+        </xs:attribute>
+        <xs:attribute name="is-destructor">
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="SimpleFieldType" mixed="true">
+        <xs:group ref="SharedElements" minOccurs="0" maxOccurs="unbounded" />
+        <xs:attributeGroup ref="SharedAttributes" />
+        <xs:attribute name="name">
+        </xs:attribute>
+        <xs:attribute name="ref-target">
+        </xs:attribute>
+        <xs:attribute name="refers-to">
+        </xs:attribute>
+        <xs:attribute name="aux-value">
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="CompoundFieldType" mixed="true">
+        <xs:complexContent>
+            <xs:extension base="SimpleFieldType">
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                    <xs:group ref="CompoundField" />
+                </xs:choice>
+                <xs:attribute name="type-name">
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="ContainerFieldType" mixed="true">
+        <xs:complexContent>
+            <xs:extension base="CompoundFieldType">
+                <xs:attribute name="pointer-type">
+                </xs:attribute>
+                <xs:attribute name="has-bad-pointers" type="xs:boolean">
+                </xs:attribute>
+                <xs:attribute name="index-refers-to">
+                </xs:attribute>
+                <xs:attribute name="index-enum">
+                </xs:attribute>
+                <xs:attribute name="init-value">
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="BitContainerFieldType" mixed="true">
+        <xs:complexContent>
+            <xs:extension base="SimpleFieldType">
+                <xs:attribute name="index-refers-to">
+                </xs:attribute>
+                <xs:attribute name="index-enum">
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="BooleanField">
+        <xs:complexContent>
+            <xs:extension base="SimpleFieldType">
+                <xs:attribute name="init-value" type="xs:boolean">
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="IntegerField">
+        <xs:complexContent>
+            <xs:extension base="SimpleFieldType">
+                <xs:attribute name="init-value">
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="FloatField">
+        <xs:complexContent>
+            <xs:extension base="SimpleFieldType">
+                <xs:attribute name="init-value">
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="StlStringField">
+        <xs:complexContent>
+            <xs:extension base="SimpleFieldType">
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="StlVectorField">
+        <xs:complexContent>
+            <xs:extension base="ContainerFieldType">
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="StlBitVectorField">
+        <xs:complexContent>
+            <xs:extension base="BitContainerFieldType">
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="StlDequeField">
+        <xs:complexContent>
+            <xs:extension base="ContainerFieldType">
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="StlSetField">
+        <xs:complexContent>
+            <xs:extension base="ContainerFieldType">
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="StlFStreamField">
+        <xs:complexContent>
+            <xs:extension base="SimpleFieldType">
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="DfLinkedListField">
+        <xs:complexContent>
+            <xs:extension base="SimpleFieldType">
+                <xs:attribute name="type-name" use="required">
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="DfArrayField">
+        <xs:complexContent>
+            <xs:extension base="ContainerFieldType">
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="DfFlagArrayField">
+        <xs:complexContent>
+            <xs:extension base="BitContainerFieldType">
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="StaticArrayField">
+        <xs:complexContent>
+            <xs:extension base="ContainerFieldType">
+                <xs:attribute name="count" type="xs:positiveInteger">
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="EnumField" mixed="true">
+        <xs:complexContent>
+            <xs:extension base="SimpleFieldType">
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                    <xs:group ref="SharedElements" />
+                    <xs:element name="enum-item" type="EnumItem" />
+                </xs:choice>
+                <xs:attribute name="init-value">
+                </xs:attribute>
+                <xs:attribute name="type-name">
+                </xs:attribute>
+                <xs:attribute name="base-type" type="IntegerType">
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="BitfieldField" mixed="true">
+        <xs:complexContent>
+            <xs:extension base="SimpleFieldType">
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                    <xs:group ref="SharedElements" />
+                    <xs:element name="flag-bit" type="FlagBit" />
+                </xs:choice>
+                <xs:attribute name="init-value">
+                </xs:attribute>
+                <xs:attribute name="type-name">
+                </xs:attribute>
+                <xs:attribute name="base-type" type="IntegerType">
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="EmbeddedCompoundField">
+        <xs:complexContent>
+            <xs:extension base="CompoundFieldType">
+                <xs:attribute name="is-union" type="xs:boolean">
+                </xs:attribute>
+                <xs:attribute name="init-value">
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="PointerField">
+        <xs:complexContent>
+            <xs:extension base="ContainerFieldType">
+                <xs:attribute name="is-array" type="xs:boolean">
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="PtrStringField">
+        <xs:complexContent>
+            <xs:extension base="SimpleFieldType">
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="StaticStringField">
+        <xs:complexContent>
+            <xs:extension base="SimpleFieldType">
+                <xs:attribute name="size" type="xs:positiveInteger" use="required">
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="PaddingField">
+        <xs:complexContent>
+            <xs:extension base="SimpleFieldType">
+                <xs:attribute name="size" type="xs:positiveInteger" use="required">
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="EnumAttr">
+        <xs:attributeGroup ref="SharedAttributes" />
+        <xs:attribute name="name">
+        </xs:attribute>
+        <xs:attribute name="type-name">
+        </xs:attribute>
+        <xs:attribute name="default-value">
+        </xs:attribute>
+        <xs:attribute name="is-list">
+        </xs:attribute>
+        <xs:attribute name="use-key-name" type="xs:boolean">
+        </xs:attribute>
+        <xs:attribute name="value" type="xs:integer">
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="EnumItem" mixed="true">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:group ref="SharedElements" />
+            <xs:element name="item-attr" type="EnumItemAttr" />
+        </xs:choice>
+
+        <xs:attributeGroup ref="SharedAttributes" />
+        <xs:attribute name="name">
+        </xs:attribute>
+        <xs:attribute name="value" type="xs:integer">
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="EnumItemAttr" mixed="true">
+        <xs:group ref="SharedElements" minOccurs="0" maxOccurs="unbounded" />
+        <xs:attributeGroup ref="SharedAttributes" />
+        <xs:attribute name="name" use="required">
+        </xs:attribute>
+        <xs:attribute name="value" use="required">
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="FlagBit" mixed="true">
+        <xs:group ref="SharedElements" minOccurs="0" maxOccurs="unbounded" />
+        <xs:attributeGroup ref="SharedAttributes" />
+        <xs:attribute name="name">
+        </xs:attribute>
+        <xs:attribute name="type-name">
+        </xs:attribute>
+        <xs:attribute name="count" type="xs:positiveInteger">
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:simpleType name="IntegerType">
+        <xs:union memberTypes="SignedIntegerType UnsignedIntegerType" />
+    </xs:simpleType>
+    <xs:simpleType name="SignedIntegerType">
+        <xs:restriction base="xs:token">
+            <xs:enumeration value="int8_t" />
+            <xs:enumeration value="int16_t" />
+            <xs:enumeration value="int32_t" />
+            <xs:enumeration value="int64_t" />
+            <xs:enumeration value="long" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="UnsignedIntegerType">
+        <xs:restriction base="xs:token">
+            <xs:enumeration value="uint8_t" />
+            <xs:enumeration value="uint16_t" />
+            <xs:enumeration value="uint32_t" />
+            <xs:enumeration value="uint64_t" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="OSType">
+        <xs:restriction base="xs:token">
+            <xs:enumeration value="windows" />
+            <xs:enumeration value="linux" />
+            <xs:enumeration value="darwin" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="BinaryTimestamp">
+        <xs:attribute name="value" use="required">
+            <xs:simpleType>
+                <xs:restriction base="xs:token">
+                    <xs:pattern value="0x[0-9A-F]{8}" />
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="MD5Hash">
+        <xs:attribute name="value" use="required">
+            <xs:simpleType>
+                <xs:restriction base="xs:token">
+                    <xs:pattern value="[0-9a-f]{32}" />
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="GlobalAddress">
+        <xs:attribute name="name" use="required" />
+        <xs:attribute name="value" use="required" />
+    </xs:complexType>
+    <xs:complexType name="VTableAddress">
+        <xs:attribute name="name" use="required" />
+        <xs:attribute name="value" />
+        <xs:attribute name="mangled" />
+        <xs:attribute name="offset" />
+    </xs:complexType>
+</xs:schema>
