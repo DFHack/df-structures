@@ -3069,23 +3069,23 @@
         <compound type-name='language_name' name='name'/>
         <stl-vector name='attacker_civ' type-name='int32_t' ref-target='historical_entity'/>
         <stl-vector name='defender_civ' type-name='int32_t' ref-target='historical_entity'/>
-        <stl-vector type-name='int32_t'/>
+        <stl-vector type-name='int32_t' ref-target='historical_entity' comment="when length 2 attacker/defender entity. When longer seems to contain unrelated civs at varying locations"/>
         <compound name='unk'>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <int32_t/>
-            <stl-vector name='ethics_unk1' type-name='int16_t'/>
+            <stl-vector type-name='int16_t' init-value='0' comment="These 5 vectors are the same length,0 or 1. Only 0 seen"/>
+            <stl-vector name='attacker_entity_leader' type-name='int32_t' ref-target='historical_figure'/>
+            <stl-vector type-name='int32_t' init-value='-1' comment="only -1 seen"/>
+            <stl-vector type-name='int32_t' init-value='-1' comment="only -1 seen"/>
+            <stl-vector type-name='int32_t' comment="only -5 and -6 seen"/>
+            <int32_t comment="same as previous vector single element or zero. Sum?"/>
+            <stl-vector name='ethics_unk1' type-name='int16_t' comment="these three vectors are of the same length"/>
             <stl-vector name='disputed_ethics' type-name='ethic_type'/>
-            <stl-vector name='ethics_unk3' type-name='int32_t'/>
+            <stl-vector name='ethics_unk3' type-name='int32_t' init-value='-1' comment="not seen other value"/>
             <stl-vector name='dispute_severities' type-name='int32_t'/>
-            <int32_t name='worst_severity'/>
-            <stl-vector type-name='int16_t'/>
+            <int32_t name='accumulated_ethics_severity'/>
+            <stl-vector type-name='int16_t' comment='these three vectors are the same length'/>
             <stl-vector type-name='int32_t'/>
             <stl-vector type-name='int32_t'/>
-            <int32_t/>
+            <int32_t name='accumulated_unk_severity' comment="sum of previous vector values"/>
         </compound>
     </class-type>
 
@@ -3100,32 +3100,28 @@
         <stl-vector name='attacker_civ' type-name='int32_t' ref-target='historical_entity'/>
         <stl-vector name='defender_civ' type-name='int32_t' ref-target='historical_entity'/>
         <stl-vector name='attacker_hf' type-name='int32_t' ref-target='historical_figure'/>
+        <stl-vector name='attacker_role' type-name='int32_t' comment="Tentatively 0: regular, 1/2 merc"/>
         <stl-vector name='defender_hf' type-name='int32_t' ref-target='historical_figure'/>
-        <stl-vector name='noncombat_hf' type-name='int32_t' ref-target='historical_figure'/>
+        <stl-vector name='defender_role' type-name='int32_t' comment="same as for attacker role, i.e. 0-2, with 1/2 being mercs"/>
+        <stl-vector name='noncombat_hf' type-name='int32_t' ref-target='historical_figure' comment="saw being beheaded, but that's only one checked"/>
 
-        these new fields are probably mixed in above or below
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <int32_t/>
-        <int32_t init-value='-1'/>
-        <int32_t init-value='-1'/>
+        <bool name='attacker_merc_scouts' comment="else 'ordinary' mercs"/>
+        <int32_t name='attacker_mercs' ref-target='historical_entity'/>
+        <int32_t name='defender_mercs' ref-target='historical_entity'/>
         <stl-vector type-name='int32_t' comment="Observed size of 4 doesn't allow for pointer"/>
         <stl-vector type-name='int32_t' comment="Observed size of 4 doesn't allow for pointer"/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-
-        <stl-vector name='attacker_squad_entity_pop' type-name='int32_t'/>
+        <stl-vector name='attacker_squad_entity_pop' type-name='int32_t' ref-target='entity_population'/>
         <stl-vector name='attacker_squad_counts' type-name='int32_t'/>
         <stl-vector name='attacker_squad_deaths' type-name='int32_t'/>
         <stl-vector name='attacker_squad_races' type-name='int32_t' ref-target='creature_raw'/>
         <stl-vector name='attacker_squad_sites' type-name='int32_t' ref-target='world_site'/>
-
-        <stl-vector name='defender_squad_entity_pops' type-name='int32_t'/>
+        <stl-vector type-name='int32_t' comment="probably a boolean, as only 0/1 seen"/>
+        <stl-vector name='defender_squad_entity_pops' type-name='int32_t' ref-target='entity_population'/>
         <stl-vector name='defender_squad_counts' type-name='int32_t'/>
         <stl-vector name='defender_squad_deaths' type-name='int32_t'/>
         <stl-vector name='defender_squad_races' type-name='int32_t' ref-target='creature_raw'/>
         <stl-vector name='defender_squad_sites' type-name='int32_t' ref-target='world_site'/>
-
+        <stl-vector type-name='int32_t' comment="probably a boolean, as only 0/1 seen"/>
         <int16_t name='outcome' comment='0 = attacker won, 1 = defender won'/>
     </class-type>
 
@@ -3139,7 +3135,7 @@
         <int32_t name='attacker_hf' ref-target='historical_figure'/>
         <int32_t name='defender_hf' ref-target='historical_figure'/>
         <int32_t name='ordinal'/>
-        <int8_t/>
+        <int8_t comment="probably boolean. Only 0/1 seen. Looks like winner, with all '1' examined showing defeat of defender, from unscathed to death, and '0' showing no result at all or death of attacker"/>
     </class-type>
 
     <class-type type-name='history_event_collection_site_conqueredst' inherits-from='history_event_collection'>
@@ -3226,34 +3222,34 @@
     </class-type>
 
     <class-type type-name='history_event_collection_performancest' inherits-from='history_event_collection'>
-        <int32_t/>
+        <int32_t name='parent_collection' ref-target='history_event_collection' comment="all seen were occasions"/>
         <int32_t name='civ' ref-target='historical_entity'/>
-        <int32_t/>
-        <int32_t/>
+        <int32_t comment="0-11 seen"/>
+        <int32_t comment="0-9 seen"/>
         <int32_t name='ordinal'/>
     </class-type>
 
     <class-type type-name='history_event_collection_competitionst' inherits-from='history_event_collection'>
-        <int32_t/>
+        <int32_t name='parent_collection' ref-target='history_event_collection' comment="all seen were occasions"/>
         <int32_t name='civ' ref-target='historical_entity'/>
-        <int32_t/>
-        <int32_t/>
+        <int32_t comment="0-13 seen"/>
+        <int32_t comment="0-8 seen"/>
         <int32_t name='ordinal'/>
     </class-type>
 
     <class-type type-name='history_event_collection_processionst' inherits-from='history_event_collection'>
-        <int32_t/>
+        <int32_t name='parent_collection' ref-target='history_event_collection' comment="all seen were occasions"/>
         <int32_t name='civ' ref-target='historical_entity'/>
-        <int32_t/>
-        <int32_t/>
+        <int32_t comment="0-14 seen"/>
+        <int32_t comment="0-9 seen"/>
         <int32_t name='ordinal'/>
     </class-type>
 
     <class-type type-name='history_event_collection_ceremonyst' inherits-from='history_event_collection'>
-        <int32_t/>
+        <int32_t name='parent_collection' ref-target='history_event_collection' comment="all seen were occasions"/>
         <int32_t name='civ' ref-target='historical_entity'/>
-        <int32_t/>
-        <int32_t/>
+        <int32_t comment="0-14 seen"/>
+        <int32_t comment="0-9 seen"/>
         <int32_t name='ordinal'/>
     </class-type>
 
@@ -3271,7 +3267,7 @@
         <compound name='region_pos' type-name='coord2d'/>
         <int32_t name='attacker_civ' ref-target='historical_entity'/>
         <int32_t name='defender_civ' ref-target='historical_entity'/>
-        <stl-vector type-name='int32_t'/>
+        <stl-vector name='thieves' type-name='int32_t' ref-target='historical_figure' comment="all of the ones examined were mentioned stealing things during the same raid on the site"/>
         <int32_t name='ordinal'/>
     </class-type>
 

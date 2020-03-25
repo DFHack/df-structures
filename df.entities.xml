@@ -2,22 +2,22 @@
     <struct-type type-name='entity_occasion_info'>
         <stl-vector name="occasions" pointer-type='entity_occasion' since='v0.42.01'/>
         <int32_t name="next_occasion_id"/>
-        <static-array type-name='int32_t' count='10'/>
-        <int32_t />
+        <static-array name='events' type-name='int32_t' count='10' ref-target='history_event'/>
+        <int32_t name='count' comment="number of elements used in array above"/>
     </struct-type>
-    <struct-type type-name='entity_occasion'>
+    <struct-type type-name='entity_occasion' comment="some festivals are annual, some single time. anon_1=0 plus anon_3=0 seems to match with single time, which doesn't make much sense. Only frequency seen is yearly">
         <int32_t name="id"/>
-        <int32_t />
+        <int32_t comment="0 and 1 seen"/>
         <int32_t name='site' ref-target='world_site'/>
-        <int32_t />
+        <int32_t init-value='-1' comment="only -1 seen, but based on other cases, might be an abstract building"/>
         <compound name='name' type-name='language_name'/>
         <int32_t name='start_year_tick'/>
         <int32_t name='end_year_tick'/>
-        <int32_t />
-        <int32_t name="event"/>
-        <int32_t />
-        <stl-vector name='schedule' pointer-type='entity_occasion_schedule' />
-        <int32_t />
+        <int32_t comment="0-2 seen"/>
+        <int32_t name="event" ref-target='history_event'/>
+        <int32_t init-value='-1' comment="only seen with anon_3=2, but is usually not set"/>
+        <stl-vector name='schedule' pointer-type='entity_occasion_schedule'/>
+        <int32_t init-value='0' comment="only value seen"/>
     </struct-type>
     <enum-type type-name='occasion_schedule_type' base-type='int32_t'>
         <enum-item name='DANCE_PERFORMANCE'/>
@@ -38,7 +38,7 @@
     </enum-type>
     <struct-type type-name='entity_occasion_schedule'>
         <enum name='type' base-type='int32_t' type-name='occasion_schedule_type'/>
-        <int32_t name='reference' comment="art form / event / item_type /procession start abstractc building"/>
+        <int32_t name='reference' comment="art form / event / item_type /procession start abstract building"/>
         <int32_t name='reference2' comment="item_subtype / procession stop abstract building"/>
         <int32_t />
         <int32_t />
@@ -664,7 +664,7 @@
         <stl-vector name='major_civ_number' type-name='int32_t' since='v0.42.01' comment="Single item increasing from 0 linearly as major race civs are created, i.e. all civs except cavern and Kobold, but including spire breach released goblin ones"/>
         <stl-vector name='major_civ_number_2' type-name='int32_t' since='v0.42.01' comment="Identical to major_civ_number on the same entries. Presumably some properties only major civs have, such as e.g. accepting outsiders as members, engage in conquest, etc."/>
         <stl-vector type-name='int32_t' since='v0.42.01' comment="Only on major civs, but not all"/>
-        <pointer name='occasion_info' type-name='entity_occasion_info'/>
+        <pointer name='occasion_info' type-name='entity_occasion_info' comment="only seen on Civilization, SiteGovernment, and Religion, but not all"/>
 
         <stl-vector name='artifact_claims' pointer-type='artifact_claim' since='v0.44.01' comment='sorted on artifact id'/>
 
