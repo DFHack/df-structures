@@ -454,9 +454,10 @@ sub render_field_metadata_rec($$) {
     }
     if (my $utf = $field->getAttribute('union-tag-field')) {
         $field_defs_extra{$name}{union_tag_field} = "\"$utf\"";
-        if (my $uta = $field->getAttribute('union-tag-attr')) {
-            $field_defs_extra{$name}{union_tag_attr} = "\"$uta\"";
-        }
+        $extra = "&EXTRA($name)";
+    }
+    if (my $uta = $field->getAttribute('union-tag-attr')) {
+        $field_defs_extra{$name}{union_tag_attr} = "\"$uta\"";
         $extra = "&EXTRA($name)";
     }
 
