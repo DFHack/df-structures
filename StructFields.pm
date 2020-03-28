@@ -470,7 +470,7 @@ sub render_field_metadata_rec($$) {
         }
     } elsif ($meta eq 'global' || $meta eq 'compound') {
         if (is_attr_true($field, 'ld:enum-size-forced')) {
-            push @field_defs, [ "${FLD}(PRIMITIVE, $name)", type_idfun_reference($field), 0, 0 ];
+            push @field_defs, [ "${FLD}(PRIMITIVE, $name)", type_idfun_reference($field), 0, $extra ];
         } else {
             if ($meta eq 'global') {
                 my $tname = $field->getAttribute('type-name');
@@ -478,9 +478,9 @@ sub render_field_metadata_rec($$) {
             }
 
             if ($subtype && $subtype eq 'enum') {
-                push @field_defs, [ "${FLD}(PRIMITIVE, $name)", type_identity_reference($field), 0, 0 ];
+                push @field_defs, [ "${FLD}(PRIMITIVE, $name)", type_identity_reference($field), 0, $extra ];
             } else {
-                push @field_defs, [ "${FLD}(SUBSTRUCT, $name)", type_identity_reference($field), 0, 0 ];
+                push @field_defs, [ "${FLD}(SUBSTRUCT, $name)", type_identity_reference($field), 0, $extra ];
             }
         }
     } elsif ($meta eq 'pointer') {
