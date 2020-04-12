@@ -463,11 +463,11 @@ sub render_field_metadata_rec($$) {
 
     if ($meta eq 'number') {
         my $tname = primitive_type_name($subtype);
-        push @field_defs, [ "${FLD}(PRIMITIVE, $name)", "TID($tname)", 0, 0 ];
+        push @field_defs, [ "${FLD}(PRIMITIVE, $name)", "TID($tname)", 0, $extra ];
     } elsif ($meta eq 'bytes') {
         if ($subtype eq 'static-string') {
             my $count = $field->getAttribute('size') || 0;
-            push @field_defs, [ "${FLD}(STATIC_STRING, $name)", 'NULL', $count, 0 ];
+            push @field_defs, [ "${FLD}(STATIC_STRING, $name)", 'NULL', $count, $extra ];
         }
     } elsif ($meta eq 'global' || $meta eq 'compound') {
         if (is_attr_true($field, 'ld:enum-size-forced')) {
@@ -497,7 +497,7 @@ sub render_field_metadata_rec($$) {
 
         push @field_defs, [ "${FLD}(STATIC_ARRAY, $name)", auto_identity_reference($items[0]), $count, $extra ];
     } elsif ($meta eq 'primitive') {
-        push @field_defs, [ "${FLD}(PRIMITIVE, $name)", type_idfun_reference($field), 0, 0 ];
+        push @field_defs, [ "${FLD}(PRIMITIVE, $name)", type_idfun_reference($field), 0, $extra ];
     } elsif ($meta eq 'container') {
         my @items = $field->findnodes('ld:item');
 
