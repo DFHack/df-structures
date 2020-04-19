@@ -30,7 +30,7 @@ sub translate_lookup($) {
     my @fields = split /\./, substr($1,1);
     my $expr = "df::global::".shift(@fields);
     for my $fn (@fields) {
-        $expr = "_toref($expr).$fn";
+        $expr = "_fieldptr($expr, $fn)";
     }
     return $expr;
 }
@@ -67,26 +67,26 @@ sub emit_find_instance(\%$) {
     my $instance_vector = translate_lookup $tag->getAttribute('instance-vector');
     if ($instance_vector) {
         emit "static $vectype &get_vector();";
-        # needed for Lua API
         emit "static $vectype *get_vector_ptr();";
         emit "static $typename *find($keytype id);";
 
         with_emit_static {
             emit_block {
-                emit "return ", $instance_vector, ";";
+                emit "return *get_vector_ptr();";
             } "$vectype& ${typename}::get_vector() ";
 
             emit_block {
-                emit "return &get_vector();";
+                emit "return $instance_vector;";
             } "$vectype* ${typename}::get_vector_ptr() ";
 
             emit_block {
-                emit "std::vector<$typename*> &vec_ = get_vector();";
+                emit "std::vector<$typename*> *vec_ = get_vector_ptr();";
+                emit "if (!vec_) return NULL;";
 
                 if ($keyfield) {
-                    emit "return binsearch_in_vector(vec_, id_);";
+                    emit "return binsearch_in_vector(*vec_, id_);";
                 } else {
-                    emit "return (size_t(id_) < vec_.size()) ? vec_[id_] : NULL;";
+                    emit "return (size_t(id_) < vec_->size()) ? (*vec_)[id_] : NULL;";
                 }
             } "$typename *${typename}::find($keytype id_) ";
         };
