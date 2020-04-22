@@ -11,11 +11,8 @@
         <stl-vector name="killed_underground_region" type-name='int32_t' ref-target='world_underground_region'/>
         <stl-vector name="killed_region" type-name='int32_t' ref-target='world_region'/>
         <stl-vector name="killed_site" type-name='int32_t' ref-target='world_site'/>
-        <stl-vector name="killed_undead">
-            <bitfield base-type='uint16_t'>
-                <flag-bit name='zombie'/>
-                <flag-bit name='ghostly'/>
-            </bitfield>
+        <stl-vector name='killed_undead'>
+            <bitfield type-name='undead_flags'/>
         </stl-vector>
         <stl-vector name="killed_count" type-name='int32_t'/>
     </struct-type>
@@ -76,6 +73,7 @@
 
     <!-- This enum is tentative -->
     <enum-type type-name='whereabouts_type' base-type='int16_t'>
+        <enum-item name='NONE' value='-1'/>
         <enum-item name='wanderer' comment="wandering the wilds/region/depths of the world (none/region/underground_region)"/>
         <enum-item name='settler' comment="site/region, region only for dead 'monsters'"/>
         <enum-item name='refugee' comment="into region only for dead. refugees and abucted-imprisoned-turned"/>
@@ -771,7 +769,24 @@
             <df-array name="unk_0" type-name='uint8_t'/>
             <df-array name="unk_8" type-name='int16_t'/>
         </pointer>
-        <pointer name="unk_v47_2"/>
+        <pointer name="unk_v47_2">
+            <pointer type-name='historical_figure'/>
+            <pointer type-name='historical_figure'/>
+            <pointer type-name='historical_figure'/>
+            <pointer type-name='historical_figure'/>
+            <pointer type-name='historical_figure'/>
+            <pointer type-name='historical_figure'/>
+            <int16_t/>
+            <int16_t/>
+            <int16_t/>
+            <int16_t/>
+            <int16_t/>
+            <int16_t/>
+            <int32_t/>
+            <pointer type-name='historical_figure'/>
+            <pointer type-name='historical_figure'/>
+            <pointer type-name='historical_figure'/>
+        </pointer>
         <int32_t name="unk_v47_3"/>
         <int32_t name="unk_v47_4"/>
         <int32_t name='unk_v4019_1' init-value='-1' since='v0.40.17-19'/>
@@ -1373,6 +1388,7 @@
         <enum name='type' type-name='history_event_reason' base-type='int32_t'/>
         <compound name='data' is-union='true' init-value='-1'>
             <int32_t name='glorify_hf' ref-target='historical_figure'/>
+            <int32_t name='sanctify_hf' ref-target='historical_figure'/>
             <int32_t name='artifact_is_heirloom_of_family_hfid' ref-target='historical_figure'/>
             <int32_t name='artifact_is_symbol_of_entity_position' ref-target='historical_entity'/>
         </compound>
@@ -1387,6 +1403,7 @@
             <int32_t name='Defeated' ref-target='historical_figure'/>
             <int32_t name='Murdered' ref-target='historical_figure'/>
             <int32_t name='HistEventCollection' ref-target='history_event_collection'/>
+            <int32_t name='AfterAbducting' ref-target='historical_figure'/>
         </compound>
     </struct-type>
 
@@ -1401,56 +1418,72 @@
             <int32_t name='interrogator_id' ref-target='historical_figure'/>
             <int32_t name='subject_id' ref-target='historical_figure'/>
         </pointer>
-        <int32_t name='unk_18' init-value='-1'/>
+        <int32_t name='artifact_id' ref-target='artifact_record'/>
         <int32_t name='entity_id' ref-target='historical_entity'/>
-        <int32_t name='histfig_id_talker' ref-target='historical_figure'/>
-        <int32_t name='histfig_id_listener' ref-target='historical_figure'/>
+        <int32_t name='histfig_id' ref-target='historical_figure'/>
+        <int32_t name='speaker_id' ref-target='historical_figure'/>
         <int32_t name='site_id' ref-target='world_site'/>
         <int32_t name='region_id' ref-target='world_region'/>
-        <int32_t name='unk_30' init-value='-1'/>
-        <int32_t name='unk_34' init-value='-1'/>
+        <int32_t name='layer_id' ref-target='world_underground_region'/>
+        <int32_t name='unk_34' init-value='-1' comment='passed to history_event::isRelatedToAgreementID, but all implementations of that function are broken currently'/>
         <int32_t name='abstract_building_id' ref-target='abstract_building'/>
-        <int16_t name='unk_3c' init-value='-1'/>
-        <int16_t name='unk_3e' init-value='-1'/>
+        <enum name='sphere' type-name='sphere_type'/>
+        <enum name='architectural_element' type-name='architectural_element'/>
         <int16_t name='unk_40' init-value='-1'/>
         <enum name='family_relationship' type-name='histfig_relationship_type' comment='not initialized'/>
         <int32_t name='number' init-value='1'/>
         <int16_t name='unk_48' init-value='-1'/>
-        <int16_t name='unk_4a' init-value='-1'/>
+        <int16_t name='race' ref-target='creature_raw'/>
         <int16_t name='unk_4c' init-value='-1'/>
         <int32_t name='unk_50' init-value='-1'/>
         <int8_t name='unk_54' init-value='-1'/>
-        <int16_t name='unk_56' init-value='-1'/>
-        <int16_t name='unk_58' init-value='0'/>
+        <int16_t name='caste' ref-target='caste_raw'/>
+        <bitfield name='undead_flags' type-name='undead_flags'/>
         <int16_t name='unk_5a' init-value='-1'/>
-        <int32_t name='unk_5c' init-value='-1'/>
-        <int32_t name='unk_60' init-value='-1'/>
-        <int32_t name='unk_64' init-value='-1'/>
-        <int32_t name='unk_68' init-value='-1'/>
-        <int32_t name='unk_6c' init-value='-1'/>
-        <int32_t name='unk_70' init-value='-1'/>
-        <int32_t name='unk_74' init-value='-1'/>
-        <int32_t name='unk_78' init-value='-1'/>
-        <int32_t name='unk_7c' init-value='-1'/>
-        <int32_t name='unk_80' init-value='-1'/>
-        <int32_t name='unk_84' init-value='-1'/>
-        <int32_t name='unk_88' init-value='-1'/>
-        <int32_t name='unk_8c' init-value='-1'/>
-        <int32_t name='unk_90' init-value='-1'/>
-        <int32_t name='unk_94' init-value='-1'/>
-        <int32_t name='unk_98' init-value='-1'/>
-        <int32_t name='unk_9c' init-value='-1'/>
-        <int32_t name='unk_a0' init-value='-1'/>
-        <int32_t name='unk_a4' init-value='-1'/>
-        <int32_t name='unk_a8' init-value='-1'/>
-        <int32_t name='unk_ac' init-value='-1'/>
-        <int32_t name='unk_b0' init-value='-1'/>
-        <int32_t name='unk_b4' init-value='-1'/>
-        <int32_t name='unk_b8' init-value='-1'/>
-        <int32_t name='unk_bc' init-value='-1'/>
-        <int32_t name='unk_c0' init-value='-1'/>
-        <int32_t name='unk_c4' init-value='-1'/>
+        <int32_t name='squad_id' ref-target='squad'/>
+        <int32_t name='formation_id' init-value='-1' comment='ID within world.formations.all'/>
+        <int32_t name='activity_id' ref-target='activity_entry'/>
+        <int32_t name='breed_id' ref-target='breed'/>
+        <int32_t name='battlefield_id' ref-target='battlefield'/>
+        <int32_t name='interaction_instance_id' ref-target='interaction_instance'/>
+        <int32_t name='written_content_id' ref-target='written_content'/>
+        <int32_t name='identity_id' ref-target='identity'/>
+        <int32_t name='incident_id' ref-target='incident'/>
+        <int32_t name='crime_id' ref-target='crime'/>
+        <int32_t name='region_weather_id' ref-target='region_weather'/>
+        <int32_t name='creation_zone_id' ref-target='world_object_data'/>
+        <int32_t name='vehicle_id' ref-target='vehicle'/>
+        <int32_t name='army_id' ref-target='army'/>
+        <int32_t name='army_controller_id' ref-target='army_controller'/>
+        <int32_t name='army_tracking_info_id' init-value='-1' comment='ID within world.army_tracking_info.all'/>
+        <int32_t name='cultural_identity_id' ref-target='cultural_identity'/>
+        <int32_t name='agreement_id' ref-target='agreement'/>
+        <int32_t name='poetic_form_id' ref-target='poetic_form'/>
+        <int32_t name='musical_form_id' ref-target='musical_form'/>
+        <int32_t name='dance_form_id' ref-target='dance_form'/>
+        <int32_t name='scale_id' ref-target='scale'/>
+        <int32_t name='rhythm_id' ref-target='rhythm'/>
+        <int32_t name='occupation_id' ref-target='occupation'/>
+        <int32_t name='belief_system_id' ref-target='belief_system'/>
+        <int32_t name='image_set_id' ref-target='image_set'/>
+        <int32_t name='divination_set_id' ref-target='divination_set'/>
     </struct-type>
+
+    <enum-type type-name='architectural_element' base-type='int16_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='paved_outdoor_area'/>
+        <enum-item name='uneven_pillars'/>
+        <enum-item name='square_of_pillars'/>
+        <enum-item name='pillars_on_the_perimeter'/>
+        <enum-item name='upper_floors'/>
+        <enum-item name='lower_floors'/>
+        <enum-item name='water_pool'/>
+        <enum-item name='lava_pool'/>
+        <enum-item name='stagnant_pool'/>
+        <enum-item name='open_structure'/>
+        <enum-item name='paved_indoor_areas'/>
+        <enum-item name='detailed_surfaces'/>
+    </enum-type>
 
     <enum-type type-name='history_event_flags'>
         <enum-item name='hidden' comment='event is hidden from legends mode when this is set'/>
@@ -1543,14 +1576,16 @@
             <vmethod ret-type='bool' name='isRelatedToLayerID'>
                 <int32_t name='region' ref-target='world_underground_region'/>
             </vmethod>
-            <vmethod ret-type='bool' name='isRelatedToAgreementID'>
+            <vmethod ret-type='bool' name='isRelatedToAgreementID' comment='broken; always returns false'>
                 <int32_t name='agreement' ref-target='agreement'/>
             </vmethod>
             <vmethod ret-type='bool' name='isRelatedToEntityID'>
                 <int32_t name='entity' ref-target='historical_entity'/>
             </vmethod>
 
-            <vmethod ret-type='bool' comment='always returns false; seems to be related to agreements but broken'/>
+            <vmethod ret-type='bool' comment='always returns false; seems to be related to breeds at the places where it is called, but is only implemented in events related to agreements, where it is identical to isRelatedToAgreementID'>
+                <int32_t/>
+            </vmethod>
             <vmethod name='getSentence'>
                 <pointer type-name='stl-string' name='str'/> "In x, some event happened"
                 <pointer type-name='history_event_context' name='context'/>
@@ -1596,7 +1631,11 @@
         <int32_t name='defender_general_hf' ref-target='historical_figure'/>
         <int32_t name='attacker_merc_enid' ref-target='historical_entity' since='v0.47.02'/>
         <int32_t name='defender_merc_enid' ref-target='historical_entity' since='v0.47.02'/>
-        <bool name='a_support_merc_enid_toggle' since='v0.47.02' comment="Toggles attacker_merc_enid field into a_support_merc_enid. Not seen defender_merc_enid set together with this flag" />
+        <enum name='unk_1' base-type='int8_t' since='v0.47.02'>
+            <enum-item/>
+            <enum-item/>
+            <enum-item/>
+        </enum>
     </class-type>
 
     <class-type type-name='history_event_war_destroyed_sitest' inherits-from='history_event'>
@@ -3108,7 +3147,11 @@
         <stl-vector name='defender_role' type-name='int32_t' comment="same as for attacker role, i.e. 0-2, with 1/2 being mercs"/>
         <stl-vector name='noncombat_hf' type-name='int32_t' ref-target='historical_figure' comment="saw being beheaded, but that's only one checked"/>
 
-        <bool name='attacker_merc_scouts' comment="else 'ordinary' mercs"/>
+        <enum name='attacker_merc_type' base-type='int8_t'>
+            <enum-item name='mercenaries'/>
+            <enum-item name='mercenary_scouts'/>
+            <enum-item name='unk_2'/>
+        </enum>
         <int32_t name='attacker_mercs' ref-target='historical_entity'/>
         <int32_t name='defender_mercs' ref-target='historical_entity'/>
         <stl-vector type-name='int32_t' comment="Observed size of 4 doesn't allow for pointer"/>
@@ -3412,7 +3455,7 @@
         <stl-vector name='unk_histfig_3' pointer-type='historical_figure'/>
         <stl-vector name='unk_histfig_4' pointer-type='historical_figure'/>
         <stl-vector name='unk_histfig_5' pointer-type='historical_figure'/>
-        <stl-vector since='v0.47.01'/>
+        <stl-vector pointer-type='historical_figure' since='v0.47.01'/>
 
         11 - necromancers
         <static-array name='unk_v40_1' since='v0.40.01' count='15'>
@@ -3427,9 +3470,9 @@
         <stl-vector name='unk_histfig_11' since='v0.40.01' pointer-type='historical_figure'/>
         <stl-vector name='unk_histfig_12' since='v0.44.01' pointer-type='historical_figure'/>
         <stl-vector name='unk_histfig_13' since='v0.44.01' pointer-type='historical_figure'/>
-        <stl-vector since='v0.44.01'/>
+        <stl-vector since='v0.44.01' pointer-type='historical_figure'/>
         <stl-vector since='v0.47.01'/>
-        <stl-vector since='v0.47.01'/>
+        <stl-vector since='v0.47.01' pointer-type='historical_figure'/>
         <stl-vector since='v0.47.01'/>
         <stl-vector since='v0.47.01'/>
         <int8_t/>

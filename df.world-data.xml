@@ -131,8 +131,8 @@
         <int32_t name='min_y' since='v0.40.01'/>
         <int32_t name='max_y' since='v0.40.01'/>
 
-        <stl-vector name="unk_74"/>
-        <stl-vector name="unk_84"/>
+        <stl-vector name='unk_74' type-name='int16_t'/>
+        <stl-vector name='unk_84' type-name='int16_t'/>
     </struct-type>
 
     <enum-type type-name='world_region_type' base-type='int16_t'>
@@ -729,9 +729,9 @@
         <int32_t name='next_site_id'/>
         <int32_t name='next_site_unk130_id'/>
         <int32_t name='next_resource_allotment_id'/>
-        <int32_t name='next_unk_150_id'/>
+        <int32_t name='next_breed_id'/>
 
-        <int32_t name='next_field_battles_id' since='v0.34.01'/>
+        <int32_t name='next_battlefield_id' since='v0.34.01'/>
         <int32_t name='unk_v34_1' since='v0.34.01'/>
 
         <int32_t name='world_width'/>
@@ -801,76 +801,9 @@
 
         <stl-vector name="resource_allotments" pointer-type='resource_allotment_data'/>
 
-        <stl-vector name="unk_150" comment="the 3 vectors resemble the contents of entity_population_unk4, both in structure, values, and index usage (still no idea what the data is, though)">
-            <pointer>
-                <int32_t name="index"/>
-                <int32_t name="unk_4"/>
-                <stl-vector name="unk_8">
-                    <pointer>
-                        <int32_t name="index"/>
-                        <int32_t name="unk_4"/>
-                        <int32_t name="unk_8"/>
-                    </pointer>
-                </stl-vector>
-                <stl-vector name="unk_18">
-                    <pointer>
-                        <int32_t name="index"/>
-                        <int32_t name="unk_4"/>
-                        <int32_t name="unk_8"/>
-                    </pointer>
-                </stl-vector>
-                <stl-vector name="unk_28">
-                    <pointer>
-                        <int32_t name="unk_0"/>
-                        <int32_t name="unk_4"/>
-                    </pointer>
-                </stl-vector>
-            </pointer>
-        </stl-vector>
-
-        <stl-vector name='field_battles' since='v0.34.01' comment="Unknown why these are singled out. Note that only the first one has to be a field battle">
-            <pointer>
-                <int32_t name="index"/>
-                <stl-vector name='sapient_deaths' comment="Seems to be by squad. Trolls/Blizzard Men not counted">
-                    <pointer>
-                        <int32_t name='deaths' comment="May not sum up, at least not for defenders"/>
-                        <int32_t name='race'/>
-                        <int32_t name='squad' init-value='-1' comment="A guess (Don't know how to find squads). Animal people seem to have -1"/>
-                        <int32_t name="unk_c" init-value='-1'/>
-                        <int32_t name='start_year'/>
-                        <int32_t name='end_year'/>
-                        <int32_t name="unk_18" comment="0, 1, 4, 5, 7 seen"/>
-                        <int32_t name="unk_1c" since='v0.40.01' comment="2-5 seen. 4-5 probably attacker, 2-3 probably defender"/>
-                    </pointer>
-                </stl-vector>
-                <stl-vector name='hfs_killed' type-name='int32_t' ref-target='historical_figure' comment="some victims are not listed, for some reason, and culled HFs can be present"/>
-                <int32_t name="x1"/>
-                <int32_t name="y1"/>
-                <int32_t name="x2"/>
-                <int32_t name="y2"/>
-                <int32_t name="unk_34" init-value='-1' comment="wouldn't be surprised if it was layer, based on other structure layouts, but no non -1 found"/>
-                <stl-vector name='event_collections' type-name="int32_t" ref-target='history_event_collection'/>
-            </pointer>
-        </stl-vector>
-
-        <stl-vector name='freakish_weather' since='v0.34.01'>
-            <pointer>
-                <int32_t name="unk_0"/>
-                <int32_t name="unk_4"/>
-                <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
-                <int32_t name='mat_index'/>
-                <int32_t name="unk_10"/>
-                <int32_t name="region_x"/>
-                <int32_t name="region_y"/>
-                <int32_t name="unk_1c" init-value='-30000'/>
-                <int32_t name="unk_20" init-value='-30000'/>
-                <int32_t name="unk_24" init-value='-30000'/>
-                <int32_t name="unk_28"/>
-                <int32_t name="unk_2c"/>
-                <int32_t name="unk_30"/>
-                <int32_t name="unk_34" init-value='-1'/>
-            </pointer>
-        </stl-vector>
+        <stl-vector name='breeds' pointer-type='breed' />
+        <stl-vector name='battlefields' pointer-type='battlefield' since='v0.34.01' />
+        <stl-vector name='region_weather' pointer-type='region_weather' since='v0.34.01'/>
 
         <stl-vector name='object_data' pointer-type='world_object_data' since='v0.34.01'/>
 
@@ -1034,6 +967,71 @@
             <int32_t/>
             <int32_t/>
         </compound>
+    </struct-type>
+
+    <struct-type type-name='breed' key-field='id' instance-vector='$global.world.world_data.breeds'>
+        <int32_t name='id'/>
+        <int32_t name="unk_4"/>
+        <stl-vector name="unk_8">
+            <pointer>
+                <int32_t name='id'/>
+                <int32_t name="unk_4"/>
+                <int32_t name="unk_8"/>
+            </pointer>
+        </stl-vector>
+        <stl-vector name="unk_18">
+            <pointer>
+                <int32_t name='id'/>
+                <int32_t name="unk_4"/>
+                <int32_t name="unk_8"/>
+            </pointer>
+        </stl-vector>
+        <stl-vector name="unk_28">
+            <pointer>
+                <int32_t name="unk_0"/>
+                <int32_t name="unk_4"/>
+            </pointer>
+        </stl-vector>
+    </struct-type>
+
+    <struct-type type-name='battlefield' key-field='id' instance-vector='$global.world.world_data.battlefields'>
+        <int32_t name='id'/>
+        <stl-vector name='sapient_deaths' comment="Seems to be by squad. Trolls/Blizzard Men not counted">
+            <pointer>
+                <int32_t name='deaths' comment="May not sum up, at least not for defenders"/>
+                <int32_t name='race'/>
+                <int32_t name='squad' init-value='-1' comment="A guess (Don't know how to find squads). Animal people seem to have -1"/>
+                <int32_t name="unk_c" init-value='-1'/>
+                <int32_t name='start_year'/>
+                <int32_t name='end_year'/>
+                <int32_t name="unk_18" comment="0, 1, 4, 5, 7 seen"/>
+                <int32_t name="unk_1c" since='v0.40.01' comment="2-5 seen. 4-5 probably attacker, 2-3 probably defender"/>
+            </pointer>
+        </stl-vector>
+        <stl-vector name='hfs_killed' type-name='int32_t' ref-target='historical_figure' comment="some victims are not listed, for some reason, and culled HFs can be present"/>
+        <int32_t name="x1"/>
+        <int32_t name="y1"/>
+        <int32_t name="x2"/>
+        <int32_t name="y2"/>
+        <int32_t name="unk_34" init-value='-1' comment="wouldn't be surprised if it was layer, based on other structure layouts, but no non -1 found"/>
+        <stl-vector name='event_collections' type-name="int32_t" ref-target='history_event_collection'/>
+    </struct-type>
+
+    <struct-type type-name='region_weather' key-field='id' instance-vector='$global.world.world_data.region_weather'>
+        <int32_t name='id'/>
+        <int32_t name="unk_4"/>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+        <int32_t name="unk_10"/>
+        <int32_t name="region_x"/>
+        <int32_t name="region_y"/>
+        <int32_t name="unk_1c" init-value='-30000'/>
+        <int32_t name="unk_20" init-value='-30000'/>
+        <int32_t name="unk_24" init-value='-30000'/>
+        <int32_t name="unk_28"/>
+        <int32_t name="unk_2c"/>
+        <int32_t name="unk_30"/>
+        <int32_t name="unk_34" init-value='-1'/>
     </struct-type>
 </data-definition>
 
