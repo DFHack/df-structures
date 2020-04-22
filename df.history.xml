@@ -794,12 +794,31 @@
     </struct-type>
 
     <enum-type type-name='identity_type' base-type='int32_t'>
-         <enum-item name='HidingCurse' comment="Inferred from Units.cpp after examining code using 'unk_4c'"/>
-         <enum-item name='Unk_1' comment="Not seen. A guess is that it might have been used by deities under cover"/>
-         <enum-item name='TrueName' comment="E.g. of demonic overlords. Can be used by adventurers to gain sway over them"/>
-         <enum-item name='FalseIdentity' comment="For underhanded purposes"/>
-         <enum-item name='Unk_4'/>
-         <enum-item name='Identity' comment="Claim a new official identity, seen when religious appointments are received"/>
+         <enum-attr name='tag' comment='for identity.id'/>
+         
+         <enum-item name='HidingCurse' comment="Inferred from Units.cpp after examining code using 'unk_4c'">
+            <item-attr name='tag' value='history'/>
+         </enum-item>
+         
+         <enum-item name='Unk_1' comment="Not seen. A guess is that it might have been used by deities under cover">
+            <item-attr name='tag' value='history' comment="guess as to what the ref-target is"/>
+         </enum-item>
+         
+         <enum-item name='TrueName' comment="E.g. of demonic overlords. Can be used by adventurers to gain sway over them">
+            <item-attr name='tag' value='history'/>
+         </enum-item>
+         
+         <enum-item name='FalseIdentity' comment="For underhanded purposes">
+            <item-attr name='tag' value='nemesis'/>
+         </enum-item>
+         
+         <enum-item name='Unk_4'>
+            <item-attr name='tag' value='history' comment="guess as to what the ref-target is"/>
+         </enum-item>
+
+         <enum-item name='Identity' comment="Claim a new official identity, seen when religious appointments are received">
+            <item-attr name='tag' value='history'/>
+         </enum-item>
    </enum-type>
    
     <struct-type type-name='identity'
@@ -819,7 +838,11 @@
         <int16_t name='caste' ref-target='caste_raw' aux-value='$$.race'/>
 
         <int32_t name='unk_1'/>
-        <int32_t name='histfig_nemesis_id' comment='reference depending on type (below): historical_figure for HidingCurse, TrueName and Identity, nemesis_record for FalseIdentity'/>
+        <compound name='figure' is-union='true' union-tag-attribute='tag'>
+            <int32_t name='historical' ref-target='historical_figure'/>
+            <int32_t name='nemesis' ref-target='nemesis_record'/>
+        </compound>
+        
         <enum name='type' type-name='identity_type' base-type='int32_t'/>
 
         <int32_t name='birth_year' comment='the fake one, that is'/>
