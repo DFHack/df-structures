@@ -541,7 +541,7 @@ sub generate_field_table(&$) {
     emit "#define CUR_STRUCT $full_name";
     if (%field_defs_extra) {
         emit "#define EXTRA(name) ${ftable_name}_Extra_ ## name";
-        for my $extra_name (keys %field_defs_extra) {
+        for my $extra_name (sort keys %field_defs_extra) {
             emit_block {
                 emit $field_defs_extra{$extra_name}{index_enum} || 0, ",";
                 emit $field_defs_extra{$extra_name}{ref_target} || 0, ",";
