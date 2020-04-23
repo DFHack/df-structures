@@ -757,7 +757,7 @@
 
         <pointer name='info' type-name='historical_figure_info'/>
 
-        <pointer name='vague_relationships' comment="Do hot have to be available mutually, i.e. DF can display Legends relations forming for the other party that does not have an entry (plus time and other conditions not located)">
+        <pointer name='vague_relationships' comment="Do not have to be available mutually, i.e. DF can display Legends relations forming for the other party that does not have an entry (plus time and other conditions not located)">
             <static-array name='hfid' ref-target='historical_figure' type-name='int32_t' init-value='0' count='6'/>
             <static-array name='relationship' type-name='vague_relationship_type' count='6' comment="unused elements are uninitialized"/>
             <int32_t name='count' comment="number of hf/relationship pairs above"/>
@@ -793,6 +793,34 @@
         <int32_t init-value='-1'/>
     </struct-type>
 
+    <enum-type type-name='identity_type' base-type='int32_t'>
+         <enum-attr name='tag' comment='for identity.id'/>
+         
+         <enum-item name='HidingCurse' comment="Inferred from Units.cpp after examining code using 'unk_4c'">
+            <item-attr name='tag' value='history'/>
+         </enum-item>
+         
+         <enum-item name='Unk_1' comment="Not seen. A guess is that it might have been used by deities under cover">
+            <item-attr name='tag' value='history' comment="guess as to what the ref-target is"/>
+         </enum-item>
+         
+         <enum-item name='TrueName' comment="E.g. of demonic overlords. Can be used by adventurers to gain sway over them">
+            <item-attr name='tag' value='history'/>
+         </enum-item>
+         
+         <enum-item name='FalseIdentity' comment="For underhanded purposes">
+            <item-attr name='tag' value='nemesis'/>
+         </enum-item>
+         
+         <enum-item name='Unk_4'>
+            <item-attr name='tag' value='history' comment="guess as to what the ref-target is"/>
+         </enum-item>
+
+         <enum-item name='Identity' comment="Claim a new official identity, seen when religious appointments are received">
+            <item-attr name='tag' value='history'/>
+         </enum-item>
+   </enum-type>
+   
     <struct-type type-name='identity'
                  instance-vector='$global.world.identities.all' key-field='id'>
         dtor 0x8C17FA0
@@ -809,21 +837,24 @@
         <int32_t name='race' ref-target='creature_raw'/>
         <int16_t name='caste' ref-target='caste_raw' aux-value='$$.race'/>
 
-        <int32_t/>
-        <int32_t name='histfig_id' ref-target='historical_figure'
-                 comment='when masquerading as another historical figure'/>
-        <int32_t name='unk_4c'/>
+        <int32_t name='unk_1'/>
+        <compound is-union='true' union-tag-attribute='tag'>
+            <int32_t name='histfig_id' ref-target='historical_figure'/>
+            <int32_t name='nemesis_id' ref-target='nemesis_record'/>
+        </compound>
+        
+        <enum name='type' type-name='identity_type' base-type='int32_t'/>
 
         <int32_t name='birth_year' comment='the fake one, that is'/>
         <int32_t name='birth_second'/>
-        <int32_t/>
-        <int32_t/>
+        <int32_t name='unk_2'/>
+        <int32_t name='unk_3'/>
+        <int16_t name='unk_v47_1' init-value='-1'/>
+        <int32_t name='unk_v47_2' init-value='-1'/>
         <enum base-type='int16_t' name='profession' type-name='profession'/>
-        <int32_t name='civ' ref-target='historical_entity'/>
-        <int16_t name="unk_v47_1"/>
-        <int32_t name="unk_v47_2"/>
-        <stl-vector pointer-type='identity_unk_94'/>
-        <stl-vector pointer-type='identity_unk_94'/>
+        <int32_t name='entity_id' ref-target='historical_entity'/>
+        <stl-vector name='unk_4' pointer-type='identity_unk_94'/>
+        <stl-vector name='unk_5' pointer-type='identity_unk_94'/>
     </struct-type>
 
     <struct-type type-name='identity_unk_94'>
