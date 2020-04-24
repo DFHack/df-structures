@@ -1,5 +1,7 @@
 # DF-structures
 
+[![Build Status](https://github.com/DFHack/df-structures/workflows/Build/badge.svg?event=push)](https://github.com/DFHack/df-structures/actions?query=workflow%3ABuild)
+
 DF-structures is the core information on which
 [DFHack](https://github.com/DFHack/dfhack) depends.
 
