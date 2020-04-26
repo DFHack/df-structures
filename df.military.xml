@@ -346,10 +346,15 @@
     </class-type>
 
     Some army_controller research notes:
+      t1: All seen NomadicGroup. master = group boss, general = leader of army (with troops) referencing controller. Purpose and action unknown.
+      
       An InvasionOrder (2) is generated at the start of the season, shortly followed by an army that references an Invasion controller. The army disappears from the armies.all
       vector once it enters the embark.
       
-      Invasion (4) has been seen only via InvasionOrder army_controllers' armies, but only player fortress attacks have been studied.
+      Invasion (4) has been seen via InvasionOrder army_controllers' armies, but only player fortress attacks have been studied. Prior to the army appears in the armies.all vector this controller
+      seems to be available via the army_controllers.all vector referencing the the InvasionOrder via unk_34.
+      
+      t5: unk_34 seen referencing Invasion (4) and unk_38 referencing t5 (player fortress) or t7, disappearing when an army is generated (at least for player fortress).
       
       Visit (12) appears in the army_controller vector only very briefly before legitimate visitors arrive, and is also used for exiled residents.
       
@@ -371,8 +376,8 @@
         <stl-vector name='unk_20' type-name='int32_t'/>
         <int32_t name="year"/>
         <int32_t name="year_tick"/>
-        <int32_t name="unk_34"/>
-        <int32_t name='unk_38' comment="copy of the id seen here"/>
+        <int32_t name='unk_34' ref-target='army_controller' comment="id of other army controller (Invasion) from same entity seen here"/>
+        <int32_t name='unk_38' ref-target='army_controller' comment="copy of the id seen here, as well as a t7 for a t5 controller"/>
         <int32_t name='master_hf' ref-target='historical_figure' comment="InvasionOrder: Civ/sitegov master. Invasion: leader of the attack, can be in army nemesis vector"/>
         <int32_t name='general_hf' ref-target='historical_figure' comment="InvasionOrder:leader of the attack. Invasion: subordinate squad leader(?) in army nemesis vector. Can be same as master"/>
         <int32_t name="unk_44_1"/>
@@ -476,11 +481,11 @@
     </struct-type>
 
     <struct-type type-name='army_controller_sub5'>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
+        <int32_t name='pos_x' comment="in map_block coordinates. Same as those of the main struct seen"/>
+        <int32_t name='pos_y'/>
+        <int32_t name='unk_1' comment="0 seen"/>
+        <int32_t name='year'/>
+        <int32_t name='year_tick'/>
     </struct-type>
 
     <struct-type type-name='army_controller_sub6'>
@@ -496,9 +501,9 @@
     </struct-type>
 
     <struct-type type-name='army_controller_sub7'>
-        <int32_t/>
-        <int32_t/>
-        <stl-vector>
+        <int32_t name='unk_1' init-value='-1'/>
+        <int32_t name='unk_2' init-value='-1'/>
+        <stl-vector name='unk_3'>
             <pointer>
                 <int32_t/>
                 <int32_t/>
@@ -508,26 +513,26 @@
                 <int32_t/>
             </pointer>
         </stl-vector>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
+        <int32_t name='unk_4' comment="0 seen"/>
+        <int32_t name='pos_x' comment="map_block coordinates. Same as those of the main struct seen"/>
+        <int32_t name='pos_y'/>
+        <int32_t name='unk_5' comment="0 seen"/>
+        <int32_t name='unk_6' init-value='-1'/>
+        <int32_t name='unk_7' init-value='-1'/>
+        <int32_t name='unk_8' init-value='-1'/>
     </struct-type>
 
     <struct-type type-name='army_controller_sub11'>
-        <int32_t/>
-        <int32_t/>
+        <int32_t name='unk_1' init-value='-1'/>
+        <int32_t name='unk_2' init-value='-1'/>
         <stl-vector>
-            <pointer>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
+            <pointer name='unk_3' comment="probably the same type as the corresponding one of army_controller_invasion_order">
+                <int32_t name='army_id' ref-target='army'/>
+                <int32_t name='pos_x_a' comment="map_block coordinates"/>
+                <int32_t name='pos_y_a'/>
+                <int32_t name='pos_x_b'/>
+                <int32_t name='pos_y_b'/>
+                <int32_t name='invasion_count' comment="very much a guess from one sample, but it matched the army size"/>
             </pointer>
         </stl-vector>
     </struct-type>
@@ -537,7 +542,7 @@
         <int32_t name='unk_2' init-value='-1'/>
         <int32_t name='unk_3' init-value='0' comment="2 seen on exiled character"/>
         <stl-vector name='unk_4'>
-            <pointer>
+            <pointer comment=>
                 <int32_t/>
                 <int32_t/>
                 <int32_t/>
@@ -549,7 +554,7 @@
         <int32_t name='unk_5' init-value='-1'/>
         <int32_t name='unk_6' init-value='-1'/>
         <int32_t name='abstract_building' init-value='-1' comment="Monster slayers have -1"/>
-        <int32_t name='purpose' comment="41: petitioning monster slayer, 42: visiting performer/troupe, 54: visiting scholar, 55: petitioning merc, 56: petitioning performer/troupe, 61: general visitor"/>
+        <int32_t name='purpose' comment="41: petitioning monster slayer, 42: visiting performer/troupe, 44: visiting researcher, 54: visiting scholar, 55: petitioning merc, 56: petitioning performer/troupe, 61: general visitor"/>
     </struct-type>
 
     <struct-type type-name='army_controller_sub13'>
@@ -629,7 +634,7 @@
         <int32_t name='site_id' ref-target='world_site'/>
         <int32_t name='entity_id' ref-targt='historical_entity'/>
         <int32_t name='abstract_building' comment="-1 before arrival"/>
-        <int32_t name='purpose' comment="-1 before arrival. 44: 'scholar', 61: 'general visitor'"/>
+        <int32_t name='purpose' comment="-1 before arrival. 44: 'scholar', 60: 'pilgrim', 61: 'general visitor'"/>
     </struct-type>
 
     <enum-type type-name='army_flags'>
@@ -669,15 +674,15 @@
         </stl-vector>
         <stl-vector name="unk_2c">
             <pointer>
-                <int32_t name="count"/> next five checks out in created units
-                <int32_t name="race"/>
-                <int32_t name="population_id"/>
-                <int32_t name="civ_id"/>
+                <int32_t name='count'/> next five checks out in created units
+                <int32_t name='race'/>
+                <int32_t name='population_id'/>
+                <int32_t name='entity_id' ref-target='historical_entity'/>
                 <int32_t name="unk_10"/> same as unk_c0 in unit
                 <int32_t name="cultural_identity"/>
                 <int32_t name="unk_18"/> made creatures undead, so not sure maybe affliction?
                 <int32_t name="unk_1c"/> crashed df...
-                <int32_t name="unk_20"/>
+                <int32_t name='unk_20' ref-target='historical_entity' comment="same as entity_id seen"/>
                 <int32_t name="unk_24"/>
                 <int32_t name="unk_28"/>
             </pointer>
