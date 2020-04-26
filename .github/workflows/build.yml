@@ -1,0 +1,29 @@
+name: Build
+
+on: [push, pull_request]
+
+jobs:
+  validate:
+    runs-on: ubuntu-18.04
+    steps:
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install \
+            libxml2-utils \
+            libxml-libxml-perl \
+            libxml-libxslt-perl
+    - name: Clone df-structures
+      uses: actions/checkout@v1
+      with:
+        submodules: true
+    - name: Validate against schema
+      run: |
+        xmllint --schema data-definition.xsd --noout df.*.xml symbols.xml
+    - name: Generate headers
+      run: |
+        perl ./codegen.pl | tee codegen-out.txt
+        if grep -i error codegen-out.txt; then
+          echo codegen produced error
+          exit 1
+        fi
