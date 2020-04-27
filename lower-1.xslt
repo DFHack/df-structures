@@ -76,6 +76,39 @@
         </ld:global-type>
     </xsl:template>
 
+    <xsl:template match='df-other-vectors-type'>
+        <xsl:variable name='vectors' select='./stl-vector'/>
+        <xsl:variable name='enum-name' select='@index-enum'/>
+        <xsl:variable name='item-type' select='@item-type'/>
+
+        <ld:global-type ld:meta='struct-type' ld:subtype='df-other-vectors-type' ld:level='0' type-name='{@type-name}' index-enum='{$enum-name}' item-type='{$item-type}'>
+            <xsl:for-each select='/data-definition/enum-type[@type-name=($enum-name)]/enum-item'>
+                <xsl:variable name='enum-key' select='@name'/>
+                <xsl:variable name='defined' select='$vectors[@name=($enum-key)]'/>
+
+                <xsl:choose>
+                    <xsl:when test='count($defined)'>
+                        <xsl:apply-templates select='$defined'>
+                            <xsl:with-param name='level' select='1'/>
+                        </xsl:apply-templates>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <ld:field ld:meta='container' ld:level='1' ld:subtype='stl-vector' name='{$enum-key}'>
+                            <ld:field ld:meta='pointer' ld:is-container='true' ld:level='2' type-name='{$item-type}'>
+                                <ld:field>
+                                    <xsl:call-template name='lookup-type-ref'>
+                                        <xsl:with-param name='name' select='$item-type'/>
+                                        <xsl:with-param name='level' select='3'/>
+                                    </xsl:call-template>
+                                </ld:field>
+                            </ld:field>
+                        </ld:field>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:for-each>
+        </ld:global-type>
+    </xsl:template>
+
     <!-- Code to properly annotate references to types by name -->
 
     <xsl:key name="primitive-type-lookup" match="prim-type" use="@ld:subtype"/>
