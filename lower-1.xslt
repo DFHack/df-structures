@@ -82,7 +82,7 @@
         <xsl:variable name='item-type' select='@item-type'/>
 
         <ld:global-type ld:meta='struct-type' ld:subtype='df-other-vectors-type' ld:level='0' type-name='{@type-name}' index-enum='{$enum-name}' item-type='{$item-type}'>
-            <xsl:for-each select='/data-definition/enum-type[@type-name=($enum-name)]/enum-item'>
+            <xsl:for-each select="/data-definition/enum-type[@type-name=($enum-name)]/enum-item[not(starts-with(@value, '-'))]">
                 <xsl:variable name='enum-key' select='@name'/>
                 <xsl:variable name='defined' select='$vectors[@name=($enum-key)]'/>
 
