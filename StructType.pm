@@ -221,7 +221,7 @@ sub render_struct_type {
         register_ref $item_type, 1;
         $ispec = ' : DfLinkedList<'.$typename.', '.$item_type.'>';
     } elsif ($is_other_vectors) {
-        register_ref $item_type, 1;
+        register_ref $item_type, 0;
         register_ref $index_enum, 1;
         $ispec = ' : DfOtherVectors<'.$typename.', '.$index_enum.', '.$item_type.'>';
     }
