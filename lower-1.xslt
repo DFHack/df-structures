@@ -98,15 +98,15 @@
                         </xsl:apply-templates>
                     </xsl:when>
                     <xsl:otherwise>
-                        <ld:field ld:meta='container' ld:level='1' ld:subtype='stl-vector' name='{$enum-key}'>
-                            <ld:field ld:meta='pointer' ld:is-container='true' ld:level='2' type-name='{$item-type}'>
-                                <ld:field>
+                        <ld:field ld:meta='container' ld:level='1' ld:subtype='stl-vector' name='{$enum-key}' pointer-type='{$item-type}'>
+                            <ld:item ld:meta='pointer' ld:is-container='true' ld:level='2' type-name='{$item-type}'>
+                                <ld:item>
                                     <xsl:call-template name='lookup-type-ref'>
                                         <xsl:with-param name='name' select='$item-type'/>
                                         <xsl:with-param name='level' select='3'/>
                                     </xsl:call-template>
-                                </ld:field>
-                            </ld:field>
+                                </ld:item>
+                            </ld:item>
                         </ld:field>
                     </xsl:otherwise>
                 </xsl:choose>
