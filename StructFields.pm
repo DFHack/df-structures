@@ -560,10 +560,17 @@ sub emit_struct_fields($$;%) {
     &render_struct_field($_) for @fields;
 
     my $identity_type = 'struct_identity';
+    my $maybe_index_enum = '';
     if ($flags{-class}) {
         $identity_type = 'virtual_identity';
     } elsif (is_attr_true($tag, 'is-union')) {
         $identity_type = 'union_identity';
+    } elsif (($tag->getAttribute('ld:subtype') or '') eq 'df-other-vectors-type') {
+        $identity_type = 'other_vectors_identity';
+        my $xe = $tag->getAttribute('index-enum');
+        #static_include_type $xe;
+        my $enum = type_identity_reference($types{$xe});
+        $maybe_index_enum = ', '.$enum;
     }
 
     my $full_name = fully_qualified_name($tag, $name, 1);
@@ -657,7 +664,7 @@ sub emit_struct_fields($$;%) {
                     type_identity_reference($tag,-parent => 1), ', ',
                     "\"$name\", ",
                     ($inherits ? "&${inherits}::_identity" : 'NULL'), ', ',
-                    "$ftable);";
+                    "${ftable}${maybe_index_enum});";
         }
     } 'fields-' . $fields_group;
 }
