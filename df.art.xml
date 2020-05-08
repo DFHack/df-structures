@@ -592,7 +592,7 @@
         <compound name='name' type-name='language_name'/>
         <int32_t name="originating_entity" ref-target="historical_entity" comment="ID of the entity from which the musical form originated."/>
         <int32_t name="original_author" ref-target="historical_figure" comment="historical figure ID of the composer"/>
-        <stl-vector name='scales' pointer-type='musical_form_vocals'/>
+        <stl-vector name='passages' pointer-type='musical_form_passage'/>
         <stl-vector name='instruments' pointer-type='musical_form_instruments'/>
         <stl-vector name='melodies' pointer-type='musical_form_melodies'/>
         <stl-vector pointer-type='musical_form_sub4'/>
@@ -604,8 +604,8 @@
         <int32_t name='scale_id' ref-target='scale'/>
         <int32_t name='scale_subid' comment='reference to scale_sub2'/>
         <int32_t name='rhythm_id' ref-target='rhythm'/>
-        <int32_t name='rhythm_subid2' comment='reference to rhythm_sub2'/>
-        <int32_t name='rhythm_subid1' comment='reference to rhythm_sub1'/>
+        <int32_t name='sub_rhythm' comment='reference to sub_rhythms'/>
+        <int32_t name='rhythm_pattern' comment='reference to patterns'/>
         <bitfield type-name='musical_form_feature' name='features'/>
         <enum name='pitch_style' base-type='int32_t' type-name='musical_form_pitch_style'/>
         <enum name='purpose' base-type='int32_t' type-name='musical_form_purpose'/>
@@ -616,32 +616,48 @@
         </bitfield>
     </struct-type>
 
-    <struct-type type-name='musical_form_vocals'>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector name='vocal_components' type-name='int32_t'/> 0: melody, 1: counterpoint, 2: harmony, 3: rhythm
-        <stl-vector name='phrase_lengths' type-name='int32_t'/> 0: short, 1: mid-length, 2: long, 3: varied length
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <stl-vector pointer-type='musical_form_melodies'/>
-        <int32_t/>
-        <int32_t/>
+    <enum-type type-name='musical_form_passage_component_type' base-type='int32_t'>
+        <enum-item name='Melody'/>
+        <enum-item name='Counterpoint'/>
+        <enum-item name='Harmony'/>
+        <enum-item name='Rhythm'/>
+        <enum-item name='Unspecified'/>
+    </enum-type>
+
+    <enum-type type-name='musical_form_passage_length_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='Short'/>
+        <enum-item name='MidLength'/>
+        <enum-item name='Long'/>
+        <enum-item name='Varied'/>
+    </enum-type>
+
+    <struct-type type-name='musical_form_passage'>
+        <int32_t name='unk_1'/>
+        <int32_t name='unk_2'/>
+        <int32_t name='unk_3'/>
+        <int32_t name='unk_4'/>
+        <int32_t name='unk_5'/>
+        <int32_t name='unk_6'/>
+        <int32_t name='unk_7'/>
+        <int32_t name='scale_id' ref-target='scale'/>
+        <int32_t name='scale_sub_id' comment="references the scales element of the scale"/>
+        <int32_t name='rhythm_id' ref-target='rhythm'/>
+        <int32_t name='sub_rhythm' comment="Guess, based on the pattern above"/>
+        <int32_t name='rhythm_pattern' comment="references the patterns element of rhythm"/>
+        <stl-vector name='unk_13' type-name='int32_t'/>
+        <stl-vector name='components' type-name='musical_form_passage_component_type' base-type='int32_t'/>
+        <stl-vector name='passage_lengths' type-name='musical_form_passage_length_type' base-type='int32_t'/>
+        <stl-vector name='unk_14' type-name='int32_t'/>
+        <stl-vector name='unk_15' type-name='int32_t'/>
+        <int32_t name='unk_16'/>
+        <int32_t name='unk_17'/>
+        <int32_t name='unk_18'/>
+        <int32_t name='unk_19'/>
+        <int32_t name='unk_20'/>
+        <stl-vector name='unk_21' pointer-type='musical_form_melodies'/>
+        <int32_t name='unk_22'/>
+        <int32_t name='unk_23'/>
     </struct-type>
 
     <struct-type type-name='musical_form_instruments'>
@@ -666,12 +682,12 @@
     </struct-type>
 
     <struct-type type-name='musical_form_sub4'>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
+        <int32_t name='unk_1'/>
+        <int32_t name='unk_2'/>
+        <int32_t name='unk_3'/>
+        <int32_t name='unk_4'/>
+        <int32_t name='unk_5'/>
+        <int32_t name='unk_6'/>
     </struct-type>
 
     <struct-type type-name='musical_form_interval'>
@@ -688,60 +704,60 @@
         <compound name='name' type-name='language_name'/>
         <int32_t name='musical_form_id'/>
         <int32_t name='music_written_content_id'  ref-target='written_content' comment='at most one of this and musical_form_id is non null'/>
-        <int32_t/>
+        <int32_t name='unk_1'/>
         <int32_t name="originating_entity" ref-target="historical_entity" comment="ID of the entity from which the dance form originated."/>
         <int32_t name="original_author" ref-target="historical_figure" comment="ID of the historical figure who developed the dance form."/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <stl-vector type-name='int32_t'/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector pointer-type='dance_form_sub1'/>
-        <stl-vector pointer-type='dance_form_sub2'/>
+        <int32_t name='unk_2'/>
+        <int32_t name='unk_3'/>
+        <int32_t name='unk_4'/>
+        <int32_t name='unk_5'/>
+        <int32_t name='unk_6'/>
+        <int32_t name='unk_7'/>
+        <int32_t name='unk_8'/>
+        <int32_t name='unk_9'/>
+        <int32_t name='unk_10'/>
+        <int32_t name='unk_11'/>
+        <stl-vector name='unk_12' type-name='int32_t'/>
+        <int32_t name='unk_13'/>
+        <int32_t name='unk_14'/>
+        <int32_t name='unk_15'/>
+        <int32_t name='unk_16'/>
+        <stl-vector name='unk_17' type-name='int32_t'/>
+        <stl-vector name='unk_18' type-name='int32_t'/>
+        <stl-vector name='unk_19' type-name='int32_t'/>
+        <stl-vector name='unk_20' type-name='int32_t'/>
+        <stl-vector name='unk_21' pointer-type='dance_form_sub1'/>
+        <stl-vector name='unk_22' pointer-type='dance_form_sub2'/>
     </struct-type>
 
     <struct-type type-name='dance_form_sub1'>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <stl-vector type-name='int32_t'/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <int32_t/>
+        <int32_t name='unk_1'/>
+        <int32_t name='unk_2'/>
+        <int32_t name='unk_3'/>
+        <int32_t name='unk_4'/>
+        <int32_t name='unk_5'/>
+        <int32_t name='unk_6'/>
+        <int32_t name='unk_7'/>
+        <int32_t name='unk_8'/>
+        <int32_t name='unk_9'/>
+        <stl-vector name='unk_10' type-name='int32_t'/>
+        <int32_t name='unk_11'/>
+        <int32_t name='unk_12'/>
+        <int32_t name='unk_13'/>
+        <int32_t name='unk_14'/>
+        <stl-vector name='unk_15' type-name='int32_t'/>
+        <stl-vector name='unk_16' type-name='int32_t'/>
+        <stl-vector name='unk_17' type-name='int32_t'/>
+        <stl-vector name='unk_18' type-name='int32_t'/>
+        <int32_t name='unk_19'/>
     </struct-type>
 
     <struct-type type-name='dance_form_sub2'>
-        <stl-string/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
+        <stl-string name='unk_1'/>
+        <stl-vector name='unk_2' type-name='int32_t'/>
+        <stl-vector name='unk_3' type-name='int32_t'/>
+        <stl-vector name='unk_4' type-name='int32_t'/>
+        <stl-vector name='unk_5' type-name='int32_t'/>
         <int32_t/>
     </struct-type>
 
@@ -757,9 +773,9 @@
         <enum name='unk_enum' type-name='unk_scale_enum_type' base-type='int32_t'/>
         <static-array name='unk_indices' type-name='int32_t' count='25' comment="unk_elements_used elements are used, but only when unk_enum = 1. Unused elements uninitialized"/>
         <int32_t name='unk_indices_used' comment="Number of elements use in array above. Only when unk_enum = 1"/>
-        <stl-vector pointer-type='scale_sub1'/>
-        <stl-vector pointer-type='scale_sub2'/>
-        <compound name='unk1'>
+        <stl-vector name='chords' pointer-type='chord'/>
+        <stl-vector name='scales' pointer-type='named_scale' comment="Note that the top level scale doesn't have a name. These seem to be named scales using the unnamed scale's notes as their foundation"/>
+        <compound name='notes'>
             <int32_t name='unk_1'/>
             <static-array name='name' type-name='stl-string' count='25'/>
             <static-array name='abreviation' type-name='stl-string' count='25'/>
@@ -768,47 +784,61 @@
         </compound>
     </struct-type>
 
-    <struct-type type-name='scale_sub1'>
-        <stl-string name='unk_1'/>
-        <static-array name='unk_2' type-name='int32_t' count='5' comment="unk_2_length entries used"/>
-        <int32_t name='unk_2_length'/>
-        <int32_t name='unk_3'/>
+    <struct-type type-name='chord'>
+        <stl-string name='name'/>
+        <static-array name='notes' type-name='int32_t' count='5' comment="chord_size entries used. Refers to the notes indices"/>
+        <int32_t name='chord_size'/>
+        <int32_t name='unk_3' comment="0 and 1 seen"/>
     </struct-type>
 
-    <struct-type type-name='scale_sub2'>
+    <struct-type type-name='named_scale' comment="Seems odd with a 'scale' consisting of two chords, but that's what the exported XML calls it.">
         <int32_t name='unk_1'/>
         <stl-string name='name'/>
         <static-array name='unk_2' type-name='int32_t' count='7' comment="looks like indices of some kind"/>
         <int32_t name='unk_2_length' comment="elements used in array above"/>
-        <int32_t name='unk_first' init-value='-1' comment="this pair seems to be used when unk_2_length = 0"/>
-        <int32_t name='unk_last' init-value='-1'/>
+        <int32_t name='first_chord' init-value='-1' comment="this pair seems to be used when unk_2_length = 0. Refers to indices in the chords vector"/>
+        <int32_t name='second_chord' init-value='-1'/>
     </struct-type>
 
     <struct-type type-name='rhythm' instance-vector='$global.world.rhythms.all' key-field='id'>
         <int32_t name='id'/>
-        <stl-vector pointer-type='rhythm_sub1'/>
-        <stl-vector pointer-type='rhythm_sub2'/>
-        <int32_t/>
+        <stl-vector name='patterns' pointer-type='rhythm_pattern'/>
+        <stl-vector name='sub_rhythms' pointer-type='sub_rhythm'/>
+        <int32_t name='unk_2'/>
     </struct-type>
 
-    <struct-type type-name='rhythm_sub1'>
+    <enum-type type-name='beat_type' base-type='int32_t'>
+        <enum-item name='Silent' comment="-"/>
+        <enum-item name='AccentedBeat' comment="X"/>
+        <enum-item name='Beat' comment="x"/>
+        <enum-item name='PrimaryAccent' comment="!"/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item name='AccentedBeatSyncopated' comment="X'"/>
+        <enum-item name='BeatSyncopated' comment="x'"/>
+    </enum-type>
+
+    <struct-type type-name='rhythm_pattern'>
         <stl-string name='name'/>
-        <stl-vector>
+        <stl-vector name='bars'>
             <pointer>
-                <pointer type-name='int32_t' is-array='true'/>
+                <pointer name='beat' type-name='beat_type' base_type='int32_t' is-array='true' comment="Length as per length field"/>
                 <int32_t name='length'/>
             </pointer>
         </stl-vector>
-        <pointer type-name='stl-string'/>
-        <pointer type-name='stl-string'/>
-        <int32_t/>
+        <pointer name='beat_name' type-name='stl-string' is-array='true' comment="length as per length field"/>
+        <pointer name='beat_abbreviation' type-name='stl-string' is-array='true' comment="length as per length field"/>
+        <int32_t name='length'/>
     </struct-type>
 
-    <struct-type type-name='rhythm_sub2'>
+    <struct-type type-name='sub_rhythm'>
         <stl-string name='name'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <int32_t/>
+        <stl-vector name='patterns' type-name='int32_t' comment="indices into patterns"/>
+        <stl-vector name='unk_2' type-name='int32_t' comment="Same length as patterns, but with unknown purpose"/>
+        <int32_t name='unk_3'/>
     </struct-type>
 
     <enum-type type-name='occupation_type' base-type='int32_t'>
