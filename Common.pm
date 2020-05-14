@@ -19,7 +19,8 @@ BEGIN {
 
         &is_primitive_type &primitive_type_name &get_primitive_base
 
-        *weak_refs *strong_refs *header_refs &header_ref &register_ref &decode_type_name_ref
+        *weak_refs *strong_refs *header_refs &header_ref &register_ref
+        &decode_type_name_ref &translate_lookup
 
         &with_capture_traits &with_emit_traits
         *cur_header_name %header_data &with_header_file
@@ -263,6 +264,113 @@ sub decode_type_name_ref($;%) {
         my $rtype = $main_namespace.'::'.$tname;
         return wantarray ? ($rtype, $types{$tname}) : $rtype;
     }
+}
+
+sub translate_lookup {
+    my ($str) = @_;
+    return undef unless defined $str;
+    if ($str eq "0") {
+        return "&zero";
+    }
+    if ($str eq "-1") {
+        return "&negone";
+    }
+    if ($str =~ /^\$global\.([a-zA-Z][_a-zA-Z0-9]*)$/) {
+        return "df::global::$1";
+    }
+    if ($str eq "\$\$") {
+        return "aux";
+    }
+    if ($str eq "\$") {
+        return "val";
+    }
+    if ($str =~ /^(.+)\.([a-zA-Z][_a-zA-Z0-9]*)$/) {
+        my $field = $2;
+        my $base = translate_lookup($1);
+        return "_fieldptr($base, $field)";
+    }
+    if ($str =~ /^(.+)\.ref-target$/) {
+        my $base = translate_lookup($1);
+        return "_reftarget($base)";
+    }
+    if ($str =~ /^(.+)\.refers-to$/) {
+        my $base = translate_lookup($1);
+        return "_refersto($base)";
+    }
+    if ($str =~ /^(.+)\.index-refers-to$/) {
+        my $base = translate_lookup($1);
+        return "_indexrefersto($base)";
+    }
+    if ($str =~ /^(.+)\._parent$/) {
+        my $base = translate_lookup($1);
+        return "_TODOparent($base)";
+    }
+    if ($str =~ /^(.+)\._global$/) {
+        my $base = translate_lookup($1);
+        return "_TODOglobal($base)";
+    }
+    if ($str =~ /^(.+)\._upglobal$/) {
+        my $base = translate_lookup($1);
+        return "_TODOglobal(_TODOparent($base))";
+    }
+    if ($str =~ /^(.+)\._key$/) {
+        my $base = translate_lookup($1);
+        return "_TODOkey($base)";
+    }
+    if ($str =~ /^(.+)\[([^\[\]]+)\]$/) {
+        my $idx = $2;
+        my $base = translate_lookup($1);
+        $idx = translate_lookup($idx);
+        return "_index($base, $idx)";
+    }
+    if ($str =~ /^\(find-plant-raw ([^ ]+)\)$/) {
+        my $idx = translate_lookup($1);
+        return "df::plant_raw::find($idx)";
+    }
+    if ($str =~ /^\(food-mat-by-idx \$([a-zA-Z][_a-zA-Z0-9]*) ([^ ]+)\)$/) {
+        my $cat = $1; 
+        my $idx = translate_lookup($2);
+        return "_foodmat($cat, $idx)";
+    }
+    if ($str =~ /^\(find-creature ([^ ]+)\)$/) {
+        my $idx = translate_lookup($1);
+        return "df::creature_raw::find($idx)";
+    }
+    if ($str =~ /^\(find-entity ([^ ]+)\)$/) {
+        my $idx = translate_lookup($1);
+        return "df::historical_entity::find($idx)";
+    }
+    if ($str =~ /^\(find-instance \$([a-zA-Z][_a-zA-Z0-9]*) ([^ ]+)\)$/) {
+        my $type = $1;
+        my $idx = translate_lookup($2);
+        return "df::${type}::find($idx)";
+    }
+    if ($str =~ /^\(find-by-id ([^ ]+) \$([a-zA-Z][_a-zA-Z0-9]*) ([^ ]+)\)$/) {
+        my $idx = $3;
+        my $fld = $2;
+        my $vec = translate_lookup($1);
+        $idx = translate_lookup($idx);
+        return "_TODOfind($vec, $fld, $idx)";
+    }
+    if ($str =~ /^\(\* ([^ ]+) ([^ ]+)\)$/) {
+        my $b = $2;
+        my $a = translate_lookup($1);
+        $b = translate_lookup($b);
+        return "_TODOmultiply($a, $b)";
+    }
+    if ($str =~ /^\(material-by-id ([^ ]+) ([^ ]+)\)$/) {
+        my $idx = $2;
+        my $type = translate_lookup($1);
+        $idx = translate_lookup($idx);
+        return "_material($type, $idx)";
+    }
+    if ($str =~ /^\(item-subtype-target ([^ ]+) ([^ ]+)\)$/) {
+        my $st = $2;
+        my $type = translate_lookup($1);
+        $st = translate_lookup($st);
+        return "_itemsubtype($type, $st)";
+    }
+    die "unhandled lookup expression ${str}";
 }
 
 # Trait generation

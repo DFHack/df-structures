@@ -24,17 +24,6 @@ use StructFields;
 
 # MISC
 
-sub translate_lookup($) {
-    my ($str) = @_;
-    return undef unless $str && $str =~ /^\$global((\.[_a-zA-Z0-9]+)+)$/;
-    my @fields = split /\./, substr($1,1);
-    my $expr = "df::global::".shift(@fields);
-    for my $fn (@fields) {
-        $expr = "_fieldptr($expr, $fn)";
-    }
-    return $expr;
-}
-
 sub emit_find_instance(\%$) {
     my ($rinfo, $tag) = @_;
 

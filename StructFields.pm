@@ -460,6 +460,22 @@ sub render_field_metadata_rec($$) {
         $field_defs_extra{$name}{union_tag_attr} = "\"$uta\"";
         $extra = "&EXTRA($name)";
     }
+    if (my $rt = $field->getAttribute('refers-to')) {
+        # TODO
+        translate_lookup $rt;
+    }
+    if (my $irt = $field->getAttribute('index-refers-to')) {
+        # TODO
+        translate_lookup $irt;
+    }
+    if (my $av = $field->getAttribute('aux-value')) {
+        # TODO
+        translate_lookup $av;
+    }
+    if (my $rs = $field->getAttribute('ref-size')) {
+        # TODO
+        translate_lookup $rs;
+    }
 
     if ($meta eq 'number') {
         my $tname = primitive_type_name($subtype);
