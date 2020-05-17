@@ -786,6 +786,14 @@
         <enum-item name='Briefly'/>
     </enum-type>
     
+    <enum-type type-name='dance_form_partner_change_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='LeadAdvanceAlongMainLineOfMotion'/>
+        <enum-item name='LeadAdvanceAgainstMainLineOfMotion'/>
+        <enum-item name='LeadTurningOutClockwise'/>
+        <enum-item name='LeadTurningOutCounterClockwise'/>
+    </enum-type>
+    
     <enum-type type-name='dance_form_move_type' base-type='int32_t'>
         <enum-item name='SquareStep'/>
         <enum-item name='CircularStep'/>
@@ -813,7 +821,7 @@
         <enum-item name='ArmCarriage'/>
         <enum-item name='RaisedLeftArm'/>
         <enum-item name='RaisedRightArm'/>
-        <enum-item name='RaisedArm'/>
+        <enum-item name='RaisedArms'/>
         <enum-item name='Spin'/>
         <enum-item name='IndependentBodyMovement'/>
         <enum-item name='Sway'/>
@@ -892,26 +900,34 @@
         <flag-bit name='Follower'/>
     </bitfield-type>
 
-    <struct-type type-name='dance_form_sub1'>
-        <int32_t name='unk_1'/>
-        <int32_t name='unk_2'/>
-        <int32_t name='unk_3'/>
-        <int32_t name='unk_4'/>
-        <int32_t name='unk_5'/>
-        <int32_t name='unk_6'/>
-        <int32_t name='unk_7'/>
-        <int32_t name='unk_8'/>
-        <int32_t name='unk_9'/>
-        <stl-vector name='unk_10' type-name='int32_t'/>
-        <int32_t name='unk_11'/>
-        <int32_t name='unk_12'/>
-        <int32_t name='unk_13'/>
-        <int32_t name='unk_14'/>
-        <stl-vector name='unk_15' type-name='int32_t'/>
-        <stl-vector name='unk_16' type-name='int32_t'/>
-        <stl-vector name='unk_17' type-name='int32_t'/>
-        <stl-vector name='unk_18' type-name='int32_t'/>
-        <int32_t name='unk_19'/>
+    <struct-type type-name='dance_form_section'>
+        <int32_t name='unk_1' init-value='0'/>
+        <int32_t name='unk_2' init-value='1'/>
+        <int32_t name='unk_3' init-value='1'/>
+        <int32_t name='unk_4' init-value='-1'/>
+        <enum name='movement_path' type-name='dance_form_movement_path' base-type='int32_t'/>
+        <int32_t name='move_id' comment="index in the moves vector"/>
+        <enum name='partner_distance' type-name='dance_form_partner_distance' base-type='int32_t'/>
+        <enum name='partner_intent' type-name='dance_form_partner_intent' base-type='int32_t'/>
+        <enum name='partner_cue_frequency' type-name='dance_form_partner_cue_frequency' base-type='int32_t'/>
+        <stl-vector name='partner_changes'>
+            <enum type-name='dance_form_partner_change_type' base-type='int32_t'/>
+        </stl-vector>
+        <int32_t name='unk_11' init-value='0'/>
+        <int32_t name='unk_12' init-value='-1'/>
+        <int32_t name='unk_13' init-value='-1'/>
+        <int32_t name='unk_14' init-value='-1'/>
+        <stl-vector name='type'>
+            <enum type-name='dance_form_move_type' base-type='int32_t'/>
+        </stl-vector>
+        <stl-vector name='modifier'>
+            <enum type-name='dance_form_move_modifier' base-type='int32_t'/>
+        </stl-vector>
+        <stl-vector name='parameter' type-name='int32_t' init-value='1' comment="Depends on type (turns are in signed angles, steps are in number of steps, etc.)"/>
+        <stl-vector name='location'>
+            <bitfield type-name='dance_form_move_location'/>
+        </stl-vector>
+        <int32_t name='id'/>
     </struct-type>
     
     <enum-type type-name='dance_form_move_group_type' base-type='int32_t'>
@@ -955,7 +971,9 @@
         <enum name='partner_distance' type-name='dance_form_partner_distance' base-type='int32_t' comment="NONE when not pair dance"/>
         <enum name='partner_intent' type-name='dance_form_partner_intent' base-type='int32_t' comment="NONE when not pair dance"/>
         <enum name='partner_cue_frequency' type-name='dance_form_partner_cue_frequency' base-type='int32_t' comment="NONE when not pair dance and when 'normal'"/>
-        <stl-vector name='unk_12' type-name='int32_t' comment="0, 2, 3 seen when a single element is present. Not seen more than 1 element"/>
+        <stl-vector name='partner_changes'>
+            <enum type-name='dance_form_partner_change_type' base-type='int32_t'/>
+        </stl-vector>
         <bool name='poetry_referenced' comment="Weird, but all instances where it was set examined have the dance act out any composition of a named poetic form, without any presence of the form number found"/>
         <int32_t name='unk_14' init-value='-1'/>
         <int32_t name='hfid' ref-target='historical_figure' comment="Character whose story the dance acts out"/>
@@ -970,7 +988,7 @@
         <stl-vector name='move_location'>
             <bitfield type-name='dance_form_move_location'/>
         </stl-vector>
-        <stl-vector name='unk_21' pointer-type='dance_form_sub1'/>
+        <stl-vector name='sections' pointer-type='dance_form_section'/>
         <stl-vector name='moves' pointer-type='dance_form_move'/>
     </struct-type>
 
