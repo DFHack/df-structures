@@ -76,6 +76,68 @@
         </ld:global-type>
     </xsl:template>
 
+    <xsl:template match='df-other-vectors-type'>
+        <xsl:variable name='vectors' select='./stl-vector'/>
+        <xsl:variable name='enum-name' select='@index-enum'/>
+        <xsl:variable name='item-type' select='@item-type'/>
+
+        <xsl:for-each select="*[not(name()='stl-vector' or name()='comment' or name()='code-helper')]">
+            <xsl:message terminate="yes">
+Error: df-other-vectors-type may only contain stl-vector fields. (<xsl:value-of select='name(.)'/>)
+            </xsl:message>
+        </xsl:for-each>
+
+        <xsl:for-each select="$vectors">
+            <xsl:variable name='enum-key' select='@name'/>
+            <xsl:variable name='enum-item' select='/data-definition/enum-type[@type-name=($enum-name)]/enum-item[@name=($enum-key)]'/>
+
+            <xsl:choose>
+                <xsl:when test='count($enum-item) = 0'>
+                    <xsl:message terminate="yes">
+Error: field <xsl:value-of select='$enum-key'/> is not a member of enum <xsl:value-of select='$enum-name'/>
+                    </xsl:message>
+                </xsl:when>
+                <xsl:when test="starts-with(($enum-item/@value), '-')">
+                    <xsl:message terminate="yes">
+Error: field <xsl:value-of select='$enum-key'/> corresponds to an enum value of <xsl:value-of select='$enum-item/@value'/>
+                    </xsl:message>
+                </xsl:when>
+            </xsl:choose>
+        </xsl:for-each>
+
+        <ld:global-type ld:meta='struct-type' ld:subtype='df-other-vectors-type' ld:level='0' type-name='{@type-name}' index-enum='{$enum-name}' item-type='{$item-type}'>
+            <xsl:apply-templates select="@comment|@since"/>
+            <xsl:apply-templates select="comment|code-helper">
+                <xsl:with-param name='level' select="1"/>
+            </xsl:apply-templates>
+
+            <xsl:for-each select="/data-definition/enum-type[@type-name=($enum-name)]/enum-item[not(starts-with(@value, '-'))]">
+                <xsl:variable name='enum-key' select='@name'/>
+                <xsl:variable name='defined' select='$vectors[@name=($enum-key)]'/>
+
+                <xsl:choose>
+                    <xsl:when test='count($defined)'>
+                        <xsl:apply-templates select='$defined'>
+                            <xsl:with-param name='level' select='1'/>
+                        </xsl:apply-templates>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <ld:field ld:meta='container' ld:level='1' ld:subtype='stl-vector' name='{$enum-key}' pointer-type='{$item-type}'>
+                            <ld:item ld:meta='pointer' ld:is-container='true' ld:level='2' type-name='{$item-type}'>
+                                <ld:item>
+                                    <xsl:call-template name='lookup-type-ref'>
+                                        <xsl:with-param name='name' select='$item-type'/>
+                                        <xsl:with-param name='level' select='3'/>
+                                    </xsl:call-template>
+                                </ld:item>
+                            </ld:item>
+                        </ld:field>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:for-each>
+        </ld:global-type>
+    </xsl:template>
+
     <!-- Code to properly annotate references to types by name -->
 
     <xsl:key name="primitive-type-lookup" match="prim-type" use="@ld:subtype"/>

@@ -195,6 +195,8 @@ sub render_struct_type {
     my $item_type = $tag->getAttribute('item-type');
     my $list_link_type = $tag->getAttribute('df-list-link-type');
     my $list_link_field = $tag->getAttribute('df-list-link-field');
+    my $is_other_vectors = (($tag->getAttribute('ld:subtype') or '') eq 'df-other-vectors-type');
+    my $index_enum = $tag->getAttribute('index-enum');
     my $custom_methods = is_attr_true($tag, 'custom-methods') || $tag->findnodes('custom-methods/cmethod');
     my $has_methods = $is_class || is_attr_true($tag, 'has-methods');
     my $inherits = $tag->getAttribute('inherits-from');
@@ -218,6 +220,10 @@ sub render_struct_type {
     } elsif ($is_linked_list) {
         register_ref $item_type, 1;
         $ispec = ' : DfLinkedList<'.$typename.', '.$item_type.'>';
+    } elsif ($is_other_vectors) {
+        register_ref $item_type, 0;
+        register_ref $index_enum, 1;
+        $ispec = ' : DfOtherVectors<'.$typename.', '.$index_enum.', '.$item_type.'>';
     }
 
     if ($list_link_type) {

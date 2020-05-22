@@ -541,6 +541,14 @@ These are defined in df-code.lisp:
 
     with some extra code to make it easier to interact with.
 
+``<df-other-vectors-type type-name='foo_other' index-enum='foo_other_id' item-type='foo'/>``
+
+    Defines a tuple of vectors with the same base type. Individual vectors act as if they were defined as::
+
+        <stl-vector name='FOO_KEY' pointer-type='foo'/>
+
+    where ``FOO_KEY`` is a key in the ``foo_other_id`` enum.
+
 Class type definition
 =====================
 
