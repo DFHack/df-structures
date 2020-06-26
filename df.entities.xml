@@ -161,6 +161,8 @@
             <flag-bit name='seized'/>
             <flag-bit name='offended'/>
             <flag-bit name='announce' comment='display merchantintro and merchantexit'/>
+            <flag-bit name='greatly_offended'/>
+            <flag-bit name='tribute' comment='caravan is delivering tribute (not merchant caravan)'/>
         </bitfield>
         <int32_t name='import_value'/>
         <int32_t name='export_value_total'/>
@@ -350,9 +352,9 @@
         <stl-vector name='unk_v47_3' type-name='int32_t' comment="some enum?"/>
         <stl-vector name='agreement' type-name='int32_t' ref-target='agreement'/>
         <stl-vector name='unk_v47_5' type-name='int32_t' comment="boolean?"/>
-        <stl-vector name='unk_v47_6' type-name='int32_t' comment="4 byte data size seen, so not pointer"/>
-        <stl-vector name='unk_v47_7' type-name='int32_t' comment="4 byte data size seen, so not pointer"/>
-        <stl-vector name='unk_v47_8' type-name='int32_t' comment="4 byte data size seen, so not pointer"/>
+        <stl-vector name='unk_v47_6' type-name='int32_t'/>
+        <stl-vector name='unk_v47_7' type-name='int32_t'/>
+        <stl-vector name='unk_v47_8' type-name='int32_t'/>
         <int32_t name='unk_v47_9'/>
     </struct-type>
 
@@ -445,7 +447,7 @@
             <stl-vector name='instrument_type' type-name='int16_t' ref-target='itemdef_instrumentst'/>
             <stl-vector name='siegeammo_type' type-name='int16_t' ref-target='itemdef_siegeammost'/>
             <stl-vector name='tool_type' type-name='int16_t' ref-target='itemdef_toolst'/>
-            <stl-vector type-name='int16_t' since='v0.42.01'/>
+            <stl-vector type-name='int32_t' since='v0.42.01'/>
 
             <compound name='metal'>
                 <compound name='pick' type-name='material_vec_ref'/>
@@ -601,7 +603,7 @@
                     <stl-vector name='historic_events' type-name='int32_t' ref-target='history_event'/>
                     <stl-vector name='historic_events_collection' type-name='int32_t' ref-target='history_event_collection' comment="seen with war_event_collection set"/>
                     <int32_t comment="0, 1, 4 seen. Non zero seen with relation 0/1"/>
-                    <int32_t comment="0-3 seen. Non zero seen with relation 3/4"/>
+                    <enum base-type='int32_t' type-name='season' name='tribute_season'/>
                 </pointer>
             </stl-vector>
 
@@ -683,8 +685,8 @@
         <pointer name='unk_v47_1' since='v0.47.01'>
             <stl-vector name='unk_v47_1' pointer-type='entity_unk_v47_1'/>
             <stl-vector name='foiled_plot_agreements' type-name='int32_t' ref-target='agreement' comment="Mostly a guess. The foiled plot agreement out of 2 appeared here"/>
-            <stl-vector name='unk_v47_3'/>
-            <int32_t name='unk_v47_4' comment="0 and 1 seen, so might be boolean"/>
+            <stl-vector name='unk_v47_3' type-name='int32_t'/>
+            <int32_t name='unk_v47_4' comment="0 and 1 seen, but definitely int32"/>
         </pointer>
 
         <stl-vector name='divination_sets' type-name='int32_t' since='v0.47.01' comment="Guess. Only on religions, but not all. start at 350 and added sequentially in Religion formation order. Last religion # = last divination set index"/>
@@ -698,10 +700,10 @@
             <int16_t name='unk47' comment='in 0.23, last communicate season'/>
             <int32_t name='unk48' comment='in 0.23, last communicate year'/>
 
-            <int32_t name='unk49a' comment='in 0.23, imports'/>
-            <int32_t name='unk49b' comment='in 0.23, exports'/>
-            <int32_t name='unk49c' comment='in 0.23, recent offerings'/>
-            <static-array name='unk49d' count='10' type-name='int32_t' comment='in 0.23, offerings history'/>
+            <int32_t name='imports_from'/>
+            <int32_t name='offerings_from'/>
+            <int32_t name='offerings_recent' comment='since the last migrant wave or diplomat visit'/>
+            <static-array name='offerings_history' count='10' type-name='int32_t' comment='rotated yearly at 15th of Timber'/>
             <int32_t name='unk49e' comment='in 0.23, hostility level - determined siege size, had a chance to reset to 1'/>
             <int32_t name='unk49f' comment='in 0.23, determined siege size'/>
             <int32_t since='v0.40.01'/>
@@ -1326,8 +1328,8 @@
             <pointer>
                 <int32_t/>
                 <int32_t/>
-                <int32_t/>
-                <int32_t/>
+                <int32_t name='year'/>
+                <int32_t name='tick'/>
             </pointer>
         </stl-vector>
     </struct-type>

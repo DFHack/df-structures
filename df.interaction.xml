@@ -32,6 +32,12 @@
         <enum-item name='CONTACT'/>
         <enum-item name='MATERIAL_EMISSION'/>
         <enum-item name='HIDE'/>
+        <enum-item name='PROPEL_UNIT'/>
+        <enum-item name='SUMMON_UNIT'/>
+        <enum-item name='CHANGE_WEATHER'/>
+        <enum-item name='RAISE_GHOST'/>
+        <enum-item name='CREATE_ITEM'/>
+        <enum-item name='CHANGE_ITEM_QUALITY'/>
     </enum-type>
 
     <enum-type type-name='interaction_effect_location_hint' base-type='int32_t'>
@@ -57,18 +63,27 @@
 
         <virtual-methods>
             <vmethod ret-type='interaction_effect_type' name='getType'/>
-            <vmethod name='write_file'> <pointer comment='file_compressorst'/> </vmethod>
+            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
             <vmethod name='read_file'>
-                <pointer comment='file_compressorst'/>
-                <int32_t name='loadversion'/>
+                <pointer name='file' type-name='file_compressorst'/>
+                <enum name='loadversion' type-name='save_version'/>
             </vmethod>
             <vmethod is-destructor='true'/>
-            <vmethod><int32_t/><int32_t/><int32_t/></vmethod>
+            <vmethod name='activateOnUnit'>
+                <pointer name='target' type-name='unit'/>
+                <pointer comment='has pointer-vector at offset 0x10'/>
+                <bool comment='only used by animate'/>
+            </vmethod>
+            <vmethod name='activateOnItem'><pointer name='target' type-name='item'/></vmethod>
             <vmethod name='parseRaws'><int32_t/><int32_t/><int32_t/><int32_t/><int32_t/></vmethod>
             <vmethod name='finalize'><int32_t/></vmethod>
-            <vmethod/>
-            <vmethod><int32_t/><int32_t/></vmethod>
-            <vmethod ret-type='bool'><int32_t/></vmethod>
+            <vmethod name='applySyndromes'/>
+            <vmethod>
+                <pointer/>
+                <pointer/>
+                <bool/>
+            </vmethod>
+            <vmethod name='hasSyndrome' ret-type='bool'><pointer type-name='syndrome'/></vmethod>
         </virtual-methods>
     </class-type>
 
@@ -113,6 +128,11 @@
     <class-type type-name='interaction_effect_change_weatherst' inherits-from='interaction_effect'>
         <int32_t/>
         <int32_t/>
+    </class-type>
+
+    <class-type type-name='interaction_effect_raise_ghostst' inherits-from='interaction_effect'>
+        <int32_t/>
+        <stl-vector name='syndrome' pointer-type='syndrome' comment='assumed based on vmethod reference'/>
     </class-type>
 
     <class-type type-name='interaction_effect_create_itemst' inherits-from='interaction_effect'>
@@ -162,6 +182,7 @@
         <enum-item name='INGESTION'/>
         <enum-item name='CREATURE_ACTION'/>
         <enum-item name='UNDERGROUND_SPECIAL'/>
+        <enum-item name='EXPERIMENT'/>
     </enum-type>
 
     <class-type type-name='interaction_source' original-name='interaction_sourcest' key-field='id'>
@@ -180,10 +201,10 @@
 
         <virtual-methods>
             <vmethod ret-type='interaction_source_type' name='getType'/>
-            <vmethod name='write_file'> <pointer comment='file_compressorst'/> </vmethod>
+            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
             <vmethod name='read_file'>
-                <pointer comment='file_compressorst'/>
-                <int32_t name='loadversion'/>
+                <pointer name='file' type-name='file_compressorst'/>
+                <enum name='loadversion' type-name='save_version'/>
             </vmethod>
             <vmethod is-destructor='true'/>
             <vmethod name='parseRaws'><int32_t/><int32_t/><int32_t/><int32_t/><int32_t/></vmethod>
@@ -293,10 +314,10 @@
         <int32_t name='reference_distance' comment='IT_LOCATION:RANDOM_NEARBY_LOCATION'/>
         <virtual-methods>
             <vmethod ret-type='interaction_target_type' name='getType'/>
-            <vmethod name='write_file'> <pointer comment='file_compressorst'/> </vmethod>
+            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
             <vmethod name='read_file'>
-                <pointer comment='file_compressorst'/>
-                <int32_t name='loadversion'/>
+                <pointer name='file' type-name='file_compressorst'/>
+                <enum name='loadversion' type-name='save_version'/>
             </vmethod>
             <vmethod is-destructor='true'/>
             <vmethod name='parseRaws'><int32_t/><int32_t/><int32_t/><int32_t/><int32_t/></vmethod>

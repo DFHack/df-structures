@@ -10,6 +10,7 @@ my $output_dir = $ARGV[1] || 'codegen';
 my $separator = $ARGV[2] || "\n";
 
 print "$output_dir/static.inc";
+print "$separator$output_dir/global_objects.h";
 for my $file (qw(ctors enums fields)) {
     print "$separator$output_dir/static.$file.inc";
 }
@@ -25,7 +26,9 @@ for my $filename (glob "$input_dir/*.xml") {
         $doc->findnodes('/data-definition/enum-type'),
         $doc->findnodes('/data-definition/bitfield-type'),
         $doc->findnodes('/data-definition/struct-type'),
-        $doc->findnodes('/data-definition/class-type')
+        $doc->findnodes('/data-definition/class-type'),
+        $doc->findnodes('/data-definition/df-linked-list-type'),
+        $doc->findnodes('/data-definition/df-other-vectors-type')
     );
 
     for my $node (@nodes) {

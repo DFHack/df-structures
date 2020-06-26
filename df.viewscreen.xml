@@ -22,6 +22,13 @@
         <enum-item name='TOFIRST'/>
     </enum-type>
 
+    <enum-type type-name='interface_push_types'>
+        <enum-item name='AS_PARENT'/>
+        <enum-item name='AS_CHILD'/>
+        <enum-item name='AT_BACK'/>
+        <enum-item name='AT_FRONT'/>
+    </enum-type>
+
     <class-type type-name='viewscreen' original-name='viewscreenst' custom-methods='true'>
         <pointer name='child' type-name='viewscreen'/>
         <pointer name='parent' type-name='viewscreen'/>
@@ -113,15 +120,15 @@
             <vmethod ret-type='int32_t' name='getMouseLCur'/>
             <vmethod ret-type='int32_t' name='getMouseRCur'/>
 
-            <vmethod> <pointer type-name='int32_t'/> <pointer type-name='int32_t'/> </vmethod>
-            <vmethod> <pointer type-name='int32_t'/> <pointer type-name='int32_t'/> </vmethod>
+            <vmethod name='getMouseLClickPos'> <pointer type-name='int32_t' name='x'/> <pointer type-name='int32_t' name='y'/> </vmethod>
+            <vmethod name='getMouseRClickPos'> <pointer type-name='int32_t' name='x'/> <pointer type-name='int32_t' name='y'/> </vmethod>
             <vmethod ret-type='int32_t' name='getListLength'/>
             <vmethod name='setListLength'> <int32_t/> </vmethod>
-            <vmethod ret-type='int32_t'/>
+            <vmethod ret-type='int32_t' name='getMouseX'/>
 
-            <vmethod ret-type='int32_t'/>
-            <vmethod ret-type='int32_t'/>
-            <vmethod ret-type='int32_t'/>
+            <vmethod ret-type='int32_t' name='getMouseY'/>
+            <vmethod ret-type='int32_t' name='getMouseXOld'/>
+            <vmethod ret-type='int32_t' name='getMouseYOld'/>
         </virtual-methods>
     </class-type>
 
@@ -208,11 +215,48 @@
 
     <class-type type-name='viewscreen_adopt_regionst' inherits-from='viewscreen'>
         <compound type-name='file_compressorst' name='compressor'/>
-        <int32_t name='cur_step'/>
+        <enum base-type='int32_t' name='cur_step'>
+            <enum-item name='OpeningFile'/>
+            <enum-item name='ProcessingRawData'/>
+            <enum-item name='AllocatingSpace'/>
+            <enum-item name='LoadingItems'/>
+            <enum-item name='LoadingBuildings'/>
+            <enum-item name='LoadingEntities'/>
+            <enum-item name='LoadingCoinInformation'/>
+            <enum-item name='LoadingMapData'/>
+            <enum-item name='LoadingCivilizedPopulations'/>
+            <enum-item name='LoadingHistory'/>
+            <enum-item name='LoadingParameters'/>
+            <enum-item name='LoadingArtifacts'/>
+            <enum-item name='LoadingActiveHistoricalFigures'/>
+            <enum-item name='LoadingSquads'/>
+            <enum-item name='LoadingFormations'/>
+            <enum-item name='LoadingActivities'/>
+            <enum-item name='LoadingInteractions'/>
+            <enum-item name='LoadingWrittenContent'/>
+            <enum-item name='LoadingIdentities'/>
+            <enum-item name='LoadingIncidents'/>
+            <enum-item name='LoadingCrimes'/>
+            <enum-item name='LoadingVehicles'/>
+            <enum-item name='LoadingArmies'/>
+            <enum-item name='LoadingArmyControllers'/>
+            <enum-item name='LoadingTrackingInformation'/>
+            <enum-item name='LoadingCulturalIdentities'/>
+            <enum-item name='LoadingAgreements'/>
+            <enum-item name='LoadingArtForms'/>
+            <enum-item name='LoadingOccupations'/>
+            <enum-item name='LoadingBeliefSystems'/>
+            <enum-item name='LoadingImageSets'/>
+            <enum-item name='LoadingDivinationSets'/>
+            <enum-item name='ClosingFile'/>
+            <enum-item name='RebuildingTemporaryInformation'/>
+            <enum-item name='PreparingGame'/>
+            <enum-item name='Failed'/>
+        </enum>
         <int32_t name='save_version'/>
         <compound type-name='world_dat_summary' name='cur_save'/>
         <compound type-name='matgloss_list' name='glosses'/>
-        <int32_t/>
+        <int32_t name='progress' comment='0..35'/>
     </class-type>
 
     <class-type type-name='viewscreen_adventure_logst' inherits-from='viewscreen'>
@@ -892,7 +936,7 @@
         <stl-vector/>
         <int32_t/>?
         <stl-vector pointer-type='nemesis_record' name='important_leader_nemesis'/>
-        <stl-vector type-name='int32_t'/>
+        <stl-vector type-name='int32_t' name='important_leader_precedence'/>
         <int32_t name='start_idx'/>
         <stl-vector name='agreements' pointer-type='meeting_event'/>
         <stl-vector name='agreement_status' type-name='int8_t'/>
@@ -946,15 +990,55 @@
     </class-type>
 
     <class-type type-name='viewscreen_export_regionst' inherits-from='viewscreen'>
-        <int32_t/>
-        <int32_t/>
-        <compound name='unk1'>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector type-name='int16_t'/>
-            <int32_t/>
-            <int32_t/>
-            <int32_t/>
+        <enum base-type='int32_t' name='state'>
+            <enum-item name='Initializing'/>
+            <enum-item name='PreliminaryCleaning'/>
+            <enum-item name='OffloadingUnits'/>
+            <enum-item name='OffloadingArtImages'/>
+            <enum-item name='OffloadingFile'/>
+            <enum-item name='CharacterizingRawData'/>
+            <enum-item name='SortingWorldInformation'/>
+            <enum-item name='AllocatingSpace'/>
+            <enum-item name='SavingItems'/>
+            <enum-item name='SavingBuildings'/>
+            <enum-item name='SavingEntities'/>
+            <enum-item name='SavingCoinInformation'/>
+            <enum-item name='SavingMapData'/>
+            <enum-item name='SavingCivilizedPopulations'/>
+            <enum-item name='SavingHistory'/>
+            <enum-item name='SavingParameters'/>
+            <enum-item name='SavingArtifacts'/>
+            <enum-item name='SavingActiveHistoricalFigures'/>
+            <enum-item name='SavingSquads'/>
+            <enum-item name='SavingFormations'/>
+            <enum-item name='SavingActivities'/>
+            <enum-item name='SavingInteractions'/>
+            <enum-item name='SavingWrittenContent'/>
+            <enum-item name='SavingIdentities'/>
+            <enum-item name='SavingIncidents'/>
+            <enum-item name='SavingCrimes'/>
+            <enum-item name='SavingVehicles'/>
+            <enum-item name='SavingArmies'/>
+            <enum-item name='SavingArmyControllers'/>
+            <enum-item name='SavingTrackingInfo'/>
+            <enum-item name='SavingCulturalIdentities'/>
+            <enum-item name='SavingAgreements'/>
+            <enum-item name='SavingArtForms'/>
+            <enum-item name='SavingOccupations'/>
+            <enum-item name='SavingBeliefSystems'/>
+            <enum-item name='SavingImageSets'/>
+            <enum-item name='SavingDivinationSets'/>
+            <enum-item name='ClosingFile'/>
+            <enum-item name='SynchronizingFolders'/>
+        </enum>
+        <int32_t name='progress' comment='0..40'/>
+        <compound name='units_progress'>
+            <stl-vector type-name='int32_t' name='save_file_id'/>
+            <stl-vector type-name='int16_t' name='save_file_member_idx'/>
+            <stl-vector pointer-type='unit' name='units'/>
+            <pointer type-name='unit_chunk' name='current_chunk'/>
+            <int32_t name='current_save_file_id'/>
+            <int32_t name='offloaded_units'/>
         </compound>
         <compound type-name='file_compressorst' name='compressor'/>
     </class-type>
@@ -2343,7 +2427,7 @@
         </stl-vector>
 
         advanced settings
-        <bool name='unk_2'/>
+        <bool name='start_in_advanced_mode'/>
         <bool name='in_worldgen'/>
         <int32_t name='cursor_paramset'/>
         <stl-string name='random_seed'/>
@@ -2363,7 +2447,7 @@
         <bool name='unk_21'/>
 
         create new world
-        <int16_t name='cursor_line'/>
+        <int32_t name='cursor_line'/>
 
         <int32_t name='world_size'/>
         <int32_t name='history'/>
@@ -2381,8 +2465,29 @@
         -- v0.40.01
         <stl-string name="raw_folder"/>
         <bool name="load_world_params"/> if set, the screen will "load the world params" the next tick and unset
-        <int32_t name="unk_b8"/>
-        <int32_t name="unk_bc"/>
+        <int32_t name='load_progress' comment='0..20'/>
+        <enum base-type='int32_t' name='load_state'>
+            <enum-item name='Initializing'/>
+            <enum-item name='LoadingObjectFiles'/>
+            <enum-item name='FinalizingLanguages'/>
+            <enum-item name='FinalizingDescriptors'/>
+            <enum-item name='FinalizingMaterialTemplates'/>
+            <enum-item name='FinalizingInorganics'/>
+            <enum-item name='FinalizingPlants'/>
+            <enum-item name='FinalizingTissueTemplates'/>
+            <enum-item name='FinalizingItems'/>
+            <enum-item name='FinalizingBuildings'/>
+            <enum-item name='FinalizingBodyDetailPlans'/>
+            <enum-item name='FinalizingCreatureVariations'/>
+            <enum-item name='FinalizingCreatures'/>
+            <enum-item name='FinalizingEntities'/>
+            <enum-item name='FinalizingReactions'/>
+            <enum-item name='FinalizingInteractions'/>
+            <enum-item name='PreparingMaterialData'/>
+            <enum-item name='PreparingTextObjects'/>
+            <enum-item name='PreparingGraphics'/>
+            <enum-item name='Finalizing'/>
+        </enum>
     </class-type>
 
     <class-type type-name='viewscreen_noblest' inherits-from='viewscreen'>
