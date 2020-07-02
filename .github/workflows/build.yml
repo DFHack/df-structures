@@ -19,11 +19,14 @@ jobs:
         submodules: true
     - name: Validate against schema
       run: |
-        xmllint --schema data-definition.xsd --noout df.*.xml symbols.xml
+        xmllint --schema data-definition.xsd --noout df.*.xml symbols.xml 2>&1 | tee xmllint.out
+        echo "** reformatted output: **"
+        grep -i error xmllint.out | perl -pe 's/(.+):(\d+):/::error file=\1,line=\2::/g'
+        xmllint --schema data-definition.xsd --noout df.*.xml symbols.xml >/dev/null 2>&1
     - name: Generate headers
       run: |
-        perl ./codegen.pl | tee codegen-out.txt
-        if grep -i error codegen-out.txt; then
+        perl ./codegen.pl | tee codegen.out
+        if grep -i error codegen.out; then
           echo codegen produced error
           exit 1
         fi
