@@ -536,10 +536,24 @@
         </stl-vector>
         <int32_t/>
         <pointer name='intrigues'>
-            <stl-vector name='unk1' type-name='int32_t' comment="all 4 vectors same length and only 0 and 1 seen. Only values 78-80 seen"/>
-            <stl-vector name='unk2' type-name='int32_t' comment="78:-1,79: historical_entity, 80:4/6"/>
-            <stl-vector name='unk3' type-name='int32_t' init-value='-1' comment="78: 243/244, 79/80:-1"/>
-            <stl-vector name='unk4' type-name='int32_t' init-value='-1' comment="only -1 seen"/>
+            <stl-vector name='potential_corrupt_skill'>
+                <comment>
+                    only CONVERSATION, INTIMIDATION, and LYING seen;
+                    could easily be an entirely different type
+                </comment>
+                <enum type-name='job_skill' base-type='int32_t'/>
+            </stl-vector>
+            <stl-vector name='potential_corrupt_target' union-tag-field='potential_corrupt_skill'>
+                <compound is-union='true'>
+                    <int32_t init-value='-1' name='LYING'/>
+                    <int32_t ref-target='historical_entity' name='INTIMIDATION'/>
+                    <enum type-name='value_type' base-type='int32_t' name='CONVERSATION'/>
+                </compound>
+            </stl-vector>
+            <stl-vector name='potential_corrupt_circumstance'>
+                <enum type-name='unit_thought_type' base-type='int32_t'/>
+            </stl-vector>
+            <stl-vector name='potential_corrupt_unk4' type-name='int32_t' init-value='-1' comment='only -1 seen'/>
             <stl-vector name='plots'>
                 <pointer>
                     <int32_t name='id' comment="starts as index in parent vector"/>
@@ -751,23 +765,32 @@
     </enum-type>
 
     <enum-type type-name='vague_relationship_type' base-type='int16_t' comment="not a great name given that lovers, ex lovers, and lieutenants appear here, but histfig and unit are both used...">
-         <enum-item name='childhood_friend'/>
-         <enum-item name='war_buddy'/>
-         <enum-item name='jealous_obsession'/>
-         <enum-item name='jealous_relationship_grudge'/>
-         <enum-item name='lover'/>
-         <enum-item name='former_lover' comment="broke up"/>
-         <enum-item name='scholar_buddy'/>
-         <enum-item name='artistic_buddy'/>
-         <enum-item name='athlete_buddy'/>
-         <enum-item name='atheletic_rival'/>
-         <enum-item name='business_rival'/>
-         <enum-item name='religious_persecution_grudge'/>
-         <enum-item name='grudge'/>
-         <enum-item name='persecution_grudge'/>
-         <enum-item name='supernatural_grudge'/>
-         <enum-item name='lieutenant'/>
-   </enum-type>
+        <enum-item name='childhood_friend'/>
+        <enum-item name='war_buddy'/>
+        <enum-item name='jealous_obsession'/>
+        <enum-item name='jealous_relationship_grudge'/>
+        <enum-item name='lover'/>
+        <enum-item name='former_lover' comment="broke up"/>
+        <enum-item name='scholar_buddy'/>
+        <enum-item name='artistic_buddy'/>
+        <enum-item name='athlete_buddy'/>
+        <enum-item name='atheletic_rival'/>
+        <enum-item name='business_rival'/>
+        <enum-item name='religious_persecution_grudge'/>
+        <enum-item name='grudge'/>
+        <enum-item name='persecution_grudge'/>
+        <enum-item name='supernatural_grudge'/>
+        <enum-item name='lieutenant'/>
+        <enum-item name='worshipped_deity'/>
+        <enum-item name='spouse'/>
+        <enum-item name='mother'/>
+        <enum-item name='father'/>
+        <enum-item name='master'/>
+        <enum-item name='apprentice'/>
+        <enum-item name='companion'/>
+        <enum-item name='ex_spouse'/>
+        <enum-item name='shared_entity'/>
+    </enum-type>
 
     <struct-type type-name='historical_figure' instance-vector='$global.world.history.figures' key-field='id'>
         <enum base-type='int16_t' name='profession' type-name='profession'/>
@@ -1503,7 +1526,9 @@
     </struct-type>
 
     <struct-type type-name='history_event_context'>
-        <int32_t name='unk_00' init-value='0'/>
+        <bitfield name='flags'>
+            <flag-bit name='is_interrogation_report'/>
+        </bitfield>
         <pointer name='interrogator_relationships' type-name='historical_figure_relationships'/>
         <pointer name='interrogation'> TODO: check size
             <int32_t name='unk_00' init-value='-1'/>
@@ -1580,6 +1605,8 @@
 
     <enum-type type-name='history_event_flags'>
         <enum-item name='hidden' comment='event is hidden from legends mode when this is set'/>
+        <enum-item/>
+        <enum-item comment='related to intrigues (checked in df::history_event_failed_intrigue_corruptionst::getRelatedHistfigIDs)'/>
     </enum-type>
 
     <class-type type-name='history_event' original-name='history_eventst'
@@ -3516,42 +3543,7 @@
         <int32_t name='total_semimegabeasts'/>
         <stl-vector/>
         <static-array name='unk_v42_1' type-name='int16_t' count='28' since='v0.42.01'/> unsure but 16-bit values make more sense than 32-bit
-        <stl-vector name='intrigues' since='v0.47.01'>
-            <pointer>
-                <int32_t name='event' ref-target='history_event' comment="NOTE: can be culled. Seen:failed_intrigue_corruption, event_agreement_formed, hfs_formed_intrigue_relationship"/>
-                <pointer>
-                    <int32_t comment="looks like an enum, range 0 - 3. Haven't found any correlation to contents"/>
-                    <int32_t name='hf_1' ref-target='historical_figure' comment='usually both are in event or agreement, sometimes only one, though, with a third party instead'/>
-                    <int32_t name='hf_2' ref-target='historical_figure'/>
-                    <int16_t/>
-                    <int32_t name='entity_id' comment="at least some of the time. entities observed were linked to hf"/>
-                    <int32_t/>
-                    <int32_t/>
-                    <int32_t/>
-                    <int32_t/>
-                    <int32_t/>
-                    <int32_t/>
-                    <int32_t/>
-                    <int32_t/>
-                    <int32_t/>
-                    <int32_t/>
-                    <int32_t/>
-                    <int32_t/>
-                    <int32_t/>
-                    <int32_t/>
-                    <int32_t/>
-                    <int32_t/>
-                    <int32_t/>
-                    <int32_t/>
-                    <int32_t/>
-                    <int32_t/>
-                </pointer>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-            </pointer>
-        </stl-vector>
+        <stl-vector name='intrigues' since='v0.47.01' pointer-type='intrigue'/>
         <stl-vector name='live_megabeasts' pointer-type='historical_figure'/>
         <stl-vector name='live_semimegabeasts' pointer-type='historical_figure'/>
         <stl-vector name='unk_histfig_3' pointer-type='historical_figure'/>
@@ -3578,11 +3570,72 @@
         <stl-vector since='v0.47.01'/>
         <stl-vector since='v0.47.01'/>
         <int8_t/>
-        <stl-vector/>
+        <stl-vector name='active_event_collections' pointer-type='history_event_collection'/>
         <int8_t/>
         <int32_t/>
         <int32_t/>
-        <pointer/>
+        <pointer name='active_mission' type-name='mission_report'/>
+    </struct-type>
+
+    <struct-type type-name='intrigue' instance-vector='$global.world.history.intrigues' key-field='event_id'>
+        <int32_t name='event_id' ref-target='history_event'/>
+        <pointer name='corruption' type-name='intrigue_corruption'/>
+        <compound name='reason' type-name='history_event_reason_info'/>
+        <compound name='circumstance' type-name='history_event_circumstance_info'/>
+    </struct-type>
+
+    <struct-type type-name='intrigue_corruption'>
+        <enum name='crime' type-name='crime_type'/>
+        <int32_t name='corruptor_id' ref-target='historical_figure'/>
+        <int32_t name='target_id' ref-target='historical_figure'/>
+        <enum name='target_relationship' type-name='vague_relationship_type'/>
+        <int32_t name='target_relationship_entity_id' ref-target='historical_entity'/>
+        <int32_t name='lurer_id' ref-target='historical_figure'/>
+
+        <enum name='manipulation_type'>
+            <enum-item name='Threat'/>
+            <enum-item name='Flattery'/>
+            <enum-item name='Authority'/>
+            <enum-item name='BlackmailForEmbezzlement'/>
+            <enum-item name='Bribery'/>
+            <enum-item name='Sympathy'/>
+            <enum-item name='Revenge'/>
+            <enum-item name='Immortality'/>
+        </enum>
+        <int32_t/>
+        <int32_t/>
+
+        <enum name='manipulated_facet' type-name='personality_facet_type'/>
+        <int32_t/>
+        <int32_t name='facet_roll'/>
+
+        <enum name='manipulated_value' type-name='value_type'/>
+        <int32_t/>
+        <int32_t name='value_roll'/>
+
+        <enum name='manipulated_emotion'>
+            <enum-item name='Trust'/>
+            <enum-item name='Loyalty'/>
+            <enum-item name='Love'/>
+            <enum-item name='Fear'/>
+            <enum-item name='Respect'/>
+        </enum>
+        <int32_t/>
+        <int32_t name='emotion_roll'/>
+
+        <bitfield name='flags'>
+            <flag-bit name='succeeded'/>
+            <flag-bit name='misread_target'/>
+        </bitfield>
+
+        <int32_t name='position_entity_id' ref-target='historical_entity'/>
+        <int32_t name='position_assignment_id' ref-target='entity_position_assignment' aux-value='$$.position_entity_id'/>
+
+        <int32_t name='offered_id' ref-target='historical_figure' comment='deity or revenge target'/>
+        <enum name='offered_relationship' type-name='vague_relationship_type' base-type='int32_t'/>
+
+        <int32_t name='corruptor_ally_roll'/>
+        <int32_t name='target_ally_roll'/>
     </struct-type>
 </data-definition>
 
