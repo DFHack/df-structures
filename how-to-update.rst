@@ -2,8 +2,9 @@
 Updating DF-structures for a new DF version
 ###########################################
 
-.. contents::
-   :depth: 2
+.. contents:: Contents
+  :local:
+  :depth: 1
 
 General Process
 ===============
@@ -182,93 +183,93 @@ Located just before ui_building_assign_type.
 1. cur_year / cur_year_tick
 
    (find-changes); step with dot; Enter; step; +; step; +; step; +; done
-   
+
    look at values in bss, there will be cur_year_tick, and
    cur_year is 32 bytes before that.
-   
+
 2. process_jobs
-   
+
    Designate a building for construction.
    Look after process_dig for an enabled boolean.
-   
+
 3. process_dig
-   
+
    Step the game one step. Designate a tile for digging.
    Look after cur_year and before process_jobs.
-   
+
    Note: this order because designating sometimes sets process_jobs too.
-   
+
 4. job_next_id / ui_workshop_job_cursor
-   
+
    Find a workshop without jobs; (find-changes); add job; Enter;
    add job; +; add job; +; done
    Finds job_next_id and ui_workshop_job_cursor, the distinction is obvious.
-   
+
    The ui_workshop_job_cursor is expected to be after cur_year_tick.
-   
+
 5. ui_workshop_in_add, ui_building_in_resize, ui_building_in_assign
-   
+
    Expected to be in the area after ui_workshop_job_cursor, in this order.
    Change the relevant state in game and F5.
-   
+
 6. ui_building_item_cursor
-   
+
    Find a cluttered workshop, t; (find-changes); move cursor down; Enter;
    cursor down; +; cursor down; +; done
-   
+
    Expected to be right after ui_workshop_job_cursor.
-   
+
 7. current_weather
-   
+
    Subtract 0x1c from cur_year address. Obviously, a big hack.
-   
+
    It is best to use a save where the contents are non-zero and known to you.
-   
+
 [B] The ui_look_cursor area.
 ----------------------------
 Located in the area of the 124 byte global before ui.
-   
+
 1. ui_look_cursor
-   
+
    Like ui_building_item_cursor, but with a cluttered tile and k.
-   
+
 2. ui_selected_unit
-   
+
    Find a place with many nearby units; (find-changes); v; Enter; v; new;
    ...; when returned to origin, 0; 1; 2...; done
-   
+
    Expected to be before ui_look_cursor.
-   
+
 3. ui_unit_view_mode
-   
+
    Select unit, page Gen; (find-changes); Inv; Enter; Prf; +; Wnd; +; done
-   
+
    Expected to be after ui_selected_unit.
-   
+
 4. pause_state
-   
+
    (find-changes); toggle pause; Enter; toggle; 0; toggle; 1; etc; done
-   
+
    Expected to be in the area after ui_look_cursor.
-   
+
 [C] The window_x/y/z area.
 --------------------------
 Located right after ui_build_selector.
-   
+
 1. window_x, window_y, window_z
-   
+
    Use k, move window view to upper left corner, then the cursor to bottom
    right as far as it can go without moving the view.
-   
+
    (find-changes); Shift-RightDown; Enter; Shift-RightDown; + 10;
    Shift-RightDown; + 10; done
-   
+
    Finds cursor and two variables in bss. Z is just after them.
-   
+
 [D] Random positions.
 ---------------------
 1. announcements
-   
+
    Immediately follows d_init; starts 25 25 31 31 24 ...
 
 

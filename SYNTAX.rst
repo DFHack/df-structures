@@ -2,7 +2,8 @@
 Data Structure Definition Syntax
 ################################
 
-.. contents::
+.. contents:: Contents
+  :local:
 
 This document documents the XML syntax used to define
 DF data structures for use in dfhack.
