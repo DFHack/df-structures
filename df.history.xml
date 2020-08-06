@@ -190,8 +190,8 @@
             <stl-vector type-name='int16_t' ref-target='creature_raw'/>
         </pointer>
 
-        <pointer name="personality">
-            <compound type-name='unit_personality'/>
+        <pointer name='personality'>
+            <compound name='personality' type-name='unit_personality'/>
             <int16_t since='v0.44.01'/>
         </pointer>
 
@@ -233,9 +233,11 @@
                       $caste.body_parts[$])
                 </code-helper>
             </stl-bit-vector>
-            <int32_t name='unk_1'/>
-            <int32_t name='unk_2'/>
-            <int32_t name='unk_3' since='v0.40.19'/>
+            <int32_t name='childbirth_year'/>
+            <int32_t name='childbirth_tick'/>
+            <bitfield name='unk_flags' since='v0.40.19'>
+                <flag-bit/>
+            </bitfield>
         </pointer>
 
         <pointer name='known_info' since='v0.34.01'>
@@ -337,8 +339,16 @@
             <stl-vector name="can_do" pointer-type='interaction'/>
             <int32_t name="unk_30"/>
             <int32_t name="unk_34"/>
-            <int32_t name="unk_38"/>
-            <int32_t name="unk_3c"/>
+            <bitfield name="unk_38">
+                <flag-bit/>
+                <flag-bit/>
+                <flag-bit/>
+            </bitfield>
+            <bitfield name="unk_3c">
+                <flag-bit/>
+                <flag-bit/>
+                <flag-bit/>
+            </bitfield>
             <int8_t name="unk_40"/>
             <stl-string name="name"/>
             <stl-string name="name_plural"/>
@@ -450,40 +460,43 @@
             </pointer>
         </pointer>
 
-        <pointer name='relationships'>
-            <stl-vector name='hf_visual'>
-                <pointer>
-                    <int32_t name='histfig_id' ref-target='historical_figure'/>
-                    <int32_t name='information_source'/>
-                    <stl-vector name='unk_2v' type-name='int32_t'/>
-                    <stl-vector name="attitude">
-                        <enum type-name='reputation_type' comment="Probably ordered"/>
-                    </stl-vector>
-                    <stl-vector name="counter" type-name='int32_t' comment="One element for each 'attitude' element. Guess 0 - 100"/>
-                    <int32_t name='rank' init-value='65535' comment="seems to be fixed. Might not be used anymore" since='v0.47.01'/>
-                    <int32_t name='loyalty' comment="0 - 100. Loyalty, Respect, Fear, and Trust values do not seem to affect the relationship screen description, only Love and Familiarity"/>
-                    <int32_t name='respect' comment="-100 - 100"/>
-                    all 0xfff0bdc0 = -1000000
-                    <int32_t name='fear' comment="-100 - 100"/>
-                    <int32_t name='love' comment="-100 - 100. Affects relation description: -100: Pure Hate, LE -75: Hated, LE -50: Disliked, LE 49: Acquaintance, LE 74: Friend, LE 99: Close Friend, 100: Kindred Spirit. Lower histfig_id is sorted above higher, except Acquaintance which is sorted on Familiarity"/>
-                    <int32_t name='trust' comment="-100 - 100"/>
-                    <int32_t name='familiarity' comment="Shifts from 'Passing' to 'Long-term' Acquaintance at 30, but a Love value other than Acquaintance takes presedence. Higher Familiarity is sorted above lower, with lower histfig_id is sorted above higher on a tie"/>
-                    <int32_t name='last_meet_year' comment="probably latest contact. Seen -1"/>
-                    <int32_t name='last_meet_seconds72'/>
-                    <int32_t name='meet_count' since='v0.44.10'/>
-                    <int32_t name='unk_2' since='v0.44.10'/>
-                    <int32_t name='unk_3' since='v0.44.10'/>
-                    <int32_t name='unk_4' comment='probably uninitialized' since='v0.47.01'/>
-                    <int32_t name='unk_5' comment='probably uninitialized' since='v0.47.01'/>
-                    <int32_t name='unk_6' comment='probably uninitialized' since='v0.47.01'/>
-                    <int32_t name='unk_7' comment='probably uninitialized' since='v0.47.01'/>
-                    <int32_t name='unk_8' comment='only seen 0' since='v0.47.01'/>
-                    <int32_t name='unk_9' comment='only seen 0' since='v0.47.01'/>
-                    <int32_t name='first_year' comment="pair less than or equal to year. Guessing it's first contact" since='v0.47.01'/>
-                    <int32_t name='first_year_tick' since='v0.47.01'/>
-                </pointer>
-            </stl-vector>
-<!--        Entries with a 'rank' value of zero are suppressed from display. Display order seems to depend on
+        <pointer name='relationships' type-name='historical_figure_relationships'/>
+    </struct-type>
+
+    <struct-type type-name='historical_figure_relationships'>
+        <stl-vector name='hf_visual'>
+            <pointer>
+                <int32_t name='histfig_id' ref-target='historical_figure'/>
+                <bitfield name='flags'>
+                    <flag-bit name='information_source'/>
+                    <flag-bit/>
+                    <flag-bit name='believes_false_identity'/>
+                </bitfield>
+                <stl-vector name='unk_2v' type-name='int32_t'/>
+                <stl-vector name="attitude">
+                    <enum type-name='reputation_type' comment="Probably ordered"/>
+                </stl-vector>
+                <stl-vector name="counter" type-name='int32_t' comment="One element for each 'attitude' element. Guess 0 - 100"/>
+                <int32_t name='rank' init-value='65535' comment="seems to be fixed. Might not be used anymore" since='v0.47.01'/>
+                <int32_t name='loyalty' comment="0 - 100. Loyalty, Respect, Fear, and Trust values do not seem to affect the relationship screen description, only Love and Familiarity"/>
+                <int32_t name='respect' comment="-100 - 100"/>
+                all 0xfff0bdc0 = -1000000
+                <int32_t name='fear' comment="-100 - 100"/>
+                <int32_t name='love' comment="-100 - 100. Affects relation description: -100: Pure Hate, LE -75: Hated, LE -50: Disliked, LE 49: Acquaintance, LE 74: Friend, LE 99: Close Friend, 100: Kindred Spirit. Lower histfig_id is sorted above higher, except Acquaintance which is sorted on Familiarity"/>
+                <int32_t name='trust' comment="-100 - 100"/>
+                <int32_t name='familiarity' comment="Shifts from 'Passing' to 'Long-term' Acquaintance at 30, but a Love value other than Acquaintance takes presedence. Higher Familiarity is sorted above lower, with lower histfig_id is sorted above higher on a tie"/>
+                <int32_t name='last_meet_year' comment="probably latest contact. Seen -1"/>
+                <int32_t name='last_meet_seconds72'/>
+                <int32_t name='meet_count' since='v0.44.10'/>
+                <int32_t name='unk_2' since='v0.44.10'/>
+                <int32_t name='unk_3' since='v0.44.10'/>
+                <stl-vector name='identities' type-name='int32_t' ref-target='identity'/>
+                <int32_t name='first_year' comment="pair less than or equal to year. Guessing it's first contact" since='v0.47.01'/>
+                <int32_t name='first_year_tick' since='v0.47.01'/>
+            </pointer>
+        </stl-vector>
+        <!--
+            Entries with a 'rank' value of zero are suppressed from display. Display order seems to depend on
             the value of the first 'attitude' entry.
             Buddy/Grudge/AnimalPartner entries forms the primary group, sorted in ascending histfig id order.
             The secondary group consists of Friendly, where the internal sort order is based on higher 'rank'.
@@ -495,9 +508,66 @@
             may be incomplete.
             The role of 'counter' is unknown, but might somehow tick over into an increase in rank. It does not seem
             to play any part in the display sort order.
--->
-            <stl-vector name='hf_historical' since='v0.44.01'>
+        -->
+        <stl-vector name='hf_historical' since='v0.44.01'>
+            <pointer>
+                <int32_t name='histfig_id' ref-target='historical_figure'/>
+                <stl-vector type-name='int32_t'/>
+                <stl-vector type-name='int32_t'/>
+                <stl-vector type-name='int32_t'/>
+                <int32_t name='loyalty' comment="0 - 100" since='v0.47.01'/>
+                <int32_t name='respect' comment="-100 - 100" since='v0.47.01'/>
+                <int32_t name='fear' comment="-100 - 100" since='v0.47.01'/>
+                <int32_t name='love' comment="-100 - 100" since='v0.47.01'/>
+                <int32_t name='trust' comment="-100 - 100" since='v0.47.01'/>
+            </pointer>
+        </stl-vector>
+        <stl-vector since='v0.44.01'>
+            <pointer>
+                <int32_t/>
+                <stl-vector type-name='int32_t'/>
+                <stl-vector type-name='int32_t'/>
+                guessing these are the same 5 fields as above, since they have the same version threshold
+                <int32_t name='loyalty' comment="0 - 100" since='v0.47.01'/>
+                <int32_t name='respect' comment="-100 - 100" since='v0.47.01'/>
+                <int32_t name='fear' comment="-100 - 100" since='v0.47.01'/>
+                <int32_t name='love' comment="-100 - 100" since='v0.47.01'/>
+                <int32_t name='trust' comment="-100 - 100" since='v0.47.01'/>
+            </pointer>
+        </stl-vector>
+        <stl-vector name='identities' type-name='int32_t' ref-target='cultural_identity'/>
+        <stl-vector name='artifact_claims' since='v0.44.01'>
+            <pointer>
+                <int32_t name='artifact_id' ref-target='artifact_record'/>
+                <int32_t comment="only 2 seen"/>
+                <int32_t name='year'/>
+                <int32_t name='year_tick'/>
+                <int32_t init-value='-1'/>
+            </pointer>
+        </stl-vector>
+        <int32_t/>
+        <pointer name='intrigues'>
+            <stl-vector name='potential_corrupt_skill'>
+                <comment>
+                    only CONVERSATION, INTIMIDATION, and LYING seen;
+                    could easily be an entirely different type
+                </comment>
+                <enum type-name='job_skill' base-type='int32_t'/>
+            </stl-vector>
+            <stl-vector name='potential_corrupt_target'>
+                <compound is-union='true' union-tag-field='potential_corrupt_skill'>
+                    <int32_t init-value='-1' name='LYING'/>
+                    <int32_t ref-target='historical_entity' name='INTIMIDATION'/>
+                    <enum type-name='value_type' base-type='int32_t' name='CONVERSATION'/>
+                </compound>
+            </stl-vector>
+            <stl-vector name='potential_corrupt_circumstance'>
+                <enum type-name='unit_thought_type' base-type='int32_t'/>
+            </stl-vector>
+            <stl-vector name='potential_corrupt_unk4' type-name='int32_t' init-value='-1' comment='only -1 seen'/>
+            <stl-vector name='plots'>
                 <pointer>
+<<<<<<< HEAD
                     <int32_t name='histfig_id' ref-target='historical_figure'/>
                     <stl-vector name='unk_1' type-name='int32_t'/>
                     <stl-vector name='unk_2' type-name='int32_t'/>
@@ -520,11 +590,95 @@
                     <int32_t name='fear' comment="-100 - 100" since='v0.47.01'/>
                     <int32_t name='love' comment="-100 - 100" since='v0.47.01'/>
                     <int32_t name='trust' comment="-100 - 100" since='v0.47.01'/>
+=======
+                    <int32_t name='id' comment="starts as index in parent vector"/>
+                    <enum name='plot_type' base-type='int32_t'>
+                        <enum-item name='None' value='-1'/>
+                        <enum-item name='Grow_Funding_Network'/>
+                        <enum-item name='Grow_Asset_Network'/>
+                        <enum-item name='Acquire_Artifact'/>
+                        <enum-item name='Grow_Corruption_Network'/>
+                        <enum-item name='Attain_Rank'/>
+                        <enum-item name='Assassinate_Actor'/>
+                        <enum-item name='unk5_t6'/>
+                        <enum-item name='Frame_Actor'/>
+                        <enum-item name='Kidnap_Actor'/>
+                        <enum-item name='Sabotage_Actor'/>
+                        <enum-item name='Direct_War_To_Actor'/>
+                        <enum-item name='Corrupt_Actors_Government'/>
+                        <enum-item name='Counterintelligence'/>
+                        <enum-item name='Become_Immortal'/>
+                        <enum-item name='Undead_World_Conquest'/>
+                        <enum-item name='Infiltrate_Society'/>
+                    </enum>
+                    <int32_t name='parameter' init-value='-1' comment="0/3/5:local_id, 2:artifact_id, 7/8/9/10/11:actor_id, 12/15:entity_id, 1/4:not seen"/>
+                    <int32_t name='on_hold'/>
+                    <stl-vector name='plot_agreements' pointer-type='plot_agreement'/>
+                    <compound name='plot_data' is-union='true'>
+                        <pointer name='None' comment="seems uninitialized"/>
+                        <pointer name='Grow_Funding_Network' comment="seems uninitialized"/>
+                        <pointer name='Grow_Asset_Network' comment="pointer not seen"/>
+                        <pointer name='Acquire_Artifact' comment="seems uninitialized"/>
+                        <pointer name='Grow_Corruption_Network' comment="seems uninitialized"/>
+                        <pointer name='Attain_Rank' comment="pointer not seen"/>
+                        <pointer name='Assassinate_Actor' comment="pointer not seen"/>
+                        <pointer name='unk5_t6'/>
+                        <pointer name='Frame_Actor' comment="seems uninitialized"/>
+                        <pointer name='Kidnap_Actor' comment="pointer not seen"/>
+                        <pointer name='Sabotage_Actor'>
+                            <int32_t init-value='-1' comment="not seen anything else"/>
+                            <int32_t init-value='-1' comment="not seen anything else"/>
+                        </pointer>
+                        <pointer name='Direct_War_To_Actor' comment="pointer not seen"/>
+                        <pointer name='Corrupt_Actors_Government' comment="pointer not seen"/>
+                        <pointer name='Counterintelligence' comment="pointer not seen"/>
+                        <pointer name='Become_Immortal' comment="pointer not seen"/>
+
+                        <pointer name='Undead_World_Conquest'>
+                            <stl-vector name='unk5_t14_1' type-name='int32_t' comment="seems like sorted sequence of double digit numbers"/>
+                        </pointer>
+                        <pointer name='Infiltrate_Society'>
+                            <int32_t name='action' comment="8:prepare coup, 9:steal treasures and prepare coup. Bitmap?"/>
+                            <int32_t name='unk5_t15_2' init-value='-1' comment="not seen anything else"/>
+                            <int32_t name='unk5_t15_3' init-value='0' comment="not seen anything else"/>
+                        </pointer>
+                    </compound>
+                    <int32_t name='delegated_plot_id' init-value='-1'/>
+                    <int32_t name='delegated_plot_hfid' ref-target='historical_figure'/>
+                    <int32_t name='parent_plot' init-value='-1'/>
+                    <int32_t name='parent_plot_hfid' ref-target='historical_figure'/>
+                    <int32_t name='agreement' ref-target='agreement'/>
+                    <int32_t name='actor_nemesis_id' ref-target='nemesis_record'/>
+                    <int32_t name='unk5_13' init-value='-1' comment="0-8 seen"/>
+                    <int32_t name='plotter_nemesis_id' ref-target='nemesis_record'/>
+                    <int32_t name='unk5_15' init-value='-1' comment="0-5 seen"/>
                 </pointer>
             </stl-vector>
-            <stl-vector name='identities' type-name='int32_t' ref-target='cultural_identity'/>
-            <stl-vector name='artifact_claims' since='v0.44.01'>
+            <int32_t name='next_plot_id'/>
+            <stl-vector name='revealed_agreements' pointer-type='agreement'/>
+            <stl-vector name='agreemeents' pointer-type='agreement'/>
+            <stl-vector name='intrigue'>
                 <pointer>
+                    <int32_t name='id' comment="index into the parent vector (at least initially)"/>
+                    <int32_t name='unk9_2' comment="0 seen"/>
+                    <int32_t name='hf_1' ref-target='historical_figure' comment="visual relation seen"/>
+                    <int32_t name='hf_2' ref-target='historical_figure' comment="visual relation seen"/>
+                    <int32_t name='unk9_5' init-value='-1'/>
+                    <int32_t name='unk9_6' ref-target='historical_entity' comment="site government seen. Target? Possible threat?"/>
+                    <int32_t name='handle_actor_id' init-value='-1' comment="based on exported XML instances"/>
+                    <enum name='role' type-name='plot_role_type' base-type='int32_t'/>
+                    <enum name='strategy' type-name='plot_strategy_type' base-type='int32_t'/>
+                    <int32_t name='unk9_10' ref-target='historical_entity' comment="site government seen. Target? Member of/possible threat?"/>
+                    <int32_t name='unk9_11' init-value='-1' comment='1 seen'/>
+                    <stl-vector name='unk9_12' type-name='int32_t'/>
+>>>>>>> master
+                </pointer>
+            </stl-vector>
+            <int32_t name='next_intrigue_id'/>
+            <stl-vector name='unk11' type-name='int32_t' comment="4 bytes allocated observed, which cant' host a pointer"/>
+            <stl-vector name='unk12'>
+                <pointer>
+<<<<<<< HEAD
                     <int32_t name='artifact_id' ref-target='artifact_record'/>
                     <int32_t name='unk_1' comment="only 2 seen"/>
                     <int32_t name='year'/>
@@ -657,6 +811,38 @@
                 <int32_t name='unk16' init-value='-1'/>
                 <int32_t name='unk17' init-value='-1'/>
             </pointer>
+=======
+                    <int32_t/>
+                    <int32_t name='unk_4'/>
+                    <int32_t/>
+                    <compound name='unk_data' is-union='true'> based on unk_4
+                        <pointer name='ptr_0'>
+                            <int32_t/>
+                            <int32_t/>
+                            <int32_t/>
+                            <int32_t/>
+                        </pointer>
+                        <pointer name='ptr_1'>
+                            <int32_t/>
+                            <int32_t/>
+                            <int32_t/>
+                        </pointer>
+                        <pointer name='ptr_2'>
+                        </pointer>
+                        <pointer name='ptr_3'/>
+                            this one has ANOTHER union inside it, sized at 11 32-bit integers and having 6 subtypes
+                            followed by another 3 integers
+                    </compound>
+                </pointer>
+            </stl-vector>
+            <int32_t name='unk13'/>
+            <stl-vector name='unk14'>
+                <pointer/> - this is the same 6-subtype 11-integer union seen immediately above in ptr_3
+            </stl-vector>
+            <int32_t name='unk15'/>
+            <int32_t name='unk16' init-value='-1'/>
+            <int32_t name='unk17' init-value='-1'/>
+>>>>>>> master
         </pointer>
     </struct-type>
 
@@ -764,23 +950,32 @@
     </enum-type>
 
     <enum-type type-name='vague_relationship_type' base-type='int16_t' comment="not a great name given that lovers, ex lovers, and lieutenants appear here, but histfig and unit are both used...">
-         <enum-item name='childhood_friend'/>
-         <enum-item name='war_buddy'/>
-         <enum-item name='jealous_obsession'/>
-         <enum-item name='jealous_relationship_grudge'/>
-         <enum-item name='lover'/>
-         <enum-item name='former_lover' comment="broke up"/>
-         <enum-item name='scholar_buddy'/>
-         <enum-item name='artistic_buddy'/>
-         <enum-item name='athlete_buddy'/>
-         <enum-item name='atheletic_rival'/>
-         <enum-item name='business_rival'/>
-         <enum-item name='religious_persecution_grudge'/>
-         <enum-item name='grudge'/>
-         <enum-item name='persecution_grudge'/>
-         <enum-item name='supernatural_grudge'/>
-         <enum-item name='lieutenant'/>
-   </enum-type>
+        <enum-item name='childhood_friend'/>
+        <enum-item name='war_buddy'/>
+        <enum-item name='jealous_obsession'/>
+        <enum-item name='jealous_relationship_grudge'/>
+        <enum-item name='lover'/>
+        <enum-item name='former_lover' comment="broke up"/>
+        <enum-item name='scholar_buddy'/>
+        <enum-item name='artistic_buddy'/>
+        <enum-item name='athlete_buddy'/>
+        <enum-item name='atheletic_rival'/>
+        <enum-item name='business_rival'/>
+        <enum-item name='religious_persecution_grudge'/>
+        <enum-item name='grudge'/>
+        <enum-item name='persecution_grudge'/>
+        <enum-item name='supernatural_grudge'/>
+        <enum-item name='lieutenant'/>
+        <enum-item name='worshipped_deity'/>
+        <enum-item name='spouse'/>
+        <enum-item name='mother'/>
+        <enum-item name='father'/>
+        <enum-item name='master'/>
+        <enum-item name='apprentice'/>
+        <enum-item name='companion'/>
+        <enum-item name='ex_spouse'/>
+        <enum-item name='shared_entity'/>
+    </enum-type>
 
     <struct-type type-name='historical_figure' instance-vector='$global.world.history.figures' key-field='id'>
         <enum base-type='int16_t' name='profession' type-name='profession'/>
@@ -788,7 +983,7 @@
         <int16_t name='race' ref-target='creature_raw'/>
         <int16_t name='caste' ref-target='caste_raw' aux-value='$$.race'/>
 
-        <int8_t name='sex' comment='-1 n/a, 0 female, 1 male'/>
+        <enum name='sex' type-name='pronoun_type'/>
 
         <bitfield type-name='orientation_flags' name='orientation_flags'/>
         <int32_t name='appeared_year'/>
@@ -1235,7 +1430,7 @@
         </enum-item>
 
         -- 10
-        
+
         <enum-item name='liked_appearance'>
             <item-attr name='caption' value='that all should gaze upon a truly gruesome visage'/>
         </enum-item>
@@ -1268,7 +1463,7 @@
         </enum-item>
 
         -- 20
-        
+
         <enum-item name='bring_war_to_the_world'>
             <item-attr name='caption' value='that war might rage forever'/>
         </enum-item>
@@ -1301,7 +1496,7 @@
         </enum-item>
 
         -- 30
-        
+
         <enum-item name='should_have_reached_goal'>
             <item-attr name='caption' value='as the goal was not reached'/>
         </enum-item>
@@ -1334,7 +1529,7 @@
         </enum-item>
 
         -- 40
-        
+
         <enum-item name='arrived_at_person'>
             <item-attr name='caption' value='after finding an unknown creature'/>
         </enum-item>
@@ -1367,7 +1562,7 @@
         </enum-item>
 
         -- 50
-        
+
         <enum-item name='jealousy'>
             <item-attr name='caption' value='due to jealousy'/>
         </enum-item>
@@ -1400,7 +1595,7 @@
         </enum-item>
 
         -- 60
-        
+
         <enum-item name='pray'>
             <item-attr name='caption' value='in order to pray'/>
         </enum-item>
@@ -1433,7 +1628,7 @@
         </enum-item>
 
         -- 70
-        
+
         <enum-item name='artifact_is_heirloom_of_family_hfid'>
             <item-attr name='caption' value='as an heirloom of the an unknown creature family'/>
         </enum-item>
@@ -1466,7 +1661,7 @@
         </enum-item>
 
         -- 80
-        
+
         <enum-item name='nuance_belief'>
             <item-attr name='caption' value='due to a belief in nuances of'/>
         </enum-item>
@@ -1499,7 +1694,7 @@
         </enum-item>
 
         -- 90
-        
+
         <enum-item name='battle_losses'>
             <item-attr name='caption' value='after taking heavy losses in battle'/>
         </enum-item>
@@ -1538,11 +1733,11 @@
     </struct-type>
 
     <struct-type type-name='history_event_context'>
-        <int32_t name='unk_00' init-value='0'/>
-        <pointer name='unk_08'>
-            <stl-vector type-name='int32_t' ref-target='historical_figure'/>
-        </pointer>
-        <pointer name='unk_10'> TODO: check size
+        <bitfield name='flags'>
+            <flag-bit name='is_interrogation_report'/>
+        </bitfield>
+        <pointer name='interrogator_relationships' type-name='historical_figure_relationships'/>
+        <pointer name='interrogation'> TODO: check size
             <int32_t name='unk_00' init-value='-1'/>
             <int32_t name='unk_04' init-value='-1'/>
             <int32_t name='interrogator_id' ref-target='historical_figure'/>
@@ -1617,13 +1812,15 @@
 
     <enum-type type-name='history_event_flags'>
         <enum-item name='hidden' comment='event is hidden from legends mode when this is set'/>
+        <enum-item/>
+        <enum-item comment='related to intrigues (checked in df::history_event_failed_intrigue_corruptionst::getRelatedHistfigIDs)'/>
     </enum-type>
 
     <bitfield-type type-name='merc_role_type' base-type='uint8_t' since='v0.47.02' comment="regular if bit not set">
         <flag-bit name='attacker_scout'/>
-        <flag-bit name='defender_scout'/>        
+        <flag-bit name='defender_scout'/>
     </bitfield-type>
-    
+
     <class-type type-name='history_event' original-name='history_eventst'
                 instance-vector='$global.world.history.events' key-field='id'>
         <int32_t name='year'/>
@@ -2526,7 +2723,7 @@
         <enum-item name='wave_of_popular_support'/>
         <enum-item name='as_a_matter_of_course'/>
     </enum-type>
-    
+
     <class-type type-name='history_event_create_entity_positionst' inherits-from='history_event'>
         <int32_t name='histfig' ref-target='historical_figure'/>
         <int32_t name='civ' ref-target='historical_entity'/>
@@ -2931,7 +3128,7 @@
         <enum-item name='purchase_masterwork_equipment'/>
         <enum-item name='performe_horrible_experiments'/>
     </enum-type>
-    
+
     <class-type type-name='history_event_hist_figure_simple_actionst' inherits-from='history_event'>
         <stl-vector name='group_hfs' type-name='int32_t' ref-target='historical_figure'/>
         <enum name='type' type-name='simple_action_type'/>
@@ -3045,9 +3242,9 @@
     </class-type>
 
     <class-type type-name='history_event_entity_equipment_purchasest' inherits-from='history_event' since='v0.47.01'>
-      <int32_t name='entity' ref-target='historical_entity'/>
-      <int32_t name='quality' comment='1 = well-crafted, 2 = finely-crafted, 3 = superior, 4 = exceptional, 5 = masterwork'/>
-      <stl-vector name='hfs' type-name='int32_t' ref-target='historical_figure'/>
+        <int32_t name='entity' ref-target='historical_entity'/>
+        <enum name='quality' type-name='item_quality' base-type='int32_t'/>
+        <stl-vector name='hfs' type-name='int32_t' ref-target='historical_figure'/>
     </class-type>
 
     <class-type type-name='history_event_modified_buildingst' inherits-from='history_event' since='v0.47.01'>
@@ -3284,13 +3481,13 @@
             <stl-vector name='unk_3' type-name='int32_t' init-value='-1' comment="only -1 seen"/>
             <stl-vector name='unk_4' type-name='int32_t' comment="-5,-6, -14 -15 seen"/>
             <int32_t name='unk_5' comment="same as previous vector single element or zero. Sum?"/>
-            
+
             <stl-vector name='ethics_unk1' type-name='int16_t' comment="these three vectors are of the same length"/>
             <stl-vector name='disputed_ethics' type-name='ethic_type'/>
             <stl-vector name='ethics_unk3' type-name='int32_t' init-value='-1' comment="not seen other value"/>
             <stl-vector name='dispute_severities' type-name='int32_t'/>
             <int32_t name='accumulated_ethics_severity'/>
-            
+
             <stl-vector name='event_unk' type-name='int16_t' comment="values 5 and 10 seen. These three vectors are the same length"/>
             <stl-vector name='negative_events' ref-target='history_event' type-name='int32_t' comment="Site dispute, war attack site, created site, and culled seen"/>
             <stl-vector name='event_severities' type-name='int32_t' comment="Site dispute:-9/-10, war attack site:-2/-4/-5, created site: -20, culled: -20 (guess failed settlement)"/>
@@ -3318,14 +3515,14 @@
         <int32_t name='defender_mercs' ref-target='historical_entity'/>
         <stl-vector name='attacker_merc_hfs' ref-target='historical_figure' type-name='int32_t'/>
         <stl-vector name='defender_merc_hfs' ref-target='historical_figure' type-name='int32_t'/>
-        
+
         <stl-vector name='attacker_squad_entity_pop' type-name='int32_t' ref-target='entity_population'/>
         <stl-vector name='attacker_squad_counts' type-name='int32_t'/>
         <stl-vector name='attacker_squad_deaths' type-name='int32_t'/>
         <stl-vector name='attacker_squad_races' type-name='int32_t' ref-target='creature_raw'/>
         <stl-vector name='attacker_squad_sites' type-name='int32_t' ref-target='world_site'/>
         <stl-vector name='unk_3' type-name='int32_t' comment="probably a boolean, as only 0/1 seen"/>
-        
+
         <stl-vector name='defender_squad_entity_pops' type-name='int32_t' ref-target='entity_population'/>
         <stl-vector name='defender_squad_counts' type-name='int32_t'/>
         <stl-vector name='defender_squad_deaths' type-name='int32_t'/>
@@ -3588,7 +3785,7 @@
         <enum-item name='CorruptInPlace'/>
         <enum-item name='InduceToEmbezzle'/>
     </enum-type>
-    
+
     <enum-type type-name='intrigue_method_type' base-type='int32_t'>
         <enum-item name='Intimidate'/>
         <enum-item name='Flatter'/>
@@ -3599,7 +3796,7 @@
         <enum-item name='RevengeOnGrudge'/>
         <enum-item name='OfferImmortality'/>
     </enum-type>
-    
+
     <enum-type type-name='relationship_factor_type' base-type='int32_t'>
         <enum-item name='Trust'/>
         <enum-item name='Loyalty'/>
@@ -3607,7 +3804,7 @@
         <enum-item name='Fear'/>
         <enum-item name='Respect'/>
     </enum-type>
-    
+
     <struct-type type-name='world_history'>
         dtor 8532fa0
 
@@ -3627,8 +3824,8 @@
         </compound>
 
         <stl-vector name='eras' pointer-type='history_era'/>
-        <stl-vector name='unk1' type-name='int32_t'/>
-        <stl-vector name='unk2' type-name='int16_t'/>
+        <stl-vector name='discovered_art_image_id' type-name='int32_t' ref-target='art_image_chunk'/>
+        <stl-vector name='discovered_art_image_subid' type-name='int16_t' ref-target='art_image' aux-value='$$.discovered_art_image_id[$._key]'/>
 
         <int32_t name='total_unk'/> some value during worldgen, and at the end equals to the number of entities plus that value
         <int32_t name='total_powers' comment='also includes megabeasts'/>
@@ -3636,49 +3833,7 @@
         <int32_t name='total_semimegabeasts'/>
         <stl-vector name='unk_14'/>
         <static-array name='unk_v42_1' type-name='int16_t' count='28' since='v0.42.01'/> unsure but 16-bit values make more sense than 32-bit
-        <stl-vector name='intrigues' since='v0.47.01'>
-            <pointer>
-                <int32_t name='event' ref-target='history_event' comment="NOTE: can be culled. Seen:failed_intrigue_corruption, event_agreement_formed, hfs_formed_intrigue_relationship"/>
-                <pointer name='corruption_details' comment="Mutually exclusive with circumstance/circumstance_id. Exactly one is present. Presumably 'bring into network' action doesn't provide membership">
-                    <enum name='action' type-name='intrigue_action_type' base-type='int32_t'/>
-                    <int32_t name='corruptor_hfid' ref-target='historical_figure'/>
-                    <int32_t name='target_hfid' ref-target='historical_figure'/>
-                    <enum name='relation' type-name='intrigue_relation_type' base-type='int16_t' comment="set if and only if action = BringIntoNetwork"/>
-                    <int32_t name='common_entity_id' comment="Only set when relation = CommonEntity. Common Religion/PerformanceTroupe/MerchantCompany/Guild seen."/>
-                    <int32_t name='lure_hfid' ref-target='historical_figure' comment="Can be set with action = CorruptInPlace, not otherwise"/>
-                    <enum name='method' type-name='intrigue_method_type' base-type='int32_t'/>
-                    
-                    <int32_t name='unk_4' comment="-16 to 315 seen"/>
-                    <int32_t name='unk_5' comment="-141 to 351 seen"/>
-                    
-                    <enum name='top_facet' type-name='personality_facet_type' base-type='int32_t'/>
-                    <int32_t name='top_facet_rating'/>
-                    <int32_t name='top_facet_modifier'/>
-                    
-                    <enum name='top_value' type-name='value_type' base-type='int32_t'/>
-                    <int32_t name='top_value_rating'/>
-                    <int32_t name='top_value_modifier'/>
-                    
-                    <enum name='top_relationship_factor' type-name='relationship_factor_type' base-type='int32_t'/>
-                    <int32_t name='unk_13' comment="-100 to 125 seen"/>
-                    <int32_t name='unk_14' comment="-10 to 12 seen"/>
-                    <int32_t name='unk_15' comment="range 0-3 seen"/>
-                    
-                    <int32_t name='relevant_entity_id' ref-target='historical_entity' comment="Paired with next field. Used to pull rank"/>
-                    <int32_t name='relevant_position_profile_id' init-value='-1'/>
-                    
-                    <int32_t name='relevant_id_for_method' ref-target='historical_figure' comment="Paired with next field"/>
-                    <int32_t name='relevant_relation_for_method' init-value='-1' comment="11 seen with offered revenge, 16 with play for sympathy appealing to common worship of HFID. Guess it's intrigue_relation_type, but not enough to connect it"/>
-                    
-                    <int32_t name='coconspirator_bonus' init-value='0'/>
-                    <int32_t name='ally_defense_bonus' init-value='0'/>
-                </pointer>
-                <int32_t name='unk_1' init-value='-1'/>
-                <int32_t name='unk_2' init-value='-1'/>
-                <int32_t name='circumstance' init-value='-1' comment="Only 257 seen apart from init. Probably circumstance='is entity subordinate' in XML"/>
-                <int32_t name='circumstance_id' ref-target='historical_entity' comment="name as per XML tag. Organization target became a member of."/>
-            </pointer>
-        </stl-vector>
+        <stl-vector name='intrigues' since='v0.47.01' pointer-type='intrigue'/>
         <stl-vector name='live_megabeasts' pointer-type='historical_figure'/>
         <stl-vector name='live_semimegabeasts' pointer-type='historical_figure'/>
         <stl-vector name='unk_histfig_3' pointer-type='historical_figure'/>
@@ -3705,11 +3860,72 @@
         <stl-vector name='unk_6' since='v0.47.01'/>
         <stl-vector name='unk_7' since='v0.47.01'/>
         <int8_t name='unk_8'/>
-        <stl-vector name='unk_9'/>
+        <stl-vector name='active_event_collections' pointer-type='history_event_collection'/>
         <int8_t name='unk_10'/>
         <int32_t name='unk_11'/>
         <int32_t name='unk_12'/>
-        <pointer name='unk_13'/>
+        <pointer name='active_mission' type-name='mission_report'/>
+    </struct-type>
+
+    <struct-type type-name='intrigue' instance-vector='$global.world.history.intrigues' key-field='event_id'>
+        <int32_t name='event_id' ref-target='history_event' comment="NOTE: can be culled. Seen: failed_intrigue_corruption, event_agreement_formed, hfs_formed_intrigue_relationship"/>
+        <pointer name='corruption' type-name='intrigue_corruption' comment="Mutually exclusive with circumstance. Exactly one is present. Presumably 'bring into network' action doesn't provide membership"/>
+        <compound name='reason' type-name='history_event_reason_info'/>
+        <compound name='circumstance' type-name='history_event_circumstance_info'/>
+    </struct-type>
+
+    <struct-type type-name='intrigue_corruption'>
+        <enum name='crime' type-name='crime_type'/>
+        <int32_t name='corruptor_id' ref-target='historical_figure'/>
+        <int32_t name='target_id' ref-target='historical_figure'/>
+        <enum name='target_relationship' type-name='vague_relationship_type' comment="set if and only if action = BringIntoNetwork"/>
+        <int32_t name='target_relationship_entity_id' ref-target='historical_entity' comment="Only set when relation = CommonEntity. Common Religion/PerformanceTroupe/MerchantCompany/Guild seen."/>
+        <int32_t name='lurer_id' ref-target='historical_figure' comment="Can be set with action = CorruptInPlace, not otherwise"/>
+
+        <enum name='manipulation_type'>
+            <enum-item name='Threat'/>
+            <enum-item name='Flattery'/>
+            <enum-item name='Authority'/>
+            <enum-item name='BlackmailForEmbezzlement'/>
+            <enum-item name='Bribery'/>
+            <enum-item name='Sympathy'/>
+            <enum-item name='Revenge'/>
+            <enum-item name='Immortality'/>
+        </enum>
+        <int32_t name='unk_4' comment="-16 to 315 seen"/>
+        <int32_t name='unk_5' comment="-141 to 351 seen"/>
+
+        <enum name='manipulated_facet' type-name='personality_facet_type'/>
+        <int32_t name='facet_rating'/>
+        <int32_t name='facet_roll'/>
+
+        <enum name='manipulated_value' type-name='value_type'/>
+        <int32_t name='value_rating'/>
+        <int32_t name='value_roll'/>
+
+        <enum name='manipulated_emotion'>
+            <enum-item name='Trust'/>
+            <enum-item name='Loyalty'/>
+            <enum-item name='Love'/>
+            <enum-item name='Fear'/>
+            <enum-item name='Respect'/>
+        </enum>
+        <int32_t name='emotion_rating' comment="-100 to 125 seen"/>
+        <int32_t name='emotion_roll' comment="-10 to 12 seen"/>
+
+        <bitfield name='flags'>
+            <flag-bit name='succeeded'/>
+            <flag-bit name='misread_target'/>
+        </bitfield>
+
+        <int32_t name='position_entity_id' ref-target='historical_entity' comment="Used to pull rank"/>
+        <int32_t name='position_assignment_id' ref-target='entity_position_assignment' aux-value='$$.position_entity_id'/>
+
+        <int32_t name='offered_id' ref-target='historical_figure' comment='deity or revenge target'/>
+        <enum name='offered_relationship' type-name='vague_relationship_type' base-type='int32_t'/>
+
+        <int32_t name='corruptor_ally_roll'/>
+        <int32_t name='target_ally_roll'/>
     </struct-type>
 </data-definition>
 

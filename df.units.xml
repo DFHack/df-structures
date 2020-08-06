@@ -502,6 +502,40 @@
         <enum-item name='AdmireArt'/>
     </enum-type>
 
+    <enum-type type-name='pronoun_type' base-type='int8_t'>
+        Dwarf Fortress calls the functions that use this type to determine the pronouns for abstract_building, so it's not anything biology-related.
+
+        <enum-attr name='symbol'/>
+        <enum-attr name='subject' comment='[PRO_SUB]'/>
+        <enum-attr name='object' comment='[PRO_OBJ]'/>
+        <enum-attr name='posessive' comment='[PRO_POS]'/>
+        <enum-attr name='reflexive' comment='[PRO_REF]'/>
+
+        <enum-item name='it' value='-1'>
+            <item-attr name='subject' value='it'/>
+            <item-attr name='object' value='it'/>
+            <item-attr name='posessive' value='its'/>
+            <item-attr name='reflexive' value='itself'/>
+        </enum-item>
+        <enum-item name='she'>
+            using C-style escapes here as XML doesn't like having characters 11 and 12 in it, even if they're escaped
+            this currently works fine due to how the headers are generated, but a different solution may be needed if
+            the header generator is more robust in the future
+            <item-attr name='symbol' value='\x0c'/>
+            <item-attr name='subject' value='she'/>
+            <item-attr name='object' value='her'/>
+            <item-attr name='posessive' value='her'/>
+            <item-attr name='reflexive' value='herself'/>
+        </enum-item>
+        <enum-item name='he'>
+            <item-attr name='symbol' value='\x0b'/>
+            <item-attr name='subject' value='he'/>
+            <item-attr name='object' value='him'/>
+            <item-attr name='posessive' value='his'/>
+            <item-attr name='reflexive' value='himself'/>
+        </enum-item>
+    </enum-type>
+
     <class-type type-name='unit' key-field='id' instance-vector='$global.world.units.all'
             original-name='unitst'>
         <compound type-name='language_name' name='name'/>
@@ -559,7 +593,7 @@
         </compound>
 
         <int16_t name='caste' ref-target='caste_raw' aux-value='$$.race'/>
-        <int8_t name='sex' init-value='-1' comment='-1 n/a, 0 female, 1 male'/>
+        <enum name='sex' type-name='pronoun_type'/>
 
         <int32_t name='id'/>
 
@@ -1236,8 +1270,8 @@
                     <flag-bit name='disabled' comment='if PROB roll fails, or all symptoms expire'/>
                     <flag-bit name='active'/>
                 </bitfield>
-                <int32_t init-value='-1'/>
-                <int32_t init-value='-1'/>
+                <int32_t name='random_transformation_race' ref-target='creature_raw' init-value='-1' comment='With syndromes that transform the unit into a random creature, the target race ID is stored here.'/>
+                <int32_t name='random_transformation_caste' ref-target='caste_raw' aux-value='$$.random_transformation_race' init-value='-1' comment='With syndromes that transform the unit into a random creature, the target caste ID is stored here.'/>
             </pointer>
         </stl-vector>
         <int16_t name='reinfection_count' comment='set from unit.reinfection_count[i]++'/>
@@ -1678,7 +1712,7 @@
         <compound name='name' type-name='language_name'/>
 
         <uint32_t name='race' ref-target='creature_raw'/>
-        <int8_t name='sex' comment='-1 n/a, 0 female, 1 male'/>
+        <enum name='sex' type-name='pronoun_type'/>
         <uint16_t name='caste' ref-target='caste_raw' aux-value='$$.race'/>
 
         <code-helper name='describe'>
@@ -1794,7 +1828,9 @@
                 <enum name='type' base-type='int32_t' type-name='goal_type'/>
                 <int32_t name='unk3' init-value='-1'/>
                 <stl-vector name='unk4' type-name='int32_t'/>
-                <int32_t name='unk8'/>
+                <bitfield name='flags'>
+                    <flag-bit name='accomplished'/>
+                </bitfield>
             </pointer>
         </stl-vector>
         <int32_t name='next_dream_id' since='v0.40.01'/>
@@ -2175,7 +2211,7 @@
             <enum-item name='HateCreature'/>
             <enum-item name='LikeItem'/>
             <enum-item name='LikePlant'/>
-            <enum-item name='LikeTree' comment='holdover from 40d and earlier'/>
+            <enum-item name='LikeTree'/>
             <enum-item name='LikeColor'/>
             <enum-item name='LikeShape'/>
             <enum-item name='LikePoeticForm'/>
