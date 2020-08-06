@@ -482,19 +482,19 @@
         <enum-item name='Fast'/>
         <enum-item name='VeryFast'/>
         <enum-item name='ExtremelyFast'/>
-        <enum-item/>
-
-        <enum-item/>
-        <enum-item/>
-        <enum-item/>
-        <enum-item/>
-        <enum-item/>
+        <enum-item name='DoubleTempo' comment="twice the tempo of the last passage"/>
+        --  10
+        <enum-item name='HalfTempo' comment="half the tempo of the previous passage"/>
+        <enum-item name='Faster' comment="more quickly than the last passage"/>
+        <enum-item name='Slower' comment="slower than the last passage"/>
+        <enum-item name='ResumeTempo' comment="resumes the previous tempo"/>
+        <enum-item name='OriginalTempo' comment="resumes the original tempo"/>
         <enum-item name='Accelerates'/>
         <enum-item name='SlowsAndBroadens'/>
         <enum-item name='ConsistentlySlowing'/>
         <enum-item name='HurriedPace'/>
         <enum-item name='GraduallySlowsAtEnd'/>
-
+        --  20
         -- dynamic styles
         <enum-item name='WhisperedUndertones'/>
         <enum-item name='VerySoft'/>
@@ -506,7 +506,7 @@
         <enum-item name='BecomeLouderAndLouder'/>
         <enum-item name='BecomeSofterAndSofter'/>
         <enum-item name='FadeIntoSilence'/>
-
+        --  30
         <enum-item name='StartLoudThenImmediatelySoft'/>
         -- more tempo styles
         <enum-item name='SlowsAndDiesAwayAtEnd'/>
@@ -519,7 +519,7 @@
         <enum-item name='BeLively'/>
         <enum-item name='BeSkilled'/>
         <enum-item name='BeVigorous'/>
-
+        --  40
         <enum-item name='BeSpirited'/>
         <enum-item name='BeDelicate'/>
         <enum-item name='BeFiery'/>
@@ -531,7 +531,7 @@
         <enum-item name='Sparkle'/>
         <enum-item name='BeBroad'/>
         <enum-item name='BeMadeSweetly'/>
-
+        --  50
         <enum-item name='BeStrong'/>
         <enum-item name='BeEnergetic'/>
         <enum-item name='BeForceful'/>
@@ -542,7 +542,7 @@
         <enum-item name='BeGrand'/>
         <enum-item name='BeMerry'/>
         <enum-item name='BeGraceful'/>
-
+        --  60
         <enum-item name='BuildAsItProceeds'/>
         <enum-item name='EvokeTears'/>
         <enum-item name='BeMelancholic'/>
@@ -553,7 +553,7 @@
         <enum-item name='BeJumpy'/>
         <enum-item name='FeelPlayful'/>
         <enum-item name='FeelTender'/>
-
+        --  70
         <enum-item name='FeelCalm'/>
         <enum-item name='BeTriumphant'/>
     </enum-type>
@@ -587,61 +587,96 @@
         <flag-bit name='FreelyAdjustBeats'/>
     </bitfield-type>
 
-    <struct-type type-name='musical_form' instance-vector='$global.world.musical_forms.all' key-field='id'>
-        <int32_t name='id'/>
-        <compound name='name' type-name='language_name'/>
-        <int32_t name="originating_entity" ref-target="historical_entity" comment="ID of the entity from which the musical form originated."/>
-        <int32_t name="original_author" ref-target="historical_figure" comment="historical figure ID of the composer"/>
-        <stl-vector name='scales' pointer-type='musical_form_vocals'/>
-        <stl-vector name='instruments' pointer-type='musical_form_instruments'/>
-        <stl-vector name='melodies' pointer-type='musical_form_melodies'/>
-        <stl-vector pointer-type='musical_form_sub4'/>
-        <enum name='tempo_style' base-type='int32_t' type-name='musical_form_style'/>
-        <enum name='dynamic_style' base-type='int32_t' type-name='musical_form_style'/>
-        <enum name='overall_style' base-type='int32_t' type-name='musical_form_style'/>
-        <int32_t name='poetic_form_id' ref-target='poetic_form'/>
-        <int32_t name='written_content_id' ref-target='written_content'/>
-        <int32_t name='scale_id' ref-target='scale'/>
-        <int32_t name='scale_subid' comment='reference to scale_sub2'/>
-        <int32_t name='rhythm_id' ref-target='rhythm'/>
-        <int32_t name='rhythm_subid2' comment='reference to rhythm_sub2'/>
-        <int32_t name='rhythm_subid1' comment='reference to rhythm_sub1'/>
-        <bitfield type-name='musical_form_feature' name='features'/>
-        <enum name='pitch_style' base-type='int32_t' type-name='musical_form_pitch_style'/>
-        <enum name='purpose' base-type='int32_t' type-name='musical_form_purpose'/>
-        <int32_t name='devotion_target' ref-target='historical_figure'/>
-        <bitfield base-type='uint32_t' name='flags'>
-            <flag-bit name='produces_individual_songs'/> 'applied by composers to produce individual pieces of music' if set, otherwise 'guides musicians during improvised performances'
-            <flag-bit name='repeats_as_necessary'/>
+    <enum-type type-name='musical_form_passage_component_type' base-type='int32_t'>
+        <enum-item name='Melody'/>
+        <enum-item name='Counterpoint'/>
+        <enum-item name='Harmony'/>
+        <enum-item name='Rhythm'/>
+        <enum-item name='Unspecified'/>
+    </enum-type>
+
+    <enum-type type-name='musical_form_passage_type' base-type='int32_t'>
+        <enum-item name='Unrelated'/>
+        <enum-item name='Introduction'/>
+        <enum-item name='Exposition'/>
+        <enum-item name='Recapitulation'/>
+        <enum-item name='Synthesis'/>
+        <enum-item name='Verse'/>
+        <enum-item name='Chorus'/>
+        <enum-item name='Finale'/>
+        <enum-item name='Coda'/>
+        <enum-item name='BridgePassage'/>
+        <enum-item name='Theme'/>
+        <enum-item name='Variation'/>
+    </enum-type>
+
+    <enum-type type-name='musical_form_passage_length_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='Short'/>
+        <enum-item name='MidLength'/>
+        <enum-item name='Long'/>
+        <enum-item name='Varied'/>
+    </enum-type>
+
+    <enum-type type-name='musical_form_melody_style' base-type='int32_t'>
+        <enum-item name='Rising'/>
+        <enum-item name='Falling'/>
+        <enum-item name='RisingFalling'/>
+        <enum-item name='FallingRising'/>
+    </enum-type>
+
+    <enum-type type-name='musical_form_melody_frequency' base-type='int32_t'>
+        <enum-item name='Always'/>
+        <enum-item name='Often'/>
+        <enum-item name='Sometimes'/>
+    </enum-type>
+
+    <struct-type type-name='musical_form_interval'>
+        <int32_t name='degree'/>
+        <bitfield name='flags' base-type='uint32_t'>
+            <flag-bit name='rising' comment='otherwise falling'/>
+            <flag-bit name='flattened'/>
+            <flag-bit name='sharpened'/>
         </bitfield>
     </struct-type>
 
-    <struct-type type-name='musical_form_vocals'>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector name='vocal_components' type-name='int32_t'/> 0: melody, 1: counterpoint, 2: harmony, 3: rhythm
-        <stl-vector name='phrase_lengths' type-name='int32_t'/> 0: short, 1: mid-length, 2: long, 3: varied length
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <stl-vector pointer-type='musical_form_melodies'/>
-        <int32_t/>
-        <int32_t/>
+    <struct-type type-name='musical_form_melodies'>
+        <enum name='style' type-name='musical_form_melody_style' base-type='int32_t'/>
+        <enum name='frequency' type-name='musical_form_melody_frequency' base-type='int32_t'/>
+        <stl-vector name='intervals' pointer-type='musical_form_interval'/>
+        <bitfield name='features' type-name='musical_form_feature'/>
+    </struct-type>
+
+    <struct-type type-name='musical_form_passage'>
+        <enum name='type' type-name='musical_form_passage_type' base-type='int32_t'/>
+        <int32_t name='passage_reference' init-value='-1' comment="used when doing Exposition, Recapitualation, Synthesis, and Variation"/>
+        <int32_t name='passage_range_end' init-value='-1' comment="when doing Synthesis of a range of passages"/>
+        <int32_t name='unk_4' comment="'min_times' for a 3-5 range, but doesn't match up with 1 for both repeat 2 times and no repeat mentioned"/>
+        <int32_t name='unk_5' comment="'max_times' for a 3-5 range, but doesn't match up with 1 for both repeat 2 times and no repeat mentioned"/>
+        <int32_t name='poetic_form_id' ref-target='poetic_form'/>
+        <int32_t name='written_content_id' ref-target='written_content' comment="suspect bug in exported legends (and possibly DF itself) as no mentioning of the poems (or any alternative) referenced here were mentioned in the two entries examined"/>
+        <int32_t name='scale_id' ref-target='scale'/>
+        <int32_t name='scale_sub_id' comment="references the scales element of the scale"/>
+        <int32_t name='rhythm_id' ref-target='rhythm'/>
+        <int32_t name='sub_rhythm' comment="Guess, based on the pattern above"/>
+        <int32_t name='rhythm_pattern' comment="references the patterns element of rhythm"/>
+        <stl-vector name='instruments' type-name='int32_t' comment="indices into the instruments vector"/>
+        <stl-vector name='components'>
+            <enum type-name='musical_form_passage_component_type' base-type='int32_t'/>
+        </stl-vector>
+        <stl-vector name='passage_lengths'>
+            <enum type-name='musical_form_passage_length_type' base-type='int32_t'/>
+        </stl-vector>
+        <stl-vector name='lowest_register_range' type-name='int32_t' init-value='-1' comment="0-3 seen. Probably indices into the registers of the instruments referenced. Found no field for timbre description, though"/>
+        <stl-vector name='highest_register_range' type-name='int32_t' init-value='-1' comment="0-3 seen. Probably indices into the registers of the instruments referenced. Found no field for timbre description, though"/>
+        <enum name='tempo_style' type-name='musical_form_style' base-type='int32_t'/>
+        <enum name='dynamic_style' type-name='musical_form_style' base-type='int32_t'/>
+        <enum name='overall_style' type-name='musical_form_style' base-type='int32_t'/>
+        <bitfield name='features' type-name='musical_form_feature'/>
+        <enum name='pitch_style' type-name='musical_form_pitch_style' base-type='int32_t'/>
+        <stl-vector name='melodies' pointer-type='musical_form_melodies'/>
+        <int32_t name='unk_22' init-value='-1' comment="0-40 seen"/>
+        <int32_t name='unk_23' init-value='-1' comment="0-78 seen"/>
     </struct-type>
 
     <struct-type type-name='musical_form_instruments'>
@@ -658,29 +693,264 @@
         <enum name='overall_style' base-type='int32_t' type-name='musical_form_style'/>
     </struct-type>
 
-    <struct-type type-name='musical_form_melodies'>
-        <int32_t name='style'/> 0: rising, 1: falling, 2: rising-falling, 3: falling-rising
-        <int32_t name='frequency'/> 0: always, 1: often, 2: sometimes
-        <stl-vector name='intervals' pointer-type='musical_form_interval'/>
-        <bitfield type-name='musical_form_feature' name='features'/>
-    </struct-type>
-
     <struct-type type-name='musical_form_sub4'>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
+        <int32_t name='passage' comment="the passage index this structure refers to"/>
+        <int32_t name='unk_2'/>
+        <int32_t name='unk_3'/>
+        <int32_t name='unk_4'/>
+        <int32_t name='unk_5'/>
+        <int32_t name='unk_6'/>
     </struct-type>
 
-    <struct-type type-name='musical_form_interval'>
-        <int32_t name='degree'/>
+    <struct-type type-name='musical_form' instance-vector='$global.world.musical_forms.all' key-field='id'>
+        <int32_t name='id'/>
+        <compound name='name' type-name='language_name'/>
+        <int32_t name="originating_entity" ref-target="historical_entity" comment="ID of the entity from which the musical form originated."/>
+        <int32_t name="original_author" ref-target="historical_figure" comment="historical figure ID of the composer"/>
+        <stl-vector name='passages' pointer-type='musical_form_passage'/>
+        <stl-vector name='instruments' pointer-type='musical_form_instruments'/>
+        <stl-vector name='melodies' pointer-type='musical_form_melodies'/>
+        <stl-vector name='unk_1' pointer-type='musical_form_sub4'/>
+        <enum name='tempo_style' base-type='int32_t' type-name='musical_form_style'/>
+        <enum name='dynamic_style' base-type='int32_t' type-name='musical_form_style'/>
+        <enum name='overall_style' base-type='int32_t' type-name='musical_form_style'/>
+        <int32_t name='poetic_form_id' ref-target='poetic_form'/>
+        <int32_t name='written_content_id' ref-target='written_content'/>
+        <int32_t name='scale_id' ref-target='scale'/>
+        <int32_t name='scale_subid' comment='reference to scale_sub2'/>
+        <int32_t name='rhythm_id' ref-target='rhythm'/>
+        <int32_t name='sub_rhythm' comment='reference to sub_rhythms'/>
+        <int32_t name='rhythm_pattern' comment='reference to patterns'/>
+        <bitfield name='features' type-name='musical_form_feature'/>
+        <enum name='pitch_style' base-type='int32_t' type-name='musical_form_pitch_style'/>
+        <enum name='purpose' base-type='int32_t' type-name='musical_form_purpose'/>
+        <int32_t name='devotion_target' ref-target='historical_figure'/>
         <bitfield base-type='uint32_t' name='flags'>
-            <flag-bit name='rising' comment='otherwise falling'/>
-            <flag-bit name='flattened'/>
-            <flag-bit name='sharpened'/>
+            <flag-bit name='produces_individual_songs'/> 'applied by composers to produce individual pieces of music' if set, otherwise 'guides musicians during improvised performances'
+            <flag-bit name='repeats_as_necessary'/>
         </bitfield>
+    </struct-type>
+
+    <enum-type type-name='dance_form_context' base-type='int32_t'>
+        <enum-item name='Sacred'/>
+        <enum-item name='Celebration'/>
+        <enum-item name='Participation'/>
+        <enum-item name='Social'/>
+        <enum-item name='Performance'/>
+        <enum-item name='War'/>
+    </enum-type>
+
+    <enum-type type-name='dance_form_group_size' base-type='int32_t'>
+        <enum-item name='Solo'/>
+        <enum-item name='Partner'/>
+        <enum-item name='Group'/>
+    </enum-type>
+
+    <enum-type type-name='dance_form_configuration' base-type='int32_t'>
+        <enum-item name='NONE' value='-1' comment="hard to have a configuration with a solo performer"/>
+        <enum-item name='SingleLine'/>
+        <enum-item name='SeveralLines'/>
+        <enum-item name='Circle'/>
+        <enum-item name='DoubleCircle'/>
+        <enum-item name='LooselyMingled'/>
+    </enum-type>
+
+    <enum-type type-name='dance_form_movement_path' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='TurnClockwise'/>
+        <enum-item name='TurnCounterClockwise'/>
+        <enum-item name='ImprovisedPath'/>
+        <enum-item name='IntricatePath'/>
+    </enum-type>
+
+    <enum-type type-name='dance_form_partner_distance' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='Closely'/>
+        <enum-item name='OpenContact'/>
+        <enum-item name='RareContact'/>
+    </enum-type>
+
+    <enum-type type-name='dance_form_partner_intent' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='PushingTogether'/>
+        <enum-item name='PullingAway'/>
+        <enum-item name='Touch'/>
+        <enum-item name='LightTouch'/>
+        <enum-item name='VisualCues'/>
+        <enum-item name='SpokenCues'/>
+    </enum-type>
+
+    <enum-type type-name='dance_form_partner_cue_frequency' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='Constantly'/>
+        <enum-item name='Briefly'/>
+    </enum-type>
+
+    <enum-type type-name='dance_form_partner_change_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='LeadAdvanceAlongMainLineOfMotion'/>
+        <enum-item name='LeadAdvanceAgainstMainLineOfMotion'/>
+        <enum-item name='LeadTurningOutClockwise'/>
+        <enum-item name='LeadTurningOutCounterClockwise'/>
+    </enum-type>
+
+    <enum-type type-name='dance_form_move_type' base-type='int32_t'>
+        <enum-item name='SquareStep'/>
+        <enum-item name='CircularStep'/>
+        <enum-item name='TriangleStep'/>
+        <enum-item name='FigureEightStep'/>
+        <enum-item name='IntricateStep'/>
+        <enum-item name='Dance'/>
+        <enum-item name='Turn'/>
+        <enum-item name='FacialExpression'/>
+        <enum-item name='HandGesture'/>
+        <enum-item name='StraightWalk'/>
+        --  10
+        <enum-item name='CurvedWalk'/>
+        <enum-item name='Run'/>
+        <enum-item name='Leap'/>
+        <enum-item name='Kick'/>
+        <enum-item name='LeftKick'/>
+        <enum-item name='RightKick'/>
+        <enum-item name='LegLift'/>
+        <enum-item name='LeftLegLift'/>
+        <enum-item name='RightLegLift'/>
+        <enum-item name='BodyLevel'/>
+        --  20
+        <enum-item name='BodyLevelChange'/>
+        <enum-item name='ArmCarriage'/>
+        <enum-item name='RaisedLeftArm'/>
+        <enum-item name='RaisedRightArm'/>
+        <enum-item name='RaisedArms'/>
+        <enum-item name='Spin'/>
+        <enum-item name='IndependentBodyMovement'/>
+        <enum-item name='Sway'/>
+        <enum-item name='ForwardBend'/>
+        <enum-item name='BackwardBend'/>
+        --  30
+        <enum-item name='LeftwardBend'/>
+        <enum-item name='RightwardBend'/>
+        <enum-item name='Footwork'/>
+        <enum-item name='MovementAlongLineOfDance'/>
+    </enum-type>
+
+    <enum-type type-name='dance_form_move_modifier' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        --  0
+        <enum-item name='Graceful'/>
+        <enum-item name='Serene'/>
+        <enum-item name='SharpEdged'/>
+        <enum-item name='Grotesque'/>
+        <enum-item name='Crude'/>
+        <enum-item name='Refined'/>
+        <enum-item name='Understated'/>
+        <enum-item name='Delicate'/>
+        <enum-item name='Elaborate'/>
+        <enum-item name='Expressive'/>
+        --  10
+        <enum-item name='Strong'/>
+        <enum-item name='Large'/>
+        <enum-item name='Weightless'/>
+        <enum-item name='Fluid'/>
+        <enum-item name='Undulating'/>
+        <enum-item name='Soft'/>
+        <enum-item name='Jerking'/>
+        <enum-item name='Calm'/>
+        <enum-item name='StraightLined'/>
+        <enum-item name='High'/>
+        --  20
+        <enum-item name='Low'/>
+        <enum-item name='LoudlyPercussive'/>
+        <enum-item name='SoftlyPercussive'/>
+        <enum-item name='Aborted'/>
+        <enum-item name='PartiallyRealized'/>
+        <enum-item name='Energetic'/>
+        <enum-item name='Passionate'/>
+        <enum-item name='Vivacious'/>
+        <enum-item name='Joyous'/>
+        <enum-item name='Proud'/>
+        --  30
+        <enum-item name='Flamboyant'/>
+        <enum-item name='Lively'/>
+        <enum-item name='Spirited'/>
+        <enum-item name='Vigorous'/>
+        <enum-item name='Intense'/>
+        <enum-item name='Aggressive'/>
+        <enum-item name='Powerful'/>
+        <enum-item name='Sluggish'/>
+        <enum-item name='Relaxed'/>
+        <enum-item name='Passive'/>
+        --  40
+        <enum-item name='Subtle'/>
+        <enum-item name='Sensual'/>
+        <enum-item name='Debauched'/>
+        <enum-item name='Twisting'/>
+        <enum-item name='Sprightly'/>
+        <enum-item name='Sinuous'/>
+    </enum-type>
+
+    <bitfield-type type-name="dance_form_move_location" base-type="uint32_t">
+        <flag-bit comment="Standard value, but not described"/>
+        <flag-bit comment="Common value, but not described"/>
+        <flag-bit name='MirroredByGroupMembers'/>
+        <flag-bit name='InRetrogradeByGroupMembers'/>
+        <flag-bit name='InSuccessionByGroupMembers'/>
+        <flag-bit name='ShadowedByGroupMembers'/>
+        <flag-bit name='Lead'/>
+        <flag-bit name='Follower'/>
+    </bitfield-type>
+
+    <struct-type type-name='dance_form_section'>
+        <int32_t name='unk_1' init-value='0'/>
+        <int32_t name='unk_2' init-value='1'/>
+        <int32_t name='unk_3' init-value='1'/>
+        <int32_t name='unk_4' init-value='-1'/>
+        <enum name='movement_path' type-name='dance_form_movement_path' base-type='int32_t'/>
+        <int32_t name='move_id' comment="index in the moves vector"/>
+        <enum name='partner_distance' type-name='dance_form_partner_distance' base-type='int32_t'/>
+        <enum name='partner_intent' type-name='dance_form_partner_intent' base-type='int32_t'/>
+        <enum name='partner_cue_frequency' type-name='dance_form_partner_cue_frequency' base-type='int32_t'/>
+        <stl-vector name='partner_changes'>
+            <enum type-name='dance_form_partner_change_type' base-type='int32_t'/>
+        </stl-vector>
+        <int32_t name='unk_11' init-value='0'/>
+        <int32_t name='unk_12' init-value='-1'/>
+        <int32_t name='unk_13' init-value='-1'/>
+        <int32_t name='unk_14' init-value='-1'/>
+        <stl-vector name='type'>
+            <enum type-name='dance_form_move_type' base-type='int32_t'/>
+        </stl-vector>
+        <stl-vector name='modifier'>
+            <enum type-name='dance_form_move_modifier' base-type='int32_t'/>
+        </stl-vector>
+        <stl-vector name='parameter' type-name='int32_t' init-value='1' comment="Depends on type (turns are in signed angles, steps are in number of steps, etc.)"/>
+        <stl-vector name='location'>
+            <bitfield type-name='dance_form_move_location'/>
+        </stl-vector>
+        <int32_t name='id'/>
+    </struct-type>
+
+    <enum-type type-name='dance_form_move_group_type' base-type='int32_t'>
+        <enum-item/>
+        <enum-item name='BasicMovement'/>
+        <enum-item name='DancePosition'/>
+        <enum-item/>
+        <enum-item name='DanceMove'/>
+    </enum-type>
+
+    <struct-type type-name='dance_form_move'>
+        <stl-string name='name'/>
+        <stl-vector name='type'>
+            <enum type-name='dance_form_move_type' base-type='int32_t'/>
+        </stl-vector>
+        <stl-vector name='modifier'>
+            <enum type-name='dance_form_move_modifier' base-type='int32_t'/>
+        </stl-vector>
+        <stl-vector name='parameter' type-name='int32_t' init-value='1' comment="Depends on type (turns are in signed angles, steps are in number of steps, etc.)"/>
+        <stl-vector name='location'>
+            <bitfield type-name='dance_form_move_location'/>
+        </stl-vector>
+        <enum name='group_type' type-name='dance_form_move_group_type' base-type='int32_t'/>
     </struct-type>
 
     <struct-type type-name='dance_form' instance-vector='$global.world.dance_forms.all' key-field='id'>
@@ -688,79 +958,74 @@
         <compound name='name' type-name='language_name'/>
         <int32_t name='musical_form_id'/>
         <int32_t name='music_written_content_id'  ref-target='written_content' comment='at most one of this and musical_form_id is non null'/>
-        <int32_t/>
+        <enum name='context' type-name='dance_form_context' base-type='int32_t'/>
         <int32_t name="originating_entity" ref-target="historical_entity" comment="ID of the entity from which the dance form originated."/>
         <int32_t name="original_author" ref-target="historical_figure" comment="ID of the historical figure who developed the dance form."/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <stl-vector type-name='int32_t'/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector pointer-type='dance_form_sub1'/>
-        <stl-vector pointer-type='dance_form_sub2'/>
+        <int32_t name='produce_individual_dances' comment="0:improvise, 1:apply by choreographers. May be bitfield if analogous to corresponding music, but no other values seen"/>
+        <enum name='group_size' type-name='dance_form_group_size' base-type='int32_t'/>
+        <int32_t name='unk_4' init-value='-1' comment="1 seen, and it's always paired with the next field"/>
+        <int32_t name='unk_5' init-value='-1' comment="1 seen, and it's always paired with the previous field"/>
+        <enum name='configuration' type-name='dance_form_configuration' base-type='int32_t'/>
+        <enum name='movement_path' type-name='dance_form_movement_path' base-type='int32_t'/>
+        <int32_t name='unk_8' init-value='-1' comment='0 seen'/>
+        <enum name='partner_distance' type-name='dance_form_partner_distance' base-type='int32_t' comment="NONE when not pair dance"/>
+        <enum name='partner_intent' type-name='dance_form_partner_intent' base-type='int32_t' comment="NONE when not pair dance"/>
+        <enum name='partner_cue_frequency' type-name='dance_form_partner_cue_frequency' base-type='int32_t' comment="NONE when not pair dance and when 'normal'"/>
+        <stl-vector name='partner_changes'>
+            <enum type-name='dance_form_partner_change_type' base-type='int32_t'/>
+        </stl-vector>
+        <bool name='poetry_referenced' comment="Weird, but all instances where it was set examined have the dance act out any composition of a named poetic form, without any presence of the form number found"/>
+        <int32_t name='unk_14' init-value='-1'/>
+        <int32_t name='hfid' ref-target='historical_figure' comment="Character whose story the dance acts out"/>
+        <int32_t name='race' ref-target='creature_raw' comment="Creature whose movements are imitated"/>
+        <stl-vector name='move_type'>
+            <enum type-name='dance_form_move_type' base-type='int32_t'/>
+        </stl-vector>
+        <stl-vector name='move_modifier'>
+            <enum type-name='dance_form_move_modifier' base-type='int32_t'/>
+        </stl-vector>
+        <stl-vector name='move_parameter' type-name='int32_t' init-value='1' comment="Depends on type (turns are in signed angles, steps are in number of steps, etc.)"/>
+        <stl-vector name='move_location'>
+            <bitfield type-name='dance_form_move_location'/>
+        </stl-vector>
+        <stl-vector name='sections' pointer-type='dance_form_section'/>
+        <stl-vector name='moves' pointer-type='dance_form_move'/>
     </struct-type>
 
-    <struct-type type-name='dance_form_sub1'>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <stl-vector type-name='int32_t'/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <int32_t/>
-    </struct-type>
-
-    <struct-type type-name='dance_form_sub2'>
-        <stl-string/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <int32_t/>
-    </struct-type>
-
-    <enum-type type-name='unk_scale_enum_type' base-type='int32_t'>
-        <enum-item name='Unk_0'/>
-        <enum-item name='Unk_1'/>
-        <enum-item name='Unk_2'/>
+    <enum-type type-name='scale_type' base-type='int32_t'>
+        <enum-item name='Octave' comment="The octave is divided into X steps of even length"/>
+        <enum-item name='Variable' comment="The octave is divided into notes at varying intervals, approximated by quartertones"/>
+        <enum-item name='PerfectFourth' comment="The perfect fourth interval is divided into steps of even length"/>
     </enum-type>
+
+    <struct-type type-name='chord'>
+        <stl-string name='name'/>
+        <static-array name='notes' type-name='int32_t' count='5' comment="chord_size entries used. Refers to the notes indices"/>
+        <int32_t name='chord_size'/>
+        <int32_t name='unk_3' comment="0 and 1 seen"/>
+    </struct-type>
+
+    <struct-type type-name='named_scale' comment="Seems odd with a 'scale' consisting of two chords, but that's what the exported XML calls it.">
+        <int32_t name='unk_1' comment="0-4 seen. 0: nothing, for when degrees are used, 1: joined chords, 2/3: disjoined chords (varying kinds of chords seen for both), 4: as always, disjoined chords"/>
+        <stl-string name='name'/>
+        <static-array name='degrees' type-name='int32_t' count='7' comment="indices into the (not necessarily named) notes of the scale"/>
+        <int32_t name='degrees_used' comment="elements used in array above"/>
+        <int32_t name='first_chord' init-value='-1' comment="this pair seems to be used when degrees_used = 0. Refers to indices in the chords vector"/>
+        <int32_t name='second_chord' init-value='-1'/>
+    </struct-type>
 
     <struct-type type-name='scale' instance-vector='$global.world.scales.all' key-field='id'>
         <int32_t name='id'/>
-        <int32_t name='flags'/>
-        <enum name='unk_enum' type-name='unk_scale_enum_type' base-type='int32_t'/>
-        <static-array name='unk_indices' type-name='int32_t' count='25' comment="unk_elements_used elements are used, but only when unk_enum = 1. Unused elements uninitialized"/>
-        <int32_t name='unk_indices_used' comment="Number of elements use in array above. Only when unk_enum = 1"/>
-        <stl-vector pointer-type='scale_sub1'/>
-        <stl-vector pointer-type='scale_sub2'/>
-        <compound name='unk1'>
-            <int32_t name='unk_1'/>
+        <bitfield name='flags' base-type='uint32_t'>
+            <flag-bit name='tonic_note_fixed_at_performance' comment="'The tonic note is a fixed tone passed from teacher to student' when 0, 'The tonic note is fixed only at the time of performance' when 1"/>
+        </bitfield>
+        <enum name='type' type-name='scale_type' base-type='int32_t'/>
+        <static-array name='quartertones_used' type-name='int32_t' count='25' comment="Quartertone corresponding note matches. Scale_length elements are used when type = Variable. Unused elements uninitialized"/>
+        <int32_t name='scale_length' comment="Number of notes in the scale. When type = Variable this is the number of used indices pointing out their placement."/>
+        <stl-vector name='chords' pointer-type='chord'/>
+        <stl-vector name='scales' pointer-type='named_scale' comment="Note that the top level scale doesn't have a name. These seem to be named scales using the unnamed scale's notes as their foundation"/>
+        <compound name='notes' comment="Curiously, the named notes do not have to match the number of defined notes">
+            <int32_t name='unk_1' comment="Frequently looks like garbage for all values of type. Suspect it's actually a filler"/>
             <static-array name='name' type-name='stl-string' count='25'/>
             <static-array name='abreviation' type-name='stl-string' count='25'/>
             <static-array name='number' type-name='int32_t' count='25'/>
@@ -768,47 +1033,49 @@
         </compound>
     </struct-type>
 
-    <struct-type type-name='scale_sub1'>
-        <stl-string name='unk_1'/>
-        <static-array name='unk_2' type-name='int32_t' count='5' comment="unk_2_length entries used"/>
-        <int32_t name='unk_2_length'/>
-        <int32_t name='unk_3'/>
-    </struct-type>
-
-    <struct-type type-name='scale_sub2'>
-        <int32_t name='unk_1'/>
-        <stl-string name='name'/>
-        <static-array name='unk_2' type-name='int32_t' count='7' comment="looks like indices of some kind"/>
-        <int32_t name='unk_2_length' comment="elements used in array above"/>
-        <int32_t name='unk_first' init-value='-1' comment="this pair seems to be used when unk_2_length = 0"/>
-        <int32_t name='unk_last' init-value='-1'/>
-    </struct-type>
-
     <struct-type type-name='rhythm' instance-vector='$global.world.rhythms.all' key-field='id'>
         <int32_t name='id'/>
-        <stl-vector pointer-type='rhythm_sub1'/>
-        <stl-vector pointer-type='rhythm_sub2'/>
-        <int32_t/>
+        <stl-vector name='patterns' pointer-type='rhythm_pattern'/>
+        <stl-vector name='sub_rhythms' pointer-type='sub_rhythm'/>
+        <int32_t name='unk_2'/>
     </struct-type>
 
-    <struct-type type-name='rhythm_sub1'>
+    <enum-type type-name='beat_type' base-type='int32_t'>
+        <enum-item name='Silent' comment="-"/>
+        <enum-item name='AccentedBeat' comment="X"/>
+        <enum-item name='Beat' comment="x"/>
+        <enum-item name='PrimaryAccent' comment="!"/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item name='AccentedBeatSyncopated' comment="X'"/>
+        <enum-item name='BeatSyncopated' comment="x'"/>
+    </enum-type>
+
+    <struct-type type-name='beat' comment="Work around to allow 'is-array' of enums">
+        <enum type-name='beat_type' base-type='int32_t'/>
+    </struct-type>
+
+    <struct-type type-name='rhythm_pattern'>
         <stl-string name='name'/>
-        <stl-vector>
+        <stl-vector name='bars'>
             <pointer>
-                <pointer type-name='int32_t' is-array='true'/>
+                <pointer name='beat' type-name='beat' is-array='true' comment="Length as per length field"/>
                 <int32_t name='length'/>
             </pointer>
         </stl-vector>
-        <pointer type-name='stl-string'/>
-        <pointer type-name='stl-string'/>
-        <int32_t/>
+        <pointer name='beat_name' type-name='stl-string' is-array='true' comment="length as per length field"/>
+        <pointer name='beat_abbreviation' type-name='stl-string' is-array='true' comment="length as per length field"/>
+        <int32_t name='length'/>
     </struct-type>
 
-    <struct-type type-name='rhythm_sub2'>
+    <struct-type type-name='sub_rhythm'>
         <stl-string name='name'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <int32_t/>
+        <stl-vector name='patterns' type-name='int32_t' comment="indices into patterns"/>
+        <stl-vector name='unk_2' type-name='int32_t' comment="Same length as patterns, but with unknown purpose"/>
+        <int32_t name='unk_3'/>
     </struct-type>
 
     <enum-type type-name='occupation_type' base-type='int32_t'>
@@ -832,8 +1099,8 @@
         <stl-vector name='unk_1' pointer-type='occupation_sub1'/>
         <int32_t name='unk_2' init-value='0'/>
         <int32_t name='unk_3' init-value='-1'/>
-        <pointer name='unk_4' type-name='world_site' has-bad-pointers='true'/>
-        <pointer name='unk_5' type-name='abstract_building' has-bad-pointers='true'/>
+        <pointer name='unk_4' type-name='world_site' has-bad-pointers='true' comment="When these haven't crashed the data has been nonsensical"/>
+        <pointer name='unk_5' type-name='abstract_building' has-bad-pointers='true' comment="When these haven't crashed the data has been nonsensical. Has seen duplicate of unk_4 pointer value"/>
     </struct-type>
 
     <struct-type type-name='occupation_sub1'>
