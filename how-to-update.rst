@@ -48,6 +48,9 @@ directory layout::
 
 Running Dwarf Fortress
 ======================
+
+.. highlight:: shell
+
 The lisp tool expects that the game is started in a mode where all
 allocated memory is automatically filled with a certain byte value.
 
