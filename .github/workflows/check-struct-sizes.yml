@@ -15,7 +15,9 @@ jobs:
         sudo apt-get install \
             libxml-libxml-perl \
             libxml-libxslt-perl \
-            ninja-build
+            ninja-build \
+            python-jinja2
+        pip install jinja2
     - name: Clone DFHack
       uses: actions/checkout@v2
       with:
@@ -28,13 +30,22 @@ jobs:
           -B build-ci \
           -G Ninja \
           -D BUILD_PLUGINS:BOOL=OFF \
+          -D BUILD_XMLDUMP:BOOL=ON \
           -D CMAKE_INSTALL_PREFIX="$PWD/install-ci"
-    - name: Generate headers (old)
-      run: ninja -C build-ci generate_headers
+    - name: Dump struct sizes (old)
+      run: |
+        ninja -C build-ci xml-dump-struct-sizes
+        ./build-ci/library/xml/tools/xml-dump-struct-sizes > sizes-old.txt
     - name: Clone df-structures
       uses: actions/checkout@v2
       with:
         path: library/xml
-    - name: Generate headers (new)
-      run: ninja -C build-ci generate_headers
-
+    - name: Dump struct sizes (new)
+      run: |
+        ninja -C build-ci xml-dump-struct-sizes
+        ./build-ci/library/xml/tools/xml-dump-struct-sizes > sizes-new.txt
+    - name: Upload report
+      uses: actions/upload-artifact@v2
+      with:
+        name: sizes
+        path: sizes-*.txt
