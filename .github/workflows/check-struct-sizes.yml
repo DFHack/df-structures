@@ -23,6 +23,15 @@ jobs:
       with:
         repository: dfhack/dfhack
         submodules: true
+    - name: Back up old structures
+      # exclude tools to ensure that new versions (from the PR) are used, for consistency
+      run: rsync -av library/xml/ xml-old/ --exclude .git --exclude tools
+    - name: Clone df-structures
+      uses: actions/checkout@v2
+      with:
+        path: xml-new
+    - name: Install new structures
+      run: rsync -av xml-new/ library/xml/ --exclude .git
     - name: Configure DFHack
       run: |
         cmake \
@@ -34,14 +43,12 @@ jobs:
           -D CMAKE_INSTALL_PREFIX="$PWD/install-ci"
     - name: Dump struct sizes (old)
       run: |
+        rsync -av xml-old/ library/xml/ --exclude .git
         ninja -C build-ci xml-dump-struct-sizes
         ./build-ci/library/xml/tools/xml-dump-struct-sizes > sizes-old.txt
-    - name: Clone df-structures
-      uses: actions/checkout@v2
-      with:
-        path: library/xml
     - name: Dump struct sizes (new)
       run: |
+        rsync -av xml-new/ library/xml/ --exclude .git
         ninja -C build-ci xml-dump-struct-sizes
         ./build-ci/library/xml/tools/xml-dump-struct-sizes > sizes-new.txt
     - name: Upload report
