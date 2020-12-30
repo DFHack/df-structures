@@ -1,0 +1,32 @@
+name: Check struct sizes
+
+on:
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  run:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Clone DFHack
+      uses: actions/checkout@v2
+      with:
+        repository: dfhack/dfhack
+        submodules: true
+    - name: Configure DFHack
+      run: |
+        cmake \
+          -S . \
+          -B build-ci \
+          -G Ninja \
+          -D CMAKE_INSTALL_PREFIX="$PWD/install-ci"
+    - name: Generate headers (old)
+      run: ninja generate_headers
+    - name: Clone df-structures
+      uses: actions/checkout@v2
+      with:
+        path: library/xml
+    - name: Generate headers (new)
+      run: ninja generate_headers
+
