@@ -1,4 +1,4 @@
-name: Check struct sizes
+name: Check type sizes
 
 on:
   pull_request:
@@ -41,18 +41,18 @@ jobs:
           -D BUILD_PLUGINS:BOOL=OFF \
           -D BUILD_XMLDUMP:BOOL=ON \
           -D CMAKE_INSTALL_PREFIX="$PWD/install-ci"
-    - name: Dump struct sizes (old)
+    - name: Dump type sizes (old)
       run: |
         rsync -av xml-old/ library/xml/ --exclude .git
         ninja -C build-ci clean
-        ninja -C build-ci xml-dump-struct-sizes
-        ./build-ci/library/xml/tools/xml-dump-struct-sizes > sizes-old.txt
-    - name: Dump struct sizes (new)
+        ninja -C build-ci xml-dump-type-sizes
+        ./build-ci/library/xml/tools/xml-dump-type-sizes > sizes-old.txt
+    - name: Dump type sizes (new)
       run: |
         rsync -av xml-new/ library/xml/ --exclude .git
         ninja -C build-ci clean
-        ninja -C build-ci xml-dump-struct-sizes
-        ./build-ci/library/xml/tools/xml-dump-struct-sizes > sizes-new.txt
+        ninja -C build-ci xml-dump-type-sizes
+        ./build-ci/library/xml/tools/xml-dump-type-sizes > sizes-new.txt
     - name: Generate report
       run: |
         python3 library/xml/tools/compare-sizes.py --old sizes-old.txt --new sizes-new.txt --platform linux64 --output sizes-linux64.json
