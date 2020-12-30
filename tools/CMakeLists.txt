@@ -6,7 +6,7 @@ if(BUILD_XMLDUMP)
     set(TYPE_DUMP_GENERATOR "${CMAKE_CURRENT_SOURCE_DIR}/generate-type-dump.py")
     add_custom_command(OUTPUT dump-type-sizes.cpp
         COMMAND ${Python_EXECUTABLE} "${TYPE_DUMP_GENERATOR}"
-            --template dump-type-sizes.cpp.in
+            --template "${CMAKE_CURRENT_SOURCE_DIR}/dump-type-sizes.cpp.in"
             --output "${CMAKE_CURRENT_BINARY_DIR}/dump-type-sizes.cpp"
             --perl "${PERL_EXECUTABLE}"
         VERBATIM
