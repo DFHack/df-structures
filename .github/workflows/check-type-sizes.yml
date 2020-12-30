@@ -7,8 +7,20 @@ on:
 
 jobs:
   run:
-    runs-on: ubuntu-20.04
+    name: ${{ matrix.os }} (${{ matrix.arch }}-bit)
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+        - ubuntu-20.04
+        arch:
+        - 64
+        - 32
     steps:
+    - name: Set up environment
+      run: |
+        echo "GHA_OS_TAG=$(echo '${{ runner.os }}' | tr '[[:upper:]]' '[[:lower:]]')${{ matrix.arch }}" >> $GITHUB_ENV
     - name: Install dependencies
       run: |
         sudo apt-get update
@@ -38,6 +50,7 @@ jobs:
           -S . \
           -B build-ci \
           -G Ninja \
+          -D DFHACK_BUILD_ARCH=${{ matrix.arch }} \
           -D BUILD_PLUGINS:BOOL=OFF \
           -D BUILD_XMLDUMP:BOOL=ON \
           -D CMAKE_INSTALL_PREFIX="$PWD/install-ci"
@@ -55,9 +68,9 @@ jobs:
         ./build-ci/library/xml/tools/xml-dump-type-sizes > sizes-new.txt
     - name: Generate report
       run: |
-        python3 library/xml/tools/compare-sizes.py --old sizes-old.txt --new sizes-new.txt --platform linux64 --output sizes-linux64.json
+        python3 library/xml/tools/compare-sizes.py --old sizes-old.txt --new sizes-new.txt --platform ${{ env.GHA_OS_TAG }} --output sizes-${{ env.GHA_OS_TAG }}.json
     - name: Upload report
       uses: actions/upload-artifact@v2
       with:
-        name: sizes
-        path: sizes-*.json
+        name: sizes-${{ env.GHA_OS_TAG }}
+        path: sizes-${{ env.GHA_OS_TAG }}.json
