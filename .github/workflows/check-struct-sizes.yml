@@ -53,8 +53,11 @@ jobs:
         ninja -C build-ci clean
         ninja -C build-ci xml-dump-struct-sizes
         ./build-ci/library/xml/tools/xml-dump-struct-sizes > sizes-new.txt
+    - name: Generate report
+      run: |
+        python3 library/xml/tools/compare-sizes.py --old sizes-old.txt --new sizes-new.txt --platform linux64 --output sizes-linux64.json
     - name: Upload report
       uses: actions/upload-artifact@v2
       with:
         name: sizes
-        path: sizes-*.txt
+        path: sizes-*.json
