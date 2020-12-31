@@ -76,3 +76,42 @@ jobs:
       with:
         name: sizes-${{ env.GHA_OS_TAG }}
         path: sizes-${{ env.GHA_OS_TAG }}.json
+
+  report:
+    needs: [run]
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Clone df-structures
+      uses: actions/checkout@v2
+    - name: Download reports
+      uses: actions/download-artifact@v2
+      with:
+        path: reports
+    - name: Generate comment
+      id: generate_comment
+      run: |
+        python tools/generate-type-size-comment.py \
+          --reports $(find reports -name '*.json') \
+          --template tools/type-size-comment.md.in \
+          --output tools/type-size-comment.md \
+          --github-actions
+
+        body=$(cat tools/type-size-comment.md)
+        body="${body//'%'/'%25'}"
+        body="${body//$'\n'/'%0A'}"
+        body="${body//$'\r'/'%0D'}"
+        echo ::set-output name=body::$body
+    - name: Find existing comment
+      id: find_comment
+      uses: peter-evans/find-comment@v1
+      with:
+        issue-number: ${{ github.event.pull_request.id }}
+        body-includes: <!--type-size-comment-->
+    - name: Post comment
+      if: ${{ steps.generate_comment.outputs.has_rows || steps.find_comment.outputs.comment-id }}
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        issue-number: ${{ github.event.pull_request.id }}
+        comment-id: ${{ steps.find_comment.outputs.comment-id }}
+        body: ${{ steps.generate_comment.outputs.body }}
+        edit-mode: replace
