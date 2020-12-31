@@ -29,4 +29,4 @@ with open(args.output, "w") as f:
     f.write(template.render(rows=rows))
 
 if args.github_actions:
-    print("::set-output name=has_rows::%s" % str(bool(rows)).lower())
+    print("::set-output name=rows::%s" % len(rows))
