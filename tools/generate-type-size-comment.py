@@ -15,6 +15,11 @@ for report_path in args.reports:
     with open(report_path) as f:
         rows.extend(json.load(f))
 
+# special case: ignore if all of the changes identified are new types
+rows_with_old_size = [row for row in rows if row["old_size"] > 0]
+if not rows_with_old_size:
+    rows = []
+
 rows.sort(key=lambda row: (row["type"], row["platform"]))
 
 with open(args.template) as f:
