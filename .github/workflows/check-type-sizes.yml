@@ -1,0 +1,118 @@
+name: Check type sizes
+
+on:
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  run:
+    name: ${{ matrix.os }} (${{ matrix.arch }}-bit)
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+        - ubuntu-20.04
+        arch:
+        - 64
+        - 32
+    steps:
+    - name: Set up environment
+      run: |
+        echo "GHA_OS_TAG=$(echo '${{ runner.os }}' | tr '[[:upper:]]' '[[:lower:]]')${{ matrix.arch }}" >> $GITHUB_ENV
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install \
+            libxml-libxml-perl \
+            libxml-libxslt-perl \
+            ninja-build \
+            python-jinja2
+        if [[ ${{ matrix.arch}} = 32 ]]; then
+          sudo apt-get install gcc-multilib g++-multilib
+        fi
+    - name: Clone DFHack
+      uses: actions/checkout@v2
+      with:
+        repository: dfhack/dfhack
+        submodules: true
+    - name: Back up old structures
+      # exclude tools to ensure that new versions (from the PR) are used, for consistency
+      run: rsync -av library/xml/ xml-old/ --exclude .git --exclude tools
+    - name: Clone df-structures
+      uses: actions/checkout@v2
+      with:
+        path: xml-new
+    - name: Install new structures
+      run: rsync -av xml-new/ library/xml/ --exclude .git
+    - name: Configure DFHack
+      run: |
+        cmake \
+          -S . \
+          -B build-ci \
+          -G Ninja \
+          -D DFHACK_BUILD_ARCH=${{ matrix.arch }} \
+          -D BUILD_PLUGINS:BOOL=OFF \
+          -D BUILD_XMLDUMP:BOOL=ON \
+          -D CMAKE_INSTALL_PREFIX="$PWD/install-ci"
+    - name: Dump type sizes (old)
+      run: |
+        rsync -av xml-old/ library/xml/ --exclude .git
+        ninja -C build-ci clean
+        ninja -C build-ci xml-dump-type-sizes
+        ./build-ci/library/xml/tools/xml-dump-type-sizes > sizes-old.txt
+    - name: Dump type sizes (new)
+      run: |
+        rsync -av xml-new/ library/xml/ --exclude .git
+        ninja -C build-ci clean
+        ninja -C build-ci xml-dump-type-sizes
+        ./build-ci/library/xml/tools/xml-dump-type-sizes > sizes-new.txt
+    - name: Generate report
+      run: |
+        python3 library/xml/tools/compare-sizes.py --old sizes-old.txt --new sizes-new.txt --platform ${{ env.GHA_OS_TAG }} --output sizes-${{ env.GHA_OS_TAG }}.json
+    - name: Upload report
+      uses: actions/upload-artifact@v2
+      with:
+        name: sizes-${{ env.GHA_OS_TAG }}
+        path: sizes-${{ env.GHA_OS_TAG }}.json
+
+  report:
+    needs: [run]
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Clone df-structures
+      uses: actions/checkout@v2
+    - name: Download reports
+      uses: actions/download-artifact@v2
+      with:
+        path: reports
+    - name: Generate comment
+      id: generate_comment
+      run: |
+        python tools/generate-type-size-comment.py \
+          --reports $(find reports -name '*.json') \
+          --template tools/type-size-comment.md.in \
+          --output tools/type-size-comment.md \
+          --github-actions
+
+        body=$(cat tools/type-size-comment.md)
+        body="${body//'%'/'%25'}"
+        body="${body//$'\n'/'%0A'}"
+        body="${body//$'\r'/'%0D'}"
+        echo ::set-output name=body::$body
+    - name: Find existing comment
+      id: find_comment
+      uses: peter-evans/find-comment@v1
+      with:
+        issue-number: ${{ github.event.pull_request.number }}
+        comment-author: github-actions[bot]
+        body-includes: <!--type-size-comment-->
+    - name: Post comment
+      if: ${{ steps.generate_comment.outputs.rows > 0 || steps.find_comment.outputs.comment-id != '' }}
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        issue-number: ${{ github.event.pull_request.number }}
+        comment-id: ${{ steps.find_comment.outputs.comment-id }}
+        body: ${{ steps.generate_comment.outputs.body }}
+        edit-mode: replace
