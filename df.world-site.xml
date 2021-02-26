@@ -61,23 +61,23 @@
         <enum-item name='Unk7'/>
     </enum-type>
 
-    <struct-type type-name='abstract_building_unk'> used within Tomb and Dungeon
-        <stl-vector>
+    <struct-type type-name='abstract_building_entombed' comment='used within Tomb and Dungeon'>
+        <stl-vector name='populations'>
             <pointer>
-                <int32_t/>
+                <int32_t name='count'/>
                 <int32_t name='race' ref-target='creature_raw'/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t since='v0.40.01'/>
+                <int32_t name='population' ref-target='entity_population'/>
+                <int32_t name='unk_4' init-value='-1'/>
+                <int32_t name='unk_5' comment='min year?'/>
+                <int32_t name='unk_6' comment='max year? seems to always be slightly before the construction of the building for tombs'/>
+                <int32_t name='unk_7' comment='seen equal to count'/>
+                <int32_t name='unk_8' since='v0.40.01' comment='seen values 0, 6'/>
             </pointer>
         </stl-vector>
         <stl-vector name='histfigs' ref-target='historical_figure' type-name='int32_t'/>
     </struct-type>
 
-    <struct-type type-name='abstract_building_contents'> used within Temple, Library, and Inn/Tavern
+    <struct-type type-name='abstract_building_contents' comment='used within Temple, Library, and Inn/Tavern'>
         <int32_t name='unk_e4'/>
         <enum name='profession' type-name='profession' since='v0.47.01'/>
         <int32_t name='desired_goblets'/>
@@ -121,7 +121,7 @@
         <stl-vector name='unk2' type-name='int32_t'/>
         <int32_t name='parent_building_id' ref-target='abstract_building' comment='Tombs use this to hold which catacomb they are part of.'/>
         <stl-vector name='child_building_ids' type-name='int32_t' ref-target='abstract_building' comment='Used by catacombs to hold their tombs'/>
-        <int32_t name='site_owner_id' ref-target='historical_entity'/>
+        <int32_t name='site_owner_id' ref-target='historical_entity' comment='entity that constructed the building'/>
         <pointer name='scribeinfo' since='v0.42.01' type-name='location_scribe_jobs'/>
         <pointer name='reputation_reports' since='v0.42.01' type-name='site_reputation_info'/>
         <pointer name='unk_v42_3' since='v0.42.01'>
@@ -154,7 +154,7 @@
             <vmethod ret-type='bool' comment='returns true for dark tower, tavern, keep, library, temple, and underworld spire; false for all others'/>
 
             <vmethod ret-type='int32_t' comment='possibly related to importance; return values include 20, 50, 100'/>
-            <vmethod><ret-type><pointer type-name='abstract_building_unk'/></ret-type></vmethod>
+            <vmethod name='getEntombed'><ret-type><pointer type-name='abstract_building_entombed'/></ret-type></vmethod>
             <vmethod name='generate_xml'>
                 <pointer type-name='stl-fstream'/>
                 <int32_t name='indent'/>
@@ -200,8 +200,8 @@
 
     <class-type type-name='abstract_building_tombst' inherits-from='abstract_building'>
         <compound name='name' type-name='language_name'/>
-        <compound name='unk' type-name='abstract_building_unk'/>
-        <int32_t/>
+        <compound name='entombed' type-name='abstract_building_entombed'/>
+        <int32_t name='precedence'/>
     </class-type>
 
     <class-type type-name='abstract_building_dungeonst' inherits-from='abstract_building'>
@@ -212,7 +212,7 @@
             <enum-item name='CATACOMBS'/>
         </enum>
         <int32_t/>
-        <compound name='unk' type-name='abstract_building_unk'/>
+        <compound name='entombed' type-name='abstract_building_entombed'/>
         <int32_t/>
         <int32_t comment='not saved'/>
         <int32_t comment='not saved'/>
