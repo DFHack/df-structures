@@ -71,17 +71,17 @@
 
         <int32_t name='id'/>
         <enum name='type' base-type='int32_t'>
-            <enum-item name='Combat'/>
+            <enum-item name='Death'/>
             <enum-item name='Crime' comment="Visible indirectly through convictions or crime effects (e.g. killing/maiming someone)"/>
-            <enum-item name='t2'/>
-            <enum-item name='t3'/>
-            <enum-item name='t4'/>
-            <enum-item name='t5'/>
+            <enum-item name='Attack'/>
+            <enum-item name='Escalation'/>
+            <enum-item name='Reunion'/>
+            <enum-item name='YieldDemand'/>
             <enum-item name='Performance'/>
-            <enum-item name='t7' comment="Looks like quester, i.e. mercs looking for an artifact. Base on a single correlation of activities seen, though."/>
-            <enum-item name='t8'/>
-            <enum-item name='t9'/>
-            <enum-item name='t10'/>
+            <enum-item name='Artifact'/>
+            <enum-item name='Writing'/>
+            <enum-item name='SelfID'/>
+            <enum-item name='RefusedID'/>
         </enum>
 
         <stl-vector name="witnesses" type-name='int32_t' ref-target='unit'/>
@@ -132,15 +132,15 @@
         <int32_t name="unk_80"/>
 
         <compound name='data' is-union='true'>
-            <pointer type-name='incident_sub6_performance' name='t6_performance'/>
-            <pointer type-name='incident_sub7' name='t7'/>
-            <pointer type-name='incident_sub8' name='t8'/>
-            <pointer type-name='incident_sub9' name='t9'/>
-            <pointer type-name='incident_sub10' name='t10'/>
+            <pointer type-name='incident_data_performance' name='Performance'/>
+            <pointer type-name='incident_data_artifact' name='Artifact'/>
+            <pointer type-name='incident_data_writing' name='Writing'/>
+            <pointer type-name='incident_data_identity' name='SelfID'/>
+            <pointer type-name='incident_data_identity' name='RefusedID'/>
         </compound>
     </struct-type>
 
-    <struct-type type-name='incident_sub6_performance'>
+    <struct-type type-name='incident_data_performance'>
         <enum name='performance_event' base-type='int32_t' type-name='performance_event_type'/>
         <stl-vector name='participants'>
             <pointer>
@@ -165,9 +165,16 @@
     --    or simulation. It's still unknown how to determine what action participants took.
     --  Dance has been seen only with a dance form reference, but the sample was small.
 
-    <struct-type type-name='incident_sub7'>
-        <int32_t name='unk_1'/>
-        <int32_t name='unk_2'/>
+    <struct-type type-name='incident_data_artifact'>
+        <enum name='state' base-type='int32_t'>
+            <enum-item name='Held'/>
+            <enum-item name='Dropped'/>
+            <enum-item name='Gained'/>
+            <enum-item name='Given'/>
+            <enum-item name='Denied'/>
+            <enum-item name='Destroyed'/>
+        </enum>
+        <int32_t name='artifact_id' ref-target='artifact_record'/>
         <compound name='unk_3' type-name='incident_hfid'/>
         <compound name='unk_4' type-name='incident_hfid'/>
         <int32_t name='site_id' ref-target='world_site'/>
@@ -178,9 +185,12 @@
         <int32_t name='unk_9'/>
     </struct-type>
 
-    <struct-type type-name='incident_sub8'>
-        <int32_t/>
-        <int32_t/>
+    <struct-type type-name='incident_data_writing'>
+        <enum name='state' base-type='int32_t'>
+            <enum-item name='Dropped'/>
+            <enum-item name='Given'/>
+        </enum>
+        <int32_t name='content_id' ref-target='written_content'/>
         <compound type-name='incident_hfid'/>
         <compound type-name='incident_hfid'/>
         <int32_t/>
@@ -191,11 +201,7 @@
         <int32_t/>
     </struct-type>
 
-    <struct-type type-name='incident_sub9'>
-        <stl-vector pointer-type='incident_hfid'/>
-    </struct-type>
-
-    <struct-type type-name='incident_sub10'>
+    <struct-type type-name='incident_data_identity'>
         <stl-vector pointer-type='incident_hfid'/>
     </struct-type>
 
@@ -1271,7 +1277,7 @@
             <pointer type-name='z_level_flags' name='z_level_flags'
                      is-array='true' since='v0.34.05'/>
 
-            <stl-vector name='unk_v40_3a' pointer-type='block_square_event' since='v0.40.01'/>
+            <stl-vector name='unk_v40_3a' pointer-type='block_square_event_spoorst' since='v0.40.01'/>
             <stl-vector name='unk_v40_3b' type-name='int16_t' since='v0.40.01'/>
             <stl-vector name='unk_v40_3c' type-name='int16_t' since='v0.40.01'/>
             <stl-vector name='unk_v40_3d' type-name='int16_t' since='v0.40.01'/>
