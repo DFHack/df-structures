@@ -460,6 +460,20 @@ sub render_field_metadata_rec($$) {
         $field_defs_extra{$name}{union_tag_attr} = "\"$uta\"";
         $extra = "&EXTRA($name)";
     }
+    if ($meta eq 'container' && $subtype eq 'stl-vector') {
+        my @items = $field->findnodes('ld:item');
+
+        if (@items) {
+            if (my $utf = $items[0]->getAttribute('union-tag-field')) {
+                $field_defs_extra{$name}{union_tag_field} = "\"$utf\"";
+                $extra = "&EXTRA($name)";
+            }
+            if (my $uta = $items[0]->getAttribute('union-tag-attr')) {
+                $field_defs_extra{$name}{union_tag_attr} = "\"$uta\"";
+                $extra = "&EXTRA($name)";
+            }
+        }
+    }
 
     if ($meta eq 'number') {
         my $tname = primitive_type_name($subtype);
