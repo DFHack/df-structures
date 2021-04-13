@@ -30,15 +30,15 @@
         <enum-item name='MoveCarefully'/>
         <enum-item name='Announcements'/>
         25
-        <enum-item name='UseBuilding'/>
+        <enum-item name='UseBuilding' comment='Interacting with a lever or a statue, for example'/>
         <enum-item name='Travel'/>
-        <enum-item name='Unk27'/>
-        <enum-item name='Unk28'/>
+        <enum-item name='TravelSleep'/>
+        <enum-item name='ViewFreshestTrack' comment='A_FRESHEST_TRACK'/>
         <enum-item name='SleepConfirm'/>
         30
         <enum-item name='SelectInteractionTarget'/>
-        <enum-item name='Unk31'/>
-        <enum-item name='Unk32'/>
+        <enum-item name='InteractChoices' comment='For example, after inputting A_BUILDING while standing on the same tile as a lever and a minecart'/>
+        <enum-item name='InteractVehicle' comment='Interacting with a minecart'/>
         <enum-item name='FallAction'/>
         <enum-item name='ViewTracks'/>
         35
@@ -54,7 +54,7 @@
         <enum-item name='DodgeDirection'/>
         <enum-item name='Unk44'/>
         45
-        <enum-item name='Unk45' comment='some confirmation'/>
+        <enum-item name='InterruptPerformanceConfirm'/>
         <enum-item name='Build'/>
         <enum-item name='AssumeIdentity'/>
         <enum-item name='NameItem'/>
@@ -430,9 +430,9 @@
         <bool name='sleeping'/>
         <int8_t name='unk_16'/>
 
-        <int32_t name='bogeymen_timer' comment='initialized to 4-7 when the cackling starts'/>
-        <int32_t name='bogeymen_killed'/>
-        <int32_t name='bogeymen_ambush_delay' comment='initialized to 60 when the cackling starts, prevents bogeyman ambushes until it decreases to 0'/>
+        <int32_t name='bogeymen_ambush_size' comment='Setting this to a number greater than 0 causes a bogeyman ambush to begin, spawning the specified number of bogeymen around the adventurer. Normally initialized to 4-7 when the cackling starts.'/>
+        <int32_t name='bogeymen_killed' comment='Keeps track of the number of bogeymen killed during a bogeyman ambush. The cackling ends when this is equal to bogeymen_ambush_size.'/>
+        <int32_t name='bogeymen_ambush_delay' comment='Initialized to 60 when the cackling starts, preventing later bogeyman ambushes until it decreases to 0.'/>
         <int32_t name='unk_18'/>
 
         <stl-vector type-name='int32_t' name='searched_x'/>
@@ -596,7 +596,7 @@
         <int32_t name='unk_49'/>
         <int32_t name='unk_50'/>
         <int32_t name='unk_51'/>
-        <int32_t name='unk_52'/>
+        <int32_t name='wait_timer' comment='A_WAIT sets this to 10. It subsequently decreases by 1 every advmode tick, preventing the player from controlling their adventurer (by setting player_control_state) until it reaches 0.'/>
         <int32_t name='unk_53'/>
         <int32_t name='unk_54'/>
         <int8_t name='unk_55'/>
@@ -664,11 +664,14 @@
         <int32_t name='sleep_hours'/>
         <bool name='sleep_until_dawn'/>
         <int8_t name='unk_78'/>
-        <bool name='wait'/>
+        <enum name='rest_mode' base-type='int8_t'>
+            <enum-item name='Wait'/>
+            <enum-item name='Sleep'/>
+        </enum>
         <int8_t name='unk_80'/>
         <int8_t name='unk_81'/>
         <int8_t name='player_control_state' comment='Set to 2 when adventurer is unconscious, etc to prevent player from controlling the unit'/>
-        <int8_t name='unk_83'/>
+        <int8_t name='item_projectiles_state' comment='Observed to be set to 1 when an item is thrown or fired, or a limb is sent flying after being severed off. Over a number of frames (dependent on the distance travelled by the projectile) this eventually changes to 2 and then finally back to 0 (a number of frames after the projectile has reached its final destination). Sometimes (seemingly when the distance travelled is long) it changes from 1 to 2 and back to 1 immediately midway into this process. The player_control_state is set to 2 until this is complete. Forcing a constant item_projectiles_state of 0 causes item projectiles to hang in the air.'/>
         <int32_t name='unk_84'/>
 
         <compound name='companions'>
@@ -776,14 +779,14 @@
             <int32_t/>
         </compound>
 
-        <int16_t name='unk_92'/>
-        <int16_t name='unk_93'/>
-        <int16_t name='unk_94'/>
+        <int16_t name='move_direction_x' comment='x-axis direction for the last attempted player unit movement: -1 = west, 0 = none, 1 = east'/>
+        <int16_t name='move_direction_y' comment='y-axis direction for the last attempted player unit movement: -1 = north, 0 = none, 1 = south'/>
+        <int16_t name='move_direction_z' comment='z-axis direction for the last attempted player unit movement: -1 = down, 0 = none, 1 = up'/>
         <int8_t name='unk_95'/>
-        <int8_t name='unk_96'/>
-        <int16_t name='unk_97'/>
-        <int16_t name='unk_98'/>
-        <stl-string name='unk_99'/>
+        <int8_t name='move_carefully' comment='Is set when the player prepares to move carefully (via the Alt + movement key combo)'/>
+        <int16_t name='careful_direction_x' comment='x-axis direction for the last attempted careful player unit movement: -1 = west, 0 = none, 1 = east'/>
+        <int16_t name='careful_direction_y' comment='y-axis direction for the last attempted careful player unit movement: -1 = north, 0 = none, 1 = south'/>
+        <stl-string name='interrupt_performance_warning' comment='the message displayed when the player attempts to move while their unit is performing'/>
         <int32_t/>
         <compound type-name='language_name' name='name_item' comment='used when naming items'/>
     </struct-type>
