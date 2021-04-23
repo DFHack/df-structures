@@ -52,7 +52,7 @@
         <enum-item name='Unk41'/> segfaults when set directly
         <enum-item name='Unk42'/>
         <enum-item name='DodgeDirection'/>
-        <enum-item name='Unk44'/>
+        <enum-item name='PerformanceSelect'/>
         45
         <enum-item name='InterruptPerformanceConfirm'/>
         <enum-item name='Build'/>
@@ -410,11 +410,11 @@
         <int8_t name='unk4b'/> ? - one of these 3 was removed
         <uint8_t name='travel_move_countdown'/>
 
-        <int32_t name='unk_4'/>
+        <int32_t name='unk_4' comment='Was set to 0 when felling a tree.'/>
         unk_5 through unk_8 is 16 bytes on x86 (gcc), 20 bytes on x64
-        <int32_t name='unk_5'/>
-        <int32_t name='unk_6'/>
-        <int32_t name='unk_7'/>
+        <int32_t name='fell_tree_x' comment='Set to the local x + df.global.world.map.region_x*48 coordinate of the target tree when the map is offloaded for a tree felling action.'/>
+        <int32_t name='fell_tree_y' comment='Set to the local y + df.global.world.map.region_y*48 coordinate of the target tree when the map is offloaded for a tree felling action.'/>
+        <int32_t name='fell_tree_z' comment='Set to the local z + df.global.world.map.region_z coordinate of the target tree when the map is offloaded for a tree felling action.'/>
         <pointer name='unk_8'/>
 
         <int32_t name='unk_9'/>
@@ -422,11 +422,11 @@
         <int32_t name='unk_11'/>
         <int32_t name='unk_12'/>
         <int32_t name='unk_13'/>
-        <int8_t name='unk_14'/>
+        <int8_t name='offload_timer' comment='Set to 10 when actions which offload the map are undertaken, such as sleeping and making the first fast travel movement. Decreases by 1 each frame thereafter until it reaches 0. Forcing a constant value above 0 prevents progression of the action beyond the Offloading Map message.'/>
 
         <int32_t name='tick_counter' comment='goes up to XXX'/>
         <int32_t name='frame_counter' comment='goes up to 10000 (ticks?)'/>
-        <int16_t name='unk_15'/>
+        <int16_t name='unk_15' comment='Appears to increment by 2 every 144 advmode ticks.'/>
         <bool name='sleeping'/>
         <int8_t name='unk_16'/>
 
@@ -451,16 +451,16 @@
         <stl-vector name='unk_26' type-name='int32_t'/>
 
         <int32_t name='player_army_id' ref-target='army'/>
-        <int32_t name='unk_28'/>
-        <int8_t name='unk_29'/>
+        <int32_t name='gait_index' comment='Set when the gait menu is opened; keeps track of the last gait selected, but does not itself determine the gait used by the player unit.'/>
+        <int8_t name='gait_unk' comment='Set to 1 when the gait menu is opened. Setting it to 0 causes the stealth information to disappear from the menu.'/>
 
-        <static-array name='unk_30' type-name='int32_t' count='1000'/>
-        <static-array name='unk_31' type-name='int32_t' count='1000'/>
-        <static-array name='unk_32' type-name='int32_t' count='1000'/>
+        <static-array name='tracks_x' type-name='int32_t' count='1000' comment='X coordinates of spoors encountered by the player. The coordinate system used counts local tiles from the upper left most tile of the world map, so df.global.world.map.region_x*48 is added to the local x coordinate.'/>
+        <static-array name='tracks_y' type-name='int32_t' count='1000' comment='Y coordinates of spoors encountered by the player. The coordinate system used counts local tiles from the upper left most tile of the world map, so df.global.world.map.region_y*48 is added to the local y coordinate.'/>
+        <static-array name='tracks_z' type-name='int32_t' count='1000' comment='Z coordinates of spoors encountered by the player. The local z coordinate is corrected by adding df.global.world.map.region_z to it.'/>
 
-        <int32_t name='unk_33'/>
+        <int32_t name='tracks_next_idx' comment='Index of the next entry in tracks_x, tracks_y, tracks_z'/>
         <int32_t name='view_tracks_odors' comment='The value of view_tracks_odors determines the combination of local/travel mode track/odor screens currently displayed. Opening the local tracks screen increments this value by 1, opening travel mode tracks+odors increments by 2, opening local odors increments by 4. Closing the screens decrements respectively.'/>
-        <int32_t name='tracks_visible' comment='The quantity of visible tracks.'/>
+        <int32_t name='tracks_visible' comment='The quantity of spoors currently visible to the player.'/>
 
         <static-array name='unk_36' type-name='int16_t' count='9'/>
         <static-array name='unk_37' type-name='int16_t' count='9'/>
@@ -487,7 +487,7 @@
         <int32_t name='travel_odor_caste' ref-target='caste_raw' aux-value='$$.travel_odor_race' comment='caste ID of strongest odor creature in fast travel mode'/>
         <int8_t name='unk_46'/>
 
-        <int32_t name='unk_47'/>
+        <int32_t name='multiattack' comment='Set when the player is preparing to carry out a multi-attack; resetting this to 0 makes the multi-attack window disappear.'/>
 
         <compound name='unk_3170'>
             <stl-vector name='unk_1' since='v0.44.10'>
@@ -597,8 +597,28 @@
         <int32_t name='unk_50'/>
         <int32_t name='unk_51'/>
         <int32_t name='wait_timer' comment='A_WAIT sets this to 10. It subsequently decreases by 1 every advmode tick, preventing the player from controlling their adventurer (by setting player_control_state) until it reaches 0.'/>
-        <int32_t name='unk_53'/>
-        <int32_t name='unk_54'/>
+        <int32_t name='attack_style' comment='Set when the AttackStrike menu is opened. The various attack styles increment this as follows when enabled: Charge: +1, Multi-attack: +2, Quick: +4, Heavy: +8, Wild: +16, Precise: +32'/>
+        <enum name='charge_forbidden' base-type='int32_t' comment='When the AttackStrike menu is opened, this is set for conditions precluding charge attacks.'>
+          <enum-item name='None' value='-1'/>
+          <enum-item name='NoTarget'/>
+          <enum-item name='SelfProne'/>
+          <enum-item name='SelfMounted'/>
+          <enum-item name='SelfChained'/>
+          <enum-item name='SelfUncontrolledFlight'/>
+          <enum-item name='SelfVehicle'/>
+          <enum-item name='SelfProjectile'/>
+          <enum-item name='SelfClimbing'/>
+          <enum-item name='TargetProne'/>
+          <enum-item name='TargetMounted'/>
+          <enum-item name='TargetChained'/>
+          <enum-item name='TargetUncontrolledFlight'/>
+          <enum-item name='TargetVehicle'/>
+          <enum-item name='TargetProjectile'/>
+          <enum-item name='TargetClimbing'/>
+          <enum-item name='TargetSharesLocation'/>
+          <enum-item name='TargetLocationInaccessible'/>
+          <enum-item name='TargetTooFarAway'/>
+        </enum>
         <int8_t name='unk_55'/>
         <int32_t name='unk_56'/>
         <int32_t name='unk_57'/>?
@@ -607,16 +627,16 @@
         <int32_t name='unk_60'/>?
         <int8_t name='unk_61'/>
 
-        <int16_t name='unk_62'/>
+        <int16_t name='long_action_duration' comment='Set at the beginning of a long action which unloads the map, such as sleeping, making the first fast travel move, composing, etc. For sleeping, it is set to 800*(hours of sleep). For making the first fast travel move, seems to always be set to 17. 3200 for composing poetry. Resets to 0 after 10 frames.'/>
         <int16_t name='travel_start_x'/>
         <int16_t name='travel_start_y'/>  Coordinates of the player on the map right after their first fast travel move
         <int16_t name='travel_start_z'/>
         <int32_t name='player_id' ref-target='nemesis_record'/>
-        <int16_t name='unk_66'/>
-        <int16_t name='unk_67'/>
+        <int16_t name='track_viewed_x' comment='Set when viewing a spoor; local x coordinate of the track in question.'/>
+        <int16_t name='track_viewed_y' comment='Set when viewing a spoor; local y coordinate of the track in question.'/>
         needed to pad to conversation.activity:
-        <pointer name='unk_68'/>
-        <pointer name='unk_69'/>
+        <pointer name='track_viewed_unk_1' comment='Set when viewing a spoor.'/>
+        <pointer name='track_viewed_unk_2' comment='Set when viewing a spoor.'/>
 
         <compound name='conversation'>
             <stl-vector name='activity' pointer-type='activity_entry'/>
@@ -725,8 +745,8 @@
         </compound>
 
         3*4 bytes on x86, 4*4 on x64
-        <pointer name='unk_88'/>
-        <int32_t name='unk_89'/>
+        <pointer name='player_unit_projectile_unk' comment='Set when the player is travelling as a unit projectile after falling or jumping.'/>
+        <int32_t name='player_unit_projectile_z' comment='Corrected Z-coordinate of the player when travelling as a unit projectile after falling or jumping. This value is obtained by adding df.global.world.map.region_z to the local z coordinate.'/>
         <int32_t name='unk_90'/>
 
         <compound name='unk_v40_4'>
