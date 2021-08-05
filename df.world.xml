@@ -776,16 +776,22 @@
     </struct-type>
 
     <struct-type type-name='divination_set_roll'>
-        <stl-vector name='result' type-name='int32_t' comment="if a single element, the value of the die or the sum of the dice. If two numbers the first is the result and the second the die"/>
-        <int32_t name='effect_type' comment="Looks like enum 0-4, presumably controlling the interpretation of 'effect'"/>
-        <int32_t name='effect' comment="Effect? 0-3: 697 - 11600 seen. 4: 0-119 seen"/>
+        <stl-vector name='result' type-name='int32_t' comment="When the divination die linked to the parent divination_set is rolled, the effect of this particular divination_set_roll will be carried out if the die lands on any of the values specified here."/>
+        <enum name='effect_type' base-type='int32_t'>
+            <enum-item name='MediumBlessing'/>
+            <enum-item name='MinorBlessing'/>
+            <enum-item name='MediumCurse'/>
+            <enum-item name='MinorCurse'/>
+            <enum-item name='Fortune'/>
+        </enum>
+        <int32_t name='effect' comment="When effect_type is MediumBlessing, MinorBlessing, MediumCurse or MinorCurse, this is the ID of the interaction to be carried out (targeting the creature who rolled the divination die). When effect_type is Fortune, this determines which of the hardcoded divination fortune messages is to be displayed."/>
     </struct-type>
 
     <struct-type type-name='divination_set' instance-vector='$global.world.divination_sets.all' key-field='id'>
         <int32_t name='id' comment="currently matches index into vector"/>
-        <int32_t name='unk_v47_2' comment="seems to be mutually exclusive with owner_id, but what does it refer to?"/>
+        <int32_t name='deity_id' ref-target='historical_figure'/>
         <int32_t name='owner_id' ref-target='historical_entity' comment="religion owning the set"/>
-        <stl-vector name='unk_v47_4' type-name='int32_t' comment="seems to increase slightly faster than id. Religion number?"/>
+        <stl-vector name='image_set_ids' type-name='int32_t' ref-target='image_set'/>
         <stl-vector name='rolls' pointer-type='divination_set_roll'/>
     </struct-type>
 
