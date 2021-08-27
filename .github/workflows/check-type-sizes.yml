@@ -96,16 +96,14 @@ jobs:
           --output tools/type-size-comment.md \
           --github-actions
     - name: Generate artifact
-      if: ${{ steps.generate_comment.outputs.rows > 0 }}
       run: |
         jq --null-input \
           --rawfile comment tools/type-size-comment.md \
           --arg comment_search "<!--type-size-comment-->" \
           --arg pr_number "${{ github.event.pull_request_target.number }}" \
-          '{$comment, $comment_search, $pr_number}' > comment-info.json
-        echo "::error::Type size changes identified!"
+          --arg rows "${{ steps.generate_comment.outputs.rows }}" \
+          '{$comment, $comment_search, $pr_number, update_only:($rows|tonumber <= 0)}' > comment-info.json
     - name: Upload artifact
-      if: ${{ steps.generate_comment.outputs.rows > 0 }}
       uses: actions/upload-artifact@v2
       with:
         name: comment-info.json
