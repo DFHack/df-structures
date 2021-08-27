@@ -1,4 +1,4 @@
-name: Leave comment on pull request
+name: Comment on pull request
 
 on:
   workflow_run:
@@ -8,7 +8,7 @@ on:
     - completed
 
 jobs:
-  report:
+  run:
     runs-on: ubuntu-latest
     steps:
     - name: Download artifact
@@ -17,11 +17,12 @@ jobs:
         workflow: .github/workflows/check-type-sizes.yml
         run_id: ${{ github.event.workflow_run.id }}
         name: comment-info.json
-        path: comment-info.json
+        path: downloads
     - name: Extract artifact
       id: extract
       run: |
-        body="$(jq --raw-output .comment comment-info.json)"
+        set -x
+        body="$(jq --raw-output .comment downloads/comment-info.json)"
         body="${body//'%'/'%25'}"
         body="${body//$'\n'/'%0A'}"
         body="${body//$'\r'/'%0D'}"
