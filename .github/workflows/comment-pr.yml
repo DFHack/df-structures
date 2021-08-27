@@ -1,0 +1,44 @@
+name: Leave comment on pull request
+
+on:
+  workflow_run:
+    workflows:
+    - ./.github/workflows/check-type-sizes.yml
+    types:
+    - completed
+
+jobs:
+  report:
+    steps:
+    - name: Download artifact
+      uses: dawidd6/action-download-artifact@v2
+      with:
+        workflow: .github/workflows/check-type-sizes.yml
+        run_id: ${{ github.event.workflow_run.id }}
+        name: comment-info.json
+        path: comment-info.json
+    - name: Extract artifact
+      id: extract
+      run: |
+        body="$(jq --raw-output .comment comment-info.json)"
+        body="${body//'%'/'%25'}"
+        body="${body//$'\n'/'%0A'}"
+        body="${body//$'\r'/'%0D'}"
+        echo "::set-output name=body::$body"
+
+        echo "COMMENT_SEARCH=$(jq --raw-output .comment_search comment-info.json)" >> $GITHUB_ENV
+        echo "COMMENT_PR_NUMBER=$(jq --raw-output .pr_number comment-info.json)" >> $GITHUB_ENV
+    - name: Find existing comment
+      id: find_comment
+      uses: peter-evans/find-comment@v1
+      with:
+        issue-number: ${{ env.COMMENT_PR_NUMBER }}
+        comment-author: github-actions[bot]
+        body-includes: ${{ env.COMMENT_SEARCH }}
+    - name: Post comment
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        issue-number: ${{ env.COMMENT_PR_NUMBER }}
+        comment-id: ${{ steps.find_comment.outputs.comment-id }}
+        body: ${{ steps.extract.outputs.body }}
+        edit-mode: replace

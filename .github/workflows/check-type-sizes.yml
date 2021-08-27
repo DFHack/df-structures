@@ -95,13 +95,18 @@ jobs:
           --template tools/type-size-comment.md.in \
           --output tools/type-size-comment.md \
           --github-actions
-
-        body=$(cat tools/type-size-comment.md)
-        body="${body//'%'/'%25'}"
-        body="${body//$'\n'/'%0A'}"
-        body="${body//$'\r'/'%0D'}"
-        echo ::set-output name=body::$body
-    - name: Post error
+    - name: Generate artifact
       if: ${{ steps.generate_comment.outputs.rows > 0 }}
       run: |
-        echo ::error::${{ steps.generate_comment.outputs.body }}
+        jq --null-input \
+          --rawfile comment tools/type-size-comment.md \
+          --arg comment_search "<!--type-size-comment-->" \
+          --arg pr_number "${{ github.event.pull_request_target.number }}" \
+          '{$comment, $comment_search, $pr_number}' > comment-info.json
+        echo "::error::Type size changes identified!"
+    - name: Upload artifact
+      if: ${{ steps.generate_comment.outputs.rows > 0 }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: comment-info.json
+        path: comment-info.json
