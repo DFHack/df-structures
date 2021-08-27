@@ -101,18 +101,7 @@ jobs:
         body="${body//$'\n'/'%0A'}"
         body="${body//$'\r'/'%0D'}"
         echo ::set-output name=body::$body
-    - name: Find existing comment
-      id: find_comment
-      uses: peter-evans/find-comment@v1
-      with:
-        issue-number: ${{ github.event.pull_request.number }}
-        comment-author: github-actions[bot]
-        body-includes: <!--type-size-comment-->
-    - name: Post comment
-      if: ${{ steps.generate_comment.outputs.rows > 0 || steps.find_comment.outputs.comment-id != '' }}
-      uses: peter-evans/create-or-update-comment@v1
-      with:
-        issue-number: ${{ github.event.pull_request.number }}
-        comment-id: ${{ steps.find_comment.outputs.comment-id }}
-        body: ${{ steps.generate_comment.outputs.body }}
-        edit-mode: replace
+    - name: Post error
+      if: ${{ steps.generate_comment.outputs.rows > 0 }}
+      run: |
+        echo ::error::${{ steps.generate_comment.outputs.body }}
