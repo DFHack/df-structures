@@ -21,16 +21,16 @@ jobs:
     - name: Extract artifact
       id: extract
       run: |
-        set -x
+        set -ex
         body="$(jq --raw-output .comment downloads/comment-info.json)"
         body="${body//'%'/'%25'}"
         body="${body//$'\n'/'%0A'}"
         body="${body//$'\r'/'%0D'}"
         echo "::set-output name=body::$body"
 
-        echo "COMMENT_SEARCH=$(jq --raw-output .comment_search comment-info.json)" >> $GITHUB_ENV
-        echo "COMMENT_PR_NUMBER=$(jq --raw-output .pr_number comment-info.json)" >> $GITHUB_ENV
-        echo "COMMENT_UPDATE_ONLY=$(jq --raw-output 'if .update_only then 1 else 0 end' comment-info.json)" >> $GITHUB_ENV
+        echo "COMMENT_SEARCH=$(jq --raw-output .comment_search downloads/comment-info.json)" >> $GITHUB_ENV
+        echo "COMMENT_PR_NUMBER=$(jq --raw-output .pr_number downloads/comment-info.json)" >> $GITHUB_ENV
+        echo "COMMENT_UPDATE_ONLY=$(jq --raw-output 'if .update_only then 1 else 0 end' downloads/comment-info.json)" >> $GITHUB_ENV
     - name: Find existing comment
       id: find_comment
       uses: peter-evans/find-comment@v1
