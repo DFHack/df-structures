@@ -1872,13 +1872,13 @@
     <class-type type-name='world_gen_param_basest'>
         <stl-string name='name'/>
         <virtual-methods>
-            <vmethod><pointer type-name='stl-string'/></vmethod>
+            <vmethod name='getString'><pointer type-name='stl-string'/></vmethod>
             <vmethod ret-type='bool'/>
             <vmethod ret-type='bool'/>
             <vmethod ret-type='int32_t' name='getMinVal'/>
             <vmethod ret-type='int32_t' name='getMaxVal'/>
 
-            <vmethod><pointer type-name='stl-string'/></vmethod>
+            <vmethod name='setFromString'><pointer type-name='stl-string'/></vmethod>
             <vmethod name='setToDefault'/>
             <vmethod name='doIncrement'/>
             <vmethod name='doDecrement'/>
@@ -1891,38 +1891,32 @@
     </class-type>
 
     <class-type type-name='world_gen_param_valuest' inherits-from='world_gen_param_basest'>
-        <stl-string name='unk_1'/>
-        <int32_t name='unk_2'/>
-        <stl-vector name='unk_3'/>
+        <stl-string name='label'/>
+        <bool name='custom'/>
+        <stl-vector pointer-type='stl-string' name='preset_labels'/>
     </class-type>
 
     <class-type type-name='world_gen_param_charst' inherits-from='world_gen_param_valuest'>
-        <pointer type-name='int8_t'/>
+        <pointer type-name='int8_t' name='value'/>
         <int8_t name='min_val'/>
         <int8_t name='max_val'/>
         <int8_t name='initial_val'/>
-        <stl-vector type-name='int8_t'/>
+        <stl-vector type-name='int8_t' name='presets'/>
     </class-type>
 
     <class-type type-name='world_gen_param_memberst' inherits-from='world_gen_param_valuest'>
-        <pointer type-name='int32_t'/>
+        <pointer type-name='int32_t' name='value'/>
         <int32_t name='min_val'/>
         <int32_t name='max_val'/>
         <int32_t name='initial_val'/>
-        <stl-vector type-name='int32_t'/>
+        <stl-vector type-name='int32_t' name='presets'/>
     </class-type>
 
     <class-type type-name='viewscreen_layer_world_gen_paramst' inherits-from='viewscreen_layer'>
-        <pointer/>
+        <pointer type-name='worldgen_parms' name='parms'/>
         <stl-string/>
-        <stl-vector/>
-        <compound name='unk1'>
-            <int32_t/>
-            <int32_t/>
-            <static-array type-name='pointer' count='8'/>
-            <static-array type-name='pointer' count='8'/>
-            <static-array type-name='pointer' count='8'/>
-        </compound>
+        <stl-vector pointer-type='world_gen_param_basest' name='controls'/>
+        <compound type-name='worldgen_parms_ps' name='ps'/>
     </class-type>
 
     <class-type type-name='viewscreen_layer_world_gen_param_presetst' inherits-from='viewscreen_layer'>
@@ -2244,216 +2238,132 @@
         <stl-vector name='filelist' type-name='ptr-string'/>
     </class-type>
 
+    <struct-type type-name='worldgen_parms'>
+        <stl-string name='title'/>
+        <stl-string name='seed' since='v0.34.01'/>
+        <stl-string name='history_seed' since='v0.34.01'/>
+        <stl-string name='name_seed' since='v0.34.01'/>
+        <stl-string name='creature_seed' since='v0.34.01'/>
+        <int32_t name='dim_x'/>
+        <int32_t name='dim_y'/>
+        <stl-string name='custom_name'/>
+        <bool name='has_seed'/>
+        <bool name='has_history_seed'/>
+        <bool name='has_name_seed'/>
+        <bool name='has_creature_seed'/>
+        <int32_t name='embark_points'/>
+        <int32_t name='peak_number_min'/>
+        <int32_t name='partial_ocean_edge_min'/>
+        <int32_t name='complete_ocean_edge_min'/>
+        <int32_t name='volcano_min'/>
+        <static-array name='region_counts' count='3'>
+            <static-array type-name='int32_t' count='10' index-enum='worldgen_region_type'/>
+        </static-array>
+        <static-array type-name='int32_t' name='river_mins' count='2'/>
+        <int32_t name='subregion_max'/>
+        <int32_t name='cavern_layer_count'/>
+        <int32_t name='cavern_layer_openness_min'/>
+        <int32_t name='cavern_layer_openness_max'/>
+        <int32_t name='cavern_layer_passage_density_min'/>
+        <int32_t name='cavern_layer_passage_density_max'/>
+        <int32_t name='cavern_layer_water_min'/>
+        <int32_t name='cavern_layer_water_max'/>
+        <bool name='have_bottom_layer_1'/>
+        <bool name='have_bottom_layer_2'/>
+        <int32_t name='levels_above_ground'/>
+        <int32_t name='levels_above_layer_1'/>
+        <int32_t name='levels_above_layer_2'/>
+        <int32_t name='levels_above_layer_3'/>
+        <int32_t name='levels_above_layer_4'/>
+        <int32_t name='levels_above_layer_5'/>
+        <int32_t name='levels_at_bottom'/>
+        <int32_t name='cave_min_size'/>
+        <int32_t name='cave_max_size'/>
+        <int32_t name='mountain_cave_min'/>
+        <int32_t name='non_mountain_cave_min'/>
+        <int32_t name='total_civ_number'/>
+        <int32_t name='rain_ranges_1'/>
+        <int32_t name='rain_ranges_0'/>
+        <int32_t name='rain_ranges_2'/>
+        <int32_t name='drainage_ranges_1'/>
+        <int32_t name='drainage_ranges_0'/>
+        <int32_t name='drainage_ranges_2'/>
+        <int32_t name='savagery_ranges_1'/>
+        <int32_t name='savagery_ranges_0'/>
+        <int32_t name='savagery_ranges_2'/>
+        <int32_t name='volcanism_ranges_1'/>
+        <int32_t name='volcanism_ranges_0'/>
+        <int32_t name='volcanism_ranges_2'/>
+        <static-array count='4' name='ranges'>
+            <static-array type-name='int32_t' count='24' index-enum='worldgen_range_type'/>
+        </static-array>
+        <int32_t name='beast_end_year'/>
+        <int32_t name='end_year'/>
+        <int32_t name='beast_end_year_percent'/>
+        <int32_t name='total_civ_population'/>
+        <int32_t name='site_cap'/>
+        <int32_t name='elevation_ranges_1'/>
+        <int32_t name='elevation_ranges_0'/>
+        <int32_t name='elevation_ranges_2'/>
+        <int32_t name='mineral_scarcity'/>
+        <int32_t name='megabeast_cap'/>
+        <int32_t name='semimegabeast_cap'/>
+        <int32_t name='titan_number'/>
+        <static-array type-name='int32_t' name='titan_attack_trigger' count='3'/>
+        <int32_t name='demon_number'/>
+        <int32_t name='night_troll_number'/>
+        <int32_t name='bogeyman_number'/>
+        <int32_t name='nightmare_number' since='v0.47.01'/>
+        <int32_t name='vampire_number'/>
+        <int32_t name='werebeast_number'/>
+        <static-array type-name='int32_t' name='werebeast_attack_trigger' count='3' since='v0.47.01'/>
+        <int32_t name='secret_number'/>
+        <int32_t name='regional_interaction_number'/>
+        <int32_t name='disturbance_interaction_number'/>
+        <int32_t name='evil_cloud_number'/>
+        <int32_t name='evil_rain_number'/>
+        <int8_t name='generate_divine_materials' since='v0.40.01'/>
+        <int8_t name='allow_divination' since='v0.47.01'/>
+        <int8_t name='allow_demonic_experiments' since='v0.47.01'/>
+        <int8_t name='allow_necromancer_experiments' since='v0.47.01'/>
+        <int8_t name='allow_necromancer_lieutenants' since='v0.47.01'/>
+        <int8_t name='allow_necromancer_ghouls' since='v0.47.01'/>
+        <int8_t name='allow_necromancer_summons' since='v0.47.01'/>
+        <int32_t name='good_sq_counts_0'/>
+        <int32_t name='evil_sq_counts_0'/>
+        <int32_t name='good_sq_counts_1'/>
+        <int32_t name='evil_sq_counts_1'/>
+        <int32_t name='good_sq_counts_2'/>
+        <int32_t name='evil_sq_counts_2'/>
+        <static-array type-name='int32_t' name='elevation_frequency' count='6'/>
+        <static-array type-name='int32_t' name='rain_frequency' count='6'/>
+        <static-array type-name='int32_t' name='drainage_frequency' count='6'/>
+        <static-array type-name='int32_t' name='savagery_frequency' count='6'/>
+        <static-array type-name='int32_t' name='temperature_frequency' count='6'/>
+        <static-array type-name='int32_t' name='volcanism_frequency' count='6'/>
+        <pointer type-name='worldgen_parms_ps' name='ps'/>
+        <int32_t name='reveal_all_history'/>
+        <int32_t name='cull_historical_figures'/>
+        <int32_t name='erosion_cycle_count'/>
+        <int32_t name='periodically_erode_extremes'/>
+        <int32_t name='orographic_precipitation'/>
+        <int32_t name='playable_civilization_required'/>
+        <int32_t name='all_caves_visible'/>
+        <int32_t name='show_embark_tunnel'/>
+        <int32_t name='pole'/>
+        <bool/>
+    </struct-type>
+
+    <struct-type type-name='worldgen_parms_ps'>
+        <int32_t name='width'/>
+        <int32_t name='height'/>
+        <static-array count='24' name='data' index-enum='worldgen_range_type'>
+            <pointer is-array='true'><pointer is-array='true' type-name='int16_t'/></pointer>
+        </static-array>
+    </struct-type>
+
     <class-type type-name='viewscreen_new_regionst' inherits-from='viewscreen'>
-        <stl-vector name='worldgen_presets'> LARGE_ISLAND etc
-            <pointer>
-                <stl-string/>
-                <stl-string/>
-                <stl-string/>
-                <stl-string/>
-                <stl-string/>
-                <int32_t/>
-                <int32_t/>
-                <stl-string/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t comment='uninitialized'/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t comment='uninitialized'/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t comment='uninitialized'/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <bool/>
-                <bool/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t comment='uninitialized'/>
-                <int32_t/>
-                <int32_t comment='uninitialized'/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <padding size='64'/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t comment='uninitialized'/>
-                <int32_t/>
-                <int32_t comment='uninitialized'/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <padding size='64'/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t comment='uninitialized'/>
-                <int32_t/>
-                <int32_t comment='uninitialized'/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <padding size='64'/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t comment='uninitialized'/>
-                <int32_t/>
-                <int32_t comment='uninitialized'/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <padding size='64'/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <bool/>
-                <bool/>
-                <bool/>
-                <bool/>
-                <bool/>
-                <bool/>
-                <bool/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <pointer/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <int32_t/>
-                <bool/>
-            </pointer>
-        </stl-vector>
+        <stl-vector name='worldgen_presets' pointer-type='worldgen_parms'/>
 
         advanced settings
         <bool name='start_in_advanced_mode'/>
@@ -3342,15 +3252,38 @@
         <int32_t name="trader_cursor"/>
         <int32_t name="broker_cursor"/>
         <bool name="in_right_pane"/>
-        <int16_t name='trade_reply'/>
+        <enum name='trade_reply' base-type='int16_t'>
+          <enum-item name='Welcome' value='0'/>
+          <enum-item name='RefusedLossTooHeavy'/>
+          <enum-item name='RefusedTooHeavy'/>
+          <enum-item name='RefusedLoss'/>
+          <enum-item name='TradeAccepted'/>
+          <enum-item name='OfferAccepted'/>
+          <enum-item name='Seizure'/>
+          <enum-item name='HalfEmptyTraderAlt'/>
+          <enum-item name='SeizureEmpty'/>
+          <enum-item name='EmptyTrade'/>
+          <enum-item name='HalfEmptyBroker'/>
+          <enum-item name='HalfEmptyTrader'/>
+          <enum-item name='OffendedAnimal'/>
+          <enum-item name='OffendedAnimalAlt'/>
+          <enum-item name='OffendedPlant'/>
+          <enum-item name='Result15'/>
+          <enum-item name='Result16'/>
+          <enum-item name='Result17'/>
+          <enum-item name='Counteroffer'/>
+          <enum-item name='NoCounteroffer'/>
+          <enum-item name='WelcomeAnnoyed'/>
+          <enum-item name='RefusedAnnoyed'/>
+        </enum>
         <int16_t/>
         <int32_t/>
         <int8_t name="has_offer"/>
         <stl-vector name="counteroffer" pointer-type='item'/>
         <int8_t name="in_edit_count"/>
         <stl-string name="edit_count"/>
-        <stl-vector/>
-        <int32_t/>
+        <stl-vector pointer-type="stl-string"/> 
+        <int32_t/> 
     </class-type>
 
     <class-type type-name='viewscreen_tradelistst' inherits-from='viewscreen'>
