@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- 
+<!--
     Second pass of lowering:
     - Detect incorrectly placed fields
     - Fold container item fields into a single ld:item subelement.

@@ -3,7 +3,7 @@
 #-quicklisp
 (asdf:load-system :cl-linux-debug.gui)
 
-(defpackage :work 
+(defpackage :work
   (:use :common-lisp
         :alexandria :anaphora
         :cl-linux-debug.code-info
