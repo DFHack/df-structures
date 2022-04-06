@@ -459,4 +459,3 @@ instructions see linux primitive globals.
   5. announcements
 
     Immediately follows d_init; starts 25 25 31 31 24 ...
-

@@ -39,5 +39,3 @@ for my $filename (glob "$input_dir/*.xml") {
 }
 
 print $separator if $separator eq "\n";
-
-
