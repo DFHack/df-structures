@@ -3,6 +3,33 @@ name: Build
 on: [push, pull_request]
 
 jobs:
+  docs:
+    runs-on: ubuntu-18.04
+    steps:
+    - name: Set up Python 3
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3
+    - name: Install dependencies
+      run: |
+        pip install 'sphinx<4.4.0'
+    - name: Clone df-structures
+      uses: actions/checkout@v1
+    - name: Set up DFHack
+      run: |
+        git clone https://github.com/DFHack/dfhack.git $HOME/dfhack --depth 1 --branch develop
+        git -C $HOME/dfhack submodule update --init --depth 1 --remote plugins/stonesense scripts
+        rmdir $HOME/dfhack/library/xml
+        ln -sv $(pwd) $HOME/dfhack/library/xml
+    - name: Build docs
+      run: |
+        sphinx-build -W --keep-going -j3 --color $HOME/dfhack html
+    - name: Upload docs
+      if: success() || failure()
+      uses: actions/upload-artifact@master
+      with:
+        name: docs
+        path: html
   validate:
     runs-on: ubuntu-18.04
     steps:
