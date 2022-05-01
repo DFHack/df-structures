@@ -4,7 +4,7 @@ Updating DF-structures for a new DF version
 
 .. contents:: Contents
   :local:
-  :depth: 1
+  :depth 1
 
 General Process
 ===============
@@ -31,7 +31,7 @@ directory layout::
 - Commit.
 - Use the tool to verify that the layout of the compound globals
   on linux is correct, and update xml as necessary. Check that
-  unit seems reasonable, etc. Compare the changes in g_src between
+  unit seems reasonable, etc. Compare the changes in `g_src` between
   releases. Delete redundant entries for some linux & osx globals
   in symbols.xml.
 - Compile DFHack without plugins for windows and run devel/find-offsets
