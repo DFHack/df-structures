@@ -2,6 +2,7 @@
 
 use strict;
 use warnings;
+use File::Glob 'bsd_glob';
 
 BEGIN {
     our $script_root = '.';
@@ -37,7 +38,7 @@ my @transforms =
     ('lower-1.xslt', 'lower-2.xslt');
 my @documents;
 
-for my $fn (sort { $a cmp $b } glob "$input_dir/df.*.xml") {
+for my $fn (sort { $a cmp $b } bsd_glob "$input_dir/df.*.xml") {
     local $filename = $fn;
     my $doc = $parser->parse_file($filename);
     $doc = $_->transform($doc) for @transforms;
@@ -154,10 +155,10 @@ mkdir $output_dir;
 {
     my %files;
     # Get a list of all the existing files
-    for my $name (glob "$output_dir/*.h") {
+    for my $name (bsd_glob "$output_dir/*.h") {
         $files{$name} = 1;
     }
-    for my $name (glob "$output_dir/static*.inc") {
+    for my $name (bsd_glob "$output_dir/static*.inc") {
         $files{$name} = 1;
     }
     $files{"$output_dir/codegen.out.xml"} = 1;
