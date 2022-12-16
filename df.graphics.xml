@@ -1748,19 +1748,58 @@
         <s-float name='outstanding_frames'/>
         <s-float name='outstanding_gframes'/>
 
-        <int32_t/>
-        <int8_t/>
-        <pointer name='sem1'/>
-        <stl-deque type-name='int32_t'/>
-        <pointer name='sem2'/>
-        <pointer name='sem3'/>
-        <stl-deque type-name='int32_t'/>
-        <pointer name='sem4'/>
-        <pointer name='sem5'/>
-        <stl-deque type-name='int32_t'/>
-        <pointer name='sem6'/>
-        <pointer name='sem7'/>
-        <int32_t name='renderer_threadid'/>
+        <uint32_t name='async_frames'/>
+        <bool name='async_paused'/>
+
+        <compound name='async_tobox'>
+            <pointer name='sem'/>
+            <stl-deque name='queue'>
+                <enum name='cmd'>
+                    <enum-item name='pause'/>
+                    <enum-item name='start'/>
+                    <enum-item name='render'/>
+                    <enum-item name='inc'/>
+                    <enum-item name='set_fps'/>
+                </enum>
+                <int32_t name='val'/>
+            </stl-deque>
+            <pointer name='sem_fill'/>
+        </compound>
+
+        <compound name='async_frombox'>
+            <pointer name='sem'/>
+            <stl-deque name='queue'>
+                <enum name='msg'>
+                    <enum-item name='quit'/>
+                    <enum-item name='complete'/>
+                    <enum-item name='set_fps'/>
+                    <enum-item name='set_gfps'/>
+                    <enum-item name='push_resize'/>
+                    <enum-item name='pop_resize'/>
+                    <enum-item name='reset_textures'/>
+                </enum>
+                <compound is-union='true'>
+                    <int32_t name='fps'/>
+                    <compound>
+                        <int32_t name='x'/>
+                        <int32_t name='y'/>
+                    </compound>
+                </compound>
+            </stl-deque>
+            <pointer name='sem_fill'/>
+        </compound>
+
+        <compound name='async_zoom'>
+            <pointer name='sem'/>
+            <stl-deque name='queue'>
+                <enum base-type='int32_t' type-name='zoom_commands'/>
+            </stl-deque>
+            <pointer name='sem_fill'/>
+        </compound>
+
+        <pointer name='async_fromcomplete'/>
+
+        <uint32_t name='renderer_threadid'/>
         <int8_t/>
 
         <stl-string name='command_line'/>
