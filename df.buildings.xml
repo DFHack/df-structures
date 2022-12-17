@@ -294,13 +294,7 @@
         <stl-vector name='specific_refs' pointer-type='specific_ref'/>
         <stl-vector name='general_refs' pointer-type='general_ref'/>
 
-        <bool name='is_room'/>
-
-        <stl-vector name='children' pointer-type='building' comment='other buildings within this room'/>
-        <stl-vector name='parents' pointer-type='building' comment='rooms this building belongs to'/>
-
-        <int32_t name='owner_id' ref-target='unit' since='v0.40.01'/>
-        <pointer type-name='unit' name='owner'/>
+        <stl-vector name='relations' pointer-type='building' comment='other buildings related to this room'/>
 
         <stl-vector name='job_claim_suppress' comment='after Remv Cre, prevents unit from taking jobs at building'>
             <pointer>
@@ -329,9 +323,6 @@
             <vmethod name='setCustomType'> <int32_t name='type'/> </vmethod>
             <vmethod name='countHospitalSupplies'>
                 <pointer name='supplies' type-name='hospital_supplies'/>
-            </vmethod>
-            <vmethod name='countTavernSupplies'>
-                <pointer name='supplies'/>
             </vmethod>
             <vmethod name='getStockpileLinks'>
                 <ret-type><pointer type-name='stockpile_links'/></ret-type>
@@ -410,7 +401,6 @@
             <vmethod name='updateOccupancy'>
                 <int32_t name='abs_x'/> <int32_t name='abs_y'/>
             </vmethod>
-            <vmethod ret-type='int32_t' name='getRoomValue'> <pointer type-name='unit'/> </vmethod>
 
             -- 44
 
@@ -435,9 +425,6 @@
 
             -- 54
 
-            <vmethod name='initBurialFlags'/>
-            <vmethod name='clearBurialFlags'/>
-            <vmethod name='clearBurialFlags2'/>
             <vmethod ret-type='int32_t' name='getClutterLevel' comment='1..10'/>
             <vmethod ret-type='bool' name='needsDesign'/>
 
@@ -448,6 +435,7 @@
             <vmethod ret-type='bool' name='isCoffin'/>
             <vmethod ret-type='bool' name='canUseSpouseRoom'/>
             <vmethod ret-type='bool' name='canMakeRoom' comment='false if already, or cannot be'/>
+            <vmethod/>
 
             -- 64
 
@@ -465,12 +453,9 @@
             <vmethod name='uncategorize' comment='Remove from world.buildings.other.*'/>
             <vmethod ret-type='int32_t' name='getBaseValue'/>
             <vmethod name='setTriggerState'> <int32_t name='new_state' comment='0 = active/open, 1 = inactive/closed'/> </vmethod>
-            <vmethod name='checkAdvmodeLocked'/>
 
             -- 74
 
-            <vmethod name='drawAdvmodeUnlockUI'/>
-            <vmethod name='advmodeUnlock'><pointer/></vmethod>
             <vmethod ret-type='bool' name='needsMagma'/>
             <vmethod name='removeUses'> <bool name='noscatter'/> <bool name='lost'/> </vmethod>
             <vmethod name='deconstructItems'> <bool name='noscatter'/> <bool name='lost'/> </vmethod>
@@ -496,15 +481,8 @@
                 <pointer name='buffer' type-name='building_drawbuffer'/>
                 <int16_t name='z_offset' comment='building_wellst only'/>
             </vmethod>
-            <vmethod name='setSquadUse'>
-                <int32_t name='squad'/> <uint32_t comment='squad_use_flags.whole'/>
-            </vmethod>
+            <vmethod/>
 
-            <vmethod name='getSquads'>
-                <ret-type>
-                    <pointer><stl-vector pointer-type='building_squad_use'/></pointer>
-                </ret-type>
-            </vmethod>
             <vmethod name='getSpecificSquad' ret-type='int32_t'/>
             <vmethod name='getSpecificPosition' ret-type='int32_t'/>
             <vmethod name='setSpecificSquadPos'><int32_t/><int32_t/></vmethod>
@@ -589,7 +567,7 @@
         <enum-item/> Invalid Type
         <enum-item name="MeadHall"/>
         <enum-item name="ThroneRoom"/>
-        <enum-item name="ActivityZone"/>
+        <enum-item/> formerly ActivityZone
         <enum-item name="Temple"/>
         <enum-item name="Kitchen"/>
         <enum-item name="CaptiveRoom"/>
@@ -649,43 +627,59 @@
         <enum-item name='CarpentryWorkshop'/>
         <enum-item name='StoneworkingWorkshop'/>
         <enum-item name='ForgingWorkshop'/>
+        <enum-item name='CountingHouseOffices'/>
+        <enum-item name='CountingHouseStorage'/>
+        <enum-item name='GuildhallOffices'/>
+        <enum-item name='GuildhallStorage'/>
+        <enum-item name='TowerEntrance'/>
+        <enum-item name='TowerFeasthall'/>
+        <enum-item name='TowerBedroom'/>
+        <enum-item name='TowerTreasury'/>
+        <enum-item name='TowerDungeon'/>
+        <enum-item name='TowerAttic'/>
+
+        <enum-item name='Dormitory'/>
+        <enum-item name='DiningHall'/>
+        <enum-item/> Invalid Type
+        <enum-item name='WaterSource'/>
+        <enum-item name='Dump'/>
+        <enum-item name='SandCollection'/>
+        <enum-item name='FishingArea'/>
+        <enum-item name='Pond'/>
+        <enum-item name='MeetingHall'/>
+        <enum-item name='Pen'/>
+        <enum-item name='ClayCollection'/>
+        <enum-item name='AnimalTraining'/>
+        <enum-item name='PlantGathering'/>
+        <enum-item name='Bedroom'/>
+        <enum-item name='Office'/>
+        <enum-item name='ArcheryRange'/>
+        <enum-item name='Barracks'/>
+        <enum-item name='Dungeon'/>
+        <enum-item name='Tomb'/>
     </enum-type>
 
     <class-type type-name='building_civzonest' inherits-from='building'>
         <stl-vector name='assigned_units' type-name='int32_t' ref-target='unit'/>
         <stl-vector name='assigned_items' type-name='int32_t' ref-target='item'/>
         <enum base-type='int32_t' name="type" type-name='civzone_type' comment='only saved as int16'/>
-        <bitfield name='zone_flags' base-type='uint32_t'>
-            <flag-bit name='water_source'/>
-            <flag-bit name='garbage_dump'/>
-            <flag-bit name='sand'/>
-            <flag-bit name='active'/>
-            <flag-bit name='fishing'/>
-            <flag-bit name='pit_pond'/>
-            <flag-bit name='meeting_area'/>
-            <flag-bit name='hospital'/>
-            <flag-bit name='pen_pasture'/>
-            <flag-bit name='clay'/>
-            <flag-bit name='animal_training'/>
-            <flag-bit name='gather'/>
-        </bitfield>
-        <int32_t name='unk_1' init-value='-1'/>
-        <int32_t name='unk_2' init-value='-1'/>
-        <int32_t name='zone_num' init-value='-1'/>
-        <int32_t name='unk_3'/>
-        <bitfield name='pit_flags' base-type='uint32_t'>
-            <flag-bit name='is_pond'/>
-            <flag-bit/>
-        </bitfield>
-        <int16_t name='fill_timer'/>
-        <compound type-name='hospital_supplies' name='hospital'/>
-        <bitfield name='gather_flags' base-type='uint32_t' since='v0.40.14'>
-            <flag-bit name='pick_trees'/>
-            <flag-bit name='pick_shrubs'/>
-            <flag-bit name='gather_fallen'/>
-        </bitfield>
-        <int32_t name='gather_update_cooldown' comment='number of ticks until next gathering zone update. resets to 1 day after hitting 0.' since='v0.40.14'/>
-        <stl-vector name='unk_v43_1' type-name='int32_t' ref-target='historical_figure' since='v0.43.01'/>
+        <!-- changed extensively in v0.50.0x, best of luck my friends -->
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <stl-vector type-name='int32_t'/>
+        <stl-vector type-name='pointer'/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <int32_t/>
+        <stl-vector type-name='pointer' comment='type pointed to is 8 bytes long'/>
+        <int32_t/>
+        <int32_t/>
     </class-type>
 
     -- actual --
@@ -867,18 +861,20 @@
     </class-type>
 
     <class-type type-name='building_archerytargetst' inherits-from='building_actual'>
+        <!-- removed in 50.01
         <enum name='archery_direction' base-type='int8_t'>
             <enum-item name='TopToBottom'/>
             <enum-item name='BottomToTop'/>
             <enum-item name='LeftToRight'/>
             <enum-item name='RightToLeft'/>
-        </enum>
+        </enum> -->
     </class-type>
 
     <class-type type-name='building_armorstandst' inherits-from='building_actual'>
         <int16_t name='unk_c0'/>
 
-        <stl-vector name='squads' pointer-type='building_squad_use'/>
+        <!-- removed in 50.01
+        <stl-vector name='squads' pointer-type='building_squad_use'/> -->
         <int32_t name='specific_squad' ref-target='squad'/>
         <int32_t name='specific_position' init-value='-1'/>
     </class-type>
@@ -899,11 +895,12 @@
     </struct-type>
 
     <class-type type-name='building_bedst' inherits-from='building_actual'>
-        <bitfield name='bed_flags' base-type='uint16_t'>
+        <!-- removed in 50.01
+            <bitfield name='bed_flags' base-type='uint16_t'>
             <flag-bit name='barracks'/>
             <flag-bit name='dormitory'/>
         </bitfield>
-        <stl-vector name='squads' pointer-type='building_squad_use'/>
+        <stl-vector name='squads' pointer-type='building_squad_use'/> -->
         <int32_t name='specific_squad' ref-target='squad'/>
         <int32_t name='specific_position' init-value='-1'/>
         <compound name='users' type-name='building_users'/>
@@ -913,7 +910,8 @@
 
     <class-type type-name='building_boxst' inherits-from='building_actual'>
         <int16_t name='unk_1'/>
-        <stl-vector name='squads' pointer-type='building_squad_use'/>
+        <!-- removed in 50.01
+        <stl-vector name='squads' pointer-type='building_squad_use'/> -->
         <int32_t name='specific_squad' ref-target='squad'/>
         <int32_t name='specific_position' init-value='-1'/>
     </class-type>
@@ -933,7 +931,8 @@
 
     <class-type type-name='building_cabinetst' inherits-from='building_actual'>
         <int16_t name='unk_1'/>
-        <stl-vector name='squads' pointer-type='building_squad_use'/>
+        <!-- removed in 50.01
+        <stl-vector name='squads' pointer-type='building_squad_use'/> -->
         <int32_t name='specific_squad' ref-target='squad'/>
         <int32_t name='specific_position' init-value='-1'/>
     </class-type>
@@ -961,11 +960,12 @@
     </class-type>
 
     <class-type type-name='building_coffinst' inherits-from='building_actual'>
+        <!-- removed in 0.50
         <bitfield name='burial_mode' base-type='uint16_t'>
             <flag-bit name='allow_burial'/>
             <flag-bit name='no_pets'/>
             <flag-bit name='no_citizens'/>
-        </bitfield>
+        </bitfield> -->
     </class-type>
 
     <enum-type type-name='construction_type' base-type='int16_t'>
@@ -1091,6 +1091,7 @@
 
     <class-type type-name='building_road_pavedst' inherits-from='building_roadst'>
         <int32_t name='material_amount'/>
+        <int32_t/>
         <int16_t name='terrain_purge_timer' init-value='500'/>
     </class-type>
 
@@ -1235,7 +1236,7 @@
         <int16_t name='unk_c0'/>
 
         <stl-vector name='squads' pointer-type='building_squad_use'/>
-        <int32_t name='specific_squad' ref-target='squad'/>
+        <!-- removed in 50.02 <int32_t name='specific_squad' ref-target='squad'/> -->
     </class-type>
 
     <class-type type-name='building_wellst' inherits-from='building_actual'>
