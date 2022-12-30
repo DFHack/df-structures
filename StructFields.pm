@@ -129,6 +129,13 @@ my %custom_container_handlers = (
         header_ref("vector");
         return "std::vector<bool>";
     },
+    'stl-map' => sub {
+        # TODO: implement get_container_key_type?
+        my $key  = 'void*';
+        my $item = get_container_item_type($_, -void => 'void*');
+        header_ref("map");
+        return "std::map<$key, $item>";
+    },
     'df-flagarray' => sub {
         my $type = decode_type_name_ref($_, -attr_name => 'index-enum', -force_type => 'enum-type') || 'int';
         return "BitArray<$type>";
