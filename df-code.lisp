@@ -115,7 +115,7 @@
 (defun find-creature (key) $global.world.raws.creatures.all[key])
 (defun find-figure (key) (find-by-id $global.world.history.figures $id key))
 
-(defun find-burrow (key) (find-by-id $global.ui.burrows.list $id key))
+(defun find-burrow (key) (find-by-id $global.plotinfo.burrows.list $id key))
 
 (defun material-by-id (mat-type &optional mat-idx)
   (let ((raws $global.world.raws))

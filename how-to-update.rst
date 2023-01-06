@@ -163,7 +163,7 @@ The .bss compound section should be done except for 'announcements'.
 
 Run (browse-dataseg). The first three -30000 are cursor. Following
 group of 6 are selection_rect. After that, at 16-aligned addresses
-are control_mode and game_mode. Tab the game ui to the most common
+are control_mode and game_mode. Tab the game UI to the most common
 two-pane mode, scroll to the end and find 0x30200. Within this dword
 ui_menu_width is byte 1, ui_area_map_width is byte 2.
 
@@ -230,7 +230,7 @@ Located just before ui_building_assign_type.
 
 [B] The ui_look_cursor area.
 ----------------------------
-Located in the area of the 124 byte global before ui.
+Located in the area of the 124 byte global before plotinfo.
 
 1. ui_look_cursor
 
@@ -257,7 +257,7 @@ Located in the area of the 124 byte global before ui.
 
 [C] The window_x/y/z area.
 --------------------------
-Located right after ui_build_selector.
+Located right after buildreq.
 
 1. window_x, window_y, window_z
 
@@ -285,18 +285,18 @@ After aligning globals on linux, run (make-csv) to produce offset tables.
 Set a nickname, search for it; the unit will have it at offset 0x1C.
 Then trace back to the unit vector, and subtract its offset.
 
-2. ui
------
+2. plotinfo
+-----------
 Open the 's'quad sidebar page. Navigate to a squad in world.squads.all,
-then backtrace and subtract the offset of ui.squads.list.
+then backtrace and subtract the offset of plotinfo.squads.list.
 
-3. ui_build_selector
---------------------
+3. buildreq
+-----------
 Start creating a building, up to the point of material selection.
 Find the material item through world and backtrack references until .bss.
 
-4. ui_sidebar_menus
--------------------
+4. game
+-------
 Select a unit in 'v', open inventory page, backtrack from
 unit_inventory_item, subtract offset of unit.inv_items.
 
@@ -305,10 +305,10 @@ unit_inventory_item, subtract offset of unit.inv_items.
 Put a 'k' cursor over a unit, backtrack to a 0x10 bytes object
 with pointer at offset 0xC, then to the global vector.
 
-6. ui_advmode
--------------
+6. adventure
+------------
 In adventure mode, open the 'c'ompanions menu, then backtrack from
-world.units.active[0] (i.e. the player) via ui_advmode.companions.unit
+world.units.active[0] (i.e. the player) via adventure.companions.unit
 
 Alternatively, look before ui_look_list for "0, 15" coming from the string.
 
@@ -318,20 +318,20 @@ Alternatively, look before ui_look_list for "0, 15" coming from the string.
 +; repeat until few candidates left; then done, select the renderer
 heap object and backtrack to enabler.renderer.
 
-Alternatively, look before ui for clocks changing every frame.
+Alternatively, look before plotinfo for clocks changing every frame.
 
 8. map_renderer
 ---------------
 Put a 'v' cursor exactly above a unit; backtrack from the unit object.
 
-Alternatively, look before ui_advmode for the unit pointer list.
+Alternatively, look before adventure for the unit pointer list.
 
 9. texture
 ----------
 Load the game with [GRAPHICS:YES] in init.txt, and example set.
 Then search for string "example/dwarves.bmp" and backtrack.
 
-Alternatively, look between ui_build_selector and init.
+Alternatively, look between buildreq and init.
 
 
 STAGE 5. Secondary windows compound globals
@@ -341,7 +341,7 @@ looking in the expected area first:
 
 1. timed_events
 ---------------
-Look for a pointer vector around -0x54 before ui.
+Look for a pointer vector around -0x54 before plotinfo.
 
 2. ui_building_assign_*
 -----------------------
@@ -350,7 +350,7 @@ Look for a pointer vector around -0x54 before ui.
     Assign to zone, (find-changes), toggle 1st unit, enter; toggle 1st,
     0; toggle 1st, 1; toggle 2nd, new; done
 
-    The vector is expected to be just before ui.
+    The vector is expected to be just before plotinfo.
 
 2b. ui_building_assign_items
 
@@ -368,7 +368,7 @@ Look for a pointer vector around -0x54 before ui.
 
 3. gview
 --------
-Immediately follows ui.
+Immediately follows plotinfo.
 
 4. Init files
 -------------
@@ -378,7 +378,7 @@ Immediately follows ui.
 
 4b. init
 
-    Follows ui_build_selector after a small gap.
+    Follows buildreq after a small gap.
 
 5. gps
 ------
@@ -396,11 +396,11 @@ Look at around offset ui_area_map_width+0x470 for pointers.
 
 6c. created_item_mattype
 
-    Immediately before ui_sidebar_menus.
+    Immediately before game.
 
 6d. created_item_matindex
 
-    Before ui, after timed_events.
+    Before plotinfo, after timed_events.
 
 6e. created_item_count
 
