@@ -136,1548 +136,2350 @@
 
     -- MISC. SIDEBAR MENUS
 
+    <enum-type type-name='interface_category_building' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='WEAPON'/>
+        <enum-item name='ARMOR'/>
+        <enum-item name='FURNITURE'/>
+        <enum-item name='SIEGE'/>
+        <enum-item name='TRAP'/>
+        <enum-item name='OTHER'/>
+        <enum-item name='METAL'/>
+        <enum-item name='SELECT_MEMORIAL_UNIT'/>
+    </enum-type>
+
+    <enum-type type-name='interface_category_construction' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='MAIN'/>
+        <enum-item name='SIEGEENGINE'/>
+        <enum-item name='TRAP'/>
+        <enum-item name='WORKSHOP'/>
+        <enum-item name='FURNACE'/>
+        <enum-item name='CONSTRUCTION'/>
+        <enum-item name='MACHINE'/>
+        <enum-item name='TRACK'/>
+    </enum-type>
+
     <class-type type-name='interface_button' original-name='interface_buttonst'>
-        <enum name='hotkey_id' type-name='interface_key' base-type='int32_t'/>
-        <bool name="is_hidden"/>
-        <int32_t name='unk_1' since='v0.40.23'/>
+        <enum name='hotkey' type-name='interface_key' base-type='int32_t'/>
+        <bool name="leave_button"/>
+        <uint32_t name='flag' since='v0.40.23'/>
+        <stl-string name='filter_str'/>
 
         <virtual-methods>
-            <vmethod name='printSlabStatus' comment='ghost, buried, memorialized'>
-                <int32_t name='x'/>
+            <vmethod name='print_info' comment='ghost, buried, memorialized'>
                 <int32_t name='y'/>
-                <int32_t name='unused'/>
+                <int32_t name='limx_min'/>
+                <int32_t name='limx_max'/>
             </vmethod>
-            <vmethod name='getLabel'>
+            <vmethod name='text'>
                 <pointer type-name='stl-string' name='str'/>
             </vmethod>
-            <vmethod name='click'/>
-            <vmethod name='setColor'>
+            <vmethod name='press'/>
+            <vmethod name='set_button_color'>
                 <bool name='selected'/>
             </vmethod>
-            <vmethod name='makeHidden'/>
-            <vmethod name='getTrackGlyph' ret-type='uint8_t'/>
-            <vmethod name='setTrackGlyphColor'/>
-            <vmethod name='getReactionLabel'> also for reaction categories
-                <pointer type-name='stl-string'/>
+            <vmethod name='set_leave_button'/>
+            <vmethod name='tile' ret-type='uint8_t'/>
+            <vmethod name='set_tile_color'/>
+            <vmethod name='prepare_tool_tip'>
+                <pointer name='box'><stl-vector pointer-type='stl-string'/></pointer>
             </vmethod>
-            <vmethod name='isBuiltinJob' ret-type='bool'/>
-            <vmethod name='isValidCustomReaction' ret-type='bool'/>
+            <vmethod name='pressable' ret-type='bool'/>
+            <vmethod name='has_view' ret-type='bool'/>
+            <vmethod name='is_alphabetized' ret-type='bool'/>
+            <vmethod name='get_objection_string'>
+                <ret-type><pointer type-name='stl-string'/></ret-type>
+            </vmethod>
+            <vmethod name='get_info_string'>
+                <ret-type><pointer type-name='stl-string'/></ret-type>
+            </vmethod>
             <vmethod is-destructor='true'/>
         </virtual-methods>
     </class-type>
 
     <class-type type-name='interface_button_buildingst'
                 inherits-from='interface_button'>
-        <pointer name='building' type-name='building'/>
+        <pointer name='bd' type-name='building'/>
     </class-type>
 
     <class-type type-name='interface_button_building_category_selectorst'
                 inherits-from='interface_button_buildingst'>
-        <int32_t name="category_id"/>
-        <int8_t name="unk_14"/>
+        <enum type-name='interface_category_building' name='category'/>
+        <int8_t name="prepare_interface"/>
     </class-type>
 
     <class-type type-name='interface_button_building_material_selectorst'
                 inherits-from='interface_button_buildingst'>
-        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
-        <int32_t name='mat_index'/>
-        <bitfield name='material_category' type-name='job_material_category'/>
-        <int8_t name="unk_1c"/>
+        <int16_t name='material' ref-target='material' aux-value='$$.matgloss'/>
+        <int32_t name='matgloss'/>
+        <bitfield name='job_item_flag' type-name='job_material_category'/>
+        <int8_t name="prepare_interface"/>
     </class-type>
 
     <class-type type-name='interface_button_building_new_jobst'
                 inherits-from='interface_button_buildingst'>
-        <enum name='job_type' type-name='job_type'/>
-        <stl-string name='reaction_name'/>
-        <enum name='item_type' type-name='item_type'/>
-        <int16_t name='item_subtype'/>
-        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
-        <int32_t name='mat_index'/>
-        <bitfield name='item_category' type-name='stockpile_group_set'/>
-        <int32_t name='hist_figure_id' ref-target='historical_figure' comment='TODO: this appears to be used as a creature_raw ID for jobs like MakeGloves'/>
-        <bitfield name='material_category' type-name='job_material_category'/>
-        <bool name="unk_48"/>
-        <bool name="is_custom"/>
+        <enum name='jobtype' type-name='job_type'/>
+        <stl-string name='mstring'/>
+        <enum name='itemtype' type-name='item_type'/>
+        <int16_t name='subtype'/>
+        <int16_t name='material' ref-target='material' aux-value='$$.matgloss'/>
+        <int32_t name='matgloss'/>
+        <bitfield name='specflag' type-name='stockpile_group_set'/>
+        <int32_t name='spec_id' comment='refers to various things, such as histfigs OR races'/>
+        <bitfield name='job_item_flag' type-name='job_material_category'/>
+        <bool name='add_building_location'/>
+        <bool name='show_help_instead'/>
+
+        <stl-string name='objection'/>
+        <stl-string name='info'/>
     </class-type>
 
     <class-type type-name='interface_button_building_custom_category_selectorst'
                 inherits-from='interface_button_buildingst'>
-        <stl-string name='category'/>
+        <stl-string name='custom_category_token'/>
     </class-type>
 
-    <class-type type-name='interface_button_constructionst'
-                inherits-from='interface_button'>
-        <pointer name='unused_c'/>
-    </class-type>
+    <enum-type type-name='construction_category_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='MAIN'/>
+        <enum-item name='WORKSHOPS'/>
+        <enum-item name='WORKSHOPS_FURNACES'/>
+        <enum-item name='WORKSHOPS_CLOTHING'/>
+        <enum-item name='WORKSHOPS_FARMING'/>
+        <enum-item name='FURNITURE'/>
+        <enum-item name='DOORS_HATCHES'/>
+        <enum-item name='WALLS_FLOORS'/>
+        <enum-item name='MACHINES_FLUIDS'/>
+        <enum-item name='CAGES_RESTRAINTS'/>
+        <enum-item name='TRAPS'/>
+        <enum-item name='MILITARY'/>
+    </enum-type>
 
-    <class-type type-name='interface_button_construction_donest'
-                inherits-from='interface_button_constructionst'/>
+    <struct-type type-name='bb_buttonst'>
+        <enum name='category' type-name='construction_category_type'/>
+        <int32_t name='type'/>
+        <int32_t name='subtype'/>
+        <int32_t name='custom_building_id'/>
+        <int32_t name='number'/>
+        <int32_t name='grid_height'/>
+        <int32_t name='texpos'/>
+        <stl-string name='str'/>
+        <enum name='hotkey' type-name='interface_key' base-type='int32_t'/>
+    </struct-type>
 
-    <class-type type-name='interface_button_construction_category_selectorst'
-                inherits-from='interface_button_constructionst'>
-        <enum name='category_id' base-type='int32_t'>
-            <enum-item name='SiegeEngines' value='1'/>
-            <enum-item name='Traps'/>
-            <enum-item name='Workshops'/>
-            <enum-item name='Furnaces'/>
-            <enum-item name='Constructions'/>
-            6
-            <enum-item name='MachineComponents'/>
-            <enum-item name='Track'/>
-        </enum>
-    </class-type>
+    <enum-type type-name='construction_interface_page_status_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='FULL'/>
+        <enum-item name='ICONS_ONLY'/>
+        <enum-item name='OFF'/>
+    </enum-type>
 
-    <class-type type-name='interface_button_construction_building_selectorst'
-                inherits-from='interface_button_constructionst'>
-        <int16_t name="building_type"/>
-        <int16_t name="building_subtype"/>
-        <int32_t name="custom_type" ref-target='building_def'/>
+    <struct-type type-name='construction_interface_pagest'>
+        <enum name='category' type-name='construction_category_type'/>
+        <stl-vector pointer-type='bb_buttonst' name='bb_button'/>
 
-        <int32_t name="existing_count"/>
-    </class-type>
+        <int32_t name='last_main_sx'/>
+        <int32_t name='last_main_ex'/>
+        <int32_t name='last_main_sy'/>
+        <int32_t name='last_main_ey'/>
+
+        <enum name='page_status' type-name='construction_interface_page_status_type'/>
+        <int32_t name='number_of_columns'/>
+        <int32_t name='column_height'/>
+        <int32_t name='column_width'/>
+
+        <pointer type-name='bb_buttonst' name='selected_button'/>
+
+        <bool name='scrolling'/>
+        <int32_t name='scroll_position'/>
+    </struct-type>
+
+    <enum-type type-name='room_flow_shape_type' base-type='int16_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='RECTANGLE'/>
+        <enum-item name='WALL_FLOW'/>
+        <enum-item name='FLOOR_FLOW'/>
+    </enum-type>
+
+    <enum-type type-name='cannot_expel_reason_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='HEREDITARY'/>
+        <enum-item name='ELECTED'/>
+        <enum-item name='MEET_WORKERS'/>
+        <enum-item name='SPOUSE_NOT_PRESENT'/>
+        <enum-item name='SPOUSE_HEREDITARY'/>
+        <enum-item name='SPOUSE_ELECTED'/>
+        <enum-item name='SPOUSE_MEET_WORKERS'/>
+        <enum-item name='CHILD_NOT_PRESENT'/>
+        <enum-item name='CHILD_HEREDITARY'/>
+        <enum-item name='CHILD_ELECTED'/>
+        <enum-item name='CHILD_MEET_WORKERS'/>
+    </enum-type>
+
+    <enum-type type-name='mine_mode_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='ALL'/>
+        <enum-item name='AUTOMINE_NON_LAYER_MATERIAL'/>
+        <enum-item name='MARK_ECONOMIC_ONLY'/>
+        <enum-item name='MARK_GEMS_ONLY'/>
+    </enum-type>
+
+    <enum-type type-name='job_details_option_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='MATERIAL'/>
+        <enum-item name='IMAGE'/>
+        <enum-item name='CLOTHING_SIZE'/>
+        <enum-item name='IMPROVEMENT_TYPE'/>
+    </enum-type>
+
+    <enum-type type-name='job_details_context_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='BUILDING_TASK_LIST'/>
+        <enum-item name='CREATURES_LIST_TASK'/>
+        <enum-item name='TASK_LIST_TASK'/>
+        <enum-item name='BUILDING_WORK_ORDER'/>
+        <enum-item name='MANAGER_WORK_ORDER'/>
+    </enum-type>
+
+    <enum-type type-name='stock_pile_pointer_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='ANIMAL_EMPTY_CAGES'/>
+        <enum-item name='ANIMAL_EMPTY_ANIMAL_TRAPS'/>
+        <enum-item name='FOOD_PREPARED_FOOD'/>
+        <enum-item name='REFUSE_ROTTEN_RAW_HIDE'/>
+        <enum-item name='REFUSE_UNROTTEN_RAW_HIDE'/>
+        <enum-item name='WEAPON_USABLE'/>
+        <enum-item name='WEAPON_NON_USABLE'/>
+        <enum-item name='ARMOR_USABLE'/>
+        <enum-item name='ARMOR_NON_USABLE'/>
+    </enum-type>
+
+    <enum-type type-name='stockpile_tools_context_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='STOCKPILE'/>
+    </enum-type>
+
+    <enum-type type-name='stockpile_link_context_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='STOCKPILE'/>
+        <enum-item name='WORKSHOP'/>
+        <enum-item name='HAULING_STOP'/>
+    </enum-type>
+
+    <enum-type type-name='hauling_stop_conditions_context_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='HAULING_MENU'/>
+    </enum-type>
+
+    <enum-type type-name='assign_vehicle_context_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='HAULING_MENU'/>
+    </enum-type>
+
+    <enum-type type-name='location_details_context_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='FROM_ZONE'/>
+        <enum-item name='FROM_LOCATION_SELECTOR'/>
+    </enum-type>
+
+    <enum-type type-name='location_selector_context_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='ZONE_MEETING_AREA_ASSIGNMENT'/>
+    </enum-type>
+
+    <enum-type type-name='custom_symbol_context_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='BURROW'/>
+        <enum-item name='BURROW_PAINT'/>
+        <enum-item name='WORK_DETAIL'/>
+        <enum-item name='SQUAD_MENU'/>
+    </enum-type>
+
+    <enum-type type-name='name_creator_context_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='EMBARK_FORT_NAME'/>
+        <enum-item name='EMBARK_GROUP_NAME'/>
+        <enum-item name='IMAGE_CREATOR_NAME'/>
+        <enum-item name='LOCATION_NAME'/>
+        <enum-item name='SQUAD_NAME'/>
+        <enum-item name='INFO_NOBLES_ELEVATING_POSITION_SYMBOL'/>
+    </enum-type>
+
+    <enum-type type-name='image_creator_context_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='EMBARK_FORT_SYMBOL'/>
+        <enum-item name='JOB_DETAILS_MAIN'/>
+        <enum-item name='JOB_DETAILS_IMPROVEMENT'/>
+        <enum-item name='DESIGNATION_ENGRAVING'/>
+    </enum-type>
+
+    <enum-type type-name='image_creator_option_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='ALLOW_ARTIST_TO_CHOOSE'/>
+        <enum-item name='RELATED_TO_HFID'/>
+        <enum-item name='RELATED_TO_STID'/>
+        <enum-item name='RELATED_TO_ENID'/>
+        <enum-item name='RELATED_TO_HEID'/>
+        <enum-item name='EXISTING_IMAGE'/>
+        <enum-item name='NEW_IMAGE'/>
+        <enum-item name='NEW_IMAGE_ELEMENT_CREATURE'/>
+        <enum-item name='NEW_IMAGE_ELEMENT_HF'/>
+        <enum-item name='NEW_IMAGE_ELEMENT_PLANT'/>
+        <enum-item name='NEW_IMAGE_ELEMENT_TREE'/>
+        <enum-item name='NEW_IMAGE_ELEMENT_SHAPE'/>
+        <enum-item name='NEW_IMAGE_ELEMENT_ITEM'/>
+        <enum-item name='NEW_IMAGE_ELEMENT_ARTIFACT'/>
+        <enum-item name='NEW_IMAGE_PROPERTY'/>
+        <enum-item name='NEW_IMAGE_PROPERTY_ACTOR'/>
+        <enum-item name='NEW_IMAGE_PROPERTY_TARGET'/>
+        <enum-item name='NEW_IMAGE_DELETE_ELEMENTS'/>
+    </enum-type>
+
+    <enum-type type-name='unit_selector_context_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='ZONE_PEN_ASSIGNMENT'/>
+        <enum-item name='ZONE_PIT_ASSIGNMENT'/>
+        <enum-item name='ZONE_BEDROOM_ASSIGNMENT'/>
+        <enum-item name='ZONE_OFFICE_ASSIGNMENT'/>
+        <enum-item name='ZONE_DINING_HALL_ASSIGNMENT'/>
+        <enum-item name='ZONE_TOMB_ASSIGNMENT'/>
+        <enum-item name='CHAIN_ASSIGNMENT'/>
+        <enum-item name='CAGE_ASSIGNMENT'/>
+        <enum-item name='WORKER_ASSIGNMENT'/>
+        <enum-item name='OCCUPATION_ASSIGNMENT'/>
+        <enum-item name='BURROW_ASSIGNMENT'/>
+        <enum-item name='SQUAD_KILL_ORDER'/>
+        <enum-item name='SQUAD_FILL_POSITION'/>
+    </enum-type>
+
+    <enum-type type-name='squad_selector_context_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='ZONE_BARRACKS_ASSIGNMENT'/>
+        <enum-item name='ZONE_ARCHERY_RANGE_ASSIGNMENT'/>
+    </enum-type>
+
+    <enum-type type-name='squad_schedule_context_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='FROM_SQUAD_MENU'/>
+    </enum-type>
+
+    <enum-type type-name='squad_equipment_context_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='FROM_SQUAD_MENU'/>
+    </enum-type>
+
+    <enum-type type-name='patrol_routes_context_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='GIVING_SQUAD_PATROL_ORDER'/>
+    </enum-type>
+
+    <enum-type type-name='burrow_selector_context_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='GIVING_SQUAD_ORDER'/>
+    </enum-type>
+
+    <enum-type type-name='view_sheet_trait_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='PHYS_ATT_PLUS'/>
+        <enum-item name='PHYS_ATT_MINUS'/>
+        <enum-item name='MENT_ATT_PLUS'/>
+        <enum-item name='MENT_ATT_MINUS'/>
+        <enum-item name='PERSONALITY_FACET_HIGH'/>
+        <enum-item name='PERSONALITY_FACET_LOW'/>
+        <enum-item name='VALUE_HIGH'/>
+        <enum-item name='VALUE_LOW'/>
+    </enum-type>
+
+    <enum-type type-name='view_sheet_unit_knowledge_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='PHILOSOPHY_FLAG'/>
+        <enum-item name='PHILOSOPHY_FLAG2'/>
+        <enum-item name='MATHEMATICS_FLAG'/>
+        <enum-item name='MATHEMATICS_FLAG2'/>
+        <enum-item name='HISTORY_FLAG'/>
+        <enum-item name='ASTRONOMY_FLAG'/>
+        <enum-item name='NATURALIST_FLAG'/>
+        <enum-item name='CHEMISTRY_FLAG'/>
+        <enum-item name='GEOGRAPHY_FLAG'/>
+        <enum-item name='MEDICINE_FLAG'/>
+        <enum-item name='MEDICINE_FLAG2'/>
+        <enum-item name='MEDICINE_FLAG3'/>
+        <enum-item name='ENGINEERING_FLAG'/>
+        <enum-item name='ENGINEERING_FLAG2'/>
+        <enum-item name='POETIC_FORM'/>
+        <enum-item name='MUSICAL_FORM'/>
+        <enum-item name='DANCE_FORM'/>
+        <enum-item name='WRITTEN_CONTENT'/>
+    </enum-type>
+
+    <enum-type type-name='view_sheets_context_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='REGULAR_PLAY'/>
+        <enum-item name='PREPARE_CAREFULLY'/>
+    </enum-type>
+
+    <enum-type type-name='view_sheet_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='UNIT'/>
+        <enum-item name='ITEM'/>
+        <enum-item name='BUILDING'/>
+        <enum-item name='ENGRAVING'/>
+        <enum-item name='ENGRAVING_PLANNED'/>
+        <enum-item name='UNIT_LIST'/>
+        <enum-item name='ITEM_LIST'/>
+    </enum-type>
+
+    <enum-type type-name='unit_list_mode_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='CITIZEN'/>
+        <enum-item name='PET'/>
+        <enum-item name='OTHER'/>
+        <enum-item name='DECEASED'/>
+    </enum-type>
+
+    <enum-type type-name='buildings_mode_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='ZONES'/>
+        <enum-item name='LOCATIONS'/>
+        <enum-item name='STOCKPILES'/>
+        <enum-item name='WORKSHOPS'/>
+        <enum-item name='FARMPLOTS'/>
+    </enum-type>
+
+    <enum-type type-name='kitchen_pref_category_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='PLANTS'/>
+        <enum-item name='SEEDS'/>
+        <enum-item name='DRINK'/>
+        <enum-item name='OTHER'/>
+    </enum-type>
+
+    <enum-type type-name='standing_orders_category_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='AUTOMATED_WORKSHOPS'/>
+        <enum-item name='HAULING'/>
+        <enum-item name='REFUSE_AND_DUMPING'/>
+        <enum-item name='AUTOMATIC_FORBIDDING'/>
+        <enum-item name='CHORES'/>
+        <enum-item name='OTHER'/>
+    </enum-type>
+
+    <enum-type type-name='stone_use_category_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='ECONOMIC'/>
+        <enum-item name='OTHER'/>
+    </enum-type>
+
+    <enum-type type-name='labor_mode_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='WORK_DETAILS'/>
+        <enum-item name='STANDING_ORDERS'/>
+        <enum-item name='KITCHEN'/>
+        <enum-item name='STONE_USE'/>
+    </enum-type>
+
+    <enum-type type-name='artifacts_mode_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='ARTIFACTS'/>
+        <enum-item name='SYMBOLS'/>
+        <enum-item name='NAMED_OBJECTS'/>
+        <enum-item name='WRITTEN_CONTENT'/>
+    </enum-type>
+
+    <enum-type type-name='counterintelligence_mode_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='INTERROGATIONS'/>
+        <enum-item name='ACTORS'/>
+        <enum-item name='ORGANIZATIONS'/>
+        <enum-item name='PLOTS'/>
+    </enum-type>
+
+    <enum-type type-name='justice_interface_mode_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='OPEN_CASES'/>
+        <enum-item name='CLOSED_CASES'/>
+        <enum-item name='COLD_CASES'/>
+        <enum-item name='FORTRESS_GUARD'/>
+        <enum-item name='CONVICTS'/>
+        <enum-item name='COUNTERINTELLIGENCE'/>
+    </enum-type>
+
+    <enum-type type-name='info_interface_mode_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='CREATURES'/>
+        <enum-item name='JOBS'/>
+        <enum-item name='BUILDINGS'/>
+        <enum-item name='LABOR'/>
+        <enum-item name='WORK_ORDERS'/>
+        <enum-item name='ADMINISTRATORS'/>
+        <enum-item name='ARTIFACTS'/>
+        <enum-item name='JUSTICE'/>
+    </enum-type>
+
+    <enum-type type-name='main_menu_option_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='RETURN'/>
+        <enum-item name='SAVE_AND_QUIT'/>
+        <enum-item name='SAVE_AND_CONTINUE'/>
+        <enum-item name='SETTINGS'/>
+        <enum-item name='SUCCUMB_TO_INVASION'/>
+        <enum-item name='ABANDON_FORTRESS'/>
+        <enum-item name='RETIRE_FORTRESS'/>
+        <enum-item name='QUIT_WITHOUT_SAVING'/>
+        <enum-item name='END_GAME'/>
+        <enum-item name='SAVE_TO_EXISTING_FOLDER'/>
+        <enum-item name='SAVE_TO_NEW_FOLDER_NEW_TIMELINE'/>
+        <enum-item name='SAVE_TO_NEW_FOLDER_EXISTING_TIMELINE'/>
+        <enum-item name='RETURN_TO_TITLE'/>
+        <enum-item name='CONTINUE'/>
+    </enum-type>
+
+    <enum-type type-name='options_context_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='MAIN_DWARF'/>
+        <enum-item name='MAIN_DWARF_GAME_OVER'/>
+        <enum-item name='MAIN_DWARF_HELP'/>
+        <enum-item name='MAIN_DWARF_SAVE_AND_EXIT_CHOICES'/>
+        <enum-item name='MAIN_DWARF_SAVE_AND_EXIT_CHOICES_ENDED'/>
+        <enum-item name='ABORT_FROM_STARTING_GAME'/>
+    </enum-type>
+
+    <enum-type type-name='help_context_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='WORLD_GEN_MESSAGE'/>
+        <enum-item name='EMBARK_TUTORIAL_CHICE'/>
+        <enum-item name='EMBARK_MESSAGE'/>
+        <enum-item name='START_TUTORIAL_CAMERA_CONTROLS'/>
+        <enum-item name='START_TUTORIAL_MINING'/>
+        <enum-item name='START_TUTORIAL_STOCKPILES'/>
+        <enum-item name='START_TUTORIAL_CHOPPING'/>
+        <enum-item name='START_TUTORIAL_WORKSHOPS_AND_TASKS'/>
+        <enum-item name='START_TUTORIAL_SHEETS'/>
+        <enum-item name='START_TUTORIAL_ALERTS'/>
+        <enum-item name='START_TUTORIAL_PREPARING_FOR_CARAVAN'/>
+        <enum-item name='DONE_WITH_FIRST_STEPS_MESSAGE'/>
+        <enum-item name='POPUP_ZONES'/>
+        <enum-item name='POPUP_BURROWS'/>
+        <enum-item name='POPUP_HAULING'/>
+        <enum-item name='POPUP_STOCKS'/>
+        <enum-item name='POPUP_WORK_DETAILS'/>
+        <enum-item name='POPUP_NOBLES'/>
+        <enum-item name='POPUP_JUSTICE'/>
+        <enum-item name='POPUP_SQUADS'/>
+        <enum-item name='POPUP_WORLD'/>
+        <enum-item name='POPUP_WORK_ORDERS'/>
+        <enum-item name='REVISIT_CAMERA_CONTROLS'/>
+        <enum-item name='REVISIT_MINING'/>
+        <enum-item name='REVISIT_STOCKPILES'/>
+        <enum-item name='REVISIT_CHOPPING'/>
+        <enum-item name='REVISIT_WORKSHOPS_AND_TASKS'/>
+        <enum-item name='REVISIT_SHEETS'/>
+        <enum-item name='REVISIT_ALERTS'/>
+        <enum-item name='REVISIT_PREPARING_FOR_CARAVAN'/>
+        <enum-item name='GUIDE_SURVIVAL'/>
+        <enum-item name='GUIDE_PLANTING'/>
+        <enum-item name='GUIDE_OTHER_FOOD_SOURCES'/>
+        <enum-item name='GUIDE_BINS_BAGS_AND_BARRELS'/>
+        <enum-item name='GUIDE_TRADE'/>
+        <enum-item name='GUIDE_OFFICES'/>
+        <enum-item name='GUIDE_ORE_AND_SMELTING'/>
+        <enum-item name='GUIDE_TRAPS_AND_LEVERS'/>
+        <enum-item name='GUIDE_WELLS'/>
+        <enum-item name='GUIDE_HANDLING_LIGHT_AQUIFERS'/>
+        <enum-item name='GUIDE_CLOTHING'/>
+        <enum-item name='GUIDE_MEETING_AREAS_AND_LOCATIONS'/>
+        <enum-item name='GUIDE_MILITARY'/>
+        <enum-item name='GUIDE_CHANNELS_AND_RAMPS'/>
+        <enum-item name='GUIDE_REFUSE'/>
+        <enum-item name='GUIDE_DEEPER'/>
+        <enum-item name='GUIDE_HAPPINESS'/>
+        <enum-item name='GUIDE_GOALS'/>
+    </enum-type>
+
+    <enum-type type-name='settings_tab_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='VIDEO'/>
+        <enum-item name='AUDIO'/>
+        <enum-item name='GAME'/>
+        <enum-item name='KEYBINDINGS'/>
+        <enum-item name='DIFFICULTY'/>
+    </enum-type>
+
+    <enum-type type-name='settings_context_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='OUTSIDE_PLAY'/>
+        <enum-item name='FORT_MODE'/>
+    </enum-type>
+
+    <enum-type type-name='assign_uniform_context_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='CREATE_SQUAD_FROM_SQUAD_MENU'/>
+        <enum-item name='FROM_SQUAD_EQUIPMENT_MENU'/>
+    </enum-type>
+
+    <enum-type type-name='main_bottom_mode_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='BUILDING'/>
+        <enum-item name='BUILDING_PLACEMENT'/>
+        <enum-item name='BUILDING_PICK_MATERIALS'/>
+        <enum-item name='ZONE'/>
+        <enum-item name='ZONE_PAINT'/>
+        <enum-item name='STOCKPILE'/>
+        <enum-item name='STOCKPILE_PAINT'/>
+        <enum-item name='BURROW'/>
+        <enum-item name='BURROW_PAINT'/>
+        <enum-item name='HAULING'/>
+    </enum-type>
+
+    <enum-type type-name='main_designation_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='DIG_DIG'/>
+        <enum-item name='DIG_REMOVE_STAIRS_RAMPS'/>
+        <enum-item name='DIG_STAIR_UP'/>
+        <enum-item name='DIG_STAIR_UPDOWN'/>
+        <enum-item name='DIG_STAIR_DOWN'/>
+        <enum-item name='DIG_RAMP'/>
+        <enum-item name='DIG_CHANNEL'/>
+        <enum-item name='CHOP'/>
+        <enum-item name='GATHER'/>
+        <enum-item name='SMOOTH'/>
+        <enum-item name='TRACK'/>
+        <enum-item name='ENGRAVE'/>
+        <enum-item name='FORTIFY'/>
+        <enum-item name='REMOVE_CONSTRUCTION'/>
+        <enum-item name='CLAIM'/>
+        <enum-item name='UNCLAIM'/>
+        <enum-item name='MELT'/>
+        <enum-item name='NO_MELT'/>
+        <enum-item name='DUMP'/>
+        <enum-item name='NO_DUMP'/>
+        <enum-item name='HIDE'/>
+        <enum-item name='NO_HIDE'/>
+        <enum-item name='TOGGLE_ENGRAVING'/>
+        <enum-item name='DIG_FROM_MARKER'/>
+        <enum-item name='DIG_TO_MARKER'/>
+        <enum-item name='CHOP_FROM_MARKER'/>
+        <enum-item name='CHOP_TO_MARKER'/>
+        <enum-item name='GATHER_FROM_MARKER'/>
+        <enum-item name='GATHER_TO_MARKER'/>
+        <enum-item name='SMOOTH_FROM_MARKER'/>
+        <enum-item name='SMOOTH_TO_MARKER'/>
+        <enum-item name='DESIGNATE_TRAFFIC_HIGH'/>
+        <enum-item name='DESIGNATE_TRAFFIC_NORMAL'/>
+        <enum-item name='DESIGNATE_TRAFFIC_LOW'/>
+        <enum-item name='DESIGNATE_TRAFFIC_RESTRICTED'/>
+        <enum-item name='ERASE'/>
+    </enum-type>
 
     <struct-type type-name='gamest'>
-        dtor 0x8535ee0
-        <compound name='designation' since='v0.40.20'>
-            <bool name='marker_only'/>
-            <bool name='priority_set' comment='set to one if using +/-'/>
-            <int32_t name='priority' init-value='4000' comment='*1000'/>
-            <enum name='mine_mode'>
-                <enum-item name='All'/>
-                <enum-item name='AutoMine'/>
-                <enum-item name='Economic'/>
-                <enum-item name='Gems'/>
-            </enum>
-            <int32_t/>
-            <int8_t/>
-            <stl-string/>
-            <stl-string/>
-            <stl-string/>
-            <stl-string/>
-            <int32_t/>
-        </compound>
+        <compound name='main_interface'>
+            <compound name='designation' since='v0.40.20'>
+                <bool name='marker_only'/>
+                <bool name='show_priorities' comment='set to one if using +/-'/>
+                <int32_t name='priority' init-value='4000' comment='*1000'/>
+                <enum type-name='mine_mode_type' name='mine_mode'/>
+                <bool name='show_advanced_options'/>
+                <bool name='entering_traffic_high_str'/>
+                <bool name='entering_traffic_normal_str'/>
+                <bool name='entering_traffic_low_str'/>
+                <bool name='entering_traffic_restricted_str'/>
+                <stl-string name='traffic_high_str'/>
+                <stl-string name='traffic_normal_str'/>
+                <stl-string name='traffic_low_str'/>
+                <stl-string name='traffic_restricted_str'/>
+                <bool name='sliding_traffic_high'/>
+                <bool name='sliding_traffic_normal'/>
+                <bool name='sliding_traffic_low'/>
+                <bool name='sliding_traffic_restricted'/>
+            </compound>
 
-        <compound name='workshop_job'>
-            <stl-vector name='choices_all' pointer-type='interface_button_buildingst'/>
-            <stl-vector name='choices_visible' pointer-type='interface_button_buildingst'/>
-            <stl-vector/>
+            <compound name='building'>
+                <stl-vector name='button' pointer-type='interface_button'/>
+                <stl-vector name='press_button' pointer-type='interface_button'/>
+                <stl-vector name='filtered_button' pointer-type='interface_button'/>
 
-            <int32_t name="cursor"/>
-            <int32_t name="category_id" comment='weapons, armor, etc'/>
+                <int32_t name='selected'/>
+                <enum name='category' type-name='interface_category_building'/>
 
-            <int16_t name="mat_type" ref-target='material' aux-value='$$.mat_index'/>
-            <int32_t name="mat_index"/>
-            <bitfield name='material_category' type-name='job_material_category'/>
+                <int16_t name='material' ref-target='material' aux-value='$$.mat_index'/>
+                <int32_t name='matgloss'/>
+                <bitfield name='job_item_flag' type-name='job_material_category'/>
 
-            <stl-string name='unk_1' since='v0.42.01'/>
-            <stl-vector name='use_tooltip_lines' pointer-type='stl-string' since='v0.42.01'/>
-        </compound>
+                <stl-string name='current_custom_category_token' since='v0.42.01'/>
+                <stl-vector name='current_tool_tip' pointer-type='stl-string' since='v0.42.01'/>
+            </compound>
 
-        <compound name='building'>
-            <stl-vector name='choices_all' pointer-type='interface_button_constructionst'/>
-            <stl-vector name='choices_visible' pointer-type='interface_button_constructionst'/>
+            <compound name='construction'>
+                <stl-vector name='button' pointer-type='interface_button'/>
+                <stl-vector name='press_button' pointer-type='interface_button'/>
 
-            <int32_t name="category_id"/>
-            <int32_t name="cursor"/>
+                <enum name='category' type-name='interface_category_construction'/>
+                <int32_t name='selected'/>
 
-            <stl-vector/>
-            <pointer/>
-            <int8_t/>
-        </compound>
+                <stl-vector pointer-type='construction_interface_pagest' name='page'/>
+                <int32_t name='max_height'/>
+                <int32_t name='total_width'/>
+                <bool name='must_update_buttons'/>
+                <int32_t name='bb_placement_type'/>
+                <int32_t name='bb_placement_subtype'/>
+                <int32_t name='bb_placement_custom_building_id'/>
+                <stl-string name='item_filter'/>
+                <bool name='entering_item_filter'/>
+                <bool name='scrolling_item'/>
+                <int32_t name='scroll_position_item'/>
+            </compound>
 
-        <compound name='unk_198'>
-            <int32_t/>
-            <int32_t/>
-            <stl-string/>
-            <int8_t/>
-            <int8_t/>
-            <int32_t/>
-            <int8_t/>
-            <int8_t/>
-            <int8_t/>
-            <int8_t/>
-            <int8_t/>
-            <int8_t/>
-            <int8_t/>
-            <int8_t/>
-            <int32_t/>
-            <pointer/>
-            <stl-vector/>
-            <stl-vector/>
-            <pointer/>
-            <int8_t/>
-            <pointer/>
-            <int8_t/>
-            <int8_t/>
-            <int32_t/>
-            <int8_t/>
-            <int8_t/>
-            <int32_t/>
-        </compound>
+            <compound name='civzone'>
+                <bool name='remove'/>
+                <enum name='flow_shape' type-name='room_flow_shape_type'/>
+                <bool name='doing_rectangle'/>
+                <bool name='doing_multizone'/>
+                <bool name='last_doing_multizone'/>
+                <bool name='box_on_left'/>
+                <bool name='erasing'/>
+                <int32_t name='adding_new_type'/>
+                <pointer name='cur_bld' type-name='building_civzonest'/>
+                <stl-vector name='list' pointer-type='building_civzonest'/>
+                <stl-vector name='zone_just_created' pointer-type='building_civzonest'/>
+                <int32_t name='furniture_rejected_in_use'/>
+                <int32_t name='furniture_rejected_not_enclosed'/>
+                <int8_t name='repainting'/>
+            </compound>
+
+            <compound name='burrow'>
+                <pointer name='painting_burrow' type-name='burrow'/>
+                <bool name='doing_rectangle'/>
+                <bool name='erasing'/>
+                <int32_t name='scroll_position'/>
+                <bool name='scrolling'/>
+                <bool name='entering_name'/>
+                <int32_t name='entering_name_index'/>
+            </compound>
+
+            <compound name='view'>
+                <stl-vector name='inv' pointer-type='unit_inventory_item'/>
+                <stl-vector name='contam' pointer-type='spatter'/>
+                <stl-vector name='guest_text' since='v0.42.01'/>
+
+                <bool name='uniform_selection' since='v0.34.08'/>
+                <int32_t name='selected_uniform' since='v0.34.08'/>
+                <int32_t name='selected_squad' since='v0.34.08'/>
+
+                <stl-vector name='squad_list_sq' since='v0.34.08' pointer-type='squad'/>
+                <stl-vector name='squad_list_ep' since='v0.34.08' pointer-type='entity_position'/>
+                <stl-vector name='squad_list_epp' since='v0.34.08' pointer-type='entity_position_assignment'/>
+                <stl-bit-vector name='squad_list_has_subord_pos' since='v0.34.08'/>
+                <stl-vector name='squad_list_add_index' type-name='int32_t' since='v0.34.08'/>
+
+                <pointer name='create_ep' type-name='entity_position'/>
+                <pointer name='create_epp' type-name='entity_position_assignment'/>
+                <pointer name='create_sub_ep' type-name='entity_position'/>
+                <bool name='can_remove_from_squad'/>
+                <bool name='stuck_commander'/>
+                <bool name='have_calced_info'/>
+                <bool name='naming_squad'/>
+                <pointer type-name='squad' name='name_squad'/>
+                <stl-vector name='expel_total_list' pointer-type='unit'/>
+                <stl-vector name='expel_outskirt_list' pointer-type='world_site' since='v0.44.11'/>
+                <int32_t name='expel_outskirt_list_selected' since='v0.44.11'/>
+                <int8_t name='expel_selecting_destination' since='v0.44.11'/>
+                <enum name='expel_cannot_expel_reason' type-name='cannot_expel_reason_type' since='v0.44.11'/>
+            </compound>
+
+            <compound name='hospital' since='v0.44.11'>
+                <int32_t name='cur_scroll'/>
+                <int32_t name='bed_count'/>
+                <int32_t name='table_count'/>
+                <int32_t name='traction_bench_count'/>
+                <int32_t name='box_count'/>
+            </compound>
+
+            <compound name='location_list'>
+                <stl-vector name='valid_ab' pointer-type='abstract_building' since='v0.42.01'/>
+                <int32_t name='selected_ab' since='v0.42.01'/>
+
+                <stl-vector name='valid_religious_practice' type-name='temple_deity_type'/>
+                <stl-vector name='valid_religious_practice_id' type-name='temple_deity_data'/>
+                <int32_t name='selected_religious_practice'/>
+                <bool name='choosing_location_type'/>
+                <bool name='choosing_temple_religious_practice'/>
+                <bool name='choosing_craft_guild'/>
+                <stl-vector name='valid_craft_guild_type' type-name='profession' since='v0.47.01'/>
+                <int32_t name='selected_craft_guild'/>
+            </compound>
+
+            <compound name='job_details' since='v0.42.06'>
+                <bool name='open'/>
+                <enum name='context' type-name='job_details_context_type'/>
+                <pointer name='jb' type-name='job'/>
+                <pointer name='wq' type-name='manager_order'/>
+                <enum name='current_option' type-name='job_details_option_type'/>
+                <int32_t name='current_option_index'/>
+
+                <stl-vector name='option' type-name='job_details_option_type'/>
+                <stl-vector name='option_index' type-name='int32_t'/>
+                <int32_t name='scroll_position_option'/>
+                <bool name='scrolling_option'/>
+                <compound name='search' type-name='coord'/>
+                <pointer name='bld' type-name='building'/>
+
+                <stl-vector name='material' type-name='int16_t'/>
+                <stl-vector name='matgloss' type-name='int32_t'/>
+                <stl-vector name='material_count' type-name='int32_t'/>
+                <stl-vector name='material_master' type-name='int16_t'/>
+                <stl-vector name='matgloss_master' type-name='int32_t'/>
+                <stl-vector name='material_count_master' type-name='int32_t'/>
+                <int32_t name='scroll_position_material'/>
+                <bool name='scrolling_material'/>
+                <stl-string name='material_filter'/>
+                <bool name='material_doing_filter'/>
+
+                <stl-vector name='clothing_size_race_index' type-name='int32_t' comment='race id'/>
+                <stl-vector name='clothing_size_race_index_master' type-name='int32_t' comment='race id'/>
+                <int32_t name='scroll_position_race'/>
+                <bool name='scrolling_race'/>
+                <stl-string name='clothing_size_race_filter'/>
+                <bool name='clothing_size_race_doing_filter'/>
+
+                <stl-vector name='improvement_type' type-name='improvement_type'/>
+                <int32_t name='scroll_position_improvement'/>
+                <bool name='scrolling_improvement'/>
+            </compound>
+
+            <compound name='buildjob'>
+                <pointer name='display_furniture_bld' type-name='building_display_furniturest' since='v0.44.01'/>
+                <int32_t name='display_furniture_selected_item' since='v0.44.01'/>
+            </compound>
+
+            <compound name='assign_trade'>
+                <bool name='open'/>
+                <pointer type-name='building_tradedepotst' name='trade_depot_bld'/>
+                <stl-vector type-name='int16_t' name='type_list'/>
+                <stl-vector type-name='int16_t' name='filtered_type_list'/>
+                <enum type-name='item_type' base-type='int16_t' name='current_type'/>
+                <int32_t name='scroll_position_type'/>
+                <int32_t name='scroll_position_item'/>
+                <bool name='scrolling_type'/>
+                <bool name='scrolling_item'/>
+                <stl-string name='item_filter'/>
+                <bool name='entering_item_filter'/>
+                <stl-vector type-name='int32_t' name='storeamount'/>
+                <stl-vector type-name='int32_t' name='badamount'/>
+
 <!--
-        <compound name='zone'>
-            <bool name='remove'/>
-            <padding name='pad_1' size='1'/>
-            <enum name='mode' base-type='int16_t'>
-                <enum-item name='Rectangle'/>
-                <enum-item name='Flow'/>
-                <enum-item name='FloorFlow'/>
-            </enum>
-
-            <pointer name='selected' type-name='building_civzonest'/>
-        </compound>
+            assign_trade_itemlistst master_i_list;
+            abstractitemlistst master_a_list;
 -->
 
-        <compound name='unit'>
-            <stl-vector name='inv_items' pointer-type='unit_inventory_item'/>
-            <stl-vector name='inv_spatters' pointer-type='spatter'/>
-            <stl-vector name='unk_1' since='v0.42.01'/>
-
-            <bool name="in_new_squad" since='v0.34.08'/>
-            <int32_t name="cursor_uniform" since='v0.34.08'/>
-            <int32_t name="unk_88n_cursor" since='v0.34.08'/>
-
-            <stl-vector name='squads' since='v0.34.08' pointer-type='squad'/>
-            <stl-vector name='squad_pos' since='v0.34.08' pointer-type='entity_position'/>
-            <stl-vector name='squad_assn' since='v0.34.08' pointer-type='entity_position_assignment'/>
-            <stl-bit-vector name='squad_unk1' since='v0.34.08'/>
-            <stl-vector name='squad_unk2' since='v0.34.08'/>
-
-            <pointer name='unk_2a' type-name='entity_position'/>
-            <pointer name='unk_2b' type-name='entity_position_assignment'/>
-            <pointer name='unk_2c' type-name='entity_position'/>
-            <bool name='unk3'/>
-            <bool name='unk4'/>
-            <bool name='squad_list_opened'/>
-            <bool name='unk5'/>
-            <pointer type-name='squad' name='rename_squad'/>
-            <stl-vector name="unk_88"/>
-            <stl-vector name='unk_44_11a' since='v0.44.11'/>
-            <int32_t name='unk_44_11b' since='v0.44.11'/>
-            <int8_t name='unk_44_11c' since='v0.44.11'/>
-            <enum name='expel_error' base-type='int32_t' since='v0.44.11'>
-                <enum-item name='NONE' value='-1'/>
-                <enum-item name='NOBILITY'/>
-                <enum-item name='HOLDS_OFFICE'/>
-                <enum-item name='DOES_EXPELLING'/>
-                <enum-item name='SPOUSE_IS_NOT_PRESENT'/>
-                <enum-item name='SPOUSE_IS_NOBILITY'/>
-                <enum-item name='SPOUSE_IS_ELECTED'/>
-                <enum-item name='SPOUSE_DOES_EXPELLING'/>
-                <enum-item name='CHILD_IS_NOT_PRESENT'/>
-                <enum-item name='CHILD_IS_NOBILITY'/>
-                <enum-item name='CHILD_IS_ELECTED'/>
-                <enum-item name='CHILD_DOES_EXPELLING'/>
-            </enum>
-        </compound>
-
-        <compound name='hospital' since='v0.44.11'>
-            <int32_t name='selected_line'/>
-            <int32_t name='beds'/>
-            <int32_t name='tables'/>
-            <int32_t name='traction_benches'/>
-            <int32_t name='containers'/>
-        </compound>
-
-        <compound name='location'>
-            <stl-vector name='list' pointer-type='abstract_building' since='v0.42.01'/>
-            <int32_t name='cursor' since='v0.42.01'/>
-
-            <stl-vector name='deity_type' type-name='temple_deity_type'/>
-            <stl-vector name='deity_data' type-name='temple_deity_data'/>
-            <int32_t name='cursor_deity'/>
-            <bool name='in_create'/>
-            <bool name='in_choose_deity'/>
-            <bool name='in_choose_profession'/>
-            <stl-vector name='profession' type-name='profession' since='v0.47.01'/>
-            <int32_t name='cursor_profession'/>
-        </compound>
-
-        <compound name='job_details' since='v0.42.06'>
-            <pointer name='job' type-name='job'/>
-            <pointer name='order' type-name='manager_order'/>
-            <pointer/>
-            <pointer/>
-
-            <stl-vector name='detail_type' type-name='int32_t' comment='0-material, 1-image, 2-size, 3-type'/>
-            <stl-vector name='detail_material_type' type-name='int32_t'/>
-            <int32_t name='detail_cursor'/>
-            <int32_t name='setting_detail_type'/>
-            <compound name='pos' type-name='coord'/>
-            <pointer name='workshop' type-name='building_workshopst'/>
-
-            <stl-vector name='mat_type_visible' type-name='int16_t'/>
-            <stl-vector name='mat_index_visible' type-name='int32_t'/>
-            <stl-vector name='mat_amount_visible' type-name='int32_t'/>
-            <stl-vector name='mat_type_all' type-name='int16_t'/>
-            <stl-vector name='mat_index_all' type-name='int32_t'/>
-            <stl-vector name='mat_amount_all' type-name='int32_t'/>
-            <int32_t name='mat_cursor'/>
-            <stl-string name='mat_filter'/>
-            <bool name='editing_mat_filter'/>
-
-            <stl-vector name='sizes_visible' type-name='int32_t' comment='race id'/>
-            <stl-vector name='sizes_all' type-name='int32_t' comment='race id'/>
-            <int32_t name='size_cursor'/>
-            <stl-string name='size_filter'/>
-            <bool name='editing_size_filter'/>
-
-            <stl-vector name='decoration_types' type-name='int32_t' comment='0-image, 1-covered, 2-rings, 3-bands, 4-spikes'/>
-            <int32_t name='decoration_cursor'/>
-            <pointer name='selected_display_furniture' type-name='building_display_furniturest' since='v0.44.01'/>
-            <int32_t name='displayed_items_cursor' since='v0.44.01'/>
-        </compound>
-
-        <compound name='trade1'>
-            <int8_t/>
-            <pointer/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector type-name='int16_t'/>
-            <int16_t/>
-            <int32_t/>
-            <int32_t/>
-            <int8_t/>
-            <int8_t/>
-            <stl-string/>
-            <int8_t/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <pointer/>
-            <int32_t/>
-            <stl-vector/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <pointer/>
-            <stl-vector type-name='int32_t'/>
-            <pointer/>
-            <stl-vector type-name='int32_t'/>
-            <int8_t/>
-            <int8_t/>
-            <int8_t/>
-        </compound>
-
-        <compound name='trade2'>
-            <int8_t/>
-            <int8_t/>
-            <stl-vector/>
-            <int32_t/>
-            <int8_t/>
-            <stl-string/>
-            <stl-string/>
-            <stl-string/>
-            <stl-string/>
-            <pointer/>?
-            <pointer/>
-            <pointer/>
-            <pointer/>
-            <pointer/>?
-            <pointer/>?
-            <pointer/>?
-            <static-array count='2'><stl-vector/></static-array>
-            <static-array count='2'><stl-vector type-name='int8_t'/></static-array>
-            <static-array count='2'><stl-vector type-name='int32_t'/></static-array>
-            <static-array count='2'><int32_t/></static-array>
-            <static-array count='2'><stl-vector type-name='int32_t'/></static-array>
-            <static-array count='2'><stl-vector type-name='int32_t'/></static-array>
-            <static-array count='2'><stl-vector type-name='int32_t'/></static-array>
-            <static-array count='2'><pointer/></static-array>
-            <static-array count='2'><stl-vector type-name='int32_t'/></static-array>
-            <static-array count='2'><stl-vector type-name='int32_t'/></static-array>
-            <static-array count='2'><stl-vector type-name='int32_t'/></static-array>
-            <static-array count='2'><pointer/></static-array>
-            <static-array count='2'><stl-vector type-name='int32_t'/></static-array>
-            <static-array count='2'><pointer/></static-array>
-            <static-array count='2'><stl-vector type-name='int32_t'/></static-array>
-            <static-array count='2'><int32_t/></static-array>
-            <static-array count='2'><int8_t/></static-array>
-            <static-array count='2'><stl-string/></static-array>
-            <static-array count='2'><int8_t/></static-array>
-            <int16_t/>
-            <int8_t/>
-            <int8_t/>
-            <int8_t/>
-            <stl-vector/>
-            <int32_t/>
-            <int8_t/>
-            <stl-string/>
-            <stl-vector pointer-type='stl-string'/>
-        </compound>
-
-        <int32_t/>
-        <int8_t/>
-
-        <compound name='unk_bd8'>
-            <int8_t/>
-            <pointer/>
-            <pointer/>
-            <pointer/>
-            <int32_t/>
-            <int32_t/>
-            <uint32_t name='flags'/>
-            <compound type-name='ui_sidebar_menus_5800' name='unk_30'/>
-            <int8_t/>
-            <int8_t/>
-            <pointer/>?
-            <pointer/>?
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <int32_t/>
-            <int8_t/>
-            <int32_t/>
-            <int8_t/>
-            <pointer/>?
-            <stl-vector type-name='int16_t'/>
-        </compound>
-        <int32_t/>
-        <int8_t/>
-        <int32_t/>
-        <int8_t/>
-        <int32_t/>
-        <int32_t/>
-        <int8_t/>
-        <pointer/>
-        <pointer/>
-        <pointer/>
-        <pointer/>
-        <pointer/>
-        <pointer/>
-        <int8_t/>
-
-        <compound name='unit_cursor'>
-            <stl-vector name='list' type-name='int32_t' refers-to='$global.world.units.active[$]'/>
-
-            <int8_t name='unk_a0'/>
-            <int8_t name='unk_a1'/>
-            <int32_t/>
-        </compound>
-
-        <int8_t/>
-
-        <compound name='unk_d58'>
-            <int8_t/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector type-name='int16_t'/>
-            <int16_t/>
-            <int32_t/>
-            <int32_t/>
-            <int8_t/>
-            <stl-string/>
-            <int8_t/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <pointer/>
-            <int32_t/>
-            <stl-vector/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <pointer/>
-            <stl-vector type-name='int32_t'/>
-            <pointer/>
-            <stl-vector type-name='int32_t'/>
-        </compound>
-
-        <compound name='unk_f80'>
-            <int8_t/>
-            <pointer/>?
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector type-name='int16_t'/>
-            <int16_t/>
-            <int32_t/>
-            <int32_t/>
-            <int8_t/>
-            <int8_t/>
-            <stl-string/>
-            <int8_t/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <pointer/>
-            <int32_t/>
-            <stl-vector/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <pointer/>
-            <stl-vector type-name='int32_t'/>
-            <pointer/>
-        </compound>
-
-        <compound name='unk_11b0'>
-            <int8_t/>
-            <int32_t/>
-            <pointer/>
-            <pointer/>
-            <int32_t/>
-            <int32_t/>?
-            <int32_t/>
-            <static-array count='6'><stl-vector type-name='int32_t'/></static-array>
-            <static-array count='6'><stl-vector type-name='int32_t'/></static-array>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <int32_t/>
-            <int16_t/>
-            <int8_t/>
-            <stl-string/>
-            <pointer/>
-            <pointer/>
-        </compound>
-
-        <compound name='unk_1360'>
-            <int8_t/>
-            <int32_t/>
-            <stl-string/>
-            <int32_t/>
-            <int8_t/>
-            <int32_t/>
-            <int8_t/>
-            <stl-string/>
-            <int8_t/>
-            <stl-string/>
-            <stl-vector/>
-            <stl-vector/>
-            <stl-vector/>
-            <stl-vector/>
-            <stl-vector/>
-            <stl-vector/>
-            <stl-vector/>
-            <stl-vector/>
-            <stl-vector/>
-            <stl-vector/>
-            <stl-vector/>
-            <stl-vector/>
-            <stl-vector/>
-            <stl-vector/>
-            <compound type-name='ui_sidebar_menus_1360_1d0' name='unk_1d0'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <pointer/>
-            <stl-vector type-name='int32_t'/>
-            <pointer/>?
-            <pointer/>?
-            <stl-vector pointer-type='stl-string'/>
-            <int8_t/>
-            <int32_t/>
-            <int32_t/>
-            <stl-vector pointer-type='stl-string'/>
-            <int32_t/>
-            <int32_t/>
-            <pointer/>?
-            <pointer/>
-            <pointer/>
-            <pointer/>
-            <pointer/>
-            <pointer/>
-            <pointer/>
-            <pointer/>
-            <pointer/>
-            <int32_t/>
-        </compound>
-
-        <compound name='unk_17f8'>
-            <int8_t/>
-            <int32_t/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <int32_t/>
-            <static-array type-name='int8_t' count='149'/>
-            <int32_t/>
-            <pointer/>
-            <pointer/>
-            <pointer/>
-            <pointer/>
-            <int32_t/>
-            <int32_t/>
-            <pointer/>
-            <int8_t/>
-        </compound>
-
-        <compound name='unk_1938'>
-            <int8_t/>
-            <pointer/>
-            <int8_t/>
-            <stl-vector type-name='int32_t'/>
-            <pointer/>
-            <stl-vector/>
-            <stl-vector/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector pointer-type='stl-string'/>
-            <pointer/>
-            <int32_t/>
-            <int8_t/>
-            <pointer/>
-            <int16_t/>
-            <stl-vector type-name='int32_t'/>
-            <pointer/>
-            <stl-vector/>
-            <stl-vector pointer-type='stl-string'/>
-            <pointer/>
-            <int32_t/>
-            <int8_t/>
-        </compound>
-
-        <int8_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int16_t/>
-        <int16_t/>?
-        <int8_t/>
-        <int8_t/>
-        <static-array type-name='int8_t' count='360'/>
-        <static-array type-name='int8_t' count='360'/>
-        <static-array type-name='int8_t' count='360'/>
-
-        <compound name='unk_1ea8'>
-            <int8_t/>
-            <int32_t/>
-            <int32_t/>
-            <int8_t/>
-            <stl-string/>
-            <int8_t/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector/>
-            <int32_t/>
-            <int8_t/>
-        </compound>
-
-        <compound name='unk_1f48'>
-            <int8_t/>
-            <int32_t/>
-            <int32_t/>
-            <int8_t/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <int32_t/>
-            <int8_t/>
-            <pointer/>?
-            <stl-string/>
-            <int8_t/>
-            <int32_t/>
-            <int8_t/>
-            <int32_t/>
-            <int8_t/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <int32_t/>?
-            <int16_t/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <pointer/>
-            <int8_t/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector type-name='int32_t'/>
-            <int8_t/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <pointer/>
-            <int8_t/>
-            <stl-vector type-name='int32_t'/>
-        </compound>
-
-        <compound name='unk_21f8'>
-            <int8_t/>
-            <int32_t/>
-            <int32_t/>
-            <int8_t/>
-            <int32_t/>
-            <int8_t/>
-            <int32_t/>
-            <stl-vector type-name='int32_t'/>
-            <int32_t/>
-            <int32_t/>
-            <int8_t/>
-            <int32_t/>
-            <int8_t/>
-            <stl-string/>
-            <int8_t/>
-            <int32_t/>
-            <int32_t/>?
-            <int32_t/>
-            <int32_t/>
-            <int32_t/>
-            <int8_t/>
-            <int32_t/>
-            <stl-vector type-name='int32_t'/>
-            <int32_t/>
-            <int32_t/>
-            <int8_t/>
-            <int32_t/>?
-            <int8_t/>
-            <int32_t/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <pointer/>
-            <int32_t/>
-            <int8_t/>
-        </compound>
-
-        <compound name='unk_22f8'>
-            <int8_t/>
-            <int32_t/>
-            <stl-vector/>
-            <int32_t/>
-            <int8_t/>
-            <int32_t/>
-            <int8_t/>
-            <stl-vector type-name='int32_t'/>
-            <int32_t/>
-            <int8_t/>
-            <int8_t/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int16_t'/>
-            <int32_t/>
-            <int8_t/>
-        </compound>
-
-        <compound name='unk_2380'>
-            <int8_t/>
-            <int32_t/>
-            <pointer/>
-            <pointer/>
-            <pointer/>
-            <stl-vector/>
-            <stl-vector/>
-            <stl-vector/>
-            <stl-vector/>
-            <int32_t/>
-            <int8_t/>
-            <stl-string/>
-            <pointer/>
-            <int8_t/>
-            <int32_t/>
-            <int32_t/>
-            <int32_t/>
-            <int32_t/>
-            <int8_t/>
-            <int8_t/>?
-            <int8_t/>?
-            <int8_t/>?
-            <int8_t/>
-            <int32_t/>
-            <stl-vector/>
-            <int32_t/>
-            <int32_t/>
-            <int8_t/>
-            <int32_t/>?
-            <int8_t/>
-            <int8_t/>
-            <int8_t/>
-            <int8_t/>
-            <pointer/>
-            <int8_t/>
-            <int32_t/>
-            <int32_t/>
-            <int32_t/>
-            <int32_t/>
-            <int32_t/>
-            <int8_t/>
-            <int8_t/>
-            <int32_t/>
-            <int8_t/>
-            <int32_t/>
-            <int32_t/>
-            <int8_t/>
-            <int8_t/>
-            <int8_t/>
-            <stl-string/>
-        </compound>
-
-        <compound name='unk_24d8'>
-            <int8_t/>
-            <int32_t/>
-            <int32_t/>
-            <int32_t/>
-            <int8_t/>
-            <int8_t/>
-            <int8_t/>
-            <stl-string/>
-            <int8_t/>
-            <pointer/>
-            <pointer/>
-            <int32_t/>
-            <int32_t/>
-            <int32_t/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector/>
-            <stl-vector/>
-        </compound>
-
-        <int32_t/>
-        <int32_t/>
-
-        <compound name='unk_25d0'>
-            <int8_t/>
-            <int32_t/>
-            <int32_t/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <int32_t/>
-            <int32_t/>
-            <int32_t/>
-            <int32_t/>
-            <int32_t/>
-            <int8_t/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <int32_t/>
-            <static-array type-name='int8_t' count='76'/>
-            <int32_t/>
-            <pointer/>
-            <pointer/>
-            <pointer/>
-            <pointer/>
-            <static-array type-name='int8_t' count='1788'/>
-            <int32_t/>
-            <static-array type-name='int8_t' count='1788'/>
-            <int32_t/>
-            <static-array type-name='int8_t' count='1788'/>
-            <int32_t/>
-            <stl-vector/>
-            <stl-vector/>
-            <stl-vector type-name='int32_t'/>
-            <pointer/>
-            <static-array type-name='int8_t' count='360'/>
-            <int32_t/>
-            <stl-vector pointer-type='stl-string'/>
-            <stl-vector/>
-            <int32_t/>
-            <int32_t/>
-            <int8_t/>
-            <int32_t/>
-            <int8_t/>
-            <stl-vector pointer-type='stl-string'/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector/>
-            <stl-vector/>
-            <stl-vector/>
-            <stl-vector type-name='int32_t'/>
-            <int8_t/>
-            <int8_t/>
-            <int8_t/>
-            <stl-string/>
-            <int8_t/>
-            <int32_t/>
-            <int32_t/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <int32_t/>
-            <int8_t/>
-            <stl-vector pointer-type='stl-string'/>
-            <int32_t/>
-            <int8_t/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <pointer/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <int32_t/>
-            <int8_t/>
-            <int32_t/>
-            <stl-vector pointer-type='stl-string'/>
-            <stl-vector/>
-            <pointer/>
-            <int8_t/>
-            <int32_t/>
-            <stl-vector pointer-type='stl-string'/>
-            <stl-vector/>
-            <int32_t/>
-            <int32_t/>
-            <int32_t/>
-            <int8_t/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <int32_t/>
-            <int8_t/>
-            <int32_t/>
-            <int8_t/>
-            <int32_t/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector pointer-type='stl-string'/>
-            <stl-vector/>
-            <int32_t/>
-            <int32_t/>
-            <int32_t/>?
-            <int8_t/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <pointer/>
-            <int8_t/>
-            <int32_t/>
-            <int8_t/>
-            <stl-vector pointer-type='stl-string'/>
-            <stl-vector/>
-            <int32_t/>?
-            <int32_t/>
-            <int32_t/>
-            <int8_t/>
-            <stl-vector pointer-type='stl-string'/>
-            <stl-vector/>
-            <int32_t/>
-            <stl-string/>
-            <stl-vector pointer-type='stl-string'/>
-            <int32_t/>
-            <int32_t/>
-            <int8_t/>
-            <int32_t/>
-            <pointer/>?
-            <stl-string/>
-            <int8_t/>
-            <int32_t/>
-            <int8_t/>
-            <int32_t/>
-            <int8_t/>
-            <int8_t/>
-            <int8_t/>
-            <int32_t/>
-            <int32_t/>
-            <int32_t/>
-            <int8_t/>
-            <int32_t/>
-            <int8_t/>
-            <int8_t/>
-            <stl-string/>
-            <stl-vector type-name='int32_t'/>
-            <int32_t/>?
-            <int8_t/>
-            <stl-string/>
-            <int8_t/>
-            <int8_t/>
-            <stl-string/>
-            <int32_t/>
-            <stl-string/>
-            <stl-string/>
-            <stl-vector pointer-type='stl-string'/>
-            <int32_t/>
-            <int32_t/>
-            <int8_t/>
-            <int32_t/>
-            <int8_t/>
-            <stl-vector pointer-type='stl-string'/>
-            <stl-vector type-name='int32_t'/>
-        </compound>
-
-        <compound name='unk_4428'>
-            <int8_t/>
-            <int32_t/>
-            <compound name='unk_8'>
-                <int8_t/>
-                <static-array count='4'><stl-vector/></static-array>
-                <static-array count='4' type-name='int8_t'/>
-                <static-array count='4' type-name='int32_t'/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <pointer/>?
                 <stl-vector/>
+                <stl-vector type-name='int16_t'/>
+                <stl-vector type-name='int16_t'/>
+                <stl-vector type-name='int16_t'/>
+                <stl-vector type-name='int16_t'/>
                 <stl-vector type-name='int32_t'/>
-                <int8_t/>
-                <int32_t/>
-                <int8_t/>
-                <stl-vector type-name='int32_t'/>
-                <int8_t/>
-                <int32_t/>
-                <int8_t/>
-                <pointer/>?
+                <stl-bit-vector/>
+
+                <int32_t name='i_height'/>
+                <stl-vector name='current_type_tgi'/>
+                <stl-vector type-name='int32_t' name='current_type_a_subtype'/>
+                <stl-vector type-name='int32_t' name='current_type_a_subcat1'/>
+                <stl-vector type-name='int32_t' name='current_type_a_subcat2'/>
+                <stl-vector type-name='int32_t' name='current_type_a_amount'/>
+                <stl-bit-vector name='current_type_a_expanded'/>
+                <stl-bit-vector name='current_type_a_on'/>
+                <stl-vector type-name='uint32_t' name='current_type_a_flag'/>
+                <bool name='sort_by_distance'/>
+                <bool name='pending_on_top'/>
+                <bool name='exclude_prohib'/>
+            </compound>
+
+            <compound name='trade'>
+                <bool name='open'/>
+
+                <bool name='choosing_merchant'/>
+                <stl-vector pointer-type='caravan_state' name='merlist'/>
+                <int32_t name='scroll_position_merlist'/>
+                <bool name='scrolling_merlist'/>
+
+                <stl-string name='title'/>
+                <stl-string name='talker'/>
+                <stl-string name='fortname'/>
+                <stl-string name='place'/>
+                <pointer type-name='world_site' name='st'/>
+                <pointer type-name='building_tradedepotst' name='bld'/>
+                <pointer type-name='caravan_state' name='mer'/>
+                <pointer type-name='historical_entity' name='civ'/>
+                <int8_t name='stillunloading'/>
+                <int8_t name='havetalker'/>
+                <pointer type-name='unit' name='merchant_trader'/>
+                <pointer type-name='unit' name='fortress_trader'/>
+
+                <static-array name='good' count='2'><stl-vector pointer-type='item'/></static-array>
+                <static-array name='goodflag' count='2'><stl-vector type-name='uint8_t'/></static-array>
+                <static-array name='good_amount' count='2'><stl-vector type-name='int32_t'/></static-array>
+
+                <static-array name='i_height' count='2'><int32_t/></static-array>
+
+                <static-array name='master_type_a_type' count='2'><stl-vector type-name='int32_t'/></static-array>
+                <static-array name='master_type_a_subtype' count='2'><stl-vector type-name='int32_t'/></static-array>
+                <static-array name='master_type_a_expanded' count='2'><stl-bit-vector/></static-array>
+
+                <static-array name='current_type_a_type' count='2'><stl-vector type-name='int32_t'/></static-array>
+                <static-array name='current_type_a_subtype' count='2'><stl-vector type-name='int32_t'/></static-array>
+                <static-array name='current_type_a_expanded' count='2'><stl-bit-vector/></static-array>
+                <static-array name='current_type_a_on' count='2'><stl-bit-vector/></static-array>
+                <static-array name='current_type_a_flag' count='2'><stl-vector type-name='uint32_t'/></static-array>
+
+                <static-array name='scroll_position_item' count='2'><int32_t/></static-array>
+                <static-array name='scrolling_item' count='2'><bool/></static-array>
+                <static-array name='item_filter' count='2'><stl-string/></static-array>
+                <static-array name='entering_item_filter' count='2'><bool/></static-array>
+
+                <int16_t name='talkline' comment='trade reply'/>
+                <int8_t name='buildlists'/>
+                <int8_t name='handle_appraisal'/>
+
+                <bool name='counter_offer'/>
+                <stl-vector pointer-type='item' name='counter_offer_item'/>
+                <int32_t name='scroll_position_counter_offer'/>
+                <bool name='scrolling_counter_offer'/>
+
+                <int8_t name='entering_amount'/>
+                <stl-string name='amount_str'/>
+
+                <stl-vector pointer-type='stl-string' name='big_announce'/>
+                <int32_t name='scroll_position_big_announce'/>
+                <bool name='scrolling_big_announce'/>
+            </compound>
+
+            <compound name='diplomacy'>
+                <bool name='open'/>
+
+                <pointer type-name='meeting_event' name='mm'/>
+                <pointer type-name='unit' name='actor'/>
+                <pointer type-name='unit' name='target'/>
+
+                <int32_t name='actor_unid'/>
+                <int32_t name='target_unid'/>
+
+                <uint32_t name='flag'/>
+
+                <compound type-name='markup_text_boxst' name='text'/>
+                <bool name='selecting_land_holder_position'/>
+                <bool name='taking_requests'/>
+
+                <pointer type-name='historical_entity' name='land_holder_parent_civ'/>
+                <pointer type-name='historical_entity' name='land_holder_child_civ'/>
+                <stl-vector type-name='int32_t' name='land_holder_pos_id'/>
+                <stl-vector type-name='int32_t' name='land_holder_assigned_hfid'/>
+                <stl-vector type-name='int32_t' name='land_holder_avail_hfid'/>
+                <int32_t name='scroll_position_land_holder_pos'/>
+                <bool name='scrolling_land_holder_pos'/>
+                <int32_t name='scroll_position_land_holder_hf'/>
+                <bool name='scrolling_land_holder_hf'/>
+                <int32_t name='land_holder_selected_pos'/>
+
+                <stl-vector type-name='int16_t' name='taking_requests_tablist'/>
+                <int32_t name='scroll_position_taking_requests_tab'/>
+                <bool name='scrolling_taking_requests_tab'/>
+                <int32_t name='scroll_position_taking_requests_tab_item'/>
+                <bool name='scrolling_taking_requests_tab_item'/>
+                <int32_t name='taking_requests_selected_tab'/>
+
+                <int32_t name='scroll_position_text'/>
+                <bool name='scrolling_text'/>
+
+                <pointer type-name='dipscript_popup' name='dipev'/>
+                <pointer type-name='meeting_diplomat_info' name='parley'/>
+                <compound type-name='meeting_context' name='environment'/>
+            </compound>
+
+            <compound name='petitions'>
+                <bool name='open'/>
+                <bool name='have_responsible_person'/>
+
+                <stl-vector name='agreement_id' type-name='int32_t'/>
+                <int32_t name='selected_agreement_id'/>
+                <int32_t name='scroll_position'/>
+                <bool name='scrolling'/>
+            </compound>
+
+            <compound name='stocks'>
+                <bool name='open'/>
+
+                <stl-vector type-name='int16_t' name='type_list'/>
+                <stl-vector type-name='int16_t' name='filtered_type_list'/>
+                <enum type-name='item_type' base-type='int16_t' name='current_type'/>
+
+                <int32_t name='scroll_position_type'/>
+                <int32_t name='scroll_position_item'/>
+                <bool name='scrolling_type'/>
+                <bool name='scrolling_item'/>
+                <stl-string name='item_filter'/>
+                <bool name='entering_item_filter'/>
+
+                <stl-vector type-name='int32_t' name='storeamount'/>
+                <stl-vector type-name='int32_t' name='badamount'/>
+
+<!--
+        itemlistst master_i_list;
+        abstractitemlistst master_a_list;
+-->
+
                 <stl-vector/>
-                <int8_t/>
-                <int32_t/>
-                <int8_t/>
-                <compound type-name='ui_sidebar_menus_5800' name='unk_128'/>
+                <stl-vector type-name='int16_t'/>
+                <stl-vector type-name='int16_t'/>
+                <stl-vector type-name='int16_t'/>
+                <stl-vector type-name='int16_t'/>
+                <stl-vector type-name='int32_t'/>
+                <stl-bit-vector/>
+
+                <int32_t name='i_height'/>
+                <stl-vector pointer-type='item' name='current_type_i_list'/>
+
+                <stl-vector type-name='int32_t' name='current_type_a_subtype'/>
+                <stl-vector type-name='int32_t' name='current_type_a_subcat1'/>
+                <stl-vector type-name='int32_t' name='current_type_a_subcat2'/>
+                <stl-vector type-name='int32_t' name='current_type_a_amount'/>
+                <stl-bit-vector name='current_type_a_expanded'/>
+                <stl-bit-vector name='current_type_a_on'/>
+                <stl-vector type-name='uint32_t' name='current_type_a_flag'/>
             </compound>
-            <int8_t/>
-            <int32_t/>
-            <stl-vector/>
-            <int8_t/>
-            <int32_t/>
-            <int32_t/>
-            <static-array count='5'><stl-vector/></static-array>
-            <pointer/>?
-            <pointer/>?
-            <pointer/>?
-            <pointer/>?
-            <int32_t/>
-            <int32_t/>?
-            <int32_t/>
-            <int32_t/>
-            <int8_t/>
-            <stl-vector/>
-            <int32_t/>
-            <int8_t/>
-            <int8_t/>
-            <pointer/>
-            <stl-vector type-name='int32_t'/>
-            <int32_t/>
-            <int8_t/>
-            <static-array count='160' type-name='int8_t'/>?
-            <stl-vector/>
-            <stl-vector type-name='int32_t'/>
-            <int32_t/>
-            <int8_t/>
-            <int32_t/>
-            <int8_t/>
-            <compound name='unk_378'>
-                <int32_t/>
-                <static-array count='4'><stl-vector type-name='int16_t'/></static-array>
-                <static-array count='4'><stl-vector type-name='int16_t'/></static-array>
-                <static-array count='4'><stl-vector type-name='int16_t'/></static-array>
-                <static-array count='4'><stl-vector type-name='int32_t'/></static-array>
-                <static-array count='4'><stl-vector type-name='int32_t'/></static-array>
-                <static-array count='4'><stl-vector type-name='int8_t'/></static-array>
-                <static-array count='4'><stl-vector type-name='int8_t'/></static-array>
-                <static-array count='4'><stl-vector pointer-type='stl-string'/></static-array>
+
+            <compound name='assign_display_item'>
+                <bool name='open'/>
+
+                <pointer type-name='building_display_furniturest' name='display_bld'/>
+                <stl-vector type-name='int32_t' name='new_display_itid'/>
+
+                <stl-vector type-name='int16_t' name='type_list'/>
+                <stl-vector type-name='int16_t' name='filtered_type_list'/>
+                <enum type-name='item_type' base-type='int16_t' name='current_type'/>
+
+                <int32_t name='scroll_position_type'/>
+                <int32_t name='scroll_position_item'/>
+                <bool name='scrolling_type'/>
+                <bool name='scrolling_item'/>
+                <stl-string name='item_filter'/>
+                <bool name='entering_item_filter'/>
+
+                <stl-vector type-name='int32_t' name='storeamount'/>
+                <stl-vector type-name='int32_t' name='badamount'/>
+
+<!--
+        itemlistst master_i_list;
+        abstractitemlistst master_a_list;
+-->
+
+                <stl-vector/>
+                <stl-vector type-name='int16_t'/>
+                <stl-vector type-name='int16_t'/>
+                <stl-vector type-name='int16_t'/>
+                <stl-vector type-name='int16_t'/>
+                <stl-vector type-name='int32_t'/>
+                <stl-bit-vector/>
+
+                <int32_t name='i_height'/>
+                <stl-vector pointer-type='item' name='current_type_i_list'/>
+
+                <stl-vector type-name='int32_t' name='current_type_a_subtype'/>
+                <stl-vector type-name='int32_t' name='current_type_a_subcat1'/>
+                <stl-vector type-name='int32_t' name='current_type_a_subcat2'/>
+                <stl-vector type-name='int32_t' name='current_type_a_amount'/>
+                <stl-bit-vector name='current_type_a_expanded'/>
+                <stl-bit-vector name='current_type_a_on'/>
             </compound>
-            <static-array count='24' type-name='int8_t'/>?
-            <compound name='unk_698'>
-                <int32_t/>
-                <static-array count='2'><stl-vector type-name='int32_t'/></static-array>
-                <static-array count='2'><stl-vector/></static-array>
-                <stl-vector pointer-type='stl-string'/>
+
+            <compound name='name_creator'>
+                <bool name='open'/>
+                <enum name='context' type-name='name_creator_context_type'/>
+                <pointer type-name='historical_entity' name='namer'/>
+                <pointer type-name='language_name' name='name'/>
+                <int32_t name='name_type'/>
+                <int32_t name='cur_name_place'/>
+                <int32_t name='cur_word_place'/>
+                <compound type-name='language_word_table' name='word_sel'/>
+                <stl-vector type-name='int32_t' name='word_index'/>
+                <stl-vector type-name='int32_t' name='word_index_asp'/>
+                <int32_t name='scroll_position_word'/>
+                <bool name='scrolling_word'/>
+                <bool name='entering_first_name'/>
+                <bool name='entering_cull_str'/>
+                <stl-string name='cull_str'/>
+                <pointer type-name='activity_event_conversationst' name='adv_naming_pet_actev'/>
+                <pointer type-name='unit' name='named_unit'/>
             </compound>
-            <static-array count='16' type-name='int8_t'/>?
-            <compound name='unk_728'>
-                <int32_t/>
-                <int8_t/>
-                <compound name='unk_8'>
-                    <int8_t/>
-                    <pointer/>
-                    <stl-vector type-name='int32_t'/>
-                    <pointer/>
-                    <stl-vector type-name='int32_t'/>
-                    <pointer/>
-                    <int32_t/>
-                    <int8_t/>
-                    <stl-vector/>
-                    <int32_t/>
-                    <int8_t/>
-                    <stl-string/>
-                    <stl-vector pointer-type='stl-string'/>
-                    <int32_t/>
-                    <int32_t/>?
-                    <int32_t/>?
-                    <int32_t/>?
-                    <int32_t/>
-                    <int8_t/>
-                    <stl-vector type-name='int16_t'/>
-                    <stl-vector type-name='int16_t'/>
-                    <stl-vector type-name='int32_t'/>
-                    <pointer/>
-                    <stl-vector type-name='int16_t'/>
-                    <stl-vector type-name='int32_t'/>
-                    <stl-vector type-name='int16_t'/>
-                    <stl-vector type-name='int32_t'/>
-                    <pointer/>
-                    <stl-vector/>
-                    <int8_t/>
-                    <stl-vector/>
-                    <int32_t/>
-                    <int16_t/>
-                    <stl-string/>
-                    <pointer/>
+
+            <compound name='image_creator'>
+                <bool name='open'/>
+
+                <enum name='context' type-name='image_creator_context_type'/>
+
+                <stl-string name='header'/>
+
+                <enum name='current_option' type-name='image_creator_option_type'/>
+                <bool name='scrolling_list'/>
+                <int32_t name='scroll_position_list'/>
+                <bool name='doing_filter'/>
+                <stl-string name='filter'/>
+                <bool name='entering_number'/>
+                <stl-string name='number_str'/>
+
+                <stl-vector type-name='pointer' name='st_master' comment='site ptr, native name, translated name'/>
+                <stl-vector type-name='pointer' name='ent_master' comment='entity ptr, native name, translated name'/>
+                <stl-vector type-name='pointer' name='plant_master' comment='plant id, name'/>
+                <stl-vector type-name='pointer' name='tree_master' comment='plant id, name'/>
+                <stl-vector type-name='pointer' name='shape_master' comment='shape id, shape adj, name'/>
+                <stl-vector type-name='pointer' name='item_master' comment='item type, item subtype, name'/>
+                <stl-vector type-name='pointer' name='artifact_master' comment='artifact ptr, native name, translated name'/>
+                <stl-vector type-name='pointer' name='hf_master' comment='histfig ptr, native name, translated name'/>
+                <stl-vector type-name='pointer' name='property_master' comment='art property type, bool transitive, name'/>
+
+                <stl-vector pointer-type='historical_figure' name='hf'/>
+                <stl-vector pointer-type='world_site' name='st'/>
+                <stl-vector pointer-type='historical_entity' name='ent'/>
+                <stl-vector pointer-type='history_event' name='hist_event'/>
+                <stl-vector pointer-type='art_image' name='art_image'/>
+
+                <compound type-name='art_image' name='new_image'/>
+                <stl-vector type-name='int32_t' name='new_image_race'/>
+                <stl-vector type-name='int32_t' name='new_image_caste'/>
+                <stl-vector pointer-type='historical_figure' name='new_image_hf'/>
+                <stl-vector type-name='int32_t' name='new_image_plant'/>
+                <stl-vector type-name='int32_t' name='new_image_tree'/>
+                <stl-vector type-name='int32_t' name='new_image_shape'/>
+                <stl-vector type-name='int32_t' name='new_image_shape_adj'/>
+                <stl-vector type-name='int32_t' name='new_image_item'/>
+                <stl-vector type-name='int32_t' name='new_image_item_subtype'/>
+                <stl-vector pointer-type='artifact_record' name='new_image_artifact'/>
+                <stl-vector type-name='int32_t' name='new_image_property'/>
+                <stl-bit-vector name='new_image_property_transitive'/>
+                <stl-vector type-name='int32_t' name='new_image_property_actor_target'/>
+                <int32_t name='new_image_active_property'/>
+                <bool name='new_image_active_property_transitive'/>
+                <int32_t name='new_image_active_property_actor_ind'/>
+                <int32_t name='new_image_active_property_target_ind'/>
+
+                <stl-vector pointer-type='stl-string' name='art_box'/>
+                <bool name='scrolling_art_box'/>
+                <int32_t name='scroll_position_art_box'/>
+                <int32_t name='last_art_box_width'/>
+
+                <stl-vector pointer-type='stl-string' name='selected_box'/>
+                <int32_t name='last_selected_box_width'/>
+                <int32_t name='last_selected_index'/>
+
+                <bool name='back_out_warn'/>
+                <bool name='image_back_out_warn'/>
+                <bool name='must_do_image_back_out_warn'/>
+
+                <compound name='ics'>
+                    <pointer type-name='job' name='jb'/>
+                    <pointer type-name='manager_order' name='wq'/>
+                    <pointer name='location_detail'/>
+                    <pointer type-name='historical_entity' name='image_ent'/>
+                    <pointer type-name='art_image' name='art_image'/>
+                    <pointer name='adv_art_specifier'/>
+                    <pointer type-name='historical_figure' name='hf'/>
+                    <pointer type-name='uint32_t' name='exit_flag'/>
+                    <uint32_t name='flag'/>
                 </compound>
-                <int8_t/>
-                <stl-string/>
-                <pointer/>
-                <int8_t/>
-                <stl-string/>
-                <pointer/>
             </compound>
-            <compound name='unk_978'>
-                <stl-vector/>
-                <stl-vector/>
-                <stl-vector type-name='int32_t'/>
-                <stl-vector type-name='int32_t'/>
-                <int32_t/>
-                <int8_t/>
-                <stl-vector pointer-type='stl-string'/>
-                <int32_t/>?
-                <int32_t/>?
-                <int32_t/>?
-                <int8_t/>
-                <pointer/>?
-                <stl-vector/>
-                <int32_t/>
-                <int8_t/>
-                <int8_t/>
-                <pointer/>?
-                <stl-vector/>
-                <stl-vector type-name='int32_t'/>
-                <stl-vector type-name='int32_t'/>
-                <stl-vector type-name='int32_t'/>
+
+            <compound name='unit_selector'>
+                <bool name='open'/>
+
+                <enum name='context' type-name='unit_selector_context_type'/>
+
+                <stl-vector type-name='int32_t' name='unid'/>
+
+                <stl-vector type-name='int32_t' name='itemid'/>
+                <stl-vector type-name='int32_t' name='selected'/>
+
+                <stl-vector type-name='int32_t' name='already'/>
+
+                <int32_t name='bld_id'/>
+                <static-array type-name='uint8_t' count='149' index-enum='job_skill' name='skill_used'/>
+                <int32_t name='skill_num'/>
+
+                <pointer name='loc_occupation' comment='occupationst'/>
+                <pointer type-name='historical_entity' name='loc_ent'/>
+                <pointer type-name='entity_position' name='loc_position'/>
+                <pointer type-name='entity_position_assignment' name='loc_epp'/>
+
+                <int32_t name='burrow_id'/>
+
+                <int32_t name='squad_id'/>
+                <int32_t name='squad_position'/>
+
+                <int32_t name='scroll_position'/>
+                <bool name='scrolling'/>
             </compound>
-            <int32_t/>
-            <int8_t/>
-            <int32_t/>
-            <int32_t/>?
-            <int32_t/>
-            <static-array count='4'><stl-vector/></static-array>
-            <static-array count='24' type-name='int8_t'/>?
-            <compound name='unk_b28'>
-                <pointer/>
-                <int32_t/>
-                <stl-vector/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int32_t/>
-                <int32_t/>
-                <int8_t/>
-                <stl-vector/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int32_t/>
-                <int32_t/>
-                <int8_t/>
-                <stl-vector/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int32_t/>
-                <int32_t/>
-                <int8_t/>
-                <stl-vector/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <stl-vector/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int32_t/>
-                <stl-vector/>
-                <pointer/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <stl-vector/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <stl-vector/>
-                <stl-vector type-name='int32_t'/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <int8_t/>
-                <stl-vector pointer-type='stl-string'/>
-                <int32_t/>
-                <stl-vector/>
-                <pointer/>
-                <int32_t/>
-                <int8_t/>
-                <int32_t/>
-                <int8_t/>
-                <stl-vector/>
-                <stl-vector/>
-                <stl-vector/>
-                <int32_t/>
-                <int32_t/>
-                <stl-string/>
-                <pointer/>?
-                <pointer/>?
-                <int32_t/>
-                <int8_t/>
-                <stl-vector/>
-                <stl-vector/>
-                <stl-vector/>
-                <stl-vector/>
-                <stl-vector/>
-                <stl-vector/>
+
+            <compound name='announcement_alert'>
+                <bool name='open'/>
+
+                <pointer type-name='report' name='viewing_alert'/>
+                <bool name='viewing_alert_button'/>
+                <stl-bit-vector name='zoom_line_is_start'/>
+                <stl-vector pointer-type='report' name='zoom_line_ann'/>
+                <stl-vector pointer-type='unit' name='zoom_line_unit'/>
+                <stl-vector type-name='int16_t' name='zoom_line_unit_uac'/>
+                <stl-vector pointer-type='stl-string' name='alert_text'/>
+                <int32_t name='alert_width'/>
+                <int32_t name='alert_list_size'/>
+                <int32_t name='scroll_position_alert'/>
+                <bool name='scrolling_alert'/>
+
+                <pointer type-name='unit' name='viewing_unit'/>
+                <int16_t name='viewing_unit_uac'/>
+                <stl-bit-vector name='uac_zoom_line_is_start'/>
+                <stl-vector pointer-type='report' name='uac_zoom_line_ann'/>
+                <stl-vector pointer-type='stl-string' name='uac_text'/>
+                <int32_t name='uac_width'/>
+                <int32_t name='uac_list_size'/>
+                <int32_t name='scroll_position_uac'/>
+                <bool name='scrolling_uac'/>
             </compound>
-        </compound>
 
-        <compound name='unk_5230'>
-            <int8_t/>
-            <int32_t/>
-            <int8_t/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <pointer/>
-            <int32_t/>
-            <stl-vector type-name='int32_t'/>
-            <int8_t/>
-            <stl-string/>
-            <int8_t/>
-            <int8_t/>
-            <stl-vector type-name='int32_t'/>
-            <int8_t/>
-            <int8_t/>
-            <int8_t/>
-            <int32_t/>
-            <int32_t/>
-            <int32_t/>
-            <int8_t/>
-            <stl-vector type-name='int32_t'/>
-            <int32_t/>
-            <int32_t/>
-            <int8_t/>
-            <stl-string/>
-            <int8_t/>
-        </compound>
-
-        <compound name='unk_5348'>
-            <int8_t/>
-            <int32_t/>
-            <int8_t/>
-            <stl-vector/>
-            <stl-vector/>
-            <stl-vector/>
-            <stl-vector/>
-            <stl-vector/>
-            <pointer/>
-            <pointer/>
-            <pointer/>
-            <pointer/>
-            <pointer/>
-        </compound>
-
-        <compound name='unk_53f8'>
-            <int8_t/>
-            <int32_t/>
-            <int8_t/>
-            <int32_t/>
-            <int32_t/>
-            <int8_t/>
-            <stl-vector/>
-            <compound name='orders'>
-                <int8_t/>
-                <int32_t/>
-                <stl-vector pointer-type='manager_order_template' name='orders'/>
-                <stl-vector/>
-                <int32_t/>
-                <int8_t/>
-                <int32_t/>
-                <int32_t/>
-                <int8_t/>
-                <stl-string/>
+            <compound name='custom_symbol'>
+                <bool name='open'/>
+                <enum name='context' type-name='custom_symbol_context_type'/>
+                <int32_t name='burrow_id'/>
+                <int32_t name='work_detail_id'/>
+                <int32_t name='squad_id'/>
+                <int32_t name='scroll_position'/>
+                <bool name='scrolling'/>
+                <bool name='doing_background_color'/>
+                <static-array count='36' name='swatch_r'><static-array type-name='uint8_t' count='10'/></static-array>
+                <static-array count='36' name='swatch_g'><static-array type-name='uint8_t' count='10'/></static-array>
+                <static-array count='36' name='swatch_b'><static-array type-name='uint8_t' count='10'/></static-array>
             </compound>
-            <int8_t/>
-            <int32_t/>?
-            <int8_t/>
-            <int32_t/>
-            <int8_t/>
-            <int32_t/>
-            <int8_t/>
+
+            <compound name='patrol_routes'>
+                <bool name='open'/>
+
+                <enum name='context' type-name='patrol_routes_context_type'/>
+
+                <int32_t name='scroll_position'/>
+                <bool name='scrolling'/>
+
+                <bool name='adding_new_route'/>
+                <stl-string name='new_route_name'/>
+                <bool name='entering_new_route_name'/>
+                <compound type-name='coord_path' name='new_point'/>
+                <stl-vector pointer-type='coord_path' name='route_line' comment='patrol_route_linest'/>
+                <int32_t name='add_is_edit_of_route_id'/>
+                <bool name='changed_points_on_edit'/>
+            </compound>
+
+            <compound name='squad_equipment'>
+                <bool name='open'/>
+
+                <enum name='context' type-name='squad_equipment_context_type'/>
+
+                <int32_t name='scroll_position'/>
+                <bool name='scrolling'/>
+
+                <stl-vector type-name='int32_t' name='squad_id'/>
+                <stl-vector type-name='int32_t' name='squad_pos'/>
+
+                <uint32_t name='last_tick_update'/>
+
+                <bool name='customizing_equipment'/>
+                <int32_t name='customizing_squad_id'/>
+                <int32_t name='customizing_squad_pos'/>
+                <stl-string name='customizing_squad_uniform_nickname'/>
+                <bool name='customizing_squad_entering_uniform_nickname'/>
+                <int32_t name='scroll_position_cs'/>
+                <bool name='scrolling_cs'/>
+                <int32_t name='scroll_position_cssub'/>
+                <bool name='scrolling_cssub'/>
+
+                <stl-vector type-name='int16_t' name='cs_cat' comment='EntityUniformItemCategory'/>
+                <stl-vector type-name='int32_t' name='cs_it_spec_item_id'/>
+                <stl-vector type-name='int16_t' name='cs_it_type'/>
+                <stl-vector type-name='int16_t' name='cs_it_subtype'/>
+                <stl-vector type-name='int16_t' name='cs_civ_mat' comment='EntityMaterial'/>
+                <stl-vector type-name='int16_t' name='cs_spec_mat'/>
+                <stl-vector type-name='int32_t' name='cs_spec_matg'/>
+                <stl-vector type-name='int32_t' name='cs_color_pattern_index' comment='ColoredPattern'/>
+                <stl-vector type-name='int32_t' name='cs_icp_flag'/>
+                <stl-vector type-name='int32_t' name='cs_assigned_item_number'/>
+                <stl-vector type-name='int32_t' name='cs_assigned_item_id'/>
+                <uint32_t name='cs_uniform_flag'/>
+
+                <int16_t name='cs_adding_new_entry_category' comment='EntityUniformItemCategory'/>
+                <stl-vector type-name='int16_t' name='cs_add_list_type'/>
+                <stl-vector type-name='int16_t' name='cs_add_list_subtype'/>
+                <stl-vector type-name='uint32_t' name='cs_add_list_flag'/>
+                <stl-bit-vector name='cs_add_list_is_foreign'/>
+                <bool name='cs_setting_material'/>
+                <int32_t name='cs_setting_list_ind'/>
+                <stl-vector type-name='int16_t' name='cs_setting_material_ent' comment='EntityMaterial'/>
+                <stl-vector type-name='int16_t' name='cs_setting_material_mat'/>
+                <stl-vector type-name='int32_t' name='cs_setting_material_matg'/>
+                <bool name='cs_setting_color_pattern'/>
+                <stl-vector type-name='int32_t' name='cs_setting_color_pattern_index' comment='ColoredPattern'/>
+                <stl-bit-vector name='cs_setting_color_pattern_is_dye'/>
+                <bool name='cs_adding_specific_item'/>
+                <stl-vector type-name='int32_t' name='cs_add_spec_id'/>
+            </compound>
+
+            <compound name='squad_schedule'>
+                <bool name='open'/>
+
+                <enum name='context' type-name='squad_schedule_context_type'/>
+
+                <int32_t name='scroll_position'/>
+                <bool name='scrolling'/>
+
+                <int32_t name='scroll_position_month'/>
+                <bool name='scrolling_month'/>
+
+                <int32_t name='routine_page'/>
+
+                <stl-vector type-name='int32_t' name='squad_id'/>
+                <int32_t name='viewing_months_squad_id'/>
+
+                <uint32_t name='last_tick_update'/>
+
+                <bool name='editing_routines'/>
+                <int32_t name='scroll_position_edit_routine'/>
+                <bool name='scrolling_edit_routine'/>
+                <stl-string name='routine_name_str'/>
+                <bool name='entering_routine_name'/>
+                <int32_t name='entering_routine_name_id'/>
+                <int32_t name='deleting_routine_id'/>
+
+                <int32_t name='copying_routine_id'/>
+                <int32_t name='copying_squad_id'/>
+                <int32_t name='copying_squad_month'/>
+            </compound>
+
+            <compound name='squad_selector'>
+                <bool name='open'/>
+
+                <enum name='context' type-name='squad_selector_context_type'/>
+
+                <stl-vector type-name='int32_t' name='squad_id'/>
+                <int32_t name='bld_id'/>
+
+                <int32_t name='scroll_position'/>
+                <int8_t name='scrolling'/>
+            </compound>
+
+            <compound name='burrow_selector'>
+                <bool name='open'/>
+
+                <enum name='context' type-name='burrow_selector_context_type'/>
+
+                <stl-vector type-name='int32_t' name='burrow_id'/>
+                <stl-bit-vector name='selected'/>
+
+                <int32_t name='scroll_position'/>
+                <int8_t name='scrolling'/>
+            </compound>
+
+            <compound name='location_selector'>
+                <bool name='open'/>
+
+                <enum name='context' type-name='location_selector_context_type'/>
+
+                <stl-vector pointer-type='abstract_building' name='valid_ab'/>
+                <int32_t name='scroll_position_location'/>
+                <bool name='scrolling_location'/>
+
+                <int32_t name='current_hover_index'/>
+
+                <bool name='choosing_temple_religious_practice'/>
+                <stl-vector type-name='int32_t' name='valid_religious_practice'/>
+                <int32_t name='scroll_position_deity'/>
+                <bool name='scrolling_deity'/>
+
+                <bool name='choosing_craft_guild'/>
+                <stl-vector type-name='int32_t' name='valid_religious_practice_id'/>
+                <stl-vector type-name='profession' name='valid_craft_guild_type'/>
+                <int32_t name='scroll_position_guild'/>
+                <bool name='scrolling_guild'/>
+            </compound>
+
+            <compound name='location_details'>
+                <bool name='open'/>
+
+                <enum name='context' type-name='location_details_context_type'/>
+
+                <pointer type-name='abstract_building' name='selected_ab'/>
+                <int32_t name='open_area_dx'/>
+                <int32_t name='open_area_dy'/>
+                <int32_t name='wc_count'/>
+
+                <stl-vector type-name='pointer' name='loc_occupation' comment='occupationst'/>
+                <stl-vector pointer-type='historical_entity' name='loc_ent'/>
+                <stl-vector pointer-type='entity_position' name='loc_position'/>
+                <stl-vector pointer-type='entity_position_assignment' name='loc_epp'/>
+                <int32_t name='scroll_position_occupation'/>
+                <bool name='scrolling_occupation'/>
+
+                <stl-string name='desired_number_str'/>
+                <pointer type-name='int32_t' name='entering_desired_number'/>
+            </compound>
+
+            <compound name='hauling_stop_conditions'>
+                <bool name='open'/>
+
+                <enum name='context' type-name='hauling_stop_conditions_context_type'/>
+
+                <int32_t name='route_id'/>
+                <int32_t name='stop_id'/>
+
+                <int32_t name='scroll_position'/>
+                <bool name='scrolling'/>
+            </compound>
+
+            <compound name='assign_vehicle'>
+                <bool name='open'/>
+
+                <enum name='context' type-name='assign_vehicle_context_type'/>
+
+                <stl-vector pointer-type='vehicle' name='i_vehicle'/>
+
+                <int32_t name='route_id'/>
+
+                <int32_t name='scroll_position'/>
+                <bool name='scrolling'/>
+            </compound>
+
+            <compound name='stockpile'>
+                <bool name='doing_rectangle'/>
+                <bool name='box_on_left'/>
+                <bool name='erasing'/>
+                <bool name='repainting'/>
+                <pointer type-name='building_stockpilest' name='cur_bld'/>
+            </compound>
+
+            <compound name='stockpile_link'>
+                <bool name='open'/>
+
+                <enum name='context' type-name='stockpile_link_context_type'/>
+
+                <int32_t name='bld_id'/>
+                <int32_t name='hr_id'/>
+                <int32_t name='hs_id'/>
+
+                <int32_t name='scroll_position_link_list'/>
+                <bool name='scrolling_link_list'/>
+
+                <bool name='adding_new_link'/>
+                <int32_t name='adding_new_link_type'/>
+            </compound>
+
+            <compound name='stockpile_tools'>
+                <bool name='open'/>
+
+                <enum name='context' type-name='stockpile_tools_context_type'/>
+
+                <int32_t name='bld_id'/>
+                <bool name='entering_barrels'/>
+                <bool name='entering_bins'/>
+                <bool name='entering_wheelbarrows'/>
+                <stl-string name='number_str'/>
+            </compound>
+
+            <compound name='custom_stockpile'>
+                <bool name='open'/>
+
+                <int32_t name='scroll_position_main'/>
+                <int32_t name='scroll_position_sub'/>
+                <int32_t name='scroll_position_spec'/>
+                <bool name='scrolling_main'/>
+                <bool name='scrolling_sub'/>
+                <bool name='scrolling_spec'/>
+                <stl-string name='spec_filter'/>
+                <bool name='entering_spec_filter'/>
+
+                <pointer type-name='building_stockpilest' name='abd'/>
+                <pointer type-name='stockpile_settings' name='sp'/>
+
+                <enum type-name='stockpile_list' name='cur_main_mode'/>
+                <uint32_t name='cur_main_mode_flag'/>
+                <enum type-name='stockpile_list' name='cur_sub_mode'/>
+
+                <stl-vector type-name='stockpile_list' name='main_mode'/>
+                <stl-vector type-name='uint32_t' name='main_mode_flag'/>
+
+                <stl-vector type-name='stockpile_list' name='sub_mode'/>
+                <stl-vector type-name='stock_pile_pointer_type' name='sub_mode_ptr_type'/>
+                <stl-vector pointer-type='int8_t' name='sub_mode_ptr'/>
+
+                <stl-vector name='spec_item'>
+                    <pointer>
+                        <stl-string name='name'/>
+                        <stl-string name='simple_name'/>
+                        <pointer type-name='int8_t' name='set_pointer'/>
+                        <bool name='on'/>
+
+                        <int32_t name='race'/>
+                        <int32_t name='itype'/>
+                        <int32_t name='istype'/>
+                        <int32_t name='isc1'/>
+                        <int32_t name='isc2'/>
+                    </pointer>
+                </stl-vector>
+                <int32_t name='cur_spec_item_sz'/>
+                <int32_t name='counted_cur_spec_item_sz'/>
+            </compound>
+
+            <compound name='view_sheets'>
+                <bool name='open'/>
+
+                <enum name='context' type-name='view_sheets_context_type'/>
+
+                <enum name='active_sheet' type-name='view_sheet_type'/>
+                <int32_t name='active_id'/>
+                <stl-vector type-name='int32_t' name='viewing_unid'/>
+                <stl-vector type-name='int32_t' name='viewing_itid'/>
+                <int32_t name='viewing_bldid'/>
+                <int32_t name='viewing_x'/>
+                <int32_t name='viewing_y'/>
+                <int32_t name='viewing_z'/>
+
+                <int32_t name='scroll_position'/>
+                <bool name='scrolling'/>
+
+                <stl-vector type-name='view_sheet_type' name='tab'/>
+                <stl-vector type-name='int32_t' name='tab_id'/>
+                <int32_t name='active_sub_tab'/>
+
+                <static-array type-name='view_sheet_trait_type' count='6' name='trait'/>
+                <static-array type-name='int32_t' count='6' name='trait_id'/>
+                <static-array type-name='int32_t' count='6' name='trait_magnitude'/>
+                <int32_t name='trait_num'/>
+
+                <uint32_t name='last_tick_update'/>
+                <static-array type-name='int32_t' count='4' name='reqroom' comment='demands'/>
+                <static-array type-name='int32_t' count='4' name='curroom' comment='demands'/>
+                <static-array type-name='int32_t' count='149' index-enum='job_skill' name='labor_skill_ind'/>
+                <static-array type-name='int32_t' count='149' index-enum='job_skill' name='labor_skill_val'/>
+                <static-array type-name='int32_t' count='149' index-enum='job_skill' name='labor_skill_w_rust'/>
+                <int32_t name='labor_skill_num'/>
+                <static-array type-name='int32_t' count='149' index-enum='job_skill' name='combat_skill_ind'/>
+                <static-array type-name='int32_t' count='149' index-enum='job_skill' name='combat_skill_val'/>
+                <static-array type-name='int32_t' count='149' index-enum='job_skill' name='combat_skill_w_rust'/>
+                <int32_t name='combat_skill_num'/>
+                <static-array type-name='int32_t' count='149' index-enum='job_skill' name='other_skill_ind'/>
+                <static-array type-name='int32_t' count='149' index-enum='job_skill' name='other_skill_val'/>
+                <static-array type-name='int32_t' count='149' index-enum='job_skill' name='other_skill_w_rust'/>
+                <int32_t name='other_skill_num'/>
+                <stl-vector pointer-type='historical_entity' name='ent_vect'/>
+                <stl-vector pointer-type='entity_position' name='ep_vect'/>
+                <stl-bit-vector name='ep_vect_spouse'/>
+
+                <static-array type-name='int32_t' count='30' index-enum='need_type' name='unmet_need_type'/>
+                <static-array type-name='int32_t' count='30' index-enum='need_type' name='unmet_need_spec_id'/>
+                <static-array type-name='int32_t' count='30' index-enum='need_type' name='unmet_need_se'/>
+                <int32_t name='unmet_need_num'/>
+
+                <stl-vector pointer-type='stl-string' name='raw_thought_str'/>
+                <stl-vector type-name='pointer' name='thought_box' comment='color_text_boxst'/>
+                <int32_t name='thought_box_width'/>
+
+                <int32_t name='scroll_position_inventory'/>
+                <bool name='scrolling_inventory'/>
+
+                <int32_t name='scroll_position_relations'/>
+                <bool name='scrolling_relations'/>
+                <stl-vector pointer-type='stl-string' name='rel_name'/>
+                <stl-vector type-name='int16_t' name='relation'/>
+                <stl-vector type-name='int16_t' name='relation_f'/>
+                <stl-vector type-name='int32_t' name='rel_unid'/>
+                <stl-vector pointer-type='historical_figure' name='rel_hf'/>
+                <stl-vector name='rel_rphv' comment='relationship_profile_hf_visualst'/>
+                <stl-vector name='rel_rphh' comment='relationship_profile_hf_historicalst'/>
+                <stl-vector type-name='int32_t' name='rel_value'/>
+
+                <bool name='unit_overview_customizing'/>
+                <bool name='unit_overview_entering_nickname'/>
+                <bool name='unit_overview_entering_profession_nickname'/>
+                <stl-string name='unit_overview_entering_str'/>
+
+                <bool name='unit_overview_expelling'/>
+                <enum type-name='cannot_expel_reason_type' name='unit_overview_expel_cannot_expel_reason'/>
+                <int32_t name='unit_overview_expel_selected_dest_stid'/>
+                <stl-vector type-name='int32_t' name='unit_overview_expel_dest_stid'/>
+                <stl-vector type-name='int32_t' name='unit_overview_expel_total_unid'/>
+                <int32_t name='scroll_position_unit_overview_expel'/>
+                <bool name='scrolling_unit_overview_expel'/>
+
+                <stl-vector pointer-type='stl-string' name='guest_text'/>
+
+                <int32_t name='scroll_position_groups'/>
+                <bool name='scrolling_groups'/>
+                <stl-vector type-name='int32_t' name='unit_group_enid'/>
+                <stl-vector type-name='int32_t' name='unit_group_hfel'/>
+                <stl-vector type-name='int32_t' name='unit_group_epid'/>
+                <stl-vector type-name='int32_t' name='unit_group_eppid'/>
+                <stl-bit-vector name='unit_group_ep_is_spouse'/>
+                <stl-vector type-name='int32_t' name='unit_group_rep'/>
+                <stl-vector type-name='int32_t' name='unit_group_rep_level'/>
+
+                <int32_t name='scroll_position_thoughts'/>
+                <bool name='scrolling_thoughts'/>
+                <int32_t name='thoughts_active_tab'/>
+                <stl-vector pointer-type='stl-string' name='thoughts_raw_memory_str'/>
+                <stl-vector type-name='pointer' name='thoughts_memory_box' comment='color_text_boxst'/>
+                <int32_t name='thoughts_memory_box_width'/>
+
+                <int32_t name='scroll_position_personality'/>
+                <bool name='scrolling_personality'/>
+                <int32_t name='personality_active_tab'/>
+                <stl-vector pointer-type='stl-string' name='personality_raw_str'/>
+                <stl-vector type-name='pointer' name='personality_box' comment='color_text_boxst'/>
+                <int32_t name='personality_width'/>
+
+                <int32_t name='unit_labor_active_tab'/>
+                <int32_t name='scroll_position_unit_labor'/>
+                <bool name='scrolling_unit_labor'/>
+                <stl-vector type-name='int32_t' name='unit_workshop_id'/>
+                <stl-vector type-name='int32_t' name='unit_labor_assigned_animal_unid'/>
+                <stl-vector type-name='int32_t' name='unit_labor_assignable_animal_unid'/>
+
+                <int32_t name='scroll_position_unit_skill'/>
+                <bool name='scrolling_unit_skill'/>
+                <int32_t name='scroll_position_skill_description'/>
+                <bool name='scrolling_skill_description'/>
+                <int32_t name='unit_skill_active_tab'/>
+                <stl-vector type-name='job_skill' name='unit_skill'/>
+                <stl-vector type-name='int32_t' name='unit_skill_val'/>
+                <stl-vector type-name='int32_t' name='unit_skill_val_w_rust'/>
+                <stl-vector type-name='view_sheet_unit_knowledge_type' name='unit_knowledge_type'/>
+                <stl-vector type-name='int32_t' name='unit_knowledge_id'/>
+                <stl-vector type-name='uint32_t' name='unit_knowledge_bits'/>
+                <stl-vector pointer-type='stl-string' name='skill_description_raw_str'/>
+                <stl-vector type-name='pointer' name='skill_description_box' comment='color_text_boxst'/>
+                <int32_t name='skill_description_width'/>
+
+                <int32_t name='scroll_position_unit_room'/>
+                <int8_t name='scrolling_unit_room'/>
+                <stl-vector type-name='int32_t' name='unit_room_civzone_id'/>
+                <stl-vector type-name='int32_t' name='unit_room_curval'/>
+
+                <int32_t name='unit_military_active_tab'/>
+                <int32_t name='scroll_position_unit_military_assigned'/>
+                <bool name='scrolling_unit_military_assigned'/>
+
+                <int32_t name='scroll_position_unit_military_kills'/>
+                <bool name='scrolling_unit_military_kills'/>
+                <stl-vector pointer-type='stl-string' name='kill_description_raw_str'/>
+                <stl-vector type-name='pointer' name='kill_description_box' comment='color_text_boxst'/>
+                <int32_t name='kill_description_width'/>
+
+                <int32_t name='unit_health_active_tab'/>
+                <int32_t name='scroll_position_unit_health'/>
+                <bool name='scrolling_unit_health'/>
+                <stl-vector pointer-type='stl-string' name='unit_health_raw_str'/>
+                <stl-vector type-name='pointer' name='unit_health_box' comment='color_text_boxst'/>
+                <int32_t name='unit_health_width'/>
+
+                <stl-string name='raw_current_thought'/>
+                <stl-vector pointer-type='stl-string' name='current_thought'/>
+                <int32_t name='current_thought_width'/>
+
+                <int32_t name='scroll_position_item'/>
+                <bool name='scrolling_item'/>
+                <int32_t name='scroll_position_building_job'/>
+                <bool name='scrolling_building_job'/>
+                <stl-string name='building_job_filter_str'/>
+                <bool name='entering_building_job_filter'/>
+                <int32_t name='scroll_position_cage_occupants'/>
+                <bool name='scrolling_cage_occupants'/>
+                <int32_t name='scroll_position_displayed_items'/>
+                <bool name='scrolling_displayed_items'/>
+                <bool name='linking_lever'/>
+                <bool name='need_accessible_mechanism_warning'/>
+                <int32_t name='linking_lever_bld_id'/>
+                <int32_t name='linking_lever_mech_lever_id'/>
+                <int32_t name='linking_lever_mech_target_id'/>
+                <bool name='show_linked_buildings'/>
+                <int32_t name='scroll_position_linked_buildings'/>
+                <bool name='scrolling_linked_buildings'/>
+                <bool name='building_entering_nickname'/>
+                <stl-string name='building_entering_str'/>
+
+                <stl-vector type-name='int32_t' name='work_order_id'/>
+                <int32_t name='scroll_position_work_orders'/>
+                <bool name='scrolling_work_orders'/>
+                <stl-string name='gen_work_order_num_str'/>
+                <bool name='entering_gen_work_order_num'/>
+
+                <bool name='entering_wq_number'/>
+                <stl-string name='wq_number_str'/>
+                <int32_t name='entering_wq_id'/>
+
+                <stl-string name='engraving_title'/>
+                <stl-string name='raw_description'/>
+                <stl-vector pointer-type='stl-string' name='description'/>
+                <int32_t name='description_width'/>
+                <int32_t name='scroll_position_description'/>
+                <bool name='scrolling_description'/>
+                <int32_t name='scroll_position_item_contents'/>
+                <bool name='scrolling_item_contents'/>
+                <stl-vector pointer-type='stl-string' name='item_use'/>
+                <stl-vector type-name='int32_t' name='item_use_reaction_index'/>
+            </compound>
+
+            <compound name='info'> info_interfacest - many inside here
+                <bool name='open'/>
+
+                <enum name='current_mode' type-name='info_interface_mode_type'/>
+
+                <compound name='creatures'>
+                    <enum name='current_mode' type-name='unit_list_mode_type'/>
+                    <static-array count='4' index-enum='unit_list_mode_type' name='cri_unit'><stl-vector pointer-type='cri_unitst'/></static-array>
+                    <static-array count='4' index-enum='unit_list_mode_type' name='scrolling_cri_unit' type-name='bool'/>
+                    <static-array count='4' index-enum='unit_list_mode_type' name='scroll_position_cri_unit' type-name='int32_t'/>
+
+                    <bool name='sorting_cit_nameprof'/>
+                    <bool name='sorting_cit_nameprof_is_ascending'/>
+                    <bool name='sorting_cit_nameprof_doing_name'/>
+                    <bool name='sorting_cit_nameprof_doing_prof'/>
+                    <bool name='sorting_cit_job'/>
+                    <bool name='sorting_cit_job_is_ascending'/>
+                    <bool name='sorting_cit_stress'/>
+                    <bool name='sorting_cit_stress_is_ascending'/>
+
+                    <bool name='adding_trainer'/>
+                    <pointer type-name='unit' name='trainer_animal_target'/>
+                    <stl-vector pointer-type='unit' name='trainer'/>
+                    <stl-vector type-name='int32_t' name='trainer_option'/>
+                    <bool name='scrolling_trainer'/>
+                    <int32_t name='scroll_position_trainer'/>
+
+                    <bool name='showing_overall_training'/>
+                    <stl-vector type-name='int32_t' name='atk_index'/>
+                    <bool name='scrolling_overall_training'/>
+                    <int32_t name='scroll_position_overall_training'/>
+
+                    <bool name='assign_work_animal'/>
+                    <pointer type-name='unit' name='assign_work_animal_animal'/>
+                    <stl-vector pointer-type='unit' name='work_animal_recipient'/>
+                    <bool name='scrolling_work_animal'/>
+                    <int32_t name='scroll_position_work_animal'/>
+
+                    <bool name='showing_activity_details'/>
+                    <compound type-name='markup_text_boxst' name='activity_details_text'/>
+                    <bool name='scrolling_activity_details'/>
+                    <int32_t name='scroll_position_activity_details'/>
+                </compound>
+
+                <compound name='jobs'>
+                    <stl-vector pointer-type='cri_unitst' name='cri_job'/>
+                    <bool name='scrolling_cri_job'/>
+                    <int32_t name='scroll_position_cri_job'/>
+                </compound>
+
+                <compound name='buildings'>
+                    <enum name='mode' type-name='buildings_mode_type'/>
+                    <static-array count='5' index-enum='buildings_mode_type' name='list'><stl-vector pointer-type='building'/></static-array>
+                    <static-array count='5' index-enum='buildings_mode_type' name='scrolling_position' type-name='int32_t'/>
+                    <static-array count='5' index-enum='buildings_mode_type' name='scrolling' type-name='bool'/>
+                </compound>
+
+                <compound name='labor'>
+                    <enum name='mode' type-name='labor_mode_type'/>
+
+                    <compound name='work_details'>
+                        <int32_t name='selected_work_detail_index'/>
+                        <int32_t name='scroll_position_work_details'/>
+                        <bool name='scrolling_work_details'/>
+
+                        <stl-vector pointer-type='unit' name='assignable_unit'/>
+                        <int32_t name='scroll_position_assignable_unit'/>
+                        <bool name='scrolling_assignable_unit'/>
+
+                        <bool name='entering_custom_detail_name'/>
+
+                        <pointer name='editing_work_detail' comment='work_detailst'/>
+                        <stl-vector type-name='int32_t' name='labor_list'/>
+                        <int32_t name='scroll_position_labor_list'/>
+                        <bool name='scrolling_labor_list'/>
+
+                        <static-array count='149' type-name='uint8_t' index-enum='job_skill' name='skill_used'/>
+                        <int32_t name='skill_num'/>
+                    </compound>
+
+                    <compound name='standing_orders'>
+                        <enum name='current_category' type-name='standing_orders_category_type'/>
+
+                        <stl-vector pointer-type='unit' name='unit'/>
+
+                        <stl-vector type-name='int32_t' name='labor_list'/>
+                        <int32_t name='scroll_position_labor_list'/>
+                        <bool name='scrolling_labor_list'/>
+
+                        <int32_t name='scroll_position_units'/>
+                        <bool name='scrolling_units'/>
+                    </compound>
+
+                    <compound name='kitchen'>
+                        <enum name='current_category' type-name='kitchen_pref_category_type'/>
+
+                        <static-array count='4' index-enum='kitchen_pref_category_type' name='known_type'><stl-vector type-name='int16_t'/></static-array>
+                        <static-array count='4' index-enum='kitchen_pref_category_type' name='known_subtype'><stl-vector type-name='int16_t'/></static-array>
+                        <static-array count='4' index-enum='kitchen_pref_category_type' name='known_mat'><stl-vector type-name='int16_t'/></static-array>
+                        <static-array count='4' index-enum='kitchen_pref_category_type' name='known_matg'><stl-vector type-name='int32_t'/></static-array>
+                        <static-array count='4' index-enum='kitchen_pref_category_type' name='known_num'><stl-vector type-name='int32_t'/></static-array>
+                        <static-array count='4' index-enum='kitchen_pref_category_type' name='known_rest'><stl-vector type-name='int8_t'/></static-array>
+                        <static-array count='4' index-enum='kitchen_pref_category_type' name='known_canrest'><stl-vector type-name='int8_t'/></static-array>
+                        <static-array count='4' index-enum='kitchen_pref_category_type' name='known_name'><stl-vector pointer-type='stl-string'/></static-array>
+
+                        <static-array count='4' index-enum='kitchen_pref_category_type' type-name='int32_t' name='scroll_position'/>
+                        <static-array count='4' index-enum='kitchen_pref_category_type' type-name='bool' name='scrolling'/>
+                    </compound>
+
+                    <compound name='stone_use'>
+                        <enum name='current_category' type-name='stone_use_category_type'/>
+
+                        <static-array count='2' index-enum='stone_use_category_type' name='stone_mg_index'><stl-vector type-name='int32_t'/></static-array>
+                        <static-array count='2' index-enum='stone_use_category_type' name='stone_restriction_p'><stl-vector pointer-type='int8_t'/></static-array>
+
+                        <stl-vector pointer-type='stl-string' name='stone_item_use_str'/>
+
+                        <static-array count='2' index-enum='stone_use_category_type' type-name='int32_t' name='scroll_position'/>
+                        <static-array count='2' index-enum='stone_use_category_type' type-name='bool' name='scrolling'/>
+                    </compound>
+                </compound>
+
+                <compound name='work_orders'>
+                    <int32_t name='scroll_position_work_orders'/>
+                    <bool name='scrolling_work_orders'/>
+
+                    <compound name='conditions'>
+                        <bool name='open'/>
+
+                        <pointer type-name='manager_order' name='wq'/>
+
+                        <stl-bit-vector name='item_condition_satisfied'/>
+                        <stl-bit-vector name='order_condition_satisfied'/>
+                        <int32_t name='scroll_position_conditions'/>
+                        <bool name='scrolling_conditions'/>
+
+                        <stl-vector name='suggested_item_condition' comment='workquota_item_conditionst'/>
+                        <int32_t name='scroll_position_suggested'/>
+                        <bool name='scrolling_suggested'/>
+
+                        <stl-string name='filter'/>
+                        <stl-vector pointer-type='stl-string' name='compare_master'/>
+                        <int32_t name='change_type'/>
+                        <pointer name='change_wqc' comment='workquota_item_conditions'/>
+                        <int32_t name='scroll_position_change'/>
+                        <int8_t name='scrolling_change'/>
+
+                        <stl-vector type-name='int16_t' name='item_type_master'/>
+                        <stl-vector type-name='int16_t' name='item_subtype_master'/>
+                        <stl-bit-vector name='item_type_on'/>
+
+                        <stl-vector type-name='int16_t' name='item_material_master'/>
+                        <stl-vector type-name='int32_t' name='item_matgloss_master'/>
+                        <stl-vector type-name='int16_t' name='item_matstate_master'/>
+                        <stl-bit-vector name='item_material_on'/>
+
+                        <stl-vector pointer-type='wqc_item_traitst' name='item_trait_master'/>
+
+                        <bool name='selecting_order_condition'/>
+                        <stl-vector pointer-type='manager_order' name='condition_wq'/>
+                        <int32_t name='scroll_position_condition_wq'/>
+                        <bool name='scrolling_condition_wq'/>
+
+                        <bool name='entering_logic_number'/>
+                        <stl-string name='logic_number_str'/>
+                        <pointer name='entering_logic_wqc' comment='workquota_item_conditionst'/>
+                    </compound>
+
+                    <bool name='entering_number'/>
+                    <stl-string name='number_str'/>
+                    <pointer type-name='manager_order' name='entering_wq'/>
+
+                    <bool name='b_entering_number'/>
+                    <stl-string name='b_number_str'/>
+                    <pointer type-name='manager_order' name='b_entering_wq'/>
+                </compound>
+
+                <compound name='administrators'>
+                    <stl-vector name='noblelist'>
+                        <pointer>
+                            <pointer type-name='unit' name='un'/>
+                            <pointer type-name='nemesis_record' name='nem'/>
+                            <pointer comment='unitpropertyplacementst' name='upplist'/>
+                            <pointer type-name='entity_position' name='ep'/>
+                            <pointer type-name='entity_position_assignment' name='epp'/>
+                            <int32_t name='enid'/>
+                            <int32_t name='value'/>
+                        </pointer>
+                    </stl-vector>
+                    <stl-vector pointer-type='entity_position_assignment' name='spec_prof'/>
+                    <stl-vector type-name='int32_t' name='spec_hfid'/>
+                    <stl-vector type-name='int32_t' name='spec_enid'/>
+                    <int32_t name='scroll_position_noblelist'/>
+                    <bool name='scrolling_noblelist'/>
+
+                    <stl-vector pointer-type='stl-string' name='desc_hover_text'/>
+                    <int32_t name='last_hover_width'/>
+                    <int32_t name='last_hover_entity_id'/>
+                    <int32_t name='last_hover_ep_id'/>
+
+                    <bool name='choosing_candidate'/>
+                    <int32_t name='candidate_noblelist_ind'/>
+                    <stl-vector name='candidate'>
+                        <pointer>
+                            <pointer type-name='unit' name='un'/>
+                            <int32_t name='value'/>
+                        </pointer>
+                    </stl-vector>
+                    <int32_t name='scroll_position_candidate'/>
+                    <bool name='scrolling_candidate'/>
+
+                    <bool name='assigning_symbol'/>
+                    <int32_t name='symbol_noblelist_ind'/>
+                    <stl-vector pointer-type='item' name='cand_symbol'/>
+                    <stl-vector type-name='int32_t' name='cand_symbol_new_ind'/>
+                    <stl-vector type-name='int32_t' name='cand_symbol_is_symbol_of_ind'/>
+                    <stl-vector type-name='int32_t' name='cand_symbol_value'/>
+                    <int32_t name='scroll_position_symbol'/>
+                    <bool name='scrolling_symbol'/>
+                    <int32_t name='handling_symbol_closure_ind'/>
+                </compound>
+
+                <compound name='artifacts'>
+                    <enum name='mode' type-name='artifacts_mode_type'/>
+
+                    <static-array count='4' index-enum='artifacts_mode_type' name='list'><stl-vector pointer-type='artifact_record'/></static-array>
+                    <static-array count='4' index-enum='artifacts_mode_type' name='scroll_position' type-name='int32_t'/>
+                    <static-array count='4' index-enum='artifacts_mode_type' name='scrolling' type-name='bool'/>
+                </compound>
+
+                <compound name='justice'>
+                    <enum name='current_mode' type-name='justice_interface_mode_type'/>
+
+                    <int32_t name='cage_chain_needed'/>
+                    <int32_t name='cage_chain_count'/>
+
+                    <stl-vector pointer-type='crime' name='open_case'/>
+                    <int32_t name='scroll_position_open_cases'/>
+                    <bool name='scrolling_open_cases'/>
+                    <int32_t name='selected_open_case'/>
+                    <int32_t name='scroll_position_selected_open_case'/>
+                    <bool name='scrolling_selected_open_case'/>
+
+                    <stl-vector pointer-type='crime' name='closed_case'/>
+                    <int32_t name='scroll_position_closed_cases'/>
+                    <bool name='scrolling_closed_cases'/>
+                    <int32_t name='selected_closed_case'/>
+                    <int32_t name='scroll_position_selected_closed_case'/>
+                    <bool name='scrolling_selected_closed_case'/>
+
+                    <stl-vector pointer-type='crime' name='cold_case'/>
+                    <int32_t name='scroll_position_cold_cases'/>
+                    <bool name='scrolling_cold_cases'/>
+                    <int32_t name='selected_cold_case'/>
+                    <int32_t name='scroll_position_selected_cold_case'/>
+                    <bool name='scrolling_selected_cold_case'/>
+
+                    <stl-vector pointer-type='cri_unitst' name='cri_fortress_guard'/>
+                    <int32_t name='scroll_position_fortress_guard'/>
+                    <bool name='scrolling_fortress_guard'/>
+                    <bool name='sorting_guard_nameprof'/>
+                    <bool name='sorting_guard_nameprof_is_ascending'/>
+                    <bool name='sorting_guard_nameprof_doing_name'/>
+                    <bool name='sorting_guard_nameprof_doing_prof'/>
+
+                    <stl-vector pointer-type='cri_unitst' name='cri_convict'/>
+                    <int32_t name='scroll_position_convicts'/>
+                    <bool name='scrolling_convicts'/>
+                    <int32_t name='selected_convict'/>
+                    <stl-vector pointer-type='crime' name='convict_crime'/>
+                    <pointer name='convict_lawaction' comment='lawactionst'/>
+                    <bool name='sorting_convict_nameprof'/>
+                    <bool name='sorting_convict_nameprof_is_ascending'/>
+                    <bool name='sorting_convict_nameprof_doing_name'/>
+                    <bool name='sorting_convict_nameprof_doing_prof'/>
+                    <int32_t name='scroll_position_selected_convict'/>
+                    <bool name='scrolling_selected_convict'/>
+
+                    <bool name='convicting'/>
+                    <stl-vector pointer-type='unit' name='conviction_list'/>
+                    <int32_t name='scroll_position_conviction'/>
+                    <bool name='scrolling_conviction'/>
+
+                    <bool name='interrogating'/>
+                    <stl-vector pointer-type='unit' name='interrogation_list'/>
+                    <stl-vector type-name='uint32_t' name='interrogation_list_flag'/>
+                    <int32_t name='scroll_position_interrogation'/>
+                    <bool name='scrolling_interrogation'/>
+
+                    <stl-vector pointer-type='stl-string' name='interrogation_report_box'/>
+                    <int32_t name='interrogation_report_box_width'/>
+                    <stl-vector name='interrogation_report' comment='interrogation_reportst'/>
+                    <pointer name='viewing_interrogation_report' comment='interrogation_reportst'/>
+                    <int32_t name='scroll_position_interrogation_list'/>
+                    <bool name='scrolling_interrogation_list'/>
+                    <int32_t name='scroll_position_interrogation_report'/>
+                    <bool name='scrolling_interrogation_report'/>
+
+                    <stl-vector pointer-type='actor_entryst' name='base_actor_entry'/>
+                    <stl-vector pointer-type='organization_entryst' name='base_organization_entry'/>
+                    <stl-vector pointer-type='plot_entryst' name='base_plot_entry'/>
+
+                    <enum name='counterintelligence_mode' type-name='counterintelligence_mode_type'/>
+                    <int32_t name='counterintelligence_selected'/>
+                    <stl-string name='counterintelligence_filter_str'/>
+                    <bool name='entering_counterintelligence_filter'/>
+                    <pointer name='selected_counterintelligence_oen' comment='organization_entry_nodest'/>
+                    <int32_t name='scroll_position_counterintelligence'/>
+                    <bool name='scrolling_counterintelligence'/>
+
+                    <stl-vector pointer-type='actor_entryst' name='value_actor_entry'/>
+                    <stl-vector pointer-type='organization_entryst' name='value_organization_entry'/>
+                    <stl-vector pointer-type='plot_entryst' name='value_plot_entry'/>
+
+                    <stl-vector pointer-type='actor_entryst' name='actor_entry'/>
+                    <stl-vector pointer-type='organization_entryst' name='organization_entry'/>
+                    <stl-vector pointer-type='plot_entryst' name='plot_entry'/>
+                </compound>
+            </compound>
+
+            <compound name='squads'>
+                <bool name='open'/>
+
+                <int32_t name='scroll_position'/>
+                <bool name='scrolling'/>
+
+                <stl-vector type-name='int32_t' name='squad_id'/>
+                <stl-bit-vector name='squad_selected'/>
+
+                <int32_t name='viewing_squad_index'/>
+                <stl-vector type-name='int32_t' name='squad_hfid_selected'/>
+                <bool name='entering_squad_nickname'/>
+                <stl-string name='squad_nickname_str'/>
+
+                <bool name='giving_move_order'/>
+
+                <bool name='giving_kill_order'/>
+                <stl-vector type-name='int32_t' name='kill_unid'/>
+                <bool name='kill_doing_rectangle'/>
+
+                <bool name='giving_patrol_order'/>
+
+                <bool name='giving_burrow_order'/>
+
+                <int32_t name='editing_squad_schedule_id'/>
+                <int32_t name='editing_squad_schedule_routine_index'/>
+                <int32_t name='editing_squad_schedule_month'/>
+                <bool name='editing_squad_schedule_whole_squad_selected'/>
+                <stl-vector type-name='int32_t' name='editing_squad_schedule_pos_selected'/>
+                <int32_t name='editing_squad_schedule_min_follow'/>
+                <int32_t name='scroll_position_orderp'/>
+                <bool name='scrolling_orderp'/>
+                <stl-string name='cell_nickname_str'/>
+                <bool name='entering_cell_nickname'/>
+            </compound>
+
+            <compound name='create_squad'>
+                <bool name='open'/>
+
+                <int32_t name='scroll_position'/>
+                <bool name='scrolling'/>
+
+                <stl-vector pointer-type='entity_position_assignment' name='cand_new_squad_appoint_epp'/>
+                <stl-vector pointer-type='entity_position' name='cand_new_squad_appoint_epp_ep'/>
+                <stl-vector pointer-type='entity_position_assignment' name='cand_new_squad_existing_epp'/>
+                <stl-vector pointer-type='entity_position' name='cand_new_squad_existing_epp_ep'/>
+                <stl-vector pointer-type='entity_position' name='cand_new_squad_new_epp_from_ep'/>
+                <pointer type-name='entity_position_assignment' name='new_squad_appoint_epp'/>
+                <pointer type-name='entity_position' name='new_squad_appoint_epp_ep'/>
+                <pointer type-name='entity_position_assignment' name='new_squad_existing_epp'/>
+                <pointer type-name='entity_position' name='new_squad_existing_epp_ep'/>
+                <pointer type-name='entity_position' name='new_squad_new_epp_from_ep'/>
+            </compound>
+
+            <compound name='squad_supplies'>
+                <bool name='open'/>
+
+                <int32_t name='squad_id'/>
+            </compound>
+
+            <compound name='assign_uniform'>
+                <bool name='open'/>
+
+                <enum name='context' type-name='assign_uniform_context_type'/>
+
+                <int32_t name='scroll_position'/>
+                <bool name='scrolling'/>
+
+                <stl-vector pointer-type='entity_uniform' name='cand_uniform'/>
+            </compound>
+
+            <compound name='create_work_order'>
+                <bool name='open'/>
+
+                <int32_t name='forced_bld_id'/>
+                <stl-vector pointer-type='manager_order_template' name='jminfo_master'/>
+
+                <stl-vector pointer-type='cwo_buildingst' name='building'/>
+                <int32_t name='scroll_position_building'/>
+                <bool name='scrolling_building'/>
+                <int32_t name='selected_building_index'/>
+
+                <int32_t name='scroll_position_job'/>
+                <bool name='scrolling_job'/>
+                <stl-string name='job_filter'/>
+                <bool name='entering_job_filter'/>
+            </compound>
+
+            <compound name='hotkey'>
+                <bool name='open'/>
+
+                <int32_t name='scroll_position'/>
+                <bool name='scrolling'/>
+
+                <int32_t name='entering_index'/>
+                <bool name='entering_name'/>
+            </compound>
+
+            <compound name='options'>
+                <bool name='open'/>
+
+                <enum name='context' type-name='options_context_type'/>
+
+                <stl-string name='header'/>
+                <stl-vector pointer-type='stl-string' name='text'/>
+
+                <bool name='fort_retirement_confirm'/>
+                <bool name='fort_abandon_confirm'/>
+                <bool name='fort_quit_without_saving_confirm'/>
+                <stl-vector type-name='main_menu_option_type' name='option'/>
+                <stl-vector type-name='int32_t' name='option_index'/>
+                <bool name='entering_manual_folder'/>
+                <stl-string name='entering_manual_str'/>
+                <bool name='confirm_manual_overwrite'/>
+                <bool name='entering_timeline'/>
+                <stl-string name='entering_timeline_str'/>
+                <bool name='do_manual_save'/>
+                <int32_t name='manual_save_timer'/>
+
+                <stl-vector pointer-type='stl-string' name='overwrite_save_folder'/>
+
+                <bool name='ended_game'/>
+
+                <bool name='doing_help'/>
+                <compound type-name='markup_text_boxst' name='doing_help_box'/>
+                <stl-vector type-name='int32_t' name='guide_context'/>
+                <int32_t name='scroll_position_guide'/>
+                <bool name='scrolling_guide'/>
+                <stl-vector type-name='int32_t' name='popup_context'/>
+                <int32_t name='scroll_position_popup'/>
+                <bool name='scrolling_popup'/>
+
+                <compound type-name='file_compressorst' name='filecomp'/>
+                <compound name='saver' comment='saverst'>
+                    <pointer/>
+                    <stl-vector type-name='int32_t'/>
+                    <stl-vector type-name='int16_t'/>
+                    <stl-vector/>
+                    <pointer/>
+                    <int32_t/>
+                    <int32_t/>
+                </compound>
+            </compound>
+
+            <compound name='help'>
+                <bool name='open'/>
+
+                <uint32_t name='flag'/>
+                <uint32_t name='context_flag'/>
+
+                <enum name='context' type-name='help_context_type'/>
+
+                <stl-string name='header'/>
+                <static-array count='20' type-name='markup_text_boxst' name='text' comment='tutorials'/>
+                <int32_t name='floor_dug'/>
+            </compound>
+
+            <compound name='settings'>
+                <bool name='open'/>
+
+                <enum name='context' type-name='settings_context_type'/>
+
+                <stl-vector type-name='settings_tab_type' name='tab'/>
+                <enum name='current_mode' type-name='settings_tab_type'/>
+
+                <int32_t name='scroll_position_params'/>
+                <bool name='scrolling_params'/>
+                <bool name='entering_value_str'/>
+                <int32_t name='entering_value_index'/>
+                <stl-string name='value_str'/>
+                <stl-vector pointer-type='world_gen_param_basest' name='member'/>
+
+                <bool name='fullscreen_resolution_open'/>
+                <stl-vector type-name='int32_t' name='permitted_fullscreen_w'/>
+                <stl-vector type-name='int32_t' name='permitted_fullscreen_h'/>
+                <int32_t name='scroll_position_permitted_fullscreen'/>
+                <bool name='scrolling_permitted_fullscreen'/>
+
+                <stl-vector type-name='int32_t' name='keybinding_category'/>
+                <int32_t name='keybinding_selected_category'/>
+                <int32_t name='keybinding_scroll_position_cat'/>
+                <bool name='keybinding_scrolling_cat'/>
+
+                <static-array count='4' name='keybinding_name'><stl-vector pointer-type='stl-string'/></static-array>
+                <static-array count='4' name='keybinding_key'><stl-vector type-name='interface_key'/></static-array>
+                <static-array count='4' name='keybinding_binding'><stl-vector type-name='pointer' comment='EventMatch from g_src'/></static-array>
+                <static-array count='4' name='keybinding_binding_name'><stl-vector pointer-type='stl-string'/></static-array>
+                <static-array count='4' name='keybinding_flag'><stl-vector type-name='uint32_t'/></static-array>
+                <int32_t name='keybinding_scroll_position_key'/>
+                <bool name='keybinding_scrolling_key'/>
+                <int32_t name='keybinding_registering_index'/>
+                <bool name='keybinding_registering_adding_new'/>
+                <stl-vector pointer-type='stl-string' name='macro_list'/>
+
+                <compound type-name='difficultyst' name='difficulty'/>
+                <bool name='doing_custom_settings'/>
+            </compound>
+
+            <stl-vector type-name='int32_t' name='viewunit_list'/>
+
+            <int8_t name='exporting_local'/>
+            <int8_t name='mouse_zone'/>
+
+        -- formerly unit_skills
+            <stl-vector type-name='int32_t' name='skill_ind'/>
+            <stl-vector type-name='int32_t' name='pract_type'/>
+            <stl-vector type-name='int32_t' name='pract_ind'/>
+            <bool name='skill_combat'/>
+            <bool name='skill_labor'/>
+            <bool name='skill_misc'/>
+
+        -- formerly barracks
+            <int32_t name='barracks_selected_squad_ind'/>
+            <stl-vector pointer-type='squad' name='barracks_squad'/>
+            <stl-vector type-name='int32_t' name='barracks_squad_flag'/>
+
+            <bool name='entering_building_name'/>
+
+            <bool name='assigning_position'/>
+            <pointer type-name='squad' name='ap_squad'/>
+            <int32_t name='ap_sel'/>
+
+            <bool name='assigning_position_squad'/>
+            <stl-vector pointer-type='squad' name='ap_squad_list'/>
+            <int32_t name='ap_squad_sel'/>
+
+            <stl-vector name='pref_occupation' comment='occupationst'/>
+            <int32_t name='selected_pref_occupation'/>
+
+            <enum name='main_designation_selected' type-name='main_designation_type'/>
+            <bool name='main_designation_doing_rectangles'/>
+
+            <enum name='bottom_mode_selected' type-name='main_bottom_mode_type'/>
+
+            <bool name='hover_instructions_on'/>
+            <int32_t name='hover_instructions_last_hover_tick'/>
+            <int32_t name='current_hover'/>
+            <int32_t name='current_hover_id1' comment='union with current_hover_building_type'/>
+            <int32_t name='current_hover_id2' comment='union with current_hover_building_subtype'/>
+            <int32_t name='current_hover_id3' comment='union with current_hover_building_custom_id'/>
+            <enum type-name='interface_key' name='current_hover_key'/>
+            <pointer type-name='popup_message' name='current_hover_alert'/>
+            <bool name='current_hover_replace_minimap'/>
+            <int32_t name='current_hover_left_x'/>
+            <int32_t name='current_hover_bot_y'/>
+
+            <static-array count='486' name='hover_instruction'><stl-vector pointer-type='stl-string'/></static-array>
+            <int32_t name='last_displayed_hover_inst'/>
+            <int32_t name='last_displayed_hover_id1'/>
+            <int32_t name='last_displayed_hover_id2'/>
+            <int32_t name='last_displayed_hover_id3'/>
+
+            <pointer type-name='popup_message' name='hover_announcement_alert'/>
+            <stl-vector pointer-type='stl-string' name='hover_announcement_alert_text'/>
+            <stl-vector type-name='int8_t' name='hover_announcement_alert_color'/>
+            <stl-vector type-name='int8_t' name='hover_announcement_alert_bright'/>
+            <int32_t name='hover_announcement_alert_width'/>
+
+            <stl-vector pointer-type='stl-string' name='hover_announcement_alert_button_text'/>
+            <stl-vector type-name='int8_t' name='hover_announcement_alert_button_color'/>
+            <stl-vector type-name='int8_t' name='hover_announcement_alert_button_bright'/>
+            <int32_t name='hover_announcement_alert_button_width'/>
+
+            <uint32_t name='last_hover_click_update'/>
+            <compound type-name='coord' name='last_hover_m'/>
+
+            <compound type-name='coord' name='recenter_indicator_m'/>
+            <bool name='mouse_scrolling_map'/>
+            <int32_t name='mouse_anchor_mx'/>
+            <int32_t name='mouse_anchor_my'/>
+            <int32_t name='mouse_anchor_pmx'/>
+            <int32_t name='mouse_anchor_pmy'/>
+
+            <compound type-name='coord_path' name='track_path'/>
+            <compound type-name='coord_path' name='keyboard_track_path'/>
+            <compound type-name='coord' name='last_track_s'/>
+            <compound type-name='coord' name='last_track_g'/>
+            <compound type-name='coord' name='keyboard_last_track_s'/>
+            <compound type-name='coord' name='keyboard_last_track_g'/>
         </compound>
 
-        <compound name='unk_54b8'>
-            <int8_t/>
-            <stl-string/>
-            <stl-vector pointer-type='stl-string'/>
-            <pointer/>?
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <pointer/>?
-            <stl-string/>
-            <pointer/>?
-            <stl-string/>
-            <pointer/>?
-            <stl-vector pointer-type='stl-string'/>
-            <pointer/>?
-            <compound type-name='ui_sidebar_menus_5800' name='unk_f0'/>
-            <pointer/>
-            <pointer/>
-            <pointer/>
-            <pointer/>?
-            <pointer/>
-            <pointer/>
-            <pointer/>
-            <pointer/>?
-            <compound type-name='file_compressorst' name='file'/>
-            <pointer/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int16_t'/>
-            <stl-vector/>
-            <pointer/>
-            <int32_t/>
-            <int32_t/>
-        </compound>
-
-        <compound name='unk_57d0'>
-            <int8_t/>
-            <int32_t/>
-            <int32_t/>
-            <int32_t/>
-            <stl-string/>
-            <static-array count='20' type-name='ui_sidebar_menus_5800'/>
-            <int32_t/>
-        </compound>
-
-        <compound name='unk_5d08'>
-            <int8_t/>
-            <int32_t/>
-            <stl-vector type-name='int32_t' name='settings_pages'/>
-            <int32_t/>?
-            <int32_t/>
-            <int8_t/>
-            <int8_t/>
-            <stl-string/>
-            <stl-vector pointer-type='world_gen_param_basest' name='settings'/>
-            <int8_t/>
-            <stl-vector type-name='int32_t'/>
-            <stl-vector type-name='int32_t'/>
-            <int32_t/>
-            <int8_t/>
-            <stl-vector type-name='int32_t'/>
-            <pointer/>
-            <int8_t/>
-            <static-array count='4'><stl-vector pointer-type='stl-string'/></static-array>
-            <static-array count='4'><stl-vector type-name='int32_t'/></static-array>
-            <static-array count='4'><stl-vector/></static-array>
-            <static-array count='4'><stl-vector pointer-type='stl-string'/></static-array>
-            <static-array count='4'><stl-vector type-name='int32_t'/></static-array>
-            <int32_t/>
-            <int8_t/>
-            <int32_t/>
-            <int8_t/>
-            <stl-vector pointer-type='stl-string'/>
-            <compound type-name='custom_difficulty' name='custom_difficulty'/>
-            <int8_t/>
-        </compound>
-
-        <stl-vector type-name='int32_t'/>
-        <pointer/>?
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <stl-vector type-name='int32_t'/>
-        <pointer/>?
-        <stl-vector/>
-        <stl-vector type-name='int32_t'/>
-        <int8_t/>
-        <static-array type-name='int8_t' count='19'/>?
-        <int8_t/>
-        <stl-vector/>
-        <pointer/>
-        <stl-vector/>
-        <int32_t/>?
-        <int32_t/>
-        <int8_t/>
-        <int32_t/>
-        <int8_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <pointer/>
-        <int8_t/>
-        <int32_t/>
-        <int32_t/>
-        <static-array count='486'><stl-vector pointer-type='stl-string'/></static-array>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <pointer/>
-        <stl-vector pointer-type='stl-string'/>
-        <stl-vector/>
-        <stl-vector/>
-        <int32_t/>
-        <stl-vector pointer-type='stl-string'/>
-        <stl-vector/>
-        <stl-vector/>
-        <int32_t/>
-        <int32_t/>
-        <compound type-name='coord'/>
-        <compound type-name='coord'/>
-        <int8_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <stl-vector type-name='int16_t'/>
-        <stl-vector type-name='int16_t'/>
-        <stl-vector type-name='int16_t'/>
-        <stl-vector type-name='int16_t'/>
-        <stl-vector type-name='int16_t'/>
-        <stl-vector type-name='int16_t'/>
-        <compound type-name='coord'/>
-        <compound type-name='coord'/>
-        <compound type-name='coord'/>
-        <compound type-name='coord'/>
-
-<!--
-        <compound name='unit_skills'>
-            <stl-vector name='skill_id' type-name='int32_t' refers-to='$global.ui_selected_unit.index.refers-to.status.current_soul.skills[$]'/>
-            <stl-vector name='skill_type' type-name='int32_t'/>
-            <stl-vector name='skill_subtype' type-name='int32_t'/>
-        </compound>
-
-        <bool name="show_combat"/>
-        <bool name="show_labor"/>
-        <bool name="show_misc"/>
-
-        <int32_t name="barracks_squad_cursor"/>
-
-        <compound name='barracks'>
-            <stl-vector name='squads' pointer-type='squad'/>
-            <stl-vector name='uses'>
-                <bitfield type-name='squad_use_flags'/>
-            </stl-vector>
-
-            <bool name="in_rename"/>
-            <bool name="in_positions"/>
-            <pointer name="position_squad" type-name='squad'/>
-            <int32_t name="position_cursor"/>
-
-            <bool name="in_position_squads"/>
-            <stl-vector name='position_squads' pointer-type='squad'/>
-            <int32_t name="position_squad_cursor"/>
-        </compound>
-
-        <stl-vector name='unk_1' since='v0.42.01'/>
-        <pointer name='unk_2' since='v0.42.01'/>
--->
         <compound name='minimap'>
             -- Abstract representation of contents; updated by need_scan
-            <static-array name='data' count='24'>
+            <static-array name='minimap' count='24'>
                 <static-array count='15' type-name='int32_t'/>
             </static-array>
 
-            <bool name='need_render'/>
-            <bool name='need_scan'/>
-            <int16_t name='z_level'/>
+            <int8_t name='update'/>
+            <int8_t name='mustmake'/>
+            <int16_t name='printed_z'/>
 
             -- Cached actual tiles from the screen; updated by need_render
-            <static-array name='tile' count='24'>
+            <static-array name='buffer_symbol' count='24'>
                 <static-array count='15' type-name='uint8_t'/>
             </static-array>
-            <static-array name='tile_fg' count='24'>
+            <static-array name='buffer_f' count='24'>
                 <static-array count='15' type-name='int16_t'/>
             </static-array>
-            <static-array name='tile_bg' count='24'>
+            <static-array name='buffer_b' count='24'>
                 <static-array count='15' type-name='int16_t'/>
             </static-array>
-            <static-array name='tile_bold' count='24'>
+            <static-array name='buffer_br' count='24'>
                 <static-array count='15' type-name='int16_t'/>
             </static-array>
-            <int32_t/>
+            <int32_t name='texpos'/>
         </compound>
 
         <compound name='command_line'>
             <stl-string name='original'/>
             <stl-vector name='arg_vect' pointer-type='stl-string'/>
 
-            <long name="gen_id"/>
-            <long name="world_seed"/>
-            <bool name="use_seed"/>
+            <long name='gen_id'/>
+            <long name='world_seed'/>
+            <bool name='use_seed'/>
 
             <stl-string name='world_param'/>
-            <int8_t name="use_param"/>
+            <int8_t name='use_param'/>
         </compound>
 
-        <compound name='steam'>
-            <stl-vector pointer-type='unk_steam'/>
+        <compound name='mod_manager'>
+            <stl-vector pointer-type='mod_headerst' name='mod_header'/>
 
-            <pointer/> -- Not present in Classic
-            <int8_t/> -- Not present in Classic
-            <stl-vector pointer-type='unk_steam'/> -- Not present in Classic
-            <int8_t/> -- Not present in Classic
-            <int32_t/> -- Not present in Classic
-            <compound name='CreateItemResult'> -- Not present in Classic
+            -- Begin Steam-only stuff
+            <pointer name='subscribed_file_id'/>
+            <bool name='doing_mod_upload'/>
+            <stl-vector pointer-type='mod_headerst' name='mod_upload_header'/>
+            <bool name='mod_upload_completed'/>
+            <int32_t name='uploading_mod_index'/>
+
+            -- NOTE: this is going to become a Pointer
+            <compound name='CreateItemResult'>
                 <pointer name='vftable'/>
                 <uint8_t name='m_nCallbackFlags'/>
                 <int32_t name='m_iCallback'/>
@@ -1685,7 +2487,8 @@
                 <pointer name='m_pObj' comment='mod_managerst'/>
                 <pointer name='m_Func'/>
             </compound>
-            <compound name='SubmitItemUpdateResult'> -- Not present in Classic
+            -- NOTE: this is going to become a Pointer
+            <compound name='SubmitItemUpdateResult'>
                 <pointer name='vftable'/>
                 <uint8_t name='m_nCallbackFlags'/>
                 <int32_t name='m_iCallback'/>
@@ -1693,24 +2496,29 @@
                 <pointer name='m_pObj' comment='mod_managerst'/>
                 <pointer name='m_Func'/>
             </compound>
-
-            <pointer/>
-            <pointer/>?
-            <pointer/>?
-            <pointer/>
-            <pointer/>?
-            <pointer/>?
-            <int32_t/>
-            <int32_t/>
-            <int8_t/>
-            <static-array count='11'><static-array count='6' type-name='int32_t'/></static-array>
-            <static-array count='7'><static-array count='6' type-name='int32_t'/></static-array>
-            <static-array count='4'><static-array count='6' type-name='int32_t'/></static-array>
-            <int32_t name='external_flag'/>
+            -- End Steam-only stuff
         </compound>
+
+        <compound name='hash_rng'>
+            <int64_t/>
+            <int64_t/>
+            <int64_t/>
+        </compound>
+        <compound name='play_rng'>
+            <int64_t/>
+            <int64_t/>
+            <int64_t/>
+        </compound>
+        <uint32_t name='start_tick_count'/>
+        <int32_t name='autosave_cycle'/>
+        <bool name='want_to_quit_to_title'/>
+        <static-array count='11' name='flash_11_by_3'><static-array count='3'><static-array count='2' type-name='int32_t'/></static-array></static-array>
+        <static-array count='7' name='flash_7_by_3'><static-array count='3'><static-array count='2' type-name='int32_t'/></static-array></static-array>
+        <static-array count='4' name='flash_4_by_3'><static-array count='3'><static-array count='2' type-name='int32_t'/></static-array></static-array>
+        <int32_t name='external_flag'/>
     </struct-type>
 
-    <struct-type type-name='custom_difficulty'>
+    <struct-type type-name='difficultyst'>
         <int32_t/>
         <int32_t/>
         <static-array type-name='int32_t' count='5' name='enemy_pop_trigger'/>
@@ -1758,24 +2566,7 @@
         <int32_t name='demand_period'/>
     </struct-type>
 
-    <struct-type type-name='ui_sidebar_menus_1360_1d0'>
-        <stl-vector/>
-        <stl-vector/>
-        <int32_t/>
-        <compound type-name='language_name' name='name'/>
-        <int32_t/>
-        <int16_t/>
-        <int32_t/>
-        <int16_t/>
-        <int32_t/>
-        <int32_t/>
-        <pointer/>
-        <pointer/>?
-        <int32_t/>
-        <int16_t/>
-    </struct-type>
-
-    <struct-type type-name='ui_sidebar_menus_5800'>
+    <struct-type type-name='markup_text_boxst'>
         <stl-vector pointer-type='stl-string'/>
         <stl-vector/>
         <int32_t/>
@@ -1783,7 +2574,107 @@
         <pointer/>
     </struct-type>
 
-    <struct-type type-name='unk_steam'>
+    <struct-type type-name='wqc_item_traitst'>
+        <uint32_t name='flg'/>
+        <int32_t name='flgn'/>
+        <stl-string name='reaction_class'/>
+        <stl-string name='reaction_product_class'/>
+        <int16_t name='metal_ore'/>
+        <int32_t name='contains_reaction_index'/>
+        <int32_t name='contains_reagent_index'/>
+        <int16_t name='tool_use'/>
+
+        <stl-string name='display_string'/>
+
+        <bool name='on'/>
+    </struct-type>
+
+    <struct-type type-name='cwo_buildingst'>
+        <int32_t name='type'/>
+        <int32_t name='subtype'/>
+        <int32_t name='custom_id'/>
+        <stl-vector pointer-type='manager_order_template' name='jminfo'/>
+        <stl-string name='name'/>
+    </struct-type>
+
+    <struct-type type-name='cri_unitst'>
+        <pointer type-name='unit' name='un'/>
+        <pointer type-name='item' name='it'/>
+        <pointer type-name='job' name='jb'/>
+        <int32_t name='profession_list_order1'/>
+        <int32_t name='profession_list_order2'/>
+        <int32_t name='stress'/>
+        <uint32_t name='flag'/>
+        <stl-string name='sort_name'/>
+        <stl-string name='job_sort_name'/>
+
+        <pointer type-name='unit' name='owner_un'/>
+    </struct-type>
+
+    <struct-type type-name='actor_entryst'>
+        <pointer type-name='historical_figure' name='hf'/>
+        <pointer comment='identityst' name='iden'/>
+        <pointer type-name='language_name' name='name_ptr'/>
+
+        <stl-string name='list_name'/>
+        <stl-string name='simple_list_name'/>
+
+        <stl-string name='p_list_name'/>
+        <stl-vector pointer-type='stl-string' name='main_text_box'/>
+
+        <int32_t name='visual_hfid'/>
+        <int32_t name='historical_hfid'/>
+        <int32_t name='identity_id'/>
+
+        <stl-vector type-name='int32_t' name='alias_identity_id'/>
+
+        <pointer comment='organization_entryst' name='principle_org'/>
+        <stl-vector comment='organization_entryst' name='associated_org'/>
+        <stl-vector pointer-type='plot_entryst' name='associated_plot'/>
+
+        <uint32_t name='flag'/>
+    </struct-type>
+
+    <struct-type type-name='organization_entry_nodest'>
+        <pointer type-name='actor_entryst' name='actor_entry'/>
+        <pointer type-name='organization_entry_nodest' name='master'/>
+        <int32_t name='sort_id'/>
+        <int32_t name='tier'/>
+        <int32_t name='x'/>
+        <int32_t name='descendant_sum'/>
+        <stl-string name='label'/>
+        <int16_t name='fcol'/>
+        <int16_t name='bcol'/>
+        <int8_t name='br'/>
+        <stl-string name='name'/>
+        <stl-string name='status'/>
+    </struct-type>
+
+    <struct-type type-name='organization_entryst'>
+        <stl-vector pointer-type='organization_entry_nodest' name='node'/>
+
+        <stl-string name='list_name'/>
+        <stl-string name='simple_list_name'/>
+
+        <stl-string name='p_list_name'/>
+        <stl-vector pointer-type='stl-string' name='main_text_box'/>
+
+        <pointer type-name='actor_entryst' name='principle_actor_entry'/>
+
+        <uint32_t name='flag'/>
+    </struct-type>
+
+    <struct-type type-name='plot_entryst'>
+        <stl-string name='list_name'/>
+        <stl-string name='simple_list_name'/>
+        <stl-string name='p_list_name'/>
+
+        <pointer comment='agreementst' name='agreement'/>
+        <int32_t name='master_hfid'/>
+        <stl-string name='organization_name'/>
+    </struct-type>
+
+    <struct-type type-name='mod_headerst'>
         <stl-string/>
         <stl-string/>
         <stl-string/>
@@ -1830,31 +2721,62 @@
                     <enum-item name='Magma'/>
                     <enum-item name='Spoor'/>
                 </enum>
-                <enum base-type='int16_t' name='spatter_item_type' type-name='item_type'/>
-                <int16_t name='spatter_item_subtype' refers-to='(item-subtype-target $$._parent.spatter_item_type $)'/>
-                <int16_t name='spatter_mat_type' ref-target='material' aux-value='$$.mat_index'/>
-                <int32_t name='spatter_mat_index'/>
-                <enum type-name='matter_state' base-type='int16_t' name='spatter_mat_state'/>
                 <compound is-union='true' name='data'>
-                    <pointer name='Item' type-name='item'/>
-                    <pointer name='Unit' type-name='unit'/>
-                    <pointer name='Building' type-name='building'/>
-                    <pointer name='Vermin' type-name='vermin'/>
-                    <pointer name='Flow' type-name='flow_info'/>
-                    <compound name='Spatter'>
-                        <int8_t name='amount'/>
+                    <compound name='item'>
+                        <int32_t name='item_id' ref-target='item'/>
                     </compound>
-                    <compound name='Water'>
-                        <int8_t name='depth'/>
+                    <compound name='unit'>
+                        <int32_t name='unit_id' ref-target='unit'/>
                     </compound>
-                    <compound name='Magma'>
-                        <int8_t name='depth'/>
+                    <compound name='building'>
+                        <int32_t name='bld_id' ref-target='building'/>
                     </compound>
-                    TODO: Floor, Campfire, BuildingItem, Fire, Spoor
+                    <compound name='vermin'>
+                        <int16_t name='race'/>
+                        <int32_t name='caste'/>
+                        <int32_t name='item_id' ref-target='item'/>
+                        <uint32_t name='flag'/>
+                        <int32_t name='number'/>
+                    </compound>
+                    <compound name='flow'>
+                        <int16_t name='type'/>
+                        <int16_t name='subtype'/>
+                        <int32_t name='sstype'/>
+                        <int32_t name='guide_id'/>
+                        <uint32_t name='flag'/>
+                    </compound>
+                    <compound name='spatter'>
+                        <enum base-type='int32_t' name='i_type' type-name='item_type'/>
+                        <int32_t name='i_subtype' refers-to='(item-subtype-target $$.i_type $)'/>
+                        <int32_t name='mat' ref-target='material' aux-value='$$.matg'/>
+                        <int32_t name='matg'/>
+                        <enum type-name='matter_state' base-type='int32_t' name='matstate'/>
+                        <int16_t name='extend'/>
+                    </compound>
+                    <compound name='building_item_adv'>
+                        <int32_t name='item_id' ref-target='item'/>
+                    </compound>
+                    <compound name='liquid_water'>
+                        <uint32_t name='flag'/>
+                        <int16_t name='amount'/>
+                    </compound>
+                    <compound name='liquid_magma'>
+                        <uint32_t name='flag'/>
+                        <int16_t name='amount'/>
+                    </compound>
+                    <compound name='spoor'>
+                        <int32_t name='flag'/>
+                        <int32_t name='type'/>
+                        <int32_t name='id1'/>
+                        <int32_t name='id2'/>
+                        <int32_t name='id3'/>
+                    </compound>
                 </compound>
-                <int16_t name='unk_1'/>
-                <int16_t name='unk_2'/>
-                <int16_t name='unk_3'/>
+                <compound type-name='coord' name='pos'/>
+                <stl-string name='display_str'/>
+                <int16_t name='cf'/>
+                <int16_t name='cb'/>
+                <int16_t name='cbr'/>
             </pointer>
         </stl-vector>
     </struct-type>
