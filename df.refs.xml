@@ -637,10 +637,12 @@
         <int16_t name='strength'/>
     </struct-type>
 
-    <enum-type type-name='entity_site_link_type' base-type='int32_t' comment="Mostly guesswork, hence the 'research notes' below. Interacts highly with status">
+    <enum-type type-name='entity_site_link_type' base-type='int32_t' comment="Enum names updated per Putnam">
+            Mostly guesswork, hence the 'research notes' below. Interacts highly with status
+            Putnam has provided us with some source details, so enum names have been amended to match what she provided
         <enum-item name='None' value='-1'/>
             Probably inactive/failed/NA. Seen with status = 0/2/8/16/128/144/8192. Entities Civilization/SiteGovernment/NomadicGroup/Outcast (not all value/entity permutations)
-        <enum-item name='Claim'/>
+        <enum-item name='All'/>
             Civilization: status = 0 if any flags set and status = 2 if not, with the exception of "fortress" that can be set in either case. capital, monument, reclaim, and land_for_holding flags seen.
             does not seem to indicate clearly whether the site is owned currently. Note that civs don't have links to most of its sites, as it normally goes via site governments.
             SiteGovernment: flags.residence => status = 0. No flags set with any other status value. Thus, SiteGovernment/type=Claim/status=0 probably means it's the current official local government.
@@ -648,10 +650,10 @@
             Religion: all were Fortress (and had that flag) and had status = 0. Thus, probably civ level "owner", as the monasteries seem to have local site governments.
             MilitaryUnit: residence+fortress flags => status = 0 and owner (with no local site government). status = 5 and no flags set was the alternative seen.
             Outcast: flags.residence => status = 0 and local government. Alternative seen is status = 1 and no flags set.
-        <enum-item name='Unk_1'/>
-        <enum-item name='Foreign_Crime'/>
+        <enum-item name='Inside_Wall'/>
+        <enum-item name='Outside_Wall'/>
             NomadicGroup/SiteGovernment, all with criminal_gang flag set and status = 0. Can also be found with None (failed/inactive?). Connection usually not mentioned anywhere.
-        <enum-item name='Unk_3'/>
+        <enum-item name='Outskirts'/>
         <enum-item name='Local_Activity'/>
             Religion: All have status = 0. At least one of the residence and base_of_operation flags set.
             Outcast: status = 0 => flag residence and/or base_of_operation. Reverse not true. Assume status = 0 still active, with 2, 3, 131, 195 being failures.
@@ -679,32 +681,16 @@
         <flag-bit name='holy_city'             comment='for the holy city of a religion'/>
     </bitfield-type>
 
-    <bitfield-type type-name='entity_site_link_status_flags' base-type='uint32_t' comment="The meaning of the bits are highly uncertain, and the bits are named with their values as if part of an integer to match research made against an integer field">
-        <flag-bit name='failure_1'/>
-        <flag-bit name='failure_2'/>
-        <flag-bit name='unk_4'/>
-        <flag-bit name='unk_8'/>
-        <flag-bit name='unk_16'/>
-        <flag-bit name='unk_32'/>
-        <flag-bit name='unk_64'/>
-        <flag-bit name='unk_128'/>
-        <flag-bit name='unk_256'/>
-        <flag-bit name='unk_512'/>
-        <flag-bit name='unk_1024'/>
-        <flag-bit name='unk_2048'/>
-        <flag-bit name='unk_4096'/>
-        <flag-bit name='unk_8192'/>
-    </bitfield-type>
-
-    <struct-type type-name='entity_site_link'>
-        <int32_t name="target" ref-target='world_site'/>
+    <struct-type type-name='entity_site_link'> toady's name for this is entity_site_profilest
+        <int32_t name="target" ref-target='world_site'/> this is a union in toady code but we can probably ignore that per putnam
         <int32_t name="entity_id" ref-target='historical_entity'/>
-        <int32_t name='land_holder' init-value='-1' comment="index into entity.positions.assignments of Civilization"/>
-        <enum name='type' type-name='entity_site_link_type' base-type='int32_t'/>
-        <int32_t name='unk_2' init-value='-1'/>
-        <int32_t name='unk_3' init-value='-1'/>
+        <int32_t name="entity_cache_index" comment="not saved"/>
+        <int32_t name='position_profile_id' init-value='-1' comment="index into entity.positions.assignments of Civilization (?)"/>
+        <enum name='type' type-name='entity_site_link_type' base-type='int32_t' comment="called location in df source"/>
+        <int32_t name='start_hr' init-value='-1'/>
+        <int32_t name='end_hr' init-value='-1'/>
         <bitfield name='flags' type-name='entity_site_link_flags'/>
-        <bitfield name='status' type-name='entity_site_link_status_flags'/>
+        <bitfield name='former_flag' type-name='entity_site_link_flags'/>
           Summary: 0 seems to be active, 1, 2, 3, 5, 131, various cessations of activity. 8, 16, 128, 144, 8192 something unrelated, and the 129, 195 possible cessations"
           0: Civilization/SiteGovernment/NomadicGroup/Religion/Outcast/MerchantCompany/Guild. Seems to be 'Active'. Civ can have 'Active' claim on site not held, while others seem to be currently active.
           1: SiteGovernment/NomadicGroup/Outcast. Seems to be defeated and losing presence at the site. Nomads/Outcasts might not have been the masters of the site as single rampage can cause enmity of two entities.
@@ -720,10 +706,13 @@
           144: NomadicGroup (only one entry). type = None. No flags. No apparent connection.
           195: Outcast (only 2 entries). type = Local_Activity. No flags. Both moved to inn and became primary criminal org. One had lots of members moving from the inn. Different site destroyed in both cases. No incorporation seen, though.
           8192: Civilization/SiteGovernment. type = None. No flags. No apparent connection.
+
+          former_flag is an accumulation of every flag the entity has ever had, any operation that clears part of flag also adds that flag to former_flag
         <int32_t name="link_strength" init-value='100'/>
-        <int32_t name='unk_5' init-value='0' comment="all non zero cases are SiteGovernments with type = Claim, status = 0, and flags.residence = true. All examined were formed as forced administrations"/>
-        <int32_t name='unk_6' init-value='0' comment="same value as previous field"/>
-        <stl-vector name='unk_7' comment="When a single element the first value makes sense as an abstract building related to the entity, but longer lists do not, including numbers larger than the number of abstract buildings">
+        <int32_t name='initial_controlling_population' init-value='0' comment="all non zero cases are SiteGovernments with type = Claim, status = 0, and flags.residence = true. All examined were formed as forced administrations"/>
+        <int32_t name='last_check_controlling_population' init-value='0' comment="same value as previous field"/>
+        the above are related to army.squads in some way
+        <stl-vector name='ab_profile' comment="When a single element the first value makes sense as an abstract building related to the entity, but longer lists do not, including numbers larger than the number of abstract buildings">
             <pointer>
                 <int32_t name='unk_1' init-value='-1'/>
                 <int32_t name='unk_2' comment="1, 2, 5 seen"/>
@@ -731,8 +720,8 @@
         </stl-vector>
         <int32_t name='target_site_x' comment='target site world coordinate x'/>
         <int32_t name='target_site_y' comment='target site world coordinate y'/>
-        <int32_t name='unk_v43_1' init-value='-1' since='v0.43.01' comment="all cases seen were NomadicGroup with criminal_gang flag set, unk_4 = 0 and type = Foreign_Crime, except for cases with type = Claim and residence flag set as well"/>
-        <int32_t name='unk_v43_2' init-value='-1' since='v0.43.01' comment="paired with the previous field. Could be year/year_tick pair set to the start of play for all of these as all have the same number pair in the same save"/>
+        <int32_t name='last_checked_army_year' init-value='-1' since='v0.43.01' comment="all cases seen were NomadicGroup with criminal_gang flag set, unk_4 = 0 and type = Foreign_Crime, except for cases with type = Claim and residence flag set as well"/>
+        <int32_t name='last_checked_army_year_tick' init-value='-1' since='v0.43.01' comment="paired with the previous field. Could be year/year_tick pair set to the start of play for all of these as all have the same number pair in the same save"/>
     </struct-type>
 
     <bitfield-type type-name='undead_flags' base-type='uint16_t'>

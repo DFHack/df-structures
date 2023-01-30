@@ -637,11 +637,11 @@
 
             <int32_t name='next_assignment_id'/>
 
-            <stl-vector name='unk_v40_1' pointer-type='entity_position_assignment' since='v0.40.01'/>
-            <stl-vector name='unk_v40_2' pointer-type='entity_position_assignment' since='v0.40.01'/>
-            <stl-vector name='unk_v40_3' pointer-type='entity_position_assignment' since='v0.40.01'/>
-            <stl-vector name='unk_v40_4' pointer-type='entity_position_assignment' since='v0.40.01'/>
-            <stl-vector name='unk_v40_5' pointer-type='entity_position_assignment' since='v0.40.01'/>
+            <stl-vector name='possible_evaluate' pointer-type='entity_position_assignment' since='v0.40.01'/>
+            <stl-vector name='possible_succession' pointer-type='entity_position_assignment' since='v0.40.01'/>
+            <stl-vector name='possible_appointable' pointer-type='entity_position_assignment' since='v0.40.01'/>
+            <stl-vector name='possible_elected' pointer-type='entity_position_assignment' since='v0.40.01'/>
+            <stl-vector name='possible_claimable' pointer-type='entity_position_assignment' since='v0.40.01'/>
         </compound>
 
         <compound name='tissue_styles'>
@@ -651,13 +651,14 @@
 
         <stl-vector name='squads' type-name='int32_t' ref-target='squad'/>
 
-        <compound name='unknown1d' comment='related to founding sites?'>
-            <int32_t name='year' init-value='-1'/>
-            <stl-vector name='unk43' type-name='int32_t' comment='empty'/>
-            <int32_t name='unk44'/>
-            <int32_t name='unk44a' since='v0.34.01' comment='appears to be a class with a constructor?'/>
-            <static-array name='unk44b' count='15' type-name='int32_t' since='v0.34.01'/>
-        </compound>
+        <int32_t name='global_event_knowledge_year' init-value='-1'/>
+        <stl-vector name='local_known_events' comment='since the above year' type-name='int32_t' ref-target='history_event'/>
+        <int32_t name='production_zone_id' comment='not sure what this refers to'/>
+        <bitfield name='conquered_site_group_flags' since='v0.34.01' comment='actually lives inside a class'>
+            <flag-bit name='harsh' comment='will TORTURE_FOR_INFORMATION'/>
+            <flag-bit name='hostile_occupation'/>
+        </bitfield>
+        <static-array name='worldgen_can_make_guildhall' count='15' index-enum='town_labor_type' type-name='int32_t' since='v0.34.01'/>
 
         <pointer name='training_knowledge' since='v0.34.06'>
             <stl-vector name="level" index-refers-to='(find-instance $creature_raw $)'>
@@ -762,7 +763,7 @@
             <stl-vector name='gloves_over' type-name='int16_t' ref-target='itemdef_glovesst'/>
             <stl-vector name='gloves_cover' type-name='int16_t' ref-target='itemdef_glovesst'/>
         </compound>
-        <static-array name='assignments_by_type' count='42'
+        <static-array name='assignments_by_type' count='43'
                       index-enum='entity_position_responsibility'>
             <stl-vector pointer-type='entity_position_assignment'/>
         </static-array>
@@ -779,13 +780,12 @@
                     comment='includes self'/>
 
         <compound name='unknown2'>
-            <!-- <int32_t name='metal_proficiency'
-                comment='best IMPACT_FRACTURE/10000 + MAX_EDGE/1000 for weapon mats plus best IMPACT_FRACTURE/10000 for armor mats'/> -->
+            <int32_t name='metal_proficiency'
+                comment='best IMPACT_FRACTURE/10000 + MAX_EDGE/1000 for weapon mats plus best IMPACT_FRACTURE/10000 for armor mats'/>
             <stl-vector name='weapon_proficiencies' type-name='job_skill'/>
 
             <pointer name='resource_allotment' type-name='resource_allotment_data' comment="Only for SiteGovernment, but not all"/>
             <stl-vector name='unk_1' since='v0.42.01' pointer-type='poetic_form'/>
-            <int32_t comment='this may be metal_proficiency'/>
             <stl-vector name='unk_2' since='v0.42.01' pointer-type='musical_form'/>
             <stl-vector name='unk_3' since='v0.42.01' pointer-type='dance_form'/>
             <stl-vector name='unk_4' since='v0.42.01' pointer-type='written_content'/>
@@ -796,11 +796,6 @@
             <pointer name='region' type-name='world_region' has-bad-pointers='true'/>  -- Civ entities. Non pointers for sites.
             <int32_t name='unk16' comment='uninitialized'/>
             <int16_t name='unk17' comment='0'/>
-            <int32_t/>
-            <int32_t/>
-            <int32_t/>
-            <int32_t/>
-            <int32_t/>
 
             <stl-vector name='unk18' type-name='int32_t' comment='used during world gen'/>
             <stl-vector name='unk19' type-name='int16_t' comment='used during world gen'/>
@@ -958,7 +953,8 @@
         <stl-vector name='appointed_by_civ' type-name='int32_t' ref-target='historical_entity'/>
         <stl-vector name='succession_by_position' type-name='int32_t'/>
 
-        <static-array type-name='bool' name='responsibilities' count='42' index-enum='entity_position_responsibility'/>
+        <static-array type-name='bool' name='responsibilities' count='43' index-enum='entity_position_responsibility'/>
+        <stl-string name='unk_v50_358'/>
         <static-array type-name='int16_t' name='color' count='3'/>
 
         <int32_t name='required_boxes'/>
@@ -1344,7 +1340,7 @@
         <stl-vector type-name='int32_t' name='entity_ids' ref-target='historical_entity'/>
         <stl-vector name='unk_1'>
             <pointer>
-                <int32_t name='unk_1'/>
+                <enum type-name='history_event_reason' name='reason'/>
                 <int32_t name='unk_2'/>
                 <int32_t name='year'/>
                 <int32_t name='tick'/>
@@ -1411,6 +1407,8 @@
         <int32_t name='site' ref-target='world_site'/>
         <int32_t name='entity' ref-target='historical_entity'/>
         <int32_t name='figure' ref-target='historical_figure'/>
+        <int32_t name='unk_v50_1'/>
+        <int32_t name='unk_v50_2'/>
     </struct-type>
     <struct-type type-name='agreement_details_data_demonic_binding'>
         <enum name='reason' base-type='int32_t' type-name='history_event_reason'/>
@@ -1425,15 +1423,23 @@
         <int32_t name='applicant' ref-target='agreement_party'/>
         <int32_t name='government' ref-target='agreement_party'/>
         <int32_t name='site' ref-target='world_site'/>
+        <int32_t name='unk_v50_1'/>
+        <int32_t name='unk_v50_2'/>
     </struct-type>
     <struct-type type-name='agreement_details_data_citizenship'>
         <int32_t name='applicant' ref-target='agreement_party'/>
         <int32_t name='government' ref-target='agreement_party'/>
         <int32_t name='site' ref-target='world_site'/>
+        <int32_t name='unk_v50_1'/>
+        <int32_t name='unk_v50_2'/>
     </struct-type>
     <struct-type type-name='agreement_details_data_parley'>
         <int32_t name='unk_1'/>
         <int32_t name='party_id' ref-target='agreement_party'/>
+        <int32_t name='unk_v50_1'/>
+        <int32_t name='unk_v50_2'/>
+        <int32_t name='unk_v50_3'/>
+        <int32_t name='unk_v50_4'/>
     </struct-type>
     <struct-type type-name='agreement_details_data_position_corruption'>
         <int32_t name='unk_1' comment="247-249 seen"/>
@@ -1467,6 +1473,7 @@
         <int32_t name='actor_index' comment="agreement.parties index"/>
         <int32_t name='intermediary_index' init-value='-1' comment="agreement.parties index"/>
         <int32_t name='target_id' ref-target='historical_figure'/>
+        <int32_t name='unk_v50_1'/>
     </struct-type>
     <struct-type type-name='agreement_details_data_plot_sabotage'>
         <int32_t name='plotter_index' comment="agreement.parties index"/>
@@ -1489,6 +1496,7 @@
         <compound name='deity_data' type-name='temple_deity_data'/>
         <enum name='profession' type-name='profession'/>
         <int32_t name='tier' comment='1 = temple or guildhall, 2 = temple complex or grand guildhall; matches location_tier in abstract_building_contents'/>
+        <int32_t name='unk_v50_1'/>
     </struct-type>
     <struct-type type-name='agreement_details_data_plot_infiltration_coup'>
         <int32_t name='actor_index' comment="agreement.parties index"/>
