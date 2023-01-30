@@ -995,7 +995,7 @@
             <stl-vector name='observed_traps' type-name='int32_t' ref-target='building'/>
 
             <stl-vector name='complaints' pointer-type='unit_complaint'/>
-            <stl-vector name='unk_138' pointer-type='unit_unk_138' since='v0.44.01'/>
+            <stl-vector name='parleys' pointer-type='unit_parley' since='v0.44.01'/>
             <stl-vector name='requests' pointer-type='unit_request'/>
             <stl-vector name='coin_debts' pointer-type='unit_coin_debt'/>
             <stl-vector name='unk_1' since='v0.47.01'>
@@ -1163,12 +1163,24 @@
                     <stl-vector name="unk_10" type-name="int32_t"/>
                 </pointer>
 
-                <pointer name='unk_7' since='v0.42.01'>
-                    <stl-vector name='unk_sub1'>
+                <pointer name='visitor_info' since='v0.42.01'>
+                    <stl-vector name='visit_reasons'>
                         <pointer>
-                            <int32_t name='unk_sub1_1' comment='checked if 0 while praying'/>
-                            <int32_t name='unk_sub1_2'/>
-                            <int32_t name='unk_sub1_3'/>
+                            <enum base-type='int32_t' name='reason'>
+                                <enum-item name='PRAY'/>
+                                <enum-item name='STUDY'/>
+                                <enum-item name='RELAX'/>
+                                <enum-item name='PERFORM'/>
+                                <enum-item name='SLAY_BEASTS'/>
+                                <enum-item name='WORK_AS_PERFORMER'/>
+                                <enum-item name='WORK_AS_MERCENARY'/>
+                                <enum-item name='WORK_AS_SCHOLAR'/>
+                                <enum-item name='DIPLOMACY'/>
+                                <enum-item name='SEEKING_SANCTUARY'/>
+                                <enum-item name='ASKING_QUESTIONS'/>
+                            </enum>
+                            <int32_t name='site_id' ref-target='world_site'/>
+                            <int32_t name='location_id' ref-target='abstract_building'/>
                             <int32_t name='remaining' init-value='-1' comment='set when praying; counts down to 0'/>
                             <int32_t name='year'/>
                             <int32_t name='year_tick'/>
@@ -1179,16 +1191,17 @@
                             <int32_t name='unk_sub1_9'/>
                         </pointer>
                     </stl-vector>
-                    <bitfield name='unk_1'>
+                    <bitfield name='flags' comment='Affects the text shown in the unit summary'>
+                        <flag-bit name='talked_to_local'/>
                         <flag-bit/>
-                        <flag-bit/>
+                        <flag-bit name='ready_to_leave'/>
                     </bitfield>
                     <int32_t name='year'/>
                     <int32_t name='year_tick'/>
                     <int32_t name='unk_4'/>
                     <int32_t name='unk_5'/>
-                    <int32_t name='unk_6'/>
-                    <int32_t name='unk_7'/>
+                    <enum name='rumour_type' type-name='history_event_reason' base-type='int32_t' comment='for the "heard ... was the place for ..." text'/>
+                    <int32_t name='rumour_location_id' ref-target='abstract_building'/>
                 </pointer>
             </compound>
 
@@ -2446,93 +2459,16 @@
     </struct-type>
 
     <struct-type type-name='unit_complaint'>
-        <enum base-type='int32_t' name="type">
-            <enum-item name='SelfUnemployed' value='25'/>
-            <enum-item name='GuildUnemployed'/>
-            <enum-item name='NeedWeapons' comment='no longer used'/>
-            <enum-item name='IsAngry'/>
-            <enum-item name='IsSad'/>
-            --  30
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            --  40
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item name='Petition'/>
-            <enum-item/>
-            --  50
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            --  60
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            --  70
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            --  80
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            <enum-item/>
-            --  90
-            <enum-item/>
-            <enum-item/>
-            <enum-item comment="Seen on stressed dorf meeting priest (resulting in yelling at a priest). guild=-1, 'age'=1583 with no reasonable match found (in particular not religion)"/>
-        </enum>
-        <enum base-type='int16_t' type-name='guild_id' name="guild"/>
+        <enum base-type='int32_t' name="type" type-name='history_event_reason'/>
         <int32_t name='age'/>
     </struct-type>
 
-    <struct-type type-name='unit_unk_138'>
-        <int32_t name='unk_1'/>
-        <int32_t name='unk_2'/>
-        <int32_t name='unk_3'/>
+    <struct-type type-name='unit_parley'>
+        <int32_t name='invasion' ref-target='invasion_info'/>
+        <int32_t name='speaker' ref-target='unit'/>
+        <int32_t name='artifact' ref-target='artifact_record'/>
         <bitfield name='flags'>
-            <flag-bit/>
+            <flag-bit name='did_topic_meeting'/>
             <flag-bit name='returning_treasure'/>
         </bitfield>
     </struct-type>
@@ -2541,7 +2477,7 @@
         <enum base-type='int16_t' name="type">
             <enum-item name='DoGuildJobs'/>
         </enum>
-        <enum base-type='int16_t' type-name='guild_id' name="guild"/>
+        <int16_t name='source'/>
         <int16_t name='count'/>
     </struct-type>
 
