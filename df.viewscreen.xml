@@ -139,18 +139,58 @@
     </class-type>
 -->
 
-    <struct-type type-name='widget_menu'>
+    <struct-type type-name='extentst'>
+        <int32_t name='x'/>
+        <int32_t name='y'/>
+        <int32_t name='w'/>
+        <int32_t name='h'/>
+    </struct-type>
+
+    <class-type type-name='widget' original-name='widgets::widget'>
+        <pointer name='parent'/>
+        <stl-string name='name'/>
+        <compound type-name='extentst' name='rect'/>
+        <int32_t name='rel_x'/>
+        <int32_t name='rel_y'/>
+        <bool name='visible'/>
+        <virtual-methods>
+            <vmethod name='feed'>
+                <pointer name='events'> <stl-set>
+                    <enum type-name='interface_key' base-type='int32_t'/>
+                </stl-set> </pointer>
+            </vmethod>
+            <vmethod name='logic'/>
+            <vmethod name='render'/>
+            <vmethod name='arrange'/>
+        </virtual-methods>
+    </class-type>
+
+    <class-type type-name='widget_menu' original-name='widgets::menu' inherits-from='widget'>
         <stl-map name='lines'/>
         <int32_t name='selection'/>
         <int32_t name='last_displayheight'/>
         <bool name='bleached'/>
         <stl-map name='colors'/>
-    </struct-type>
+    </class-type>
 
-    <struct-type type-name='widget_textbox'>
-        <stl-string name='text'/>
-        <bool name='keep'/>
-    </struct-type>
+    <class-type type-name='widget_textbox' original-name='widgets::textbox' inherits-from='widget'>
+        <stl-string name='str'/>
+        <bool name='toggle'/>
+        <int32_t name='flags'/>
+    </class-type>
+
+    <class-type type-name='widget_button' original-name='widgets::button' inherits-from='widget'>
+        <pointer name='callback'/>
+    </class-type>
+
+    <class-type type-name='widget_container' original-name='widgets::container' inherits-from='widget'>
+        <stl-vector name='children' pointer-type='widget'/>
+    </class-type>
+
+    <class-type type-name='widget_tabs' original-name='widgets::tabs' inherits-from='widget_container'>
+        <int64_t name='cur_idx'/> this should be size_t but we don't support size_t in structures yet
+        <stl-vector name='tab_labels' pointer-type='stl-string'/>
+    </class-type>
 
     <class-type type-name='MacroScreenLoad' inherits-from='viewscreen'>
         <compound name='menu' type-name='widget_menu'/>
