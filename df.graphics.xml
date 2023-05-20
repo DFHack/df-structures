@@ -5008,8 +5008,9 @@
         <bool name='async_paused'/>
 
         <compound name='async_tobox'>
-            <pointer name='sem'/>
-            <stl-deque name='queue'>
+            <padding name='mtx' size='80'/> should be std::mutex
+            <padding name='cv' size='72'/>  should be std::condition_variable
+            <stl-deque name='vals'>
                 <enum name='cmd'>
                     <enum-item name='pause'/>
                     <enum-item name='start'/>
@@ -5019,12 +5020,12 @@
                 </enum>
                 <int32_t name='val'/>
             </stl-deque>
-            <pointer name='sem_fill'/>
         </compound>
 
         <compound name='async_frombox'>
-            <pointer name='sem'/>
-            <stl-deque name='queue'>
+            <padding name='mtx' size='80'/> should be std::mutex
+            <padding name='cv' size='72'/>  should be std::condition_variable
+            <stl-deque name='vals'>
                 <enum name='msg'>
                     <enum-item name='quit'/>
                     <enum-item name='complete'/>
@@ -5042,15 +5043,14 @@
                     </compound>
                 </compound>
             </stl-deque>
-            <pointer name='sem_fill'/>
         </compound>
 
         <compound name='async_zoom'>
-            <pointer name='sem'/>
-            <stl-deque name='queue'>
+            <padding name='mtx' size='80'/> should be std::mutex
+            <padding name='cv' size='72'/>  should be std::condition_variable
+            <stl-deque name='vals'>
                 <enum base-type='int32_t' type-name='zoom_commands'/>
             </stl-deque>
-            <pointer name='sem_fill'/>
         </compound>
 
         <pointer name='async_fromcomplete'/>
@@ -5078,24 +5078,19 @@
 
         <compound name='textures'>
             <stl-vector type-name='pointer' name='raws'/>
+            <stl-vector type-name='int32_t' name='free_spaces'/>
             <int32_t name='init_texture_size'/>
             <bool name='uploaded'/>
             <uint32_t name='gl_catalog'/>
             <pointer name='gl_texpos'/>
         </compound>
 
-        <pointer name='sync' comment='rendering barrier'/>
-
-        <compound name='simticks'>
-            <pointer name='sem'/>
-            <int32_t name='value'/>
-        </compound>
-        <compound name='gputicks'>
-            <pointer name='sem'/>
-            <int32_t name='value'/>
-        </compound>
+        <int32_t name='simticks'/> note: this is a std::atomic_int
+        <int32_t name='gputicks'/> note: this is a std::atomic_int
 
         <uint32_t name='clock' comment='An *approximation* of the current time for use in garbage collection thingies, updated every frame or so.'/>
+        <bool name='mouse_focus'/>
+        <static-array type-name='uint8_t' count='32' name='last_text_input'/>
 
         <virtual-methods>
             <vmethod ret-type='stl-string' name='GetKeyDisplay'>
