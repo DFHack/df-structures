@@ -50,12 +50,33 @@ for my $fn (sort { $a cmp $b } bsd_glob "$input_dir/df.*.xml") {
 
 # Generate type text representations
 
+my %type_preprocessors = (
+    'class-type' => \&preprocess_struct_type,
+    'struct-type' => \&preprocess_struct_type,
+);
+
 my %type_handlers = (
     'enum-type' => \&render_enum_type,
     'bitfield-type' => \&render_bitfield_type,
     'class-type' => \&render_struct_type,
     'struct-type' => \&render_struct_type,
 );
+
+for my $name (sort { $a cmp $b } keys %types) {
+    local $typename = $name;
+
+    eval {
+        my $type = $types{$typename};
+        my $meta = $type->getAttribute('ld:meta');
+        my $handler = $type_preprocessors{$meta};
+        if ($handler) {
+            $handler->($type);
+        }
+    };
+    if ($@) {
+        print "Error preprocessing type $typename: ".$@;
+    }
+}
 
 for my $name (sort { $a cmp $b } keys %types) {
     local $typename = $name;

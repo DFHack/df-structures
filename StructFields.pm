@@ -165,10 +165,6 @@ my %custom_container_inits = (
     },
 );
 
-# track objects that contain members with vtables
-# map of: type name -> @{names of classes containing type}
-my %field_backrefs;
-
 sub emit_typedef($$) {
     # Convert a prefix/postfix pair into a single name
     my ($pre, $post) = @_;
@@ -235,14 +231,6 @@ sub get_struct_field_type($;%) {
             or die "Global field without type-name";
         $type_def = register_ref($tname, !$flags{-weak} || ($subtype && $subtype eq 'enum'));
         $prefix = $main_namespace.'::'.$tname;
-
-        if ($tag->nodeName eq 'ld:field') {
-            my $parentName = $tag->parentNode->getAttribute('type-name');
-            my $fieldMeta = $types{$tname}->getAttribute('ld:meta');
-            if ($parentName && $fieldMeta eq 'class-type') {
-                push @{$field_backrefs{$tname}}, $tag->parentNode->getAttribute('type-name');
-            }
-        }
     } elsif ($meta eq 'compound') {
         die "Unnamed compound in global mode: ".$tag->toString."\n" unless $flags{-local};
 
@@ -700,13 +688,6 @@ sub emit_struct_fields($$;%) {
                     "${ftable}${maybe_index_enum});";
         }
     } 'fields-' . $fields_group;
-
-    if ($field_backrefs{$name}) {
-        for my $backref (@{$field_backrefs{$name}}) {
-            register_ref $backref;
-            emit "friend struct ${main_namespace}::${backref};";
-        }
-    }
 }
 
 for my $letter ('a' .. 'z') {
