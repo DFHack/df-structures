@@ -9,6 +9,7 @@ BEGIN {
     our $VERSION = 1.00;
     our @ISA     = qw(Exporter);
     our @EXPORT  = qw(
+        &preprocess_struct_type
         &render_struct_type
     );
     our %EXPORT_TAGS = ( ); # eg: TAG => [ qw!name1 name2! ],
@@ -21,6 +22,10 @@ use XML::LibXML;
 
 use Common;
 use StructFields;
+
+# track objects that contain members with vtables
+# map of: type name -> @{names of classes containing type}
+my %field_backrefs;
 
 # MISC
 
@@ -186,6 +191,23 @@ sub render_virtual_methods {
     return ($no_dtor, \@our_vmethods);
 }
 
+sub preprocess_struct_type {
+    my ($tag) = @_;
+
+    for my $field (get_struct_fields($tag)) {
+        if ($field->getAttribute('ld:meta') eq 'global') {
+            my $field_type_name = $field->getAttribute('type-name');
+            if (!$types{$field_type_name}) {
+                die "unknown field type: ".$field->getAttribute('name').": $field_type_name\n";
+            }
+            my $field_type_meta = $types{$field_type_name}->getAttribute('ld:meta');
+            if ($field_type_meta eq 'class-type') {
+                push @{$field_backrefs{$field_type_name}}, $tag->getAttribute('type-name');
+            }
+        }
+    }
+}
+
 sub render_struct_type {
     my ($tag) = @_;
 
@@ -287,6 +309,13 @@ sub render_struct_type {
 
         emit_struct_fields($tag, $typename, -class => $is_class, -inherits => $inherits,
                             -addmethods => $vmethod_emit);
+
+        if ($field_backrefs{$typename}) {
+            for my $backref (@{$field_backrefs{$typename}}) {
+                register_ref $backref;
+                emit 'friend struct ' . fully_qualified_name($types{$backref}, $backref) . ';';
+            }
+        }
     } $tag, "$typename$ispec", -export => 1;
 }
 
