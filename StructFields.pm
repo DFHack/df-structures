@@ -96,6 +96,7 @@ sub add_simple_init($);
 my %custom_primitive_handlers = (
     'stl-string' => sub { header_ref("string"); return "std::string"; },
     'stl-fstream' => sub { header_ref("fstream"); return "std::fstream"; },
+    'stl-mutex' => sub { header_ref("mutex"); return "std::mutex"; },
 );
 
 my %custom_primitive_inits = (
