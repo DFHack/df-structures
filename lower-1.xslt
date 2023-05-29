@@ -213,9 +213,10 @@ Error: field <xsl:value-of select='$enum-key'/> corresponds to an enum value of 
         <prim-type ld:meta='primitive' ld:subtype='stl-string'/>
         <prim-type ld:meta='primitive' ld:subtype='stl-fstream'/>
         <prim-type ld:meta='primitive' ld:subtype='stl-mutex'/>
+        <prim-type ld:meta='primitive' ld:subtype='stl-condition-variable'/>
     </ld:primitive-types>
 
-    <xsl:template match='int8_t|uint8_t|int16_t|uint16_t|int32_t|uint32_t|int64_t|uint64_t|long|bool|flag-bit|s-float|d-float|padding|static-string|ptr-string|stl-string|stl-fstream|stl-mutex'>
+    <xsl:template match='int8_t|uint8_t|int16_t|uint16_t|int32_t|uint32_t|int64_t|uint64_t|long|bool|flag-bit|s-float|d-float|padding|static-string|ptr-string|stl-string|stl-fstream|stl-mutex|stl-condition-variable'>
         <xsl:param name='level' select='-1'/>
         <ld:field>
             <xsl:apply-templates select='@*'/>
