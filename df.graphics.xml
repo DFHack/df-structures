@@ -190,6 +190,19 @@
         <pointer name='edge_biome_se' type-name='int32_t' is-array='true'/>
     </struct-type>
 
+    <struct-type type-name='cached_texturest'>
+        <int32_t name='w'/>
+        <int32_t name='h'/>
+        <pointer name='tex'/>
+        <int8_t name='tex_n'/>
+    </struct-type>
+
+    <struct-type type-name='texblitst'>
+        <int32_t name='x'/>
+        <int32_t name='y'/>
+        <int8_t name='tex'/>
+    </struct-type>
+
     <struct-type type-name='graphic' original-name='graphicst'>
         <stl-vector pointer-type='graphic_viewportst' name='viewport'/>
         <pointer type-name='graphic_viewportst' name='main_viewport'/>
@@ -200,7 +213,7 @@
 
         <int32_t name='viewport_zoom_factor'/>
 
-        <long name='screenx'/>
+        <int32_t name='screenx'/>
         <long name='screeny'/>
         <enum name='screenf' type-name='curses_color'/>
         <enum name='screenb' type-name='curses_color'/>
@@ -258,7 +271,8 @@
 
         <static-array type-name='long' name='clipx' count='2'/>
         <static-array type-name='long' name='clipy' count='2'/>
-        <static-array type-name='long' name='tex_pos' count='10'/>
+        <static-array type-name='cached_texturest' name='tex' count='10'/>
+        <stl-vector name='texblits' type-name='texblitst'/>
 
         <long name='rect_id'/>
 
@@ -851,7 +865,7 @@
 
             <static-array type-name='int32_t' count='12045' name='texture_indices3'/>
             <stl-vector type-name='int32_t' name='texpos_boulder'/>
-            <static-array type-name='int32_t' count='17942' name='texture_indices4'/>
+            <static-array type-name='int32_t' count='17944' name='texture_indices4'/>
 
             <!--
             TODO - update this data to include new tiles
@@ -4885,6 +4899,8 @@
         <pointer type-name='long' name='screentexpos_top_anchored_y' is-array='true'/>
         <pointer type-name='uint32_t' name='screentexpos_top_flag' is-array='true'/>
 
+        <pointer type-name='uint8_t' name='directtexcopy' is-array='true'/>
+
         <pointer type-name='uint8_t' name='screen_old' is-array='true'/>
         <pointer type-name='long' name='screentexpos_old' is-array='true'/>
         <pointer type-name='long' name='screentexpos_lower_old' is-array='true'/>
@@ -4900,6 +4916,8 @@
         <pointer type-name='long' name='screentexpos_top_anchored_x_old' is-array='true'/>
         <pointer type-name='long' name='screentexpos_top_anchored_y_old' is-array='true'/>
         <pointer type-name='uint32_t' name='screentexpos_top_flag_old' is-array='true'/>
+
+        <pointer type-name='uint8_t' name='directtexcopy_old' is-array='true'/>
 
         <pointer type-name='int32_t' name='screentexpos_refresh_buffer' is-array='true'/>
 
@@ -4940,8 +4958,10 @@
     </class-type>
 
     <class-type type-name='renderer_2d_base' inherits-from='renderer'>
-        <pointer name='sdl_screen'/>
-        <padding size='16' name='tile_cache'/>
+        <pointer name='window' comment='SDL_Window*'/>
+        <pointer name='sdl_renderer' comment='SDL_Renderer*'/>
+        <pointer name='screen_tex' comment='SDL_Texture*'/>
+        <stl-map name='tile_cache' comment='map&lt;texture_fullid, SDL_Texture*\&gt;'/>
 
         <int32_t name='dispx'/>
         <int32_t name='dispy'/>
@@ -4953,10 +4973,15 @@
         <int32_t name='origin_x'/>
         <int32_t name='origin_y'/>
 
+        <int32_t name='cur_w'/>
+        <int32_t name='cur_h'/>
+
         <bool name='use_viewport_zoom'/>
         <int32_t name='viewport_zoom_factor'/>
 
-        <padding size='24' name='ttfs_to_render'/>
+        <stl-vector name='textures_to_destroy' comment='svector&lt;texture_fullid&gt;'/>
+        <padding size='24' name='ttfs_to_render'
+            comment='std::list&lt;pair&lt;SDL_Surface*, SDL_Rect&gt;&gt;'/>
 
         <int32_t name='zoom_steps'/>
         <int32_t name='forced_steps'/>
@@ -4980,7 +5005,10 @@
 
     <class-type type-name='enabler' original-name='enablerst' custom-methods='true'>
         <extra-include filename='Hooks.h'/>
-        <bool name='fullscreen'/>
+        <bitfield name='fullscreen_state' base-type='uint8_t'>
+            <flag-bit name='fullscreen'/>
+            <flag-bit name='exclusive'/>
+        </bitfield>
 
         <stl-deque name='overridden_grid_sizes'>
             <int32_t name='x'/>
@@ -5008,8 +5036,9 @@
         <bool name='async_paused'/>
 
         <compound name='async_tobox'>
-            <pointer name='sem'/>
-            <stl-deque name='queue'>
+            <padding name='mtx' size='80'/> should be std::mutex
+            <padding name='cv' size='72'/>  should be std::condition_variable
+            <stl-deque name='vals'>
                 <enum name='cmd'>
                     <enum-item name='pause'/>
                     <enum-item name='start'/>
@@ -5019,12 +5048,12 @@
                 </enum>
                 <int32_t name='val'/>
             </stl-deque>
-            <pointer name='sem_fill'/>
         </compound>
 
         <compound name='async_frombox'>
-            <pointer name='sem'/>
-            <stl-deque name='queue'>
+            <padding name='mtx' size='80'/> should be std::mutex
+            <padding name='cv' size='72'/>  should be std::condition_variable
+            <stl-deque name='vals'>
                 <enum name='msg'>
                     <enum-item name='quit'/>
                     <enum-item name='complete'/>
@@ -5042,15 +5071,14 @@
                     </compound>
                 </compound>
             </stl-deque>
-            <pointer name='sem_fill'/>
         </compound>
 
         <compound name='async_zoom'>
-            <pointer name='sem'/>
-            <stl-deque name='queue'>
+            <padding name='mtx' size='80'/> should be std::mutex
+            <padding name='cv' size='72'/>  should be std::condition_variable
+            <stl-deque name='vals'>
                 <enum base-type='int32_t' type-name='zoom_commands'/>
             </stl-deque>
-            <pointer name='sem_fill'/>
         </compound>
 
         <pointer name='async_fromcomplete'/>
@@ -5078,24 +5106,19 @@
 
         <compound name='textures'>
             <stl-vector type-name='pointer' name='raws'/>
+            <stl-vector type-name='int32_t' name='free_spaces'/>
             <int32_t name='init_texture_size'/>
             <bool name='uploaded'/>
             <uint32_t name='gl_catalog'/>
             <pointer name='gl_texpos'/>
         </compound>
 
-        <pointer name='sync' comment='rendering barrier'/>
-
-        <compound name='simticks'>
-            <pointer name='sem'/>
-            <int32_t name='value'/>
-        </compound>
-        <compound name='gputicks'>
-            <pointer name='sem'/>
-            <int32_t name='value'/>
-        </compound>
+        <int32_t name='simticks'/> note: this is a std::atomic_int
+        <int32_t name='gputicks'/> note: this is a std::atomic_int
 
         <uint32_t name='clock' comment='An *approximation* of the current time for use in garbage collection thingies, updated every frame or so.'/>
+        <bool name='mouse_focus'/>
+        <static-array type-name='uint8_t' count='32' name='last_text_input'/>
 
         <virtual-methods>
             <vmethod ret-type='stl-string' name='GetKeyDisplay'>
