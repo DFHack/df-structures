@@ -98,6 +98,7 @@ my %custom_primitive_handlers = (
     'stl-fstream' => sub { header_ref("fstream"); return "std::fstream"; },
     'stl-mutex' => sub { header_ref("mutex"); return "std::mutex"; },
     'stl-condition-variable' => sub { header_ref("condition_variable"); return "std::condition_variable"; },
+    'stl-future' => sub { header_ref("future"); return "std::future<void>"; },
 );
 
 my %custom_primitive_inits = (
