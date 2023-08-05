@@ -14,4 +14,6 @@ if(BUILD_XMLDUMP)
     )
     add_executable(xml-dump-type-sizes dump-type-sizes.cpp)
     add_dependencies(xml-dump-type-sizes generate_headers)
+    install(TARGETS xml-dump-type-sizes
+        DESTINATION .)
 endif()
