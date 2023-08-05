@@ -6,74 +6,86 @@ on:
     - master
 
 jobs:
-  run:
+  build-windows:
+    name: Process sizes (win64, ${{ matrix.desc }})
+    uses: DFHack/dfhack/.github/workflows/build-windows.yml@develop
+    with:
+      dfhack_ref: develop
+      structures_ref: ${{ matrix.ref }}
+      artifact-name: sizes-Windows-64-${{ matrix.desc }}
+      platform-files: false
+      common-files: false
+      xml-dump-type-sizes: true
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - desc: old
+          ref: master
+        - desc: new
+          ref: ${{ github.ref }}
+    secrets: inherit
+
+  build-linux:
+    name: Process sizes (linux64, ${{ matrix.desc }})
+    uses: DFHack/dfhack/.github/workflows/build-linux.yml@develop
+    with:
+      dfhack_ref: develop
+      structures_ref: ${{ matrix.ref }}
+      artifact-name: sizes-Linux-64-${{ matrix.desc }}
+      platform-files: false
+      common-files: false
+      xml-dump-type-sizes: true
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - desc: old
+          ref: master
+        - desc: new
+          ref: ${{ github.ref }}
+    secrets: inherit
+
+  compare:
     name: ${{ matrix.os }} (${{ matrix.arch }}-bit)
-    runs-on: ${{ matrix.os }}
+    needs:
+    - build-windows
+    - build-linux
+    runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
       matrix:
         os:
-        - ubuntu-22.04
+        - windows
+        - ubuntu
         arch:
         - 64
-        - 32
     steps:
     - name: Set up environment
-      run: |
-        echo "GHA_OS_TAG=$(echo '${{ runner.os }}' | tr '[[:upper:]]' '[[:lower:]]')${{ matrix.arch }}" >> $GITHUB_ENV
+      shell: bash
+      run: echo "GHA_OS_TAG=$(echo '${{ runner.os }}' | tr '[[:upper:]]' '[[:lower:]]')${{ matrix.arch }}" >> $GITHUB_ENV
     - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install \
-            libxml-libxml-perl \
-            libxml-libxslt-perl \
-            ninja-build \
-            python3-jinja2
-        if [[ ${{ matrix.arch}} = 32 ]]; then
-          sudo apt-get install gcc-multilib g++-multilib
-        fi
-    - name: Clone DFHack
+      run: pip install Jinja2
+    - name: Clone df-structures
       uses: actions/checkout@v3
+    - name: Download type sizes artifact (old)
+      uses: actions/download-artifact@v3
       with:
-        repository: dfhack/dfhack
-        submodules: true
-    - name: Clone df-structures (old)
-      uses: actions/checkout@v3
+        name: sizes-${{ runner.os }}-${{ matrix.arch }}-old
+        path: old
+    - name: Download type sizes artifact (new)
+      uses: actions/download-artifact@v3
       with:
-        path: xml-old
-        ref: master
-    - name: Clone df-structures (new)
-      uses: actions/checkout@v3
-      with:
-        path: xml-new
-    # ensure that DFHack configures properly on the new branch:
-    - name: Install new structures
-      run: rsync -av xml-new/ library/xml/ --exclude .git
-    - name: Configure DFHack
+        name: sizes-${{ runner.os }}-${{ matrix.arch }}-new
+        path: new
+    - name: Dump type sizes
+      shell: bash
       run: |
-        cmake \
-          -S . \
-          -B build-ci \
-          -G Ninja \
-          -D DFHACK_BUILD_ARCH=${{ matrix.arch }} \
-          -D BUILD_PLUGINS:BOOL=OFF \
-          -D BUILD_XMLDUMP:BOOL=ON \
-          -D CMAKE_INSTALL_PREFIX="$PWD/install-ci"
-    - name: Dump type sizes (old)
-      run: |
-        rsync -av xml-old/ library/xml/ --exclude .git
-        ninja -C build-ci clean
-        ninja -C build-ci xml-dump-type-sizes
-        ./build-ci/library/xml/tools/xml-dump-type-sizes > sizes-old.txt
-    - name: Dump type sizes (new)
-      run: |
-        rsync -av xml-new/ library/xml/ --exclude .git
-        ninja -C build-ci clean
-        ninja -C build-ci xml-dump-type-sizes
-        ./build-ci/library/xml/tools/xml-dump-type-sizes > sizes-new.txt
+        chmod 755 old/xml-dump-type-sizes new/xml-dump-type-sizes
+        old/xml-dump-type-sizes > sizes-old.txt
+        new/xml-dump-type-sizes > sizes-new.txt
     - name: Generate report
-      run: |
-        python3 library/xml/tools/compare-sizes.py --old sizes-old.txt --new sizes-new.txt --platform ${{ env.GHA_OS_TAG }} --output sizes-${{ env.GHA_OS_TAG }}.json
+      run: python3 tools/compare-sizes.py --old sizes-old.txt --new sizes-new.txt --platform ${{ env.GHA_OS_TAG }} --output sizes-${{ env.GHA_OS_TAG }}.json
     - name: Upload report
       uses: actions/upload-artifact@v3
       with:
@@ -81,12 +93,12 @@ jobs:
         path: sizes-${{ env.GHA_OS_TAG }}.json
 
   report:
-    needs: [run]
-    runs-on: ubuntu-22.04
+    needs: compare
+    runs-on: ubuntu-latest
     steps:
     - name: Clone df-structures
       uses: actions/checkout@v3
-    - name: Download reports
+    - name: Download artifacts
       uses: actions/download-artifact@v3
       with:
         path: reports
@@ -97,8 +109,9 @@ jobs:
           --reports $(find reports -name '*.json') \
           --template tools/type-size-comment.md.in \
           --output tools/type-size-comment.md \
-          --github-actions
-    - name: Generate artifact
+          --github-actions >num_rows.txt
+        echo rows=$(cat num_rows.txt) >> $GITHUB_OUTPUT
+    - name: Generate comment data
       run: |
         jq --null-input \
           --rawfile comment tools/type-size-comment.md \
@@ -106,8 +119,31 @@ jobs:
           --arg pr_number "${{ github.event.pull_request.number }}" \
           --arg rows "${{ steps.generate_comment.outputs.rows }}" \
           '{$comment, $comment_search, $pr_number, update_only:($rows|tonumber <= 0)}' > comment-info.json
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3
+    - name: Format comment
+      id: format
+      run: |
+        set -ex
+        body="$(jq --raw-output .comment comment-info.json)"
+        body="${body//'%'/'%25'}"
+        body="${body//$'\n'/'%0A'}"
+        body="${body//$'\r'/'%0D'}"
+        echo "::set-output name=body::$body"
+
+        echo "COMMENT_SEARCH=$(jq --raw-output .comment_search comment-info.json)" >> $GITHUB_ENV
+        echo "COMMENT_PR_NUMBER=$(jq --raw-output .pr_number comment-info.json)" >> $GITHUB_ENV
+        echo "COMMENT_UPDATE_ONLY=$(jq --raw-output 'if .update_only then 1 else 0 end' comment-info.json)" >> $GITHUB_ENV
+    - name: Find existing comment
+      id: find_comment
+      uses: peter-evans/find-comment@v1
       with:
-        name: comment-info.json
-        path: comment-info.json
+        issue-number: ${{ env.COMMENT_PR_NUMBER }}
+        comment-author: github-actions[bot]
+        body-includes: ${{ env.COMMENT_SEARCH }}
+    - name: Post comment
+      if: ${{ env.COMMENT_UPDATE_ONLY != 1 || steps.find_comment.outputs.comment-id != '' }}
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        issue-number: ${{ env.COMMENT_PR_NUMBER }}
+        comment-id: ${{ steps.find_comment.outputs.comment-id }}
+        body: ${{ steps.format.outputs.body }}
+        edit-mode: replace
