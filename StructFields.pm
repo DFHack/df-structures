@@ -436,9 +436,13 @@ sub render_field_metadata_rec($$) {
     my $meta = $field->getAttribute('ld:meta');
     my $subtype = $field->getAttribute('ld:subtype');
     my $name = $field->getAttribute('name') || $field->getAttribute('ld:anon-name');
+    my $extra = 0;
 
     if ($FLD eq 'GFLD') {
         $name = $field->parentNode()->getAttribute('name');
+        my $original_name = $field->parentNode()->getAttribute('original-name') || $name;
+        $field_defs_extra{$name}{original_name} = "\"$original_name\"";
+        $extra = "&EXTRA($name)";
     }
 
     if (is_attr_true($field, 'ld:anon-compound'))
@@ -449,7 +453,6 @@ sub render_field_metadata_rec($$) {
         return;
     }
 
-    my $extra = 0;
     if (my $xe = $field->getAttribute('index-enum')) {
         static_include_type $xe;
         my $enum = type_identity_reference($types{$xe});
