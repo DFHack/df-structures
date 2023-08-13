@@ -549,6 +549,7 @@ sub generate_field_table(&$) {
                 emit $field_defs_extra{$extra_name}{ref_target} || 0, ",";
                 emit $field_defs_extra{$extra_name}{union_tag_field} || 0, ",";
                 emit $field_defs_extra{$extra_name}{union_tag_attr} || 0, ",";
+                emit $field_defs_extra{$extra_name}{original_name} || 0, ",";
             } "static const struct_field_info_extra EXTRA(${extra_name}) = ", ";";
         }
     }
