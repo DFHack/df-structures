@@ -79,7 +79,11 @@ jobs:
     - name: Dump type sizes
       shell: bash
       run: |
-        chmod 755 old/xml-dump-type-sizes new/xml-dump-type-sizes
+        for name in old new; do
+          cd ${name}
+          tar xjf sizes-${{ runner.os }}-${{ matrix.arch }}-${name}.tar.bz2
+          cd ..
+        done
         old/xml-dump-type-sizes > sizes-old.txt
         new/xml-dump-type-sizes > sizes-new.txt
     - name: Generate report
