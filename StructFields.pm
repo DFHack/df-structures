@@ -149,6 +149,11 @@ my %custom_container_handlers = (
         header_ref("optional");
         return "std::optional<$item >";
     },
+    'stl-shared-ptr' => sub {
+        my $item = get_container_item_type($_, -void => 'void');
+        header_ref("memory");
+        return "std::shared_ptr<$item >";
+    },
     'df-flagarray' => sub {
         my $type = decode_type_name_ref($_, -attr_name => 'index-enum', -force_type => 'enum-type') || 'int';
         return "BitArray<$type>";
