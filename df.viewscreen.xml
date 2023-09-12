@@ -149,12 +149,38 @@
 
     <class-type type-name='widget' original-name='widgets::widget'>
         <pointer name='parent'/>
-        <stl-string name='name'/>
         <compound type-name='extentst' name='rect'/>
-        <int32_t name='rel_x'/>
-        <int32_t name='rel_y'/>
-        <bool name='visible'/>
+        <stl-optional name='custom_feed'>
+            <stl-function/>
+        </stl-optional>
+        <stl-string name='name'/>
+        <bitfield name='visibility_flags' base-type='int8_t'>
+            <flag-bit name='WIDGET_VISIBILITY_ACTIVE'/>
+            <flag-bit name='WIDGET_VISIBILITY_ACTUALLY_VISIBLE'/>
+        </bitfield>
+        <int32_t name='offset_bottom'/>
+        <int32_t name='offset_left'/>
+        <int32_t name='offset_right'/>
+        <int32_t name='offset_top'/>
+        <s-float name='anchor_top'/>
+        <s-float name='anchor_bottom'/>
+        <s-float name='anchor_left'/>
+        <s-float name='anchor_right'/>
+        <int32_t name='min_w'/>
+        <int32_t name='min_h'/>
+        <stl-string name='tooltip'/>
+        <enum name='tooltip_type' base-type='int8_t'>
+            <enum-item name='NONE' value='-1'/>
+            <enum-item name='REPLACE_MINIMAP'/>
+            <enum-item name='ABOVE'/>
+            <enum-item name='BELOW'/>
+        </enum>
+        <bool name='displaying_tooltip'/>
+        <stl-string name='search_string'/>
+
         <virtual-methods>
+            -- from abstract_interface
+            <vmethod name='get_rect' ret-type='extentst'/>
             <vmethod name='feed'>
                 <pointer name='events'> <stl-set>
                     <enum type-name='interface_key' base-type='int32_t'/>
@@ -163,11 +189,11 @@
             <vmethod name='logic'/>
             <vmethod name='render'/>
             <vmethod name='arrange'/>
-            <vmethod/>
-            <vmethod/>
-            <vmethod/>
-            <vmethod/>
-            <vmethod/>
+            <vmethod name='remove_child'> <pointer name='w'/> </vmethod>
+            <vmethod name='clear'/>
+            -- from widget itself
+            <vmethod name='is_container' ret-type='bool'/>
+            <vmethod is-destructor='true'/>
         </virtual-methods>
     </class-type>
 
@@ -181,27 +207,37 @@
 
     <class-type type-name='widget_textbox' original-name='widgets::textbox' inherits-from='widget'>
         <stl-string name='str'/>
-        <bool name='toggle'/>
+        <compound type-name='widget_button' name='toggle'/>
         <int32_t name='flags'/>
-        <padding size='4' comment='alignment padding before std::function'/>
-        <padding name='callback' size='64' comment='actually std::function&lt;void()&gt;'/>
+        <stl-function name='callback' comment='arguments are textbox*'/>
         <int16_t name='fg'/>
         <int16_t name='bg'/>
         <int8_t name='bright'/>
         <bool name='input'/>
+        <int32_t name='maxlen'/>
     </class-type>
 
     <class-type type-name='widget_button' original-name='widgets::button' inherits-from='widget'>
-        <padding name='callback' size='64'/> actually std::function((void()))
+        <stl-function name='callback' comment='arguments are button*'/>
     </class-type>
 
     <class-type type-name='widget_container' original-name='widgets::container' inherits-from='widget'>
-        <stl-vector name='children' pointer-type='widget'/>
+        <stl-map name='children_by_name' comment='std::map&lt;std::string,std::shared_ptr&lt;widget&gt;&gt;'/>
+        <stl-vector name='children'>
+            <stl-shared-ptr type-name='widget'/>
+        </stl-vector>
     </class-type>
 
     <class-type type-name='widget_tabs' original-name='widgets::tabs' inherits-from='widget_container'>
         <size_t name='cur_idx'/>
         <stl-vector name='tab_labels' pointer-type='stl-string'/>
+        <stl-vector name='rows' comment='actually std::pair of size_t, size_t'/>
+        <enum name='tab_type'>
+            <enum-item name='DEFAULT'/>
+            <enum-item name='SHORT'/>
+            <enum-item name='SHORT_SUB'/>
+            <enum-item name='SHORT_SUBSUB'/>
+        </enum>
     </class-type>
 
     <class-type type-name='MacroScreenLoad' inherits-from='viewscreen'>
