@@ -139,6 +139,13 @@ my %custom_container_handlers = (
         header_ref("map");
         return "std::map<$key, $item>";
     },
+    'stl-unordered-map' => sub {
+        # TODO: implement get_container_key_type?
+        my $key  = 'void*';
+        my $item = get_container_item_type($_, -void => 'void*');
+        header_ref("unordered_map");
+        return "std::unordered_map<$key, $item>";
+    },
     'stl-function' => sub {
         my $item = get_container_item_type($_, -void => 'void');
         header_ref("functional");
