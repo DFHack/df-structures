@@ -55,30 +55,31 @@
         <flag-bit name='fetching'
                   comment='Actually going out to bring; corresponds to items->is_fetching'/>
         <flag-bit name='special'
-                  comment='Sleep/Drink/Eat/Clean; cannot be aborted via the ui'/>
+                  comment='toady: UNITSOURCE: Sleep/Drink/Eat/Clean; cannot be aborted via the ui'/>
         <flag-bit name='bringing'>
             <comment>
+                toady: RETURNING
                 When actually carrying non-last item to the workshop.
                 If last, 'working' is used instead.
             </comment>
         </flag-bit>
-        <flag-bit name='item_lost' comment='set when a Hauled item is removed; causes cancel'/>
+        <flag-bit name='item_lost' comment='toady: HITBYDELETION; set when a Hauled item is removed; causes cancel'/>
         <flag-bit name='noise' count='2' comment='on the sleep job causes thoughts'/>
 
         --
-        <flag-bit name='by_manager'/>
-        <flag-bit name='store_item'/>
-        <flag-bit name='quality' count='3' comment='set by improvement code'/>
-        <flag-bit name='specific_dropoff'
-                  comment='for some jobs, blocks auto-restockpiling of the hauled item'/>
-        <flag-bit/>
+        <flag-bit name='by_manager' comment='toady: QUOTASOURCE'/>
+        <flag-bit name='store_item' comment='toady: ITEMSOURCE'/>
+        <flag-bit name='quality' count='3' comment='toady: BONUS1/2/3; set by improvement code'/>
+        <flag-bit name='non_fluid'/>
+        <flag-bit name='could_not_find_building_use_1'/>
 
-        <flag-bit name='on_break' comment='job displayed as On Break'/>
-        <flag-bit/>
-        <flag-bit name='do_now'/>
+        <flag-bit name='on_break' comment='toady: COUNTS_AS_BREAK; job displayed as On Break'/>
+        <flag-bit name='dessource'/>
+        <flag-bit name='do_now' comment='toady: DO_ME_NOW'/>
     </bitfield-type>
 
     <enum-type type-name='job_subtype_surgery'>
+        <enum-item name='None' value='-1'/>
         <enum-item name='Surgery'/>
         <enum-item name='StopBleeding'/>
         <enum-item name='RepairCompoundFracture'/>
@@ -91,27 +92,35 @@
         <int32_t name='posting_index' init-value='-1' since='v0.40.20' comment='index into world.job_postings'/>
 
         <enum name='job_type' base-type='int16_t' type-name='job_type'/>
-        <int32_t name='job_subtype' init-value='-1'/>   surgery only ?
+        <enum name='job_subtype' base-type='int32_t' type-name='job_subtype_surgery' init-value='-1' comment='toady: stage'/>   surgery only ?
 
         <code-helper name='describe'>$.job_type</code-helper>
 
         <compound name='pos' type-name='coord'/>
 
-        <int32_t name='completion_timer' init-value='-1' comment='-1 every time unit.counters.job_counter is below 0' />
+        <int32_t name='completion_timer' init-value='-1' comment='toady: duration; -1 every time unit.counters.job_counter is below 0' />
 
-        <uint32_t name='unk4' comment='garbage, but serialized'/>
+        <uint32_t name='maxdur'/>
 
         <bitfield name='flags' type-name='job_flags'/>
 
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name='mat_index' init-value='-1'/>
-        <int16_t name='unk5' init-value='-1'/>
+        <int16_t name='spell' init-value='-1' comment='almost certainly no longer used'/>
         <enum base-type='int16_t' name='item_type' type-name='item_type' comment='for Bait Trap jobs'/>
         <int16_t name='item_subtype' init-value='-1' comment='when StoreInStockpile this is a unit_labor'/>
 
-        -- For building construction, bit 0 marks if location was updated:
-        <bitfield name="item_category" type-name='stockpile_group_set'/>
-        <compound is-union='true'>
+        not actually a stockpile_group_set
+        this field encodes multiple overlapping flags:
+        bit0: ConstructBuildingSwitchedSpot, CleanPatientTriedSoap, CleanSelfTriedSoap, PlaceTrackVehicleClearedJobs, GatherFromZone, DrinkItemLookedForNearbyGoblet, InterrogationDidOfficeAttempt
+        bit1: GatherPickTrees
+        bit2: GatherPickShrubs
+        bit3: GatherGatherFallen
+        bit4: GatherNoLadderSearch
+        bit5: GatherLadderRestricted
+        bit6: GatherLadderGround
+        <bitfield name="item_category" type-name='stockpile_group_set' comment='type and name are inappropriate'/>
+        <compound is-union='true'> toady: spec_id
             <int32_t name="hist_figure_id" ref-target='historical_figure'/>
             <int32_t name="race" ref-target='creature_raw'/>
             <enum base-type='int32_t' name="improvement" type-name='improvement_type'/>
@@ -120,10 +129,9 @@
 
         <stl-string name='reaction_name'/>
 
-        <int32_t name='expire_timer' comment='for stockpiling, +1 per 50 ticks if no worker; del when 20'/>
-        <int16_t name='recheck_cntdn' comment='for process_jobs'/>
-        <int16_t name='wait_timer' comment='for units to leave build sites; to recheck stockpiles'/>
-        <int32_t name='unk11' init-value='-1' since='v0.34.08'/>
+        <int32_t name='expire_timer' comment='toady: haul_timer; for stockpiling, +1 per 50 ticks if no worker; del when 20'/>
+        <int16_t name='recheck_cntdn' comment='toady: auxilary_counter; for process_jobs'/>
+        <int32_t name='aux_id' since='v0.34.08'/>
 
         <stl-vector name='items' pointer-type='job_item_ref'/>
         <stl-vector name='specific_refs' pointer-type='specific_ref'/>
@@ -133,7 +141,7 @@
         <compound name='guide_path' type-name='coord_path' since='v0.34.08'/>
         <int32_t name='cur_path_index' since='v0.34.08'/>
 
-        <compound name='unk_v4020_2' type-name='coord' since='v0.40.20'/>
+        <compound name='spec_loc' type-name='coord' since='v0.40.20' comment='toady: spec_x/spec_y/spec_z'/>
 
         <compound name='art_spec' type-name='job_art_specification' since='v0.43.01'/>
         <int32_t name='order_id' ref-target='manager_order' init-value='-1' since='v0.43.01'/>
