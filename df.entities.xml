@@ -452,6 +452,7 @@
             <stl-vector name='instrument_type' type-name='int16_t' ref-target='itemdef_instrumentst'/>
             <stl-vector name='siegeammo_type' type-name='int16_t' ref-target='itemdef_siegeammost'/>
             <stl-vector name='tool_type' type-name='int16_t' ref-target='itemdef_toolst'/>
+            -- bay12: reaction_ind
             <stl-vector name='unk_1' type-name='int32_t' since='v0.42.01'/>
 
             <compound name='metal'>
@@ -669,8 +670,9 @@
             </stl-vector>
         </pointer>
 
+        -- bay12: rumor_info
         <stl-vector name='events' pointer-type='entity_event'/>
-
+        -- these are part of bay12's rumor_info struct
         <int32_t name='unk_v40_1a' since='v0.40.01'/>
         <int32_t name='unk_v40_1b' since='v0.40.01'/>
         <int32_t name='unk_v40_1c' since='v0.40.01'/>
@@ -680,9 +682,12 @@
         <stl-vector name='performed_poetic_forms' type-name='int32_t' ref-target='poetic_form' since='v0.42.01'/>
         <stl-vector name='performed_musical_forms' type-name='int32_t' ref-target='musical_form' since='v0.42.01'/>
         <stl-vector name='performed_dance_forms' type-name='int32_t' ref-target='dance_form' since='v0.42.01'/>
-        <stl-vector name='major_civ_number' type-name='int32_t' since='v0.42.01' comment="Single item increasing from 0 linearly as major race civs are created, i.e. all civs except cavern and Kobold, but including spire breach released goblin ones"/>
-        <stl-vector name='major_civ_number_2' type-name='int32_t' since='v0.42.01' comment="Identical to major_civ_number on the same entries. Presumably some properties only major civs have, such as e.g. accepting outsiders as members, engage in conquest, etc."/>
-        <stl-vector name='unk_1' type-name='int32_t' since='v0.42.01' comment="Only on major civs, but not all"/>
+        <stl-vector name='performed_scale_id' type-name='int32_t' since='v0.42.01'/>
+        <stl-vector name='performed_rhythm_id' type-name='int32_t' since='v0.42.01'/>
+        -- wcid == written content ID
+        <stl-vector name='well_known_wcid' type-name='int32_t' since='v0.42.01'/>
+
+        -- bay12: entity_calendarst *calendar
         <pointer name='occasion_info' type-name='entity_occasion_info' comment="only seen on Civilization, SiteGovernment, and Religion, but not all"/>
 
         <stl-vector name='artifact_claims' pointer-type='artifact_claim' since='v0.44.01' comment='sorted on artifact id'/>
@@ -694,6 +699,7 @@
         <int32_t name='attack' since='v0.47.01' comment="only seen on military units"/>
         <int32_t name='total_battles' since='v0.47.01' comment="attacks + defenses. Only seen on military units"/>
 
+        -- bay12: evidence_repository
         <pointer name='unk_v47_1' since='v0.47.01'>
             <stl-vector name='unk_v47_1' pointer-type='entity_unk_v47_1'/>
             <stl-vector name='foiled_plot_agreements' type-name='int32_t' ref-target='agreement' comment="Mostly a guess. The foiled plot agreement out of 2 appeared here"/>
@@ -703,25 +709,28 @@
 
         <stl-vector name='divination_sets' type-name='int32_t' since='v0.47.01' comment="Guess. Only on religions, but not all. start at 350 and added sequentially in Religion formation order. Last religion # = last divination set index"/>
 
+        -- bay12: material_source_enid
         <int32_t name='founding_site_government' ref-target='historical_entity' since='v0.47.01' comment="All cases examined refered to site government of site of founding. Perf troop and merc lack site info but seems reasonable."/>
 
         <stl-vector name='meeting_events' pointer-type='meeting_event'/>
+
+        -- bay12: reportst *lastreport
         <pointer name='activity_stats' type-name='entity_activity_statistics'/>
 
-        <compound name='unknown1e'>
-            <int16_t name='unk47' comment='in 0.23, last communicate season'/>
-            <int32_t name='unk48' comment='in 0.23, last communicate year'/>
+        <!-- <compound name='unknown1e'> -->
+            <int16_t name='last_report_season' comment='in 0.23, last communicate season'/>
+            <int32_t name='last_report_year' comment='in 0.23, last communicate year'/>
 
             <int32_t name='imports_from'/>
             <int32_t name='offerings_from'/>
             <int32_t name='offerings_recent' comment='since the last migrant wave or diplomat visit'/>
             <static-array name='offerings_history' count='10' type-name='int32_t' comment='rotated yearly at 15th of Timber'/>
-            <int32_t name='hostility_level'/>
+            <int32_t name='hostility_level' comment='bay12: brazenness'/>
             <int32_t name='siege_tier'/>
-            <int32_t name='unk_1' since='v0.40.01' comment='siege cooldown?'/>
-            <int32_t name='unk_2' since='v0.47.01'/>
-            <int32_t name='unk_3' since='v0.47.01'/>
-        </compound>
+            <int32_t name='dwf_attack_schedule_check_timer' since='v0.40.01'/>
+            <int32_t name='last_petition_year' since='v0.47.01'/>
+            <int32_t name='last_petition_season_count' since='v0.47.01'/>
+        <!-- </compound> -->
 
         <stl-vector name='armies' pointer-type='army' since='v0.40.01'/>
         <stl-vector name='army_controllers' pointer-type='army_controller' since='v0.40.01'/>
@@ -779,57 +788,62 @@
         <stl-vector name='children' type-name='int32_t' ref-target='historical_entity'
                     comment='includes self'/>
 
-        <compound name='unknown2'>
+        <!-- <compound name='unknown2'> -->
+            -- bay12: army_strength_material_bonus
             <int32_t name='metal_proficiency'
                 comment='best IMPACT_FRACTURE/10000 + MAX_EDGE/1000 for weapon mats plus best IMPACT_FRACTURE/10000 for armor mats'/>
             <stl-vector name='weapon_proficiencies' type-name='job_skill'/>
 
+            -- bay12: production_zonest *production_zone
             <pointer name='resource_allotment' type-name='resource_allotment_data' comment="Only for SiteGovernment, but not all"/>
-            <stl-vector name='unk_1' since='v0.42.01' pointer-type='poetic_form'/>
-            <stl-vector name='unk_2' since='v0.42.01' pointer-type='musical_form'/>
-            <stl-vector name='unk_3' since='v0.42.01' pointer-type='dance_form'/>
-            <stl-vector name='unk_4' since='v0.42.01' pointer-type='written_content'/>
-            <int16_t name='unk12a' init-value='-1'/>
-            <int16_t name='unk12b' comment='uninitialized'/>
-            <bool name='unk13' comment='0'/>
+
+            <stl-vector name='local_poetic_form' since='v0.42.01' pointer-type='poetic_form'/>
+            <stl-vector name='local_musical_form' since='v0.42.01' pointer-type='musical_form'/>
+            <stl-vector name='local_dance_form' since='v0.42.01' pointer-type='dance_form'/>
+            <stl-vector name='well_known_wc' since='v0.42.01' pointer-type='written_content'/>
+            <int16_t name='settlement_x' init-value='-1'/>
+            <int16_t name='settlement_y' comment='uninitialized'/>
+            <bool name='settlement_toggled' comment='0'/>
             <pointer name='landmass' type-name='world_landmass'/>                      -- Civ entities. Nil for sites.
             <pointer name='region' type-name='world_region' has-bad-pointers='true'/>  -- Civ entities. Non pointers for sites.
-            <int32_t name='unk16' comment='uninitialized'/>
-            <int16_t name='unk17' comment='0'/>
+            <int32_t name='world_gen_army_strength' comment='uninitialized'/>
+            <int16_t name='connect_two_site_throttle_time' comment='0'/>
 
-            <stl-vector name='unk18' type-name='int32_t' comment='used during world gen'/>
-            <stl-vector name='unk19' type-name='int16_t' comment='used during world gen'/>
+            <stl-vector name='construct_shortest_con_throttle_stid' type-name='int32_t' comment='used during world gen'/>
+            <stl-vector name='construct_shortest_con_throttle_time' type-name='int16_t' comment='used during world gen'/>
 
-            <int16_t name='unk20' comment='0'/>
-            <int32_t name='unk21' comment='0'/>
-            <int32_t name='unk22' comment='0'/>
-            <int32_t name='unk23' comment='0'/>
+            <int16_t name='snatcher_site_toggle_count' comment='0'/>
+            <int32_t name='war_fatigue' comment='0'/>
+            <int32_t name='army_reeling_attack' comment='0'/>
+            <int32_t name='unkarmy_reeling_defense' comment='0'/>
 
-            <stl-vector name='unk24' type-name='int32_t' comment='used during world gen'/>
-            <stl-vector name='unk25' type-name='int32_t' comment='used during world gen'/>
+            <stl-vector name='attacked_site_id' type-name='int32_t' comment='used during world gen'/>
+            <stl-vector name='attacked_site_timer' type-name='int32_t' comment='used during world gen'/>
 
-            <int32_t name='unk_9C'/>
-            <int32_t name='unk_A0'/>
-            <int32_t name='unk_A4'/>
-            <int32_t name='unk_A8'/>
-            <int32_t name='unk_AC'/>
-            <int32_t name='unk_B0'/>
-            <int32_t name='unk_B4'/>
-            <int32_t name='unk_B8'/>
-            <int32_t name='unk_BC'/>
-            <int32_t name='unk_C0'/>
+            <int32_t name='did_wg_variable_position'/>
+            <int32_t name='did_wg_variable_market_position'/>
+            <int32_t name='dig_caution_end_year'/>
+            <int32_t name='total_pop'/>
+            <int32_t name='eating_pop_carn'/>
+            <int32_t name='eating_pop_omni'/>
+            <int32_t name='working_pop'/>
+            <int32_t name='working_e_pop'/>
+            <int32_t name='layabout_pool'/>
+            <int32_t name='peasant_pool'/>
 
-            <int32_t name='unk_5' since='v0.47.01'/>?
-            <int32_t name='unk_6' since='v0.47.01'/>?
-            <int32_t name='unk_7' since='v0.47.01'/>?
+            <int32_t name='peasant_labor_hours' since='v0.47.01'/>?
+            <int32_t name='total_food_veg' since='v0.47.01'/>?
+            <int32_t name='total_food_carn' since='v0.47.01'/>?
 
-            <static-array name='unk26a' count='38' type-name='int32_t'/>
-            <static-array name='unk26b' count='38' type-name='int32_t'/>
-            <static-array name='unk26c' count='38' type-name='int32_t'/>
-            <static-array name='unk26d' count='38' type-name='int32_t'/>
-            <static-array name='unk26e' count='15' type-name='int32_t'/>
+            <static-array name='trade_current_amount' count='38' type-name='int32_t'/>
+            <static-array name='trade_needed_amount' count='38' type-name='int32_t'/>
+            <static-array name='trade_wanted_amount' count='38' type-name='int32_t'/>
+            <static-array name='trade_maximum_buy_price' count='38' type-name='int32_t'/>
+            <static-array name='town_labor_hours' count='15' type-name='int32_t'/>
 
+            -- bay12: world_gen_entity_debt
             <stl-vector name='unk28'>
+                -- bay12: world_gen_entity_debtst
                 <pointer>
                     <int32_t name='unk_1'/>
                     <int32_t name='unk_2'/>
@@ -847,7 +861,7 @@
             <int32_t name='unk_9' since='v0.47.01'/>
             <int32_t name='unk_10' since='v0.47.01'/>
             <int32_t name='unk_11' since='v0.47.01'/>
-        </compound>
+        <!-- </compound> -->
     </struct-type>
 
     <struct-type type-name='entity_tissue_style' key-field='id'>
