@@ -380,32 +380,38 @@
       seem to match the questers that show up shortly thereafter, looking for the indicated artifact. As with InvasionOrder armies, quester armies disappear on embark arrival.
 
       VillainousVisit (24): Villainous visitors. Legitimate ones use Visit army controllers, but only until they arrive, while villainous ones linger.
-    <struct-type type-name='army_controller' key-field='id'
+    <struct-type type-name='army_controller' key-field='id' original-name='army_controllerst'
                  instance-vector='$global.world.army_controllers.all'>
         <int32_t name='id' comment="all army.controllers seen and reached via InvasionOrder controllers' armies have been of type = Invasion and absent from the 'all' vector"/>
         <int32_t name="entity_id" ref-target='historical_entity'/>
         <int32_t name='site_id' ref-target="world_site" comment="Invasion/Order: site to invade. Visit/Quest/VillainousVisit: site to 'visit'"/>
-        <int32_t name='unk_1' init-value='-1'/>
+        <int32_t name='subregion_id' ref-target='world_region' init-value='-1'/>
         <int32_t name='pos_x' comment="Look like the unit is map_block, i.e. 3 * 16 * world tile. Position of target, which is the starting point for defeated invasions"/>
         <int32_t name='pos_y'/>
-        <int32_t name="unk_18" comment="Seen one case of 1990 for VillainVisiting"/>
-        <int32_t name="unk_1c" comment="same value for the same visitor"/>
-        <stl-vector name='unk_20' type-name='int32_t'/>
+        <int32_t name='percentage_pop'/>
+        <int32_t name='number_pop'/>
+        <stl-vector name='activity_id' type-name='int32_t'/>
         <int32_t name="year"/>
         <int32_t name="year_tick"/>
-        <int32_t name='unk_34' ref-target='army_controller' comment="id of other army controller (Invasion) from same entity seen here"/>
-        <int32_t name='unk_38' ref-target='army_controller' comment="copy of the id seen here, as well as a t7 for a t5 controller"/>
+        <int32_t name='parent_id' ref-target='army_controller' comment="id of other army controller (Invasion) from same entity seen here"/>
+        <int32_t name='master_id' ref-target='army_controller' comment="copy of the id seen here, as well as a t7 for a t5 controller"/>
         <int32_t name='master_hf' ref-target='historical_figure' comment="InvasionOrder: Civ/sitegov master. Invasion: leader of the attack, can be in army nemesis vector"/>
-        <int32_t name='general_hf' ref-target='historical_figure' comment="InvasionOrder:leader of the attack. Invasion: subordinate squad leader(?) in army nemesis vector. Can be same as master"/>
-        <int32_t name="unk_44_1"/>
-        <int32_t name="unk_44_2"/>
-        <int32_t name='visitor_nemesis_id' ref-target='nemesis_record' comment="Set for VillainousVisit"/>
-        <int32_t name='unk_44_4' comment="3, 6 seen for Villain"/>
-        <stl-vector name="unk_44_5" type-name='int32_t'/>
-        <int32_t name="unk_50"/>
-        <stl-vector name="unk_54" type-name='int32_t'/>
-        <stl-vector name='unk_44_11v' type-name='int32_t' since='v0.44.11'/>
-        <stl-vector name='unk_v50_b0' type-name='int32_t' since='v0.50.01'/>
+        <int32_t name='commander_hf' ref-target='historical_figure' comment="InvasionOrder:leader of the attack. Invasion: subordinate squad leader(?) in army nemesis vector. Can be same as master"/>
+        <int32_t name="origin_task_holder_nemesis_id" ref-target='nemesis-record'/>
+        <int32_t name="origin_task_id"/>
+        <int32_t name='origin_plot_holder_nemesis_id' ref-target='nemesis_record'/>
+        <int32_t name='origin_plot_id'/>
+        <stl-vector name="ignore_track_entity_id" type-name='int32_t'/>
+        <bitfield name="flag" base-type='int32_t'>
+            <flag-bit name='do_not_clear_army_dependencies'/>
+            <flag-bit name='delete_me'/>
+            <flag-bit name='site_realized_over_goal'/>
+            <flag-bit name='civ_rep'/>
+            <flag-bit name='done_for_dwarf_mode'/>
+        </bitfield>
+        <stl-vector name="assigned_squads" type-name='int32_t' ref-target='squad'/>
+        <stl-vector name='assigned_epp_entity_id' type-name='int32_t' ref-target='historical_entity' since='v0.44.11'/>
+        <stl-vector name='assigned_epp_epp_id' type-name='int32_t' ref-target='entity_position_assignment' since='v0.50.01'/>
         <pointer name='mission_report' type-name='mission_report'/>
         <compound name='data' is-union='true'>
             <pointer type-name='army_controller_sub1' name='t1'/>
@@ -429,32 +435,33 @@
             <pointer type-name='army_controller_sub23' name='t23'/>
             <pointer type-name='army_controller_villainous_visit' name='VillainousVisit'/>
         </compound>
-        <enum name='type' base-type='int32_t'>
-            <enum-item name='t0'/>
-            <enum-item name='t1'/>
-            <enum-item name='InvasionOrder'/>
-            <enum-item name='t3'/>
-            <enum-item name='Invasion' comment="Seen on army_controller entries of armies referenced by InvasionOrder controllers (which do not refer to the InvasionOrder entries). These Invasion entries are not in the 'all' vector"/>
-            <enum-item name='t5'/>
-            <enum-item name='t6'/>
-            <enum-item name='t7'/>
-            <enum-item name='t8'/>
-            <enum-item name='t9'/>
-            <enum-item name='t10'/>
-            <enum-item name='t11'/>
-            <enum-item name='Visit' comment="Used both for regular visitors to a fortress and exiled characters sent to 'visit' other sites"/>
-            <enum-item name='t13'/>
-            <enum-item name='t14'/>
-            <enum-item name='t15'/>
-            <enum-item name='t16'/>
-            <enum-item name='Quest' comment="Used to indicate artifact quests"/>
-            <enum-item name='t18'/>
-            <enum-item name='t19'/>
-            <enum-item name='t20'/>
-            <enum-item name='t21'/>
-            <enum-item name='t22'/>
-            <enum-item name='t23'/>
-            <enum-item name='VillainousVisit'/>
+        <enum name='goal' base-type='int32_t'>
+            <enum-item name='NONE' value='-1'/>
+            <enum-item name='HOLD_TERRITORY'/>
+            <enum-item name='HARASS'/>
+            <enum-item name='SITE_INVASION'/>
+            <enum-item name='RAMPAGE'/>
+            <enum-item name='CAMP'/>
+            <enum-item name='GUARD'/>
+            <enum-item name='HUNTING'/>
+            <enum-item name='PATROL'/>
+            <enum-item name='PACIFY_SITE'/>
+            <enum-item name='PACIFY_CONNECTED_HAMLET'/>
+            <enum-item name='WAIT'/>
+            <enum-item name='ESCAPE'/>
+            <enum-item name='MOVE_TO_SITE'/>
+            <enum-item name='RECLAIM_SITE'/>
+            <enum-item name='CREATE_NEW_SITE'/>
+            <enum-item name='POSSE'/>
+            <enum-item name='SITE_WORK'/>
+            <enum-item name='RECOVER_ARTIFACT'/>
+            <enum-item name='RESCUE_HF'/>
+            <enum-item name='MAKE_REQUEST'/>
+            <enum-item name='PERFORM_TASK'/>
+            <enum-item name='ASSASSINATE_HF'/>
+            <enum-item name='ABDUCT_HF'/>
+            <enum-item name='SABOTAGE_ENTITY'/>
+            <enum-item name='INFILTRATE_SOCIETY'/>
         </enum>
     </struct-type>
 
