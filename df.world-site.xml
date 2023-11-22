@@ -308,20 +308,6 @@
         <enum-item name='Monument'/>
     </enum-type>
 
-    <enum-type type-name='world_site_flags'>
-        <enum-item name='Undiscovered'/>
-        <enum-item/>
-        <enum-item/>
-        <enum-item name='Town' comment='not hamlet'/>
-        <enum-item/>
-        <enum-item/>
-        <enum-item/>
-        <enum-item/>
-        <enum-item/>
-        <enum-item name='CaveCapital' comment="set on caves (only) that have capital entity links, i.e. Kobold civs in vanilla"/>
-        <enum-item/>
-    </enum-type>
-
     <enum-type type-name='fortress_type' base-type='int16_t'>
         <enum-item name='NONE' value='-1'/>
         <enum-item name='CASTLE'/>
@@ -345,7 +331,7 @@
         <enum-item name='WILDERNESS_LOCATION' comment='In mountains, hosting Rocs in vanilla'/>
     </enum-type>
 
-    <struct-type type-name='property_ownership'>
+    <struct-type type-name='property_ownership' original-name='site_building_profilest'>
         <int32_t name="index"/>
         <bool name="is_concrete_property" comment="true if house [property_index = 4 only one seen], or index into buildings"/>
         <padding name='pad_1' size='3'/>
@@ -355,6 +341,114 @@
         <int32_t name="owner_hfid" ref-target='historical_figure'/>
         <int32_t name="unk_owner_entity_id" ref-target='historical_entity' comment="Seen only in subset of owner_entity_id case, and always same value"/>
     </struct-type>  --  Cannot rule out the type having additional fields, although the 8 following bytes were all 0 in all cases in the save examined.
+
+    <struct-type type-name='unit_placement_infost'>
+        <int32_t name="unit_id" ref-target='unit'/> this is a union in bay12 but they're both the same type so why bother
+        <int32_t name="pos_x"/>
+        <int32_t name="pos_y"/>
+        <int32_t name="pos_z"/>
+        <int32_t name="container_it_id" init-value='-1'/>
+    </struct-type>
+
+    <struct-type type-name='populacest'>
+        <stl-vector name="nemesis" type-name='int32_t' ref-target='nemesis_record'/>
+
+        <stl-vector name="artifacts" pointer-type='artifact_record'/>
+
+        <stl-vector name="animals" pointer-type='world_population'/>
+
+        <stl-vector name="inhabitants" pointer-type='world_site_inhabitant'/>
+
+        <stl-vector name='units' pointer-type='unit_placement_infost'/>
+
+        <stl-vector name='hist_fig_id' type-name='int32_t' comment='worldgen only'/>
+        <stl-vector name='hist_fig' pointer-type='historical_figure' comment='worldgen only'/>
+
+        <int32_t name='births_wanted'/>
+
+        <stl-vector name='pregnancy_candidate' pointer-type='nemesis_record'/>
+        <stl-vector name='marriage_candidate_f_f' pointer-type='nemesis_record'/>
+        <stl-vector name='marriage_candidate_f_m' pointer-type='nemesis_record'/>
+        <stl-vector name='marriage_candidate_f_fm' pointer-type='nemesis_record'/>
+        <stl-vector name='marriage_candidate_m_f' pointer-type='nemesis_record'/>
+        <stl-vector name='marriage_candidate_m_m' pointer-type='nemesis_record'/>
+        <stl-vector name='marriage_candidate_m_fm' pointer-type='nemesis_record'/>
+    </struct-type>
+
+    <struct-type type-name='site_first_calc_special_itemsst'>
+        <stl-vector name='type' type-name='item_type'/>
+        <stl-vector name='subtype' type-name='int16_t'/>
+        <stl-vector name='mat' type-name='int16_t'/>
+        <stl-vector name='matgloss' type-name='int32_t'/>
+        <stl-vector name='civ_id' type-name='int32_t' ref-target='historical_entity'/>
+        <stl-vector name='site_id' type-name='int32_t' ref-target='world_site'/>
+    </struct-type>
+
+    <struct-type type-name='site_cropst'>
+        <int32_t name='production_zone_index'/>
+        <int32_t name='allotment_index'/>
+        <int32_t name='count'/>
+        <int32_t name='planting_week'/>
+        <stl-vector name='growth_allotment_index' type-name='int32_t'/>
+        <stl-vector name='growth_num_multiplier' type-name='int32_t'/>
+        <bitfield name='flag'>
+            <flag-bit name='has_growths'/>
+        </bitfield>
+    </struct-type>
+
+    <enum-type type-name='religious_practice_type' base-type='int32_t'> bay12: ReligiousPractice
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='WORSHIP_HFID'/>
+        <enum-item name='RELIGION_ENID'/>
+    </enum-type>
+
+    <struct-type type-name='site_religious_structurest'>
+        <enum name='type' type-name='religious_practice_type'/>
+        <compound is-union='true' name='data'>
+            <int32_t name='practice_id'/>
+            <int32_t name='hfid' ref-target='historical_figure'/>
+            <int32_t name='enid' ref-target='historical_entity'/>
+        </compound>
+        <int32_t name='points'/>
+    </struct-type>
+
+    <struct-type type-name='site_religious_structure_batchst'>
+        <static-array count='20' type-name='site_religious_structurest' name='rstruct'/>
+        <int32_t name='rstructnum'/>
+    </struct-type>
+
+    <struct-type type-name='site_culture_infrastructurest'>
+        <stl-vector name='religious_structure_batch' type-name='site_religious_structure_batchst'/>
+    </struct-type>
+
+    <enum-type type-name='site_flag_type'> SiteFlagType
+        <enum-item name='HIDDEN'/>
+        <enum-item name='RUINED'/>
+        <enum-item name='IGNORED_BY_LEGENDS'/>
+        <enum-item name='HAS_MARKET'/>
+        <enum-item name='VISITED'/>
+        <enum-item name='ACTIVE'/>
+        <enum-item name='LOADED'/>
+        <enum-item name='SUBORDINATE'/>
+
+        <enum-item name='PASSED_FIRST_REALIZATION'/>
+        <enum-item name='SETTLED'/>
+        <enum-item name='COMPLETELY_SUPERCEDED'/>
+        <enum-item name='UNUSED12'/>
+        <enum-item name='UNUSED13'/>
+        <enum-item name='UNUSED14'/>
+        <enum-item name='UNUSED15'/>
+        <enum-item name='UNUSED16'/>
+
+        <enum-item name='UNUSED17'/>
+        <enum-item name='UNUSED18'/>
+        <enum-item name='UNUSED19'/>
+        <enum-item name='UNUSED20'/>
+        <enum-item name='UNUSED21'/>
+        <enum-item name='UNUSED22'/>
+        <enum-item name='UNUSED23'/>
+        <enum-item name='UNUSED24'/>
+    </enum-type>
 
     <struct-type type-name='world_site' key-field='id'
                  instance-vector='$global.world.world_data.sites'
@@ -372,38 +466,9 @@
 
         <int32_t name="id"/>
 
-        <compound name='unk_1'>
-            <stl-vector name="nemesis" type-name='int32_t' ref-target='nemesis_record'/>
+        <compound name='populace' type-name='populacest'/>
 
-            <stl-vector name="artifacts" pointer-type='artifact_record'/>
-
-            <stl-vector name="animals" pointer-type='world_population'/>
-
-            <stl-vector name="inhabitants" pointer-type='world_site_inhabitant'/>
-
-            <stl-vector name="units">
-                <pointer>
-                    <int32_t name="unit_id" ref-target='unit'/>
-                    <int32_t name="pos_x"/>
-                    <int32_t name="pos_y"/>
-                    <int32_t name="pos_z"/>
-                    <int32_t name="unk_10" init-value='-1'/>
-                </pointer>
-            </stl-vector>
-            <stl-vector name="unk_d4" type-name='int32_t'/>
-
-            <stl-vector name="unk_v40_1a" since='v0.40.01' pointer-type='historical_figure'/> during worldgen only
-            <padding name='pad_1' size='4'/>
-            <stl-vector name="unk_v40_1b" since='v0.40.01' pointer-type='nemesis_record'/> this and below: at the end of worldgen only
-            <stl-vector name="unk_v40_1c" since='v0.40.01' pointer-type='nemesis_record'/>
-            <stl-vector name="unk_v40_1d" since='v0.40.01' pointer-type='nemesis_record'/>
-            <stl-vector name="unk_v40_1e" since='v0.40.01' pointer-type='nemesis_record'/>
-            <stl-vector name="unk_v40_1f" since='v0.40.01' pointer-type='nemesis_record'/>
-            <stl-vector name="unk_v40_1g" since='v0.40.01' pointer-type='nemesis_record'/>
-            <stl-vector name="unk_v40_1h" since='v0.40.01' pointer-type='nemesis_record'/>
-        </compound>
-
-        <int32_t name="index"/>
+        <int32_t name="resource_pile_id"/>
 
         <int16_t name="rgn_min_x" comment='in embark tiles'/>
         <int16_t name="rgn_max_x"/>
@@ -417,77 +482,43 @@
         <int32_t name="global_max_x"/>
         <int32_t name="global_max_y"/>
 
-        <uint32_t name="seed1" comment='random'/>
-        <uint32_t name="seed2" comment='random'/>
+        <uint32_t name="seed" comment='random'/>
+        <uint32_t name="first_seed" comment='random'/>
 
         <int32_t name="resident_count" comment='count living in houses and shops'/>
-        <int32_t name="unk_110"/>
-        <int32_t name="unk_114"/>
-        <pointer name="unk_118">
-            <stl-vector name='unk_1' type-name='int16_t'/>
-            <stl-vector name='unk_2' type-name='int16_t'/>
-            <stl-vector name='unk_3' type-name='int16_t'/>
-            <stl-vector name='unk_4' type-name='int32_t'/>
-            <stl-vector name='unk_5' type-name='int32_t'/>
-            <stl-vector name='unk_6' type-name='int32_t'/>
-        </pointer>
-        <int32_t name="unk_11c" comment='Caves have non zero numbers. No others.'/>
-        <int32_t name="unk_120" comment='Subset of caves can have non zero.'/>
-        <int32_t name="unk_124" comment='Monument 0, LairShrine 5, Camp 20, others varying'/>
-        <int32_t name="unk_128" comment=' "site_level" is in here somewhere. Same as for unk_124, but varying ones always less/equal'/>
-        <static-array name='unk_2' type-name='int32_t' count='8' comment="Has all zero for Fortress, Camp, PlayerFortress, Monument, and LairShrine. Cave can have value, while DarkFortress, MountainHalls, ForestRetreat and Town all have at least one non zero value"/>
+        <int32_t name="brood_creature"/>
+        <int32_t name="brood_caste"/>
+        <pointer name='special_items' type-name='site_first_calc_special_itemsst'/>
 
-        <stl-vector name="unk_13c" comment='MountainHall, Town, DarkFortress, but not all'>
-            <pointer>
-                <int32_t name="unk_0"/>
-                <int32_t name="unk_4"/>
-                <int32_t name="unk_8"/>
-                <int32_t name="unk_c"/>
-                <stl-vector name="unk_10" type-name="int32_t"/>
-                <stl-vector name="unk_20" type-name="int32_t"/>
-                <int32_t name="unk_30"/>
-            </pointer>
-        </stl-vector>
-        <stl-vector name="unk_v40_2" since='v0.40.01' comment='forest retreat'>
-            <pointer>
-                <int32_t name="unk_0"/>
-                <int32_t name="unk_4"/>
-                <int32_t name="unk_8"/>
-                <int32_t name="unk_c"/>
-                <stl-vector name="unk_10" type-name="int32_t"/>
-                <stl-vector name="unk_20" type-name="int32_t"/>
-                <int32_t name="unk_30"/>
-            </pointer>
-        </stl-vector>
-        <stl-vector name="unk_v47_1" since='v0.47.01' comment='Varying types of habitation can have this. It seems new elements are added to hold all required data as all are full except the last one'>
-            <pointer>
-                <compound>
-                    <static-array name='unk_1' count='20'>
-                        <compound>
-                            <int32_t name='unk_1' init-value='-1'/>
-                            <int32_t name='unk_2' init-value='0'/>
-                            <int32_t name='unk_3' init-value='0'/>
-                        </compound>
-                    </static-array>
-                    <int32_t name='count' comment="Number of entries in the array above"/>
-                </compound>
-            </pointer>
-        </stl-vector>
-        <df-flagarray name='flags' index-enum='world_site_flags'/>
+        <int32_t name="size" comment='Caves have non zero numbers. No others.'/>
+        <int32_t name="added_size" comment='Subset of caves can have non zero.'/>
+        <int32_t name="infrastructure_pop_level" comment='Monument 0, LairShrine 5, Camp 20, others varying'/>
+        <int32_t name="base_infrastructure_pop_level" comment=' "site_level" is in here somewhere. Same as for unk_124, but varying ones always less/equal'/>
+        <static-array name='infrastructure' type-name='int32_t' count='8' comment="Has all zero for Fortress, Camp, PlayerFortress, Monument, and LairShrine. Cave can have value, while DarkFortress, MountainHalls, ForestRetreat and Town all have at least one non zero value"/>
+
+        <stl-vector name='small_crop' pointer-type='site_cropst' comment='MountainHall, Town, DarkFortress, but not all'/>
+        <stl-vector name='orchard' pointer-type='site_cropst'  comment='forest retreat'/>
+
+        <compound name='culture_infrastructure' type-name='site_culture_infrastructurest'/>
+
+        <df-flagarray name='flag' index-enum='site_flag_type'/>
 
         <stl-vector name="buildings" pointer-type='abstract_building'/>
-
         <int32_t name="next_building_id"/>
-        <stl-vector name="property_ownership" since='v0.47.01' pointer-type='property_ownership'/>
-        <int32_t name="next_property_ownership_id" since='v0.47.01'/>
-        <int32_t name="created_tick"/>
-        <int32_t name="created_year"/>
-        <int32_t name="unk_170" comment='constant 0'/>
-        <int32_t name="unk_174" comment='constant 0'/>
 
-        <compound name='unk_178' type-name='coord'/>
+        <stl-vector name="property_ownership" since='v0.47.01' pointer-type='property_ownership' comment='bay12: site_building_profile'/>
+        <int32_t name="next_property_ownership_id" since='v0.47.01'/>
+
+        <int32_t name="created_tick" comment='bay12: lastvisited not created'/>
+        <int32_t name="created_year" comment='bay12: lastvisited not created'/>
+        <int32_t name="moss_counter" comment='constant 0'/>
+        <int32_t name="weathering_counter" comment='constant 0'/>
+
+        <compound name='recorded_entrance' type-name='coord'/>
 
         <pointer name="realization" type-name='world_site_realization'/>
+
+        -- stopped here for now will resume later --
 
         <pointer name="subtype_info">
             <enum base-type='int16_t' name="fortress_type" type-name='fortress_type' init-value='NONE' comment='Only when site.type=Fortress'/>
@@ -720,7 +751,7 @@
         <int32_t name="unk_28" init-value='-1' since='v0.40.01'/>
     </struct-type>
 
-    <struct-type type-name='world_site_realization'>
+    <struct-type type-name='world_site_realization' original-name='site_realizationst'>
         <stl-vector name='buildings' pointer-type='site_realization_building'/>
         <int32_t name="num_buildings"/>
         <int32_t name="unk_14"/>
