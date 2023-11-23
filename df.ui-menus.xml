@@ -2663,30 +2663,60 @@
         <int32_t name='demand_period'/>
     </struct-type>
 
+    <struct-type type-name='markup_text_wordst'>
+        read and write serialization is in order as below
+        <stl-string name='str'/>
+        <uint8_t name='red' init-value='255'/>
+        <uint8_t name='green' init-value='255'/>
+        <uint8_t name='blue' init-value='255'/>
+        <int32_t name='link_index' init-value='-1' comment="refers to this text box's link vector, makes clickable link in legends mode"/>
+        <int32_t name='px' init-value='-1' comment='offset from left of text box in characters'/>
+        <int32_t name='py' init-value='-1' comment='offset from top of text box (positive is downwards)'/>
+        <bitfield name='flags'>
+            <flag-bit name='NEW_LINE'/>
+            <flag-bit name='BLANK_LINE'/>
+            <flag-bit name='INDENT'/>
+        </bitfield>
+    </struct-type>
+
+    <enum-type type-name='markup_text_link_type' comment='bay12: MarkupTextLink'
+        base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='HIST_FIG'/>
+        <enum-item name='SITE'/>
+        <enum-item name='ARTIFACT'/>
+        <enum-item name='BOOK'/>
+        <enum-item name='SUBREGION'/>
+        <enum-item name='FEATURE_LAYER'/>
+        <enum-item name='ENTITY'/>
+        <enum-item name='ABSTRACT_BUILDING'/>
+        <enum-item name='ENTITY_POPULATION'/>
+        <enum-item name='ART_IMAGE'/>
+        <enum-item name='ERA'/>
+        <enum-item name='HEC'/>
+    </enum-type>
+
+    <struct-type type-name='markup_text_linkst'>
+        read and write serialization is in order as below
+        <enum type-name='markup_text_link_type' name='type'/>
+        <int32_t name='id' init-value='-1'/>
+        <int32_t name='subid' init-value='-1' comment='only used for type ABSTRACT_BUILDING and ART_IMAGE'/>
+    </struct-type>
+
+    <struct-type type-name='script_environmentst'>
+        note: these are all void* in bay12 code
+        <pointer name='dipev'/>
+        <pointer name='mm'/>
+        <pointer name='activeplot'/>
+        <pointer name='conv'/>
+    </struct-type>
+
     <struct-type type-name='markup_text_boxst'>
-        <stl-vector name='unk1'>
-            <pointer>
-                <stl-string name='unk_00'/> contains a word and punctuation?
-                <uint8_t name='red' init-value='255'/>
-                <uint8_t name='green' init-value='255'/>
-                <uint8_t name='blue' init-value='255'/>
-                <int32_t name='unk_24' init-value='-1'/> related to string length?
-                <int32_t name='unk_28' init-value='-1'/> horizontal offset?
-                <int32_t name='unk_2c' init-value='-1'/> vertical offset?
-                <df-flagarray name='unk_30'/> R = 0x1, B = 0x2, P = 0x4 (parsed tokens)
-            </pointer>
-        </stl-vector>
-        <stl-vector name='unk_v50_2'>
-            <pointer>
-                <int32_t name='unk_0'/>
-                <int32_t name='unk_4'/>
-                <int32_t name='unk_8'/>
-            </pointer>
-        </stl-vector>
-        <int32_t name='unk_v50_3' init-value='-1'/>
-        <int32_t name='unk_v50_4'/>
-        <int32_t name='unk_v50_5'/>
-        <int32_t name='unk_v50_6'/>
+        <stl-vector pointer-type='markup_text_wordst' name='word'/>
+        <stl-vector pointer-type='markup_text_linkst' name='link'/>
+        <int32_t name='current_width' init-value='-1'/>
+        <int32_t name='max_y' init-value='0'/>
+        <pointer type-name='script_environmentst' name='environment' comment='not saved'/>
     </struct-type>
 
     <struct-type type-name='wqc_item_traitst'>
