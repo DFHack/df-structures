@@ -89,15 +89,15 @@
         <enum-item name='Winter'/>
     </enum-type>
 
-    <!-- This enum is very tentative -->
-    <enum-type type-name='death_condition_type' base-type='int8_t'>
-        <enum-item name='no_statement' comment="alive or dead, but death conditions not registered here"/>
-        <enum-item name='site_battle' comment="parameters: site id + optional structure"/>
-        <enum-item name='region_battle' comment="parameters: two unknown values, usually small, with same pair being the same region, but neither is region_id"/>
-        <enum-item name='wilderness' comment="parameters: region_id + -1"/>
-        <enum-item/>
-        <enum-item name='entombed' comment="same parameters as for site_battle, but structure seems to always be present and be a tomb"/>
-        <enum-item name='site' comment="same parameters as for site_battle, old age and deadly confrontation seen"/>
+    <enum-type type-name='death_condition_type' base-type='int8_t' comment='bay12: HistFigBodyState'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='no_statement' comment="bay12: ACTIVE; alive or dead, but death conditions not registered here"/>
+        <enum-item name='site_battle' comment="bay12: BURIED_AT_SITE; parameters: site id + optional structure"/>
+        <enum-item name='region_battle' comment="bay12: UNBURIED_AT_BATTLEFIELD; parameters: two unknown values, usually small, with same pair being the same region, but neither is region_id"/>
+        <enum-item name='wilderness' comment="bay12: UNBUIRED_AT_SUBREGION; parameters: region_id + -1"/>
+        <enum-item name='feature_layer' comment='bay12: UNBURIED_AT_FEATURE_LAYER'/>
+        <enum-item name='entombed' comment="bay12: ENTOMBED_AT_SITE; same parameters as for site_battle, but structure seems to always be present and be a tomb"/>
+        <enum-item name='site' comment="bay12: UNBUIRED_AT_SITE; same parameters as for site_battle, old age and deadly confrontation seen"/>
     </enum-type>
 
     <enum-type type-name='plot_role_type' base-type='int32_t'>
@@ -145,6 +145,27 @@
         <enum name='plot_role' type-name='plot_role_type'/>
         <int32_t name='agreement_id' ref-target='agreement'/>
         <bool name='agreement_has_messenger'/>
+    </struct-type>
+
+    <struct-type type-name='state_profilest'>
+        <enum name='state' type-name='whereabouts_type' base-type='int16_t'/>
+        <int32_t name="site_id" ref-target='world_site' init-value='-1'/>
+        <int32_t name="subregion_id" ref-target='world_region' init-value='-1'/>
+        <int32_t name="feature_layer_id" ref-target='world_underground_region' init-value='-1'/>
+        <int32_t name="army_id" ref-target='army' init-value='-1'/>
+        <int32_t name='cz_id' init-value='-1'/>
+        <int32_t name='cz_bld_num' init-value='-1'/>
+        <int32_t init-value='-1' name='abs_smm_x' comment='same coordinate system as army'/>
+        <int32_t init-value='-1' name='abs_smm_y'/>
+        <bitfield name='flags'>
+            <flag-bit name='XY_LOCATION_SMM_LEVEL'/>
+            <flag-bit name='XY_LOCATION_IN_SUL'/>
+        </bitfield>
+        <enum name='body_state' type-name='death_condition_type' base-type='int8_t' init-value='NONE'/>
+        <int32_t name='body_state_id' init-value='-1' comment="-1/site     /?/region_id/?/site     /site"/>
+        <int32_t name='body_state_sub_id' init-value='-1' comment="-1/structure/?/-1       /?/structure/structure"/>
+        <int32_t name='year' since='v0.42.01' init-value='-1' comment="time of arrival at site/region_id, not time of death"/>
+        <int32_t name='year_tick' since='v0.42.01' init-value='-1'/>
     </struct-type>
 
     <struct-type type-name='historical_figure_info'>
@@ -204,27 +225,7 @@
             <int32_t name='unk_v50_3'/>
         </pointer>
 
-       <!-- This pointer contents is tentative -->
-       <pointer name='whereabouts'>
-            <enum name='whereabouts_type' type-name='whereabouts_type' base-type='int16_t'/>
-            <int32_t name="site" ref-target='world_site'/>
-            <int32_t name="region_id" ref-target='world_region'/>
-            <int32_t name="underground_region_id" ref-target='world_underground_region'/>
-            <int32_t name="army_id" ref-target='army'/>
-            <int32_t name='unk_1' init-value='-1'/>
-            <int32_t name='unk_2' init-value='-1'/>
-            <int32_t init-value='-1' name='pos_x' comment='same coordinate system as army'/>
-            <int32_t init-value='-1' name='pos_y'/>
-            <bitfield name='flags'>
-                <flag-bit/>
-                <flag-bit/>
-            </bitfield>
-            <enum name='death_condition' type-name='death_condition_type' base-type='int8_t'/>
-            <int32_t name='death_condition_parameter_1' init-value='-1' comment="-1/site     /?/region_id/?/site     /site"/>
-            <int32_t name='death_condition_parameter_2' init-value='-1' comment="-1/structure/?/-1       /?/structure/structure"/>
-            <int32_t name='year' since='v0.42.01' init-value='-1' comment="time of arrival at site/region_id, not time of death"/>
-            <int32_t name='year_tick' since='v0.42.01' init-value='-1'/>
-        </pointer>
+        <pointer type-name='state_profilest' name='whereabouts'/>
 
         <pointer name="kills" type-name='historical_kills'/>
 
