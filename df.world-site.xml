@@ -450,6 +450,34 @@
         <enum-item name='UNUSED24'/>
     </enum-type>
 
+    <enum-type type-name='location_death_type' comment='bay12: LocationDeath'>
+	    <enum-item name='NATURAL'/>
+	    <enum-item name='STARVATION'/>
+	    <enum-item name='FAILED_DEFENDER'/>
+	    <enum-item name='SUCCESSFUL_DEFENDER'/>
+	    <enum-item name='FAILED_INVADER'/>
+	    <enum-item name='SUCCESSFUL_INVADER'/>
+	    <enum-item name='MURDER'/>
+	    <enum-item name='NATURAL_SCATTERED'/>
+	    <enum-item name='SITE_RAMPAGE'/>
+    </enum-type>
+
+    <struct-type type-name='location_death_batchst'>
+        <int32_t name="num"/>
+        <int32_t name="race"/>
+        <int32_t name="epid" ref-target='historical_entity' comment="failed to see any connections between these entities and the sites. Might be something else"/>
+        <int32_t name="breed_id"/>
+        <int32_t name='first_year_used' comment="might be start year"/>
+        <int32_t name='last_year_used' comment="might be end year"/>
+        <int32_t name="body_count"/>
+        <enum name="death_type" type-name='location_death_type'/>
+    </struct-type>
+
+    <struct-type type-name='location_deathst'>
+        <stl-vector name='batch' pointer-type='location_death_batchst' since='v0.34.01'/>
+        <stl-vector name='hfid' type-name='int32_t' ref-target='historical_figure' since='v0.34.01' comment="killed by rampaging monster, murder, execution, old age seen. Note that most HFs seem to have been culled"/>
+    </struct-type>
+
     <struct-type type-name='world_site' key-field='id'
                  instance-vector='$global.world.world_data.sites'
                  original-name='sitest'>
@@ -535,19 +563,7 @@
             <int32_t name='founding_entity' ref-target='historical_entity' comment="all monasteries, no others"/>
         </pointer>
 
-        <stl-vector name='unk_21c' since='v0.34.01'>
-            <pointer>
-                <int32_t name="unk_0"/>
-                <int32_t name="race"/>
-                <int32_t name="entity_id" ref-target='historical_entity' comment="failed to see any connections between these entities and the sites. Might be something else"/>
-                <int32_t name="unk_c"/>
-                <int32_t name='unk_10' comment="might be start year"/>
-                <int32_t name='unk_14' comment="might be end year"/>
-                <int32_t name="unk_18"/>
-                <int32_t name="unk_1c"/>
-            </pointer>
-        </stl-vector>
-        <stl-vector name='deaths' type-name='int32_t' ref-target='historical_figure' since='v0.34.01' comment="killed by rampaging monster, murder, execution, old age seen. Note that most HFs seem to have been culled"/>
+        <compound name='location_death' type-name='location_deathst'/>
 
         <int32_t name='is_mountain_halls' since='v0.40.01'/>
         <int32_t name='is_fortress' since='v0.40.01'/>
