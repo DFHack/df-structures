@@ -478,6 +478,46 @@
         <stl-vector name='hfid' type-name='int32_t' ref-target='historical_figure' since='v0.34.01' comment="killed by rampaging monster, murder, execution, old age seen. Note that most HFs seem to have been culled"/>
     </struct-type>
 
+    <struct-type type-name='site_map_infost'>
+        <enum base-type='int16_t' name="fortress_type" type-name='fortress_type' init-value='NONE' comment='Only when site.type=Fortress'/>
+        <enum base-type='int16_t' name="monument_type" type-name='monument_type' init-value='NONE' comment='Only when site.type=Monument'/>
+        <enum base-type='int16_t' name="lair_type" type-name='lair_type' init-value='NONE' comment='Only when site.type=LairShrine'/>
+        <stl-vector name="unk_night_creature_lair" type-name='int16_t' comment="only on SIMPLE_MOUND and SIMPLE_BURROW, all mounds but not all burrows, all had night creatures. All instances seen had single element with value 0"/>
+        <int32_t name="unk_14" init-value='-1000000'/>
+        <int32_t name="unk_18" init-value='-1000000'/>
+        <int32_t name="unk_1c" init-value='-1000000'/>
+        <int32_t name="creator" ref-target='historical_figure' since='v0.40.01' comment="all vaults, no others seen"/>
+        <int32_t name="unk_vault" init-value='0' since='v0.40.01' comment="all vaults, no others seen, always 100"/>
+        <int32_t name='tower_seed' init-value='0' comment="all towers, no others. Seed is a guess based on the very large numbers"/>
+        <int32_t name='unk_monastery' init-value='-1' comment="all monasteries, no others. Only seen '1'"/>
+        <int32_t name='founding_entity' ref-target='historical_entity' comment="all monasteries, no others"/>
+    </struct-type>
+
+    <enum-type type-name='site_architecture_change_type' comment='bay12: SiteArchitectureChangeType'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='DOMINANT_ENTITY'/>
+        <enum-item name='SRB_RUINED'/>
+        <enum-item name='SRP_RUINED'/>
+        <enum-item name='GENERALIZED_DAMAGE'/>
+        <enum-item name='GENERALIZED_DEATH'/>
+    </enum-type>
+
+    <struct-type type-name='site_architecture_changest'>
+        <enum name="type" type-name='site_architecture_change_type' init-value='0'/>
+        <compound is-union='true' union-tag-field='type'>
+            <int32_t name='NONE'/>
+            <int32_t name='DOMINANT_ENTITY' ref-target='historical_entity'/>
+            <int32_t name='SRB_RUINED'/>
+            <int32_t name='SRP_RUINED'/>
+            <int32_t name='GENERALIZED_DAMAGE'/>
+            <int32_t name='GENERALIZED_DEATH_ID'/>
+        </compound>
+        <int32_t name="year"/>
+        <int32_t name="year_tick" init-value='-1' comment='bay12: season_count'/>
+        <int32_t name="flag" init-value='0'/>
+        <int32_t name="spec_flag" init-value='0' since="v0.44.07"/>
+    </struct-type>
+
     <struct-type type-name='world_site' key-field='id'
                  instance-vector='$global.world.world_data.sites'
                  original-name='sitest'>
@@ -546,40 +586,18 @@
 
         <pointer name="realization" type-name='world_site_realization'/>
 
-        -- stopped here for now will resume later --
-
-        <pointer name="subtype_info">
-            <enum base-type='int16_t' name="fortress_type" type-name='fortress_type' init-value='NONE' comment='Only when site.type=Fortress'/>
-            <enum base-type='int16_t' name="monument_type" type-name='monument_type' init-value='NONE' comment='Only when site.type=Monument'/>
-            <enum base-type='int16_t' name="lair_type" type-name='lair_type' init-value='NONE' comment='Only when site.type=LairShrine'/>
-            <stl-vector name="unk_night_creature_lair" type-name='int16_t' comment="only on SIMPLE_MOUND and SIMPLE_BURROW, all mounds but not all burrows, all had night creatures. All instances seen had single element with value 0"/>
-            <int32_t name="unk_14" init-value='-1000000'/>
-            <int32_t name="unk_18" init-value='-1000000'/>
-            <int32_t name="unk_1c" init-value='-1000000'/>
-            <int32_t name="creator" ref-target='historical_figure' since='v0.40.01' comment="all vaults, no others seen"/>
-            <int32_t name="unk_vault" init-value='0' since='v0.40.01' comment="all vaults, no others seen, always 100"/>
-            <int32_t name='tower_seed' init-value='0' comment="all towers, no others. Seed is a guess based on the very large numbers"/>
-            <int32_t name='unk_monastery' init-value='-1' comment="all monasteries, no others. Only seen '1'"/>
-            <int32_t name='founding_entity' ref-target='historical_entity' comment="all monasteries, no others"/>
-        </pointer>
+        <pointer name="subtype_info" type-name='site_map_infost' comment='bay12: site_map_info'/>
 
         <compound name='location_death' type-name='location_deathst'/>
 
-        <int32_t name='is_mountain_halls' since='v0.40.01'/>
-        <int32_t name='is_fortress' since='v0.40.01'/>
+        <int32_t name='is_mountain_halls' since='v0.40.01' comment='bay12: min_depth'/>
+        <int32_t name='is_fortress' since='v0.40.01' comment='bay12: max_depth'/>
+        <int32_t name='mined_hours' init-value='0' comment="only MountainHalls, but only subset of them"/>
 
-        <int32_t name='unk_v47_2' init-value='0' comment="only MountainHalls, but only subset of them"/>
+        <stl-vector name="architecture_change" pointer-type='site_architecture_changest' since='v0.40.01'/>
 
-        <stl-vector name="unk_v40_4a" since='v0.40.01'>
-            <pointer>
-                <int32_t name="unk_0" init-value='0'/>
-                <int32_t name="entity_id" ref-target='historical_entity'/>
-                <int32_t name="year"/>
-                <int32_t name="year_tick" init-value='-1'/>
-                <int32_t name="unk_10" init-value='0'/>
-                <int32_t name="unk_14" init-value='0' since="v0.44.07"/>
-            </pointer>
-        </stl-vector>
+        -- TODO: progress marker --
+
         <stl-vector name="unk_v40_4b" since='v0.40.01'>
             <pointer>
                 <int32_t name='unk_1'/>
