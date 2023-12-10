@@ -71,14 +71,14 @@
     </enum-type>
 
     <!-- This enum is tentative -->
-    <enum-type type-name='whereabouts_type' base-type='int16_t'>
+    <enum-type type-name='whereabouts_type' base-type='int16_t' comment='bay12: HistFigState'>
         <enum-item name='NONE' value='-1'/>
-        <enum-item name='wanderer' comment="wandering the wilds/region/depths of the world (none/region/underground_region)"/>
-        <enum-item name='settler' comment="site/region, region only for dead 'monsters'"/>
-        <enum-item name='refugee' comment="into region only for dead. refugees and abucted-imprisoned-turned"/>
-        <enum-item name='army_died' comment="either no record of participation in battle, or character died and defender won (character on either side)"/>
-        <enum-item name='army_survived' comment="either no record of participation in battle, or character survived and defender won (character on either side)"/>
-        <enum-item name='visitor' comment="'visited' as last movement seems to be the key"/>
+        <enum-item name='wanderer' comment="bay12: WANDERING; wandering the wilds/region/depths of the world (none/region/underground_region)"/>
+        <enum-item name='settler' comment="bay12: SETTLED; site/region, region only for dead 'monsters'"/>
+        <enum-item name='refugee' comment="bay12: REFUGEE; into region only for dead. refugees and abucted-imprisoned-turned"/>
+        <enum-item name='army_died' comment="bay12: IN_ARMY; either no record of participation in battle, or character died and defender won (character on either side)"/>
+        <enum-item name='army_survived' comment="bay12: IN_ARMY_CAMPING_AT_CZ_ALTERATION; either no record of participation in battle, or character survived and defender won (character on either side)"/>
+        <enum-item name='visitor' comment="bay12: VISITING; 'visited' as last movement seems to be the key"/>
     </enum-type>
 
     <enum-type type-name='season' base-type='int8_t'>
@@ -89,15 +89,15 @@
         <enum-item name='Winter'/>
     </enum-type>
 
-    <!-- This enum is very tentative -->
-    <enum-type type-name='death_condition_type' base-type='int8_t'>
-        <enum-item name='no_statement' comment="alive or dead, but death conditions not registered here"/>
-        <enum-item name='site_battle' comment="parameters: site id + optional structure"/>
-        <enum-item name='region_battle' comment="parameters: two unknown values, usually small, with same pair being the same region, but neither is region_id"/>
-        <enum-item name='wilderness' comment="parameters: region_id + -1"/>
-        <enum-item/>
-        <enum-item name='entombed' comment="same parameters as for site_battle, but structure seems to always be present and be a tomb"/>
-        <enum-item name='site' comment="same parameters as for site_battle, old age and deadly confrontation seen"/>
+    <enum-type type-name='death_condition_type' base-type='int8_t' comment='bay12: HistFigBodyState'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='no_statement' comment="bay12: ACTIVE; alive or dead, but death conditions not registered here"/>
+        <enum-item name='site_battle' comment="bay12: BURIED_AT_SITE; parameters: site id + optional structure"/>
+        <enum-item name='region_battle' comment="bay12: UNBURIED_AT_BATTLEFIELD; parameters: two unknown values, usually small, with same pair being the same region, but neither is region_id"/>
+        <enum-item name='wilderness' comment="bay12: UNBURIED_AT_SUBREGION; parameters: region_id + -1"/>
+        <enum-item name='feature_layer' comment='bay12: UNBURIED_AT_FEATURE_LAYER'/>
+        <enum-item name='entombed' comment="bay12: ENTOMBED_AT_SITE; same parameters as for site_battle, but structure seems to always be present and be a tomb"/>
+        <enum-item name='site' comment="bay12: UNBURIED_AT_SITE; same parameters as for site_battle, old age and deadly confrontation seen"/>
     </enum-type>
 
     <enum-type type-name='plot_role_type' base-type='int32_t'>
@@ -147,7 +147,28 @@
         <bool name='agreement_has_messenger'/>
     </struct-type>
 
-    <struct-type type-name='historical_figure_info'>
+    <struct-type type-name='state_profilest'>
+        <enum name='state' type-name='whereabouts_type' base-type='int16_t'/>
+        <int32_t name="site_id" ref-target='world_site' init-value='-1'/>
+        <int32_t name="subregion_id" ref-target='world_region' init-value='-1'/>
+        <int32_t name="feature_layer_id" ref-target='world_underground_region' init-value='-1'/>
+        <int32_t name="army_id" ref-target='army' init-value='-1'/>
+        <int32_t name='cz_id' init-value='-1'/>
+        <int32_t name='cz_bld_num' init-value='-1'/>
+        <int32_t init-value='-1' name='abs_smm_x' comment='same coordinate system as army'/>
+        <int32_t init-value='-1' name='abs_smm_y'/>
+        <bitfield name='flags'>
+            <flag-bit name='XY_LOCATION_SMM_LEVEL'/>
+            <flag-bit name='XY_LOCATION_IN_SUL'/>
+        </bitfield>
+        <enum name='body_state' type-name='death_condition_type' base-type='int8_t' init-value='NONE'/>
+        <int32_t name='body_state_id' init-value='-1' comment="-1/site     /?/region_id/?/site     /site"/>
+        <int32_t name='body_state_sub_id' init-value='-1' comment="-1/structure/?/-1       /?/structure/structure"/>
+        <int32_t name='year' since='v0.42.01' init-value='-1' comment="time of arrival at site/region_id, not time of death"/>
+        <int32_t name='year_tick' since='v0.42.01' init-value='-1'/>
+    </struct-type>
+
+    <struct-type type-name='historical_figure_info' original-name='hf_profilest'>
         <pointer name="spheres">
             <stl-vector name="spheres">
                 <enum base-type='int16_t' type-name='sphere_type'/>
@@ -204,27 +225,7 @@
             <int32_t name='unk_v50_3'/>
         </pointer>
 
-       <!-- This pointer contents is tentative -->
-       <pointer name='whereabouts'>
-            <enum name='whereabouts_type' type-name='whereabouts_type' base-type='int16_t'/>
-            <int32_t name="site" ref-target='world_site'/>
-            <int32_t name="region_id" ref-target='world_region'/>
-            <int32_t name="underground_region_id" ref-target='world_underground_region'/>
-            <int32_t name="army_id" ref-target='army'/>
-            <int32_t name='unk_1' init-value='-1'/>
-            <int32_t name='unk_2' init-value='-1'/>
-            <int32_t init-value='-1' name='pos_x' comment='same coordinate system as army'/>
-            <int32_t init-value='-1' name='pos_y'/>
-            <bitfield name='flags'>
-                <flag-bit/>
-                <flag-bit/>
-            </bitfield>
-            <enum name='death_condition' type-name='death_condition_type' base-type='int8_t'/>
-            <int32_t name='death_condition_parameter_1' init-value='-1' comment="-1/site     /?/region_id/?/site     /site"/>
-            <int32_t name='death_condition_parameter_2' init-value='-1' comment="-1/structure/?/-1       /?/structure/structure"/>
-            <int32_t name='year' since='v0.42.01' init-value='-1' comment="time of arrival at site/region_id, not time of death"/>
-            <int32_t name='year_tick' since='v0.42.01' init-value='-1'/>
-        </pointer>
+        <pointer type-name='state_profilest' name='whereabouts'/>
 
         <pointer name="kills" type-name='historical_kills'/>
 
@@ -878,13 +879,13 @@
         <int32_t name='nemesis_id' ref-target='nemesis_record' since='v0.40.01' comment='sometimes garbage'/>
         <int32_t name='id'/>
 
-        <int32_t name='unk4'/>
+        <int32_t name='art_count'/>
 
         <stl-vector name='entity_links' pointer-type='histfig_entity_link'/>
         <stl-vector name='site_links' pointer-type='histfig_site_link'/>
         <stl-vector name='histfig_links' pointer-type='histfig_hf_link'/>
 
-        <pointer name='info' type-name='historical_figure_info'/>
+        <pointer name='info' type-name='historical_figure_info' comment='bay12: hf_profilest profile'/>
 
         <pointer name='vague_relationships' comment="Do not have to be available mutually, i.e. DF can display Legends relations forming for the other party that does not have an entry (plus time and other conditions not located)">
             <static-array name='hfid' ref-target='historical_figure' type-name='int32_t' init-value='0' count='6'/>
@@ -1263,7 +1264,7 @@
         <enum-item name='HF_INTERROGATED'/>
     </enum-type>
 
-    <enum-type type-name='history_event_reason' comment="Some of these require at least one parameter of varying type. The text is what DF provides without parameter">
+    <enum-type type-name='history_event_reason' comment="bay12: Reason; Some of these require at least one parameter of varying type. The text is what DF provides without parameter">
         <enum-attr name='caption'/>
         <enum-item name='none' value='-1'/>
 
@@ -1601,12 +1602,13 @@
         </compound>
     </struct-type>
 
-    <struct-type type-name='history_event_context'>
+    <struct-type type-name='history_event_context' original-name='contextst'>
         <bitfield name='flags'>
             <flag-bit name='is_interrogation_report'/>
+            <flag-bit name='do_markup'/>
         </bitfield>
-        <pointer name='interrogator_relationships' type-name='historical_figure_relationships'/>
-        <pointer name='interrogation'> TODO: check size
+        <pointer name='interrogator_relationships' type-name='historical_figure_relationships'/> evidence_repositoryst
+        <pointer name='interrogation'> TODO: check size - interrogation_reportst
             <int32_t name='unk_00' init-value='-1'/>
             <int32_t name='unk_04' init-value='-1'/>
             <int32_t name='interrogator_id' ref-target='historical_figure'/>
@@ -3597,7 +3599,7 @@
         <enum name='profession' type-name='profession'/>
     </struct-type>
 
-    <struct-type type-name='world_history'>
+    <struct-type type-name='world_history' original-name='historyst'>
         dtor 8532fa0
 
         <stl-vector name='events' pointer-type='history_event'/>
@@ -3619,13 +3621,27 @@
         <stl-vector name='discovered_art_image_id' type-name='int32_t' ref-target='art_image_chunk'/>
         <stl-vector name='discovered_art_image_subid' type-name='int16_t' ref-target='art_image' aux-value='$$.discovered_art_image_id[$._key]'/>
 
-        <int32_t name='total_unk'/> some value during worldgen, and at the end equals to the number of entities plus that value
+        <int32_t name='total_art'/> some value during worldgen, and at the end equals to the number of entities plus that value
         <int32_t name='total_powers' comment='also includes megabeasts'/>
         <int32_t name='total_megabeasts'/>
         <int32_t name='total_semimegabeasts'/>
-        <stl-vector name='unk_14'/>
-        <static-array name='unk_v42_1' type-name='int16_t' count='28' since='v0.42.01'/> unsure but 16-bit values make more sense than 32-bit
-        <stl-vector name='intrigues' since='v0.47.01' pointer-type='intrigue'/>
+        <stl-vector name='secret_heid'/>
+        <uint32_t name='first_philosophy_flag'/>
+        <uint32_t name='first_philosophy_flag2'/>
+        <uint32_t name='first_mathematics_flag'/>
+        <uint32_t name='first_mathematics_flag2'/>
+        <uint32_t name='first_history_flag'/>
+        <uint32_t name='first_astronomy_flag'/>
+        <uint32_t name='first_naturalist_flag'/>
+        <uint32_t name='first_chemistry_flag'/>
+        <uint32_t name='first_geography_flag'/>
+        <uint32_t name='first_medicine_flag'/>
+        <uint32_t name='first_medicine_flag2'/>
+        <uint32_t name='first_medicine_flag3'/>
+        <uint32_t name='first_engineering_flag'/>
+        <uint32_t name='first_engineering_flag2'/>
+
+        <stl-vector name='intrigues' since='v0.47.01' pointer-type='intrigue' comment='bay12: history_support_event'/>
         <stl-vector name='live_megabeasts' pointer-type='historical_figure'/>
         <stl-vector name='live_semimegabeasts' pointer-type='historical_figure'/>
         <stl-vector name='unk_histfig_3' pointer-type='historical_figure'/>
@@ -3659,7 +3675,7 @@
         <pointer name='active_mission' type-name='mission_report'/>
     </struct-type>
 
-    <struct-type type-name='intrigue' instance-vector='$global.world.history.intrigues' key-field='event_id'>
+    <struct-type type-name='intrigue' instance-vector='$global.world.history.intrigues' key-field='event_id' original-name='history_support_eventst'>
         <int32_t name='event_id' ref-target='history_event' comment="NOTE: can be culled. Seen: failed_intrigue_corruption, event_agreement_formed, hfs_formed_intrigue_relationship"/>
         <pointer name='corruption' type-name='intrigue_corruption' comment="Mutually exclusive with circumstance. Exactly one is present. Presumably 'bring into network' action doesn't provide membership"/>
         <compound name='reason' type-name='history_event_reason_info'/>
