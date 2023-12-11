@@ -216,11 +216,26 @@
         </virtual-methods>
     </class-type>
 
+    <class-type type-name='widget_character' original-name='widgets::character' inherits-from='widget'>
+        <int8_t name='c'/>
+        <int16_t name='fg'/>
+        <int16_t name='bg'/>
+        <bool name='bright'/>
+        <uint32_t name='flag'/>
+    </class-type>
+
     <class-type type-name='widget_text' original-name='widgets::text' inherits-from='widget'>
         <stl-string name='str'/>
         <int16_t name='fg'/>
         <int16_t name='bg'/>
         <bool name='bright'/>
+        <enum type-name='justification' name='just'/>
+        <int32_t name='space'/>
+        <uint32_t name='flag'/>
+    </class-type>
+
+    <class-type type-name='text_truncated' original-name='widgets::text_truncated' inherits-from='widget_text'>
+        <int32_t name='truncate_mode_flags'/>
     </class-type>
 
     <class-type type-name='widget_text_multiline' original-name='widgets::text_multiline' inherits-from='widget_text'>
@@ -231,8 +246,19 @@
         <pointer type-name='int32_t' name='selected_texpos'/>
     </class-type>
 
-    <class-type type-name='widget_custom_render' original-name='widgets::custom_render' inherits-from='widget'>
-        <stl-function name='callback'/>
+    <class-type type-name='widget_nineslice_horizontal' original-name='widgets::nineslize_horizontal' inherits-from='widget_nineslice'>
+    </class-type>
+
+    <class-type type-name='widget_anchored_tile' original-name='widgets::anchored_tile' inherits-from='widget_nineslice'>
+        <long name='texp'/>
+        <long name='offset_x'/>
+        <long name='offset_y'/>
+        <bool name='use_color'/>
+    </class-type>
+
+    <class-type type-name='widget_graphics_switcher' original-name='widgets::graphics_switcher' inherits-from='widget'>
+        <stl-shared-ptr type-name='widget' name='graphics_widget'/>
+        <stl-shared-ptr type-name='widget' name='ascii_widget'/>
     </class-type>
 
     <class-type type-name='widget_menu' original-name='widgets::menu' inherits-from='widget'>
@@ -259,6 +285,21 @@
         <stl-function name='callback' comment='arguments are button*'/>
     </class-type>
 
+    <class-type type-name='widget_interface_small_button' original-name='widgets::interface_small_button' inherits-from='widget_button'>
+        <int32_t name='which_button'/>
+    </class-type>
+
+    <class-type type-name='widget_interface_pets_livestock_button' original-name='widgets::interface_pets_livestock_button' inherits-from='widget_button'>
+        <int32_t name='which_button'/>
+    </class-type>
+
+    <class-type type-name='widget_better_button' original-name='widgets::better_button' inherits-from='widget'>
+        <stl-function name='display_string'> <stl-string/> </stl-function>
+        <stl-function name='texpos'> <pointer type-name='int32_t'/> </stl-function>
+        <stl-function name='callback'/>
+        <stl-function name='check_truth'> <bool/> </stl-function>
+    </class-type>
+
     <class-type type-name='widget_container' original-name='widgets::container' inherits-from='widget'>
         <stl-map name='children_by_name' comment='std::map&lt;std::string,std::shared_ptr&lt;widget&gt;&gt;'/>
         <stl-vector name='children'>
@@ -267,6 +308,7 @@
     </class-type>
 
     <class-type type-name='widget_stack' original-name='widgets::widget_stack' inherits-from='widget_container'>
+        <bool name='do_pop'/>
     </class-type>
 
     <class-type type-name='widget_rows_container' original-name='widgets::rows_container' inherits-from='widget_container'>
@@ -299,6 +341,129 @@
     <class-type type-name='widget_params_container' original-name='widgets::params_container' inherits-from='widget_container'>
         <stl-shared-ptr type-name='widget_text' name='text'/>
         <stl-shared-ptr type-name='world_gen_param_valuest' name='param'/>
+    </class-type>
+
+    <class-type type-name='widget_report_popup' original-name='widgets::report_popup' inherits-from='widget'>
+        <int32_t name='unid'/>
+        <int32_t name='unid_cached'/>
+        <int16_t name='uac'/>
+        <stl-shared-ptr type-name='widget_scroll_rows' name='texts'/>
+        <stl-shared-ptr type-name='widget_better_button' name='pause_button'/>
+        <stl-shared-ptr type-name='widget_text_multiline' name='explanation'/>
+        <bool name='pause_on_new'/>
+        <size_t name='last_length'/>
+    </class-type>
+
+    <class-type type-name='widget_recenter_button' original-name='widgets::recenter_button' inherits-from='widget'>
+        <int16_t name='x'/>
+        <int16_t name='y'/>
+        <int16_t name='z'/>
+    </class-type>
+
+    <class-type type-name='widget_sheet_button' original-name='widgets::sheet_button' inherits-from='widget'>
+    </class-type>
+
+    <class-type type-name='widget_unit_sheet_button' original-name='widgets::unit_sheet_button' inherits-from='widget_sheet_button'>
+        <int32_t name='unid'/>
+    </class-type>
+
+    <class-type type-name='widget_item_sheet_button' original-name='widgets::item_sheet_button' inherits-from='widget_sheet_button'>
+        <int32_t name='itid'/>
+    </class-type>
+
+    <class-type type-name='widget_job_details_button' original-name='widgets::job_details_button' inherits-from='widget'>
+        <pointer name='jb'/>
+        <int32_t name='context'/>
+    </class-type>
+
+    <enum-type type-name='unit_list_options' base_type='int32_t'>
+        <enum-item name='NONE'/>
+        <enum-item name='PORTRAIT'/>
+        <enum-item name='NAME_PROF'/>
+        <enum-item name='RECENTER'/>
+        <enum-item name='SHEET'/>
+        <enum-item name='CUR_JOB'/>
+        <enum-item name='ACTIVITY_DETAILS'/>
+        <enum-item name='HAPPINESS'/>
+        <enum-item name='SPECIALIZED'/>
+        <enum-item name='WORK_DETAILS'/>
+        <enum-item name='SKILLS'/>
+        <enum-item name='SELECTED'/>
+        <enum-item name='SHOW_GENDER'/>
+        <enum-item name='CUSTOM_BUILD'/>
+    </enum-type>
+
+    <bitfield-type type-name='unit_list_flag'>
+        <flag-bit name='show_gender'/>
+        <flag-bit name='custom_build'/>
+        <flag-bit name='needs_resorted'/>
+    </bitfield-type>
+
+    <class-type type-name='widget_unit_portrait' original-name='widgets::unit_portrait' inherits-from='widget'>
+        <pointer name='u'/> probably a unit
+    </class-type>
+
+    <class-type type-name='widget_creature_portrait' original-name='widgets::creature_portrait' inherits-from='widget'>
+        <int16_t name='race'/>
+        <int16_t name='ccaste'/>
+    </class-type>
+
+    <class-type type-name='widget_item_portrait' original-name='widgets::item_portrait' inherits-from='widget'>
+        <pointer name='i'/> probably an item
+    </class-type>
+
+    <class-type type-name='widget_unit_name' original-name='widgets::unit_name' inherits-from='widget'>
+        <pointer name='u'/> probably a unit
+        <bool name='show_gender'/>
+        <bool name='show_profession'/>
+        <bool name='one_line_only'/>
+    </class-type>
+
+    <class-type type-name='widget_item_name' original-name='widgets::item_name' inherits-from='widget'>
+        <pointer name='it'/> probably an item
+    </class-type>
+
+    <struct-type type-name='sort_entry'>
+        <stl-function type-name='bool' name='fn'/> full type is std::function&lt;bool(std::pair&lt;void *,bool&gt;,std::pair&lt;void *,bool&gt;)&gt;
+        <stl-string name='ident'/>
+    </struct-type>
+
+    <struct-type type-name='item_or_unit'>
+        <pointer/>
+        <bool/>
+    </struct-type>
+
+    <class-type type-name='widget_unit_list' original-name='widgets::unit_list' inherits-from='widget_container'>
+        <stl-vector name='deferred_units_builds'>
+            <stl-weak-ptr type-name='widget_container'/>
+            <pointer/>
+            <bool/>
+        </stl-vector>
+        <stl-shared-ptr type-name='widget' name='no_unit_entry'/>
+        <stl-vector type-name='sort_entry' name='sorting_by'/>
+        <stl-vector name='always_sorting_by'> <stl-function type-name='bool'/> </stl-vector>
+        <stl-vector name='partitions'> <stl-function type-name='bool'/> </stl-vector>
+        <stl-unordered-map name='ascending_sort'/> std::unordered_map&lt;std::string,bool&gt;
+        <bitfield type-name='unit_list_flag' name='flags'/>
+        <stl-vector name='filter_func'> <stl-function type-name='bool'/> </stl-vector>
+        <stl-vector name='preprocess_unit_func'> <stl-function/> </stl-vector>
+        <stl-vector name='postprocess_unit_func'> <stl-function/> </stl-vector>
+        <stl-vector name='preprocess_item_func'> <stl-function/> </stl-vector>
+        <stl-vector name='postprocess_item_func'> <stl-function/> </stl-vector>
+        <stl-function name='close_callback'/>
+        <stl-vector type-name='item_or_unit' name='entry_list'/>
+        <stl-unordered-map name='selected'/> std::unordered_set&lt;void *&gt;
+        <stl-vector name='on_select_change'> <stl-function/> </stl-vector>
+        <enum type-name='unit_list_options' name='skill_type'/>
+        <stl-mutex name='mtx'/>
+        <static-array type-name='int32_t' count='149' index-enum='job_skill' name='skills'/>
+        <stl-string name='filter_str'/>
+    </class-type>
+
+    <class-type type-name='widget_sort_widget' original-name='widgets::sort_widget' inherits-from='widget'>
+        <bool name='display_text'/>
+        <pointer type-name='widget_unit_list' name='list'/>
+        <stl-function type-name='bool' name='sort_fun'/> std::function&lt;bool(unit_list::item_or_unit,unit_list::item_or_unit)&gt;
     </class-type>
 
     <class-type type-name='MacroScreenLoad' inherits-from='viewscreen'>
