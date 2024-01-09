@@ -491,7 +491,7 @@
         <compound type-name='coord2d' name='mid_level_tile' comment="the MLT the feature resides in"/>
         <int16_t name='local_feature_idx'/>
         <int32_t name='global_feature_idx' ref-target='world_underground_region'/>
-        <int32_t name='unk10'/>
+        <int32_t name='global_feature_sq'/>
         <enum name='layer' type-name='layer_type' base-type='int16_t'/>
         <compound type-name='coord2d' name='local' comment="the top left corner of the MLT, in embark relative coordinates"/>
         <int16_t name='z_min'/>
@@ -827,6 +827,7 @@
         <stl-vector name='site_ocean_wave_makers' pointer-type='ocean_wave_maker'/>
         <stl-vector name='site_murky_pools' pointer-type='coord_rect'/>
         <!-- </compound> -->
+
         <stl-vector name='effects' pointer-type='effect_info'/>
 
         <stl-vector name='coin_batches' pointer-type='coin_batch'/>
@@ -933,14 +934,8 @@
             <static-array type-name='int32_t' name='num_jobs' count='10' index-enum='hauler_type'/>
             <static-array type-name='int32_t' name='num_haulers' count='10' index-enum='hauler_type'/>
 
-            -- Pointers used as tokens; data never accessed by the look of it:
-
-            <compound name='simple1'>
-                <int8_t name='unk_1'/>
-                <int8_t name='food'/>
-                <int8_t name='unk_2'/>
-                <int8_t name='unk_3'/>
-            </compound>
+            <int8_t name='barreltype'/>
+            <int8_t name='barreltype_food'/>
             <stl-vector name='seeds' type-name='int8_t'
                         index-refers-to='(find-plant-raw $)'/>
             <stl-vector name='plants' type-name='int8_t'
@@ -955,43 +950,34 @@
                         index-refers-to='(find-plant-raw $)'/>
             <stl-vector name='plant_powder' type-name='int8_t'
                         index-refers-to='(find-plant-raw $)'/>
-            <compound name='simple2'>
-                <int8_t name='seeds'/>
-                <int8_t name='plants'/>
-                <int8_t name='cheese'/>
-                <int8_t name='fish'/>
-                <int8_t name='meat'/>
-                <int8_t name='leaves'/>
-                <int8_t name='powder'/>
-                <int8_t name='eggs'/>
-            </compound>
+            <int8_t name='barreltype_seeds_mix'/>
+            <int8_t name='barreltype_plants_mix'/>
+            <int8_t name='barreltype_cheese_mix'/>
+            <int8_t name='barreltype_fish_mix'/>
+            <int8_t name='barreltype_meat_mix'/>
+            <int8_t name='barreltype_leaves_mix'/>
+            <int8_t name='barreltype_powder_mix'/>
+            <int8_t name='barreltype_eggs_mix'/>
             <stl-vector name='liquid_plant' type-name='int8_t'
                         index-refers-to='(find-plant-raw $)'/>
             <stl-vector name='liquid_animal' type-name='int8_t'
                         index-refers-to='(find-creature $)'/>
             <stl-vector name='liquid_builtin' type-name='int8_t'
                         index-refers-to='(material-by-id $ -1)'/>
-            <compound name='simple3'>
-                <int8_t name='glob_fat'/>
-                <int8_t name='glob_tallow'/>
-                <int8_t name='glob_paste'/>
-                <int8_t name='glob_pressed'/>
-
-                <int8_t name='weapons'/>
-                <int8_t name='shields'/>
-                <int8_t name='ammo'/>
-                <int8_t name='coins'/>
-
-                <int8_t name='bar_blocks'/>
-                <int8_t name='gems' comment='not large'/>
-                <int8_t name='finished_goods'/>
-                <int8_t name='tanned_skins'/>
-
-                <int8_t name='thread_cloth'/>
-                <int8_t name='unk_1'/>
-                <int8_t name='unk_2'/>
-                <int8_t name='unk_3'/>
-            </compound>
+            <int8_t name='barreltype_glob_fat'/>
+            <int8_t name='barreltype_glob_tallow'/>
+            <int8_t name='barreltype_glob_paste'/>
+            <int8_t name='barreltype_glob_pressed'/>
+            <int8_t name='bintype_weapon'/>
+            <int8_t name='bintype_armor'/>
+            <int8_t name='bintype_ammo'/>
+            <int8_t name='bintype_coins'/>
+            <int8_t name='bintype_barblock'/>
+            <int8_t name='bintype_gem' comment='not large'/>
+            <int8_t name='bintype_finished'/>
+            <int8_t name='bintype_leather'/>
+            <int8_t name='bintype_cloth'/>
+            <int8_t name='bintype_sheet'/>
         </compound>
 
         -- Plants
@@ -1034,11 +1020,11 @@
         <compound name='formations'>
             <stl-vector name='all'>
                 <pointer>
-                    <int32_t/>?
+                    <int32_t name='id'/>
                 </pointer>
             </stl-vector>
             <stl-vector name='bad' has-bad-pointers='true'>
-                <pointer/>
+                <pointer name='id'/>
             </stl-vector>
         </compound>
 
@@ -1527,7 +1513,7 @@
 
         <compound type-name='map_viewport' name='viewport'/>
 
-        <int32_t name='unk_131f08' since='v0.44.01'/>
+        <int32_t name='artifact_history_suppression_count' since='v0.44.01'/>
 
         <bool name="reindex_pathfinding" comment='forces map_block.passable to be recomputed'/>
 
@@ -1554,76 +1540,20 @@
             <int32_t name='dist_y'/>
             <int32_t name='dist_z'/>
 
-            <int32_t name='next_path_cost'/>
-            <bool name='wipe_path_cost'/>
-            <uint16_t name='next_path_tag'/>
-            <bool name='wipe_path_tag'/>
-
-            <int16_t name='next_walkable_id'/>
-
-            <int16_t name='plant_update_step'/>
-            <bool name='unk_1'/>
+            <int32_t name='pathstart'/>
+            <int8_t name='pathclear'/>
+            <uint16_t name='direction_start'/>
+            <int8_t name='direction_clear'/>
+            <int16_t name='next_levelmap'/>
+            <int16_t name='cur_veg_move_stage'/>
+            <bool name='preparing_map'/>
         </compound>
 
         <int32_t name='save_version'/>
 
         <compound name='cur_savegame' comment='not actually a compound'>
             <stl-string name='save_dir'/>
-            <compound name='world_header'>
-                <uint32_t name='id1'/>
-                <uint32_t name='id2'/>
-                <stl-string name='world_name'/>
-                <stl-string name='timeline_name'/>
-                <stl-string name='manual_name'/>
-                <enum base-type='int32_t' name='load_stage' since='v0.40.01'>
-                    <enum-item name='LoadingObjectFiles'/>
-                    <enum-item name='SortingMaterialTemplates'/>
-                    <enum-item name='SortingInorganics'/>
-                    <enum-item name='SortingPlants'/>
-                    <enum-item name='SortingTissueTemplates'/>
-                    <enum-item name='SortingItems'/>
-                    <enum-item name='SortingBuildings'/>
-                    <enum-item name='SortingBodyDetailPlans'/>
-                    <enum-item name='SortingCreatureBodies'/>
-                    <enum-item name='SortingCreatureVariations'/>
-                    <enum-item name='SortingCreatures'/>
-                    <enum-item name='SortingEntities'/>
-                    <enum-item name='SortingLanguages'/>
-                    <enum-item name='SortingDescriptions'/>
-                    <enum-item name='SortingReactions'/>
-                    <enum-item name='SortingInteractions'/>
-                    <enum-item name='FinalizingLanguages'/>
-                    <enum-item name='FinalizingDescriptors'/>
-                    <enum-item name='FinalizingMaterialTemplates'/>
-                    <enum-item name='FinalizingInorganics'/>
-                    <enum-item name='FinalizingPlants'/>
-                    <enum-item name='FinalizingTissueTemplates'/>
-                    <enum-item name='FinalizingItems'/>
-                    <enum-item name='FinalizingBuildings'/>
-                    <enum-item name='FinalizingBodyDetailPlans'/>
-                    <enum-item name='FinalizingCreatureVariations'/>
-                    <enum-item name='FinalizingCreatures'/>
-                    <enum-item name='FinalizingEntities'/>
-                    <enum-item name='FinalizingReactions'/>
-                    <enum-item name='FinalizingInteractions'/>
-                    <enum-item name='PreparingMaterialData'/>
-                    <enum-item name='GeneratingInorganics'/>
-                    <enum-item name='GeneratingPlants'/>
-                    <enum-item name='GeneratingItems'/>
-                    <enum-item name='GeneratingCreatures'/>
-                    <enum-item name='GeneratingEntities'/>
-                    <enum-item name='GeneratingReactions'/>
-                    <enum-item name='GeneratingInteractions'/>
-                    <enum-item name='FinalizingGeneratedObjects'/>
-                    <enum-item name='PreparingTextObjects'/>
-                    <enum-item name='PreparingGraphics'/>
-                    <enum-item name='Finishing'/>
-                </enum>
-                <int32_t name='year'/>
-                <int32_t name='season_count'/>
-                <int32_t name='forts_played'/>
-                <int32_t name='advs_played'/>
-            </compound>
+            <compound name='world_header' type-name='shared_world_headerst'/>
             <bool name='civ_history_complete'/>
             <bool name='must_end_civ_history'/>
         </compound>
