@@ -476,14 +476,33 @@
         <compound name='id' type-name='widget_textbox'/>
     </class-type>
 
-    <struct-type type-name='world_dat_summary'>
+    <struct-type type-name='shared_world_headerst'>
+        <int32_t name='id1' comment='based on tick at start of game'/>
+        <int32_t name='id2' comment='based on tick at creation time'/>
+        <stl-string name='world_name'/>
+        <stl-string name='timeline_name'/>
+        <stl-string name='manual_name'/>
+        <enum base-type='int32_t' name='save_type'>
+            <enum-item name='NONE' value='-1'/>
+            <enum-item name='ACTIVE'/>
+            <enum-item name='INACTIVE'/>
+            <enum-item name='MANUAL'/>
+            <enum-item name='AUTO'/>
+        </enum>
+        <int32_t name='year'/>
+        <int32_t name='season_count'/>
+        <int32_t name='forts_played'/>
+        <int32_t name='advs_played'/>
+    </struct-type>
+
+    <struct-type type-name='region_headerst'>
         <compound type-name='language_name' name='name'/>
-        <stl-string name='unk_1'/>
-        <static-array name='unk_2' count='15' type-name='int8_t' comment='same as the one at the top of world_data'/>
+        <stl-string name='display_name'/>
+        <static-array name='permission' count='15' type-name='int8_t' comment='same as the one at the top of world_data'/>
         <compound name='last_id' comment='when loading, DF sets *_next_id to these fields plus 1'>
             <int32_t name='unit'/>
             <int32_t name='soul'/>
-            <int32_t name='ite'/>
+            <int32_t name='item'/>
             <int32_t name='entity'/>
             <int32_t name='nemesis'/>
             <int32_t name='artifact'/>
@@ -519,19 +538,8 @@
             <int32_t name='image_set' since='v0.47.01'/>
             <int32_t name='divination_set' since='v0.47.01'/>
         </compound>
-        <compound name='unk'>
-            <int32_t/>
-            <int32_t/>
-            <stl-string name='unk_3'/>
-            <stl-string name='timeline'/>
-            <stl-string/>
-            <int32_t/>
-            <int32_t/>
-            <int32_t/>
-            <int32_t/>
-            <int32_t/>
-            <stl-string/>
-        </compound>
+        <compound type-name='shared_world_headerst' name='world_header'/>
+        <stl-string name='filename_noext'/>
     </struct-type>
 
     <class-type type-name='viewscreen_adopt_regionst' inherits-from='viewscreen'>
@@ -575,8 +583,8 @@
             <enum-item name='Failed'/>
         </enum>
         <enum type-name='save_version' name='save_version'/>
-        <compound type-name='world_dat_summary' name='cur_save'/>
-        <compound type-name='matgloss_list' name='glosses'/>
+        <compound type-name='region_headerst' name='cur_save'/>
+        <compound type-name='region_object_datast' name='rod'/>
         <int32_t name='progress' comment='0..35'/>
     </class-type>
 
@@ -687,13 +695,18 @@
         <int32_t name="biome_idx"/>
         <bool name="biome_highlighted"/>
 
-        <bool name='in_embark_light_aquifer'/>
-        <bool name='in_embark_heavy_aquifer'/>
-        <bool name='in_embark_salt'/>
-        <bool name='in_embark_large'/>
-        <bool name='in_embark_narrow'/>
-        <bool name='in_embark_only_warning'/>
-        <bool name='in_embark_civ_dying'/>
+        <bitfield name='warn_flags' base-type='uint16_t'>
+            <flag-bit name='GENERIC'/>
+            <flag-bit name='WATER_TABLE'/>
+            <flag-bit name='HEAVY_WATER_TABLE'/>
+            <flag-bit name='SALT_WATER'/>
+            <flag-bit name='LARGE'/>
+            <flag-bit name='SMALL'/>
+            <flag-bit name='DEAD_CIV'/>
+            <flag-bit name='SAVAGE'/>
+            <flag-bit name='EVIL'/>
+            <flag-bit name='UNDEAD'/>
+        </bitfield>
 
         <int32_t name='selected_reclaim'/>
         <int32_t name='selected_civ'/>
@@ -725,7 +738,6 @@
 
         <enum name='find_results' base-type='int16_t'>
             <enum-item name='None' value='-1'/>
-            <enum-item name='Searching'/>
             <enum-item name='NoResult'/>
             <enum-item name='Partial'/>
             <enum-item name='Suitable'/>
@@ -1123,46 +1135,82 @@
         <int8_t name='unk_348'/>
     </class-type>
 
-    <struct-type type-name='loadgame_save_info'>
-        <static-array name='next_ids' type-name='int32_t' count='41' index-enum='next_global_id'/>
-        <enum base-type='int16_t' name='game_type' type-name='game_type' comment='only 0 (fort) 1 (adv) 3(reclaim) are valid'/>
+    <struct-type type-name='savegame_headerst'>
+        almost the same, but not quite the same, as region_headerst's list
+        <int32_t name='max_unit_id'/>
+        <int32_t name='max_soul_id'/>
+        <int32_t name='max_item_id'/>
+        <int32_t name='max_civ_id'/>
+        <int32_t name='max_nem_id'/>
+        <int32_t name='max_artifact_id'/>
+        <int32_t name='max_job_id'/>
+        <int32_t name='max_schedule_id'/>
+        <int32_t name='max_proj_id'/>
+        <int32_t name='max_building_id'/>
+        <int32_t name='max_machine_id'/>
+        <int32_t name='max_flow_guide_id'/>
+        <int32_t name='max_histfig_id'/>
+        <int32_t name='max_histevent_id'/>
+        <int32_t name='max_histeventcol_id'/>
+        <int32_t name='max_unitchunk_id'/>
+        <int32_t name='max_art_imagechunk_id'/>
+        <int32_t name='max_task_id'/>
+        <int32_t name='max_squad_id'/>
+        <int32_t name='max_formation_id'/>
+        <int32_t name='max_activity_id'/>
+        <int32_t name='max_interaction_instance_id'/>
+        <int32_t name='max_written_content_id'/>
+        <int32_t name='max_identity_id'/>
+        <int32_t name='max_incident_id'/>
+        <int32_t name='max_crime_id'/>
+        <int32_t name='max_vehicle_id'/>
+        <int32_t name='max_army_id'/>
+        <int32_t name='max_army_controller_id'/>
+        <int32_t name='max_army_tracking_info_id'/>
+        <int32_t name='max_cultural_identity_id'/>
+        <int32_t name='max_agreement_id'/>
+        <int32_t name='max_poetic_form_id'/>
+        <int32_t name='max_musical_form_id'/>
+        <int32_t name='max_dance_form_id'/>
+        <int32_t name='max_scale_id'/>
+        <int32_t name='max_rhythm_id'/>
+        <int32_t name='max_occupation_id'/>
+        <int32_t name='max_belief_system_id'/>
+        <int32_t name='max_image_set_id'/>
+        <int32_t name='max_divination_set_id'/>
+
+        <enum type-name='game_type' name='gametype' comment='only 0 (fort) 1 (adv) 3(reclaim) are valid'/>
         <stl-string name='fort_name'/>
         <stl-string name='world_name'/>
         <int32_t name='year'/>
-        <pointer/>
-        <stl-string name='folder_name'/>
-        <stl-string/>
-        <stl-string/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <stl-string/>
+
+        <compound type-name='shared_world_headerst' name='world_header'/>
+
+        <stl-string name='filename_noext'/>
     </struct-type>
 
-    <struct-type type-name='matgloss_list'>
-        <stl-vector name='unk_0'>
-            <pointer>
-                <int32_t name='unk_1'/>
-                <int32_t name='unk_2'/>
-                <int32_t name='unk_3'/>
-                <int32_t name='unk_4'/>
-                <int32_t name='unk_5'/>
-                <int32_t name='unk_6'/>
-                <int32_t name='unk_7'/>
-                <int32_t name='unk_8'/>
-                <int32_t name='unk_9'/>
-                <int32_t name='unk_10'/>
-                <int32_t name='unk_11'/>
-                <int32_t name='unk_12'/>
-                <int32_t name='unk_13'/>
-                <int32_t name='unk_14'/>
-                <int32_t name='unk_15'/>
-                <int32_t name='unk_16'/>
-            </pointer>
-        </stl-vector>
-        <stl-vector name='generated_inorganics'>
+    <struct-type type-name='random_object_batchst'>
+        <int32_t name='start_inorganic_number'/>
+        <int32_t name='end_inorganic_number'/>
+        <int32_t name='start_plant_number'/>
+        <int32_t name='end_plant_number'/>
+        <int32_t name='start_item_number'/>
+        <int32_t name='end_item_number'/>
+        <int32_t name='start_creature_number'/>
+        <int32_t name='end_creature_number'/>
+        <int32_t name='start_entity_number'/>
+        <int32_t name='end_entity_number'/>
+        <int32_t name='start_reaction_number'/>
+        <int32_t name='end_reaction_number'/>
+        <int32_t name='start_interaction_number'/>
+        <int32_t name='end_interaction_number'/>
+        <int32_t name='start_language_translation_number'/>
+        <int32_t name='end_language_translation_number'/>
+    </struct-type>
+
+    <struct-type type-name='region_object_datast'>
+        <stl-vector pointer-type='random_object_batchst' name='batch'/>
+        <stl-vector name='custom_inorganic'>
             <pointer>
                 <stl-vector pointer-type='stl-string' name='raws'/>
             </pointer>
@@ -1289,10 +1337,9 @@
         </enum>
         <int32_t name='progress' since='v0.40.01'/>
         <compound type-name='file_compressorst' name='compressor'/>
-        <compound type-name='matgloss_list' name='glosses'/>
-        <int8_t name='loading'/>
+        <compound type-name='region_object_datast' name='rod'/>
         <int32_t name='save_version'/>
-        <compound name='cur_save' type-name='loadgame_save_info'/>
+        <compound name='cur_save' type-name='savegame_headerst'/>
     </class-type>
 
     <struct-type type-name='worldgen_parms'>
@@ -1893,23 +1940,23 @@
                 <enum-item name="Continue"/>
                 <enum-item name="Start"/>
                 <enum-item name="NewWorld"/>
-                <enum-item name="TestingArena" comment="nonfunctional in 50.04"/>
-                <enum-item name="Mods" since="v50.01" comment="nonfunctional in 50.04"/>
+                <enum-item name="TestingArena"/>
+                <enum-item name="Mods" since="v50.01"/>
                 <enum-item name="Settings"/>
                 <enum-item name="AboutDF"/>
                 <enum-item name="Quit"/>
             </enum>
         </stl-vector>
-        <stl-vector type-name='int32_t' name='gametype'/>
+        <stl-vector type-name="game_type" name="gametype"/>
         <stl-vector pointer-type='stl-string' name='gametype_str'/>
-        <stl-vector pointer-type='world_dat_summary' name='region_choice'/>
+        <stl-vector pointer-type='region_headerst' name='region_choice'/>
         <int32_t name='scroll_position_region_choice'/>
         <bool name='scrolling_region_choice'/>
-        <stl-vector pointer-type='loadgame_save_info' name='savegame_header'/>
-        <stl-vector pointer-type='loadgame_save_info' name='savegame_header_world'/>
+        <stl-vector pointer-type='savegame_headerst' name='savegame_header'/>
+        <stl-vector pointer-type='savegame_headerst' name='savegame_header_world'/>
         <int32_t name='scroll_position_world_choice'/>
         <bool name='scrolling_world_choice'/>
-        <stl-vector pointer-type='loadgame_save_info' name='savegame_header_game'/>
+        <stl-vector pointer-type='savegame_headerst' name='savegame_header_game'/>
         <int32_t name='scroll_position_game_choice'/>
         <bool name='scrolling_game_choice'/>
         <stl-vector pointer-type='stl-string' name='arena_choice'/>
@@ -1950,8 +1997,8 @@
         <bool name='deleting_region'/>
         <bool name='deleting_savegame_game'/>
         <bool name='deleting_savegame_world'/>
-        <pointer name='deleting_savegame_header'/>
-        <pointer name='deleting_region_header'/>
+        <pointer type-name='savegame_headerst' name='deleting_savegame_header'/>
+        <pointer type-name='region_headerst' name='deleting_region_header'/>
         <stl-vector pointer-type='stl-string' name='credit_line'/>
         <stl-vector type-name='int32_t' name='credit_line_type'/>
         <int32_t name='scroll_position_about'/>
