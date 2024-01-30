@@ -551,7 +551,7 @@
         <enum-item name='FARMPLOTS'/>
     </enum-type>
 
-    <enum-type type-name='kitchen_pref_category_type' base-type='int32_t'>
+    <enum-type type-name='kitchen_pref_category_type' base-type='int32_t' comment='bay12: KitchenPrefCategory'>
         <enum-item name='NONE' value='-1'/>
         <enum-item name='PLANTS'/>
         <enum-item name='SEEDS'/>
@@ -559,7 +559,7 @@
         <enum-item name='OTHER'/>
     </enum-type>
 
-    <enum-type type-name='standing_orders_category_type' base-type='int32_t'>
+    <enum-type type-name='standing_orders_category_type' base-type='int32_t' comment='bay12: StandingOrdersCategory'>
         <enum-item name='NONE' value='-1'/>
         <enum-item name='AUTOMATED_WORKSHOPS'/>
         <enum-item name='HAULING'/>
@@ -599,7 +599,7 @@
         <enum-item name='PLOTS'/>
     </enum-type>
 
-    <enum-type type-name='justice_interface_mode_type' base-type='int32_t'>
+    <enum-type type-name='justice_interface_mode_type' base-type='int32_t' comment='bay12: JusticeInterfaceMode'>
         <enum-item name='NONE' value='-1'/>
         <enum-item name='OPEN_CASES'/>
         <enum-item name='CLOSED_CASES'/>
@@ -823,6 +823,140 @@
         <compound type-name='markup_text_boxst' name='activity_details_text'/>
     </class-type>
 
+    <class-type type-name='labor_work_details_interfacest' inherits-from='widget_container'/>
+
+    <struct-type type-name='labor_kitchen_interface_food_key'>
+        <int16_t name='type'/>
+        <int16_t name='subtype'/>
+        <int16_t name='mat'/>
+        <int16_t name='matg'/>
+    </struct-type>
+
+    <struct-type type-name='labor_kitchen_interface_food_value'>
+        <int32_t name='num'/>
+        <int8_t name='canrest'/>
+        <stl-string name='name'/>
+    </struct-type>
+
+    <struct-type type-name='labor_kitchen_food_entry'>
+        <compound type-name='labor_kitchen_interface_food_key' name='first'/>
+        <compound type-name='labor_kitchen_interface_food_value' name='second'/>
+    </struct-type>
+
+    <class-type type-name='labor_kitchen_interface_food_sort_entry' inherits-from='sort_entry'/>
+
+    <enum-type type-name='labor_kitchen_interface_type_filter' base-type='int8_t'>
+        <enum-item name='ALL' value='-1'/>
+        <enum-item name='PLANTS'/>
+        <enum-item name='SEEDS'/>
+        <enum-item name='DRINKS'/>
+        <enum-item name='OTHER'/>
+    </enum-type>
+
+    <class-type type-name='labor_kitchen_interfacest' inherits-from='widget_container'>
+        <enum type-name='kitchen_pref_category_type' name='current_category'/>
+        <stl-unordered-map type-name='labor_kitchen_interface_food_key' name='known' comment='std::unordered_map&lt;labor_kitchen_interface_food_key,labor_kitchen_interface_food_value&gt;'/>
+        <stl-vector type-name='labor_kitchen_interface_food_key' name='sorting_by'/>
+        <stl-unordered-map type-name='stl-string' name='ascending_sort' comment='std::unordered_map&lt;std::string,bool&gt;'/>
+        <stl-vector name='filter_func'>
+            <stl-function comment='std::function&lt;bool(labor_kitchen_interface_food_entry)&gt;'/>
+        </stl-vector>
+        <stl-string name='filter_str'/>
+        <enum type-name='labor_kitchen_interface_type_filter' name='filter_type' init-value='ALL'/>
+        <uint8_t name='filter_perm'/>
+        <int8_t name='sort_flags'/>
+        <int32_t name='cursor_idx'/>
+    </class-type>
+
+    <class-type type-name='labor_standing_orders_interfacest' inherits-from='widget'>
+        <enum type-name='standing_orders_category_type' name='current_category'/>
+        <stl-vector pointer-type='unit' name='unit'/>
+        <stl-vector type-name='int32_t' name='labor_list'/>
+        <bool name='scrolling_labor_list'/>
+        <int32_t name='scroll_position_units'/>
+        <bool name='scrolling_units'/>
+    </class-type>
+
+    <class-type type-name='labor_stone_use_interfacest' inherits-from='widget'>
+        <enum name='current_category' type-name='stone_use_category_type'/>
+
+        <static-array count='2' index-enum='stone_use_category_type' name='stone_mg_index'><stl-vector type-name='int32_t'/></static-array>
+        <static-array count='2' index-enum='stone_use_category_type' name='stone_restriction_p'><stl-vector pointer-type='int8_t'/></static-array>
+
+        <stl-vector pointer-type='stl-string' name='stone_item_use_str'/>
+
+        <static-array count='2' index-enum='stone_use_category_type' type-name='int32_t' name='scroll_position'/>
+        <static-array count='2' index-enum='stone_use_category_type' type-name='bool' name='scrolling'/>
+    </class-type>
+
+    <class-type type-name='labor_interfacest' inherits-from='widget_container'>
+        <stl-shared-ptr type-name='labor_work_details_interfacest' name='work_details'/>
+        <stl-shared-ptr type-name='labor_standing_orders_interfacest' name='standing_orders'/>
+        <stl-shared-ptr type-name='labor_kitchen_interfacest' name='kitchen'/>
+        <stl-shared-ptr type-name='labor_stone_use_interfacest' name='stone_use'/>
+    </class-type>
+
+    <class-type type-name='justice_interfacest' inherits-from='widget_container'>
+        <enum name='current_mode' type-name='justice_interface_mode_type'/>
+
+        <int32_t name='cage_chain_needed'/>
+        <int32_t name='cage_chain_count'/>
+
+        <stl-vector pointer-type='cri_unitst' name='cri_fortress_guard'/>
+        <int32_t name='scroll_position_fortress_guard'/>
+        <bool name='scrolling_fortress_guard'/>
+        <bool name='sorting_guard_nameprof'/>
+        <bool name='sorting_guard_nameprof_is_ascending'/>
+        <bool name='sorting_guard_nameprof_doing_name'/>
+        <bool name='sorting_guard_nameprof_doing_prof'/>
+
+        <stl-set pointer-type='unit' name='convicts'/>
+        <pointer type-name='unit' name='selected_convict'/>
+
+        <int32_t name='scroll_position_convicts'/>
+        <stl-vector pointer-type='crime' name='convict_crime'/>
+        <pointer name='convict_lawaction' comment='lawactionst'/>
+
+        <bool name='convicting'/>
+
+        <bool name='interrogating'/>
+        <stl-vector type-name='uint32_t' name='interrogation_list_flag'/>
+
+        <stl-vector pointer-type='stl-string' name='interrogation_report_box'/>
+        <int32_t name='interrogation_report_box_width'/>
+        <stl-vector name='interrogation_report' comment='interrogation_reportst'/>
+        <pointer name='viewing_interrogation_report' comment='interrogation_reportst'/>
+        <int32_t name='scroll_position_interrogation_list'/>
+        <bool name='scrolling_interrogation_list'/>
+        <int32_t name='scroll_position_interrogation_report'/>
+        <bool name='scrolling_interrogation_report'/>
+
+        <stl-vector pointer-type='actor_entryst' name='base_actor_entry'/>
+        <stl-vector pointer-type='organization_entryst' name='base_organization_entry'/>
+        <stl-vector pointer-type='plot_entryst' name='base_plot_entry'/>
+
+        <enum name='counterintelligence_mode' type-name='counterintelligence_mode_type'/>
+        <int32_t name='counterintelligence_selected'/>
+        <stl-string name='counterintelligence_filter_str'/>
+        <bool name='entering_counterintelligence_filter'/>
+        <pointer name='selected_counterintelligence_oen' comment='organization_entry_nodest'/>
+        <int32_t name='scroll_position_counterintelligence'/>
+        <bool name='scrolling_counterintelligence'/>
+
+        <stl-vector pointer-type='actor_entryst' name='value_actor_entry'/>
+        <stl-vector pointer-type='organization_entryst' name='value_organization_entry'/>
+        <stl-vector pointer-type='plot_entryst' name='value_plot_entry'/>
+
+        <stl-vector pointer-type='actor_entryst' name='actor_entry'/>
+        <stl-vector pointer-type='organization_entryst' name='organization_entry'/>
+        <stl-vector pointer-type='plot_entryst' name='plot_entry'/>
+
+        <stl-unordered-map pointer-type='unit' name='crimevals' comment='std::unordered_map&lt;unitst *,int32_t&gt;'/>
+        <stl-unordered-map pointer-type='unit' name='crimeflag' comment='std::unordered_map&lt;unitst *,int32_t&gt;'/>
+        <stl-unordered-map pointer-type='unit' name='guardvals' comment='std::unordered_map&lt;unitst *,int32_t&gt;'/>
+    </class-type>
+
+
     <class-type type-name='info_interfacest' inherits-from='widget_tabs'>
         <bool name='open'/>
 
@@ -843,70 +977,7 @@
             <static-array count='5' index-enum='buildings_mode_type' name='scrolling' type-name='bool'/>
         </compound>
 
-        <compound name='labor'>
-            <enum name='mode' type-name='labor_mode_type'/>
-
-            <compound name='work_details'>
-                <int32_t name='selected_work_detail_index'/>
-                <int32_t name='scroll_position_work_details'/>
-                <bool name='scrolling_work_details'/>
-
-                <stl-vector pointer-type='unit' name='assignable_unit'/>
-                <int32_t name='scroll_position_assignable_unit'/>
-                <bool name='scrolling_assignable_unit'/>
-
-                <bool name='entering_custom_detail_name'/>
-
-                <pointer name='editing_work_detail' type-name='work_detail'/>
-                <stl-vector type-name='int32_t' name='labor_list'/>
-                <int32_t name='scroll_position_labor_list'/>
-                <bool name='scrolling_labor_list'/>
-
-                <static-array count='149' type-name='uint8_t' index-enum='job_skill' name='skill_used'/>
-                <int32_t name='skill_num'/>
-            </compound>
-
-            <compound name='standing_orders'>
-                <enum name='current_category' type-name='standing_orders_category_type'/>
-
-                <stl-vector pointer-type='unit' name='unit'/>
-
-                <stl-vector type-name='int32_t' name='labor_list'/>
-                <int32_t name='scroll_position_labor_list'/>
-                <bool name='scrolling_labor_list'/>
-
-                <int32_t name='scroll_position_units'/>
-                <bool name='scrolling_units'/>
-            </compound>
-
-            <compound name='kitchen'>
-                <enum name='current_category' type-name='kitchen_pref_category_type'/>
-
-                <static-array count='4' index-enum='kitchen_pref_category_type' name='known_type'><stl-vector type-name='int16_t'/></static-array>
-                <static-array count='4' index-enum='kitchen_pref_category_type' name='known_subtype'><stl-vector type-name='int16_t'/></static-array>
-                <static-array count='4' index-enum='kitchen_pref_category_type' name='known_mat'><stl-vector type-name='int16_t'/></static-array>
-                <static-array count='4' index-enum='kitchen_pref_category_type' name='known_matg'><stl-vector type-name='int32_t'/></static-array>
-                <static-array count='4' index-enum='kitchen_pref_category_type' name='known_num'><stl-vector type-name='int32_t'/></static-array>
-                <static-array count='4' index-enum='kitchen_pref_category_type' name='known_rest'><stl-vector type-name='int8_t'/></static-array>
-                <static-array count='4' index-enum='kitchen_pref_category_type' name='known_canrest'><stl-vector type-name='int8_t'/></static-array>
-                <static-array count='4' index-enum='kitchen_pref_category_type' name='known_name'><stl-vector pointer-type='stl-string'/></static-array>
-
-                <static-array count='4' index-enum='kitchen_pref_category_type' type-name='int32_t' name='scroll_position'/>
-                <static-array count='4' index-enum='kitchen_pref_category_type' type-name='bool' name='scrolling'/>
-            </compound>
-
-            <compound name='stone_use'>
-                <enum name='current_category' type-name='stone_use_category_type'/>
-
-                <static-array count='2' index-enum='stone_use_category_type' name='stone_mg_index'><stl-vector type-name='int32_t'/></static-array>
-                <static-array count='2' index-enum='stone_use_category_type' name='stone_restriction_p'><stl-vector pointer-type='int8_t'/></static-array>
-
-                <stl-vector pointer-type='stl-string' name='stone_item_use_str'/>
-
-                <static-array count='2' index-enum='stone_use_category_type' type-name='int32_t' name='scroll_position'/>
-                <static-array count='2' index-enum='stone_use_category_type' type-name='bool' name='scrolling'/>
-            </compound>
-        </compound>
+        <compound type-name='labor_interfacest' name='labor'/>
 
         <compound name='work_orders'>
             <int32_t name='scroll_position_work_orders'/>
@@ -1016,94 +1087,7 @@
             <static-array count='4' index-enum='artifacts_mode_type' name='scrolling' type-name='bool'/>
         </compound>
 
-        <compound name='justice'>
-            <enum name='current_mode' type-name='justice_interface_mode_type'/>
-
-            <int32_t name='cage_chain_needed'/>
-            <int32_t name='cage_chain_count'/>
-
-            <stl-vector pointer-type='crime' name='open_case'/>
-            <int32_t name='scroll_position_open_cases'/>
-            <bool name='scrolling_open_cases'/>
-            <int32_t name='selected_open_case'/>
-            <int32_t name='scroll_position_selected_open_case'/>
-            <bool name='scrolling_selected_open_case'/>
-
-            <stl-vector pointer-type='crime' name='closed_case'/>
-            <int32_t name='scroll_position_closed_cases'/>
-            <bool name='scrolling_closed_cases'/>
-            <int32_t name='selected_closed_case'/>
-            <int32_t name='scroll_position_selected_closed_case'/>
-            <bool name='scrolling_selected_closed_case'/>
-
-            <stl-vector pointer-type='crime' name='cold_case'/>
-            <int32_t name='scroll_position_cold_cases'/>
-            <bool name='scrolling_cold_cases'/>
-            <int32_t name='selected_cold_case'/>
-            <int32_t name='scroll_position_selected_cold_case'/>
-            <bool name='scrolling_selected_cold_case'/>
-
-            <stl-vector pointer-type='cri_unitst' name='cri_fortress_guard'/>
-            <int32_t name='scroll_position_fortress_guard'/>
-            <bool name='scrolling_fortress_guard'/>
-            <bool name='sorting_guard_nameprof'/>
-            <bool name='sorting_guard_nameprof_is_ascending'/>
-            <bool name='sorting_guard_nameprof_doing_name'/>
-            <bool name='sorting_guard_nameprof_doing_prof'/>
-
-            <stl-vector pointer-type='cri_unitst' name='cri_convict'/>
-            <int32_t name='scroll_position_convicts'/>
-            <bool name='scrolling_convicts'/>
-            <int32_t name='selected_convict'/>
-            <stl-vector pointer-type='crime' name='convict_crime'/>
-            <pointer name='convict_lawaction' comment='lawactionst'/>
-            <bool name='sorting_convict_nameprof'/>
-            <bool name='sorting_convict_nameprof_is_ascending'/>
-            <bool name='sorting_convict_nameprof_doing_name'/>
-            <bool name='sorting_convict_nameprof_doing_prof'/>
-            <int32_t name='scroll_position_selected_convict'/>
-            <bool name='scrolling_selected_convict'/>
-
-            <bool name='convicting'/>
-            <stl-vector pointer-type='unit' name='conviction_list'/>
-            <int32_t name='scroll_position_conviction'/>
-            <bool name='scrolling_conviction'/>
-
-            <bool name='interrogating'/>
-            <stl-vector pointer-type='unit' name='interrogation_list'/>
-            <stl-vector type-name='uint32_t' name='interrogation_list_flag'/>
-            <int32_t name='scroll_position_interrogation'/>
-            <bool name='scrolling_interrogation'/>
-
-            <stl-vector pointer-type='stl-string' name='interrogation_report_box'/>
-            <int32_t name='interrogation_report_box_width'/>
-            <stl-vector name='interrogation_report' comment='interrogation_reportst'/>
-            <pointer name='viewing_interrogation_report' comment='interrogation_reportst'/>
-            <int32_t name='scroll_position_interrogation_list'/>
-            <bool name='scrolling_interrogation_list'/>
-            <int32_t name='scroll_position_interrogation_report'/>
-            <bool name='scrolling_interrogation_report'/>
-
-            <stl-vector pointer-type='actor_entryst' name='base_actor_entry'/>
-            <stl-vector pointer-type='organization_entryst' name='base_organization_entry'/>
-            <stl-vector pointer-type='plot_entryst' name='base_plot_entry'/>
-
-            <enum name='counterintelligence_mode' type-name='counterintelligence_mode_type'/>
-            <int32_t name='counterintelligence_selected'/>
-            <stl-string name='counterintelligence_filter_str'/>
-            <bool name='entering_counterintelligence_filter'/>
-            <pointer name='selected_counterintelligence_oen' comment='organization_entry_nodest'/>
-            <int32_t name='scroll_position_counterintelligence'/>
-            <bool name='scrolling_counterintelligence'/>
-
-            <stl-vector pointer-type='actor_entryst' name='value_actor_entry'/>
-            <stl-vector pointer-type='organization_entryst' name='value_organization_entry'/>
-            <stl-vector pointer-type='plot_entryst' name='value_plot_entry'/>
-
-            <stl-vector pointer-type='actor_entryst' name='actor_entry'/>
-            <stl-vector pointer-type='organization_entryst' name='organization_entry'/>
-            <stl-vector pointer-type='plot_entryst' name='plot_entry'/>
-        </compound>
+        <compound type-name='justice_interfacest' name='justice'/>
     </class-type>
 
     <struct-type type-name='announcements_interfacest'>
