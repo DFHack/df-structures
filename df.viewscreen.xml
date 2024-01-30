@@ -40,7 +40,7 @@
                 </pointer>
             </vmethod>
             <vmethod name='logic'/>
-            <vmethod name='render'/>
+            <vmethod name='render'> <uint32_t name='curtick'/> </vmethod>
             <vmethod name='arrange' since='v50.10'/>
             <vmethod name='remove_child'>
                 <pointer name='w'/>
@@ -196,6 +196,9 @@
         <stl-variant name='tooltip' raw-type='std::string, std::function&lt;void()&gt;'/>
         <bool name='displaying_tooltip'/>
         <stl-string name='search_string'/>
+        <stl-set name='activation_hotkeys'>
+            <enum type-name='interface_key' base-type='long'/>
+        </stl-set>
 
         <virtual-methods>
             -- from abstract_interface
@@ -235,6 +238,7 @@
     </class-type>
 
     <class-type type-name='text_truncated' original-name='widgets::text_truncated' inherits-from='widget_text'>
+        <stl-string name='original_str'/>
         <int32_t name='truncate_mode_flags'/>
     </class-type>
 
@@ -271,7 +275,6 @@
 
     <class-type type-name='widget_textbox' original-name='widgets::textbox' inherits-from='widget'>
         <stl-string name='str'/>
-        <compound type-name='widget_button' name='toggle'/>
         <int32_t name='flags'/>
         <stl-function name='callback' comment='arguments are textbox*'/>
         <int16_t name='fg'/>
@@ -281,15 +284,52 @@
         <int32_t name='maxlen'/>
     </class-type>
 
-    <class-type type-name='widget_button' original-name='widgets::button' inherits-from='widget'>
-        <stl-function name='callback' comment='arguments are button*'/>
+    <class-type type-name='widget_dropdown' original-name='widgets::dropdown' inherits-from='widget'>
+        <size_t name='cur_selected'/>
+        <stl-vector type-name='stl-string' name='options'/>
+        <stl-function name='callback' comment='std::function&lt;void(size_t, dropdown *)&gt;'/>
+        <bool name='open'/>
     </class-type>
 
-    <class-type type-name='widget_interface_small_button' original-name='widgets::interface_small_button' inherits-from='widget_button'>
+    <class-type type-name='widget_folder' original-name='widgets::folder' inherits-from='widget'>
+        <compound type-name='widget' name='open'/>
+        <bool name='last_visible'/>
+        <stl-unordered-map name='controlled_set' comment='std::unordered_set&lt;std::shared_ptr&lt;widget&gt;&gt;'/>
+    </class-type>
+
+    <struct-type type-name='filter_entry'>
+        <stl-shared-ptr type-name='widget_text' name='label'/>
+        <stl-unordered-map name='filtered_set' comment='std::unordered_set&lt;std::shared_ptr&lt;widget&gt;&gt;'/>
+    </struct-type>
+
+    <class-type type-name='widget_filter' original-name='widgets::filter' inherits-from='widget'>
+        <compound type-name='filter_entry' name='all_filter'/>
+        <stl-vector type-name='filter_entry' name='filters'/>
+        <int32_t name='filter_idx'/>
+        <stl-weak-ptr type-name='widget_container' name='container_parent'/>
+        <virtual-methods>
+            <vmethod name='set_filtered'> <int32_t name='idx'/> </vmethod>
+        </virtual-methods>
+    </class-type>
+
+    <class-type type-name='indiv_filter' original-name='widgets::multifilter::indiv_filter' inherits-from='widget_filter'/>
+
+    <class-type type-name='multifilter' original-name='widgets::multifilter' inherits-from='widget'>
+        <stl-vector name='filters'>
+            <stl-shared-ptr type-name='indiv_filter'/>
+        </stl-vector>
+        <stl-weak-ptr type-name='widget_container' name='container_parent'/>
+    </class-type>
+
+    <class-type type-name='widget_interface_main_button' original-name='widgets::interface_main_button' inherits-from='widget'>
         <int32_t name='which_button'/>
     </class-type>
 
-    <class-type type-name='widget_interface_pets_livestock_button' original-name='widgets::interface_pets_livestock_button' inherits-from='widget_button'>
+    <class-type type-name='widget_interface_small_button' original-name='widgets::interface_small_button' inherits-from='widget'>
+        <int32_t name='which_button'/>
+    </class-type>
+
+    <class-type type-name='widget_interface_pets_livestock_button' original-name='widgets::interface_pets_livestock_button' inherits-from='widget'>
         <int32_t name='which_button'/>
     </class-type>
 
@@ -336,6 +376,22 @@
         <int32_t name='num_visible'/>
         <bool name='scrolling'/>
         <compound type-name='scrollbarst' name='scrollbar'/>
+    </class-type>
+
+    <class-type type-name='widget_radio_rows' original-name='widgets::radio_rows' inherits-from='widget'>
+        <pointer type-name='widget' name='selected'/>
+        <int32_t name='selected_idx' init-value='0'/>
+        <compound type-name='widget_scroll_rows' name='rows'/>
+        <stl-map name='select_callback' comment='std::map&lt;size_t, std::function&lt;void(widget *)&gt;&gt;'/>
+    </class-type>
+
+    <class-type type-name='widget_table' original-name='widgets::table' inherits-from='widget_container'>
+        <stl-shared-ptr type-name='widget_columns_container' name='labels'/>
+        <stl-shared-ptr type-name='widget_scroll_rows' name='entries'/>
+        <stl-shared-ptr type-name='widget' name='key_display'/>
+        <int32_t name='key_row'/>
+        <int32_t name='key_col'/>
+        <bool name='keyboard_controlled' init-value='true'/>
     </class-type>
 
     <class-type type-name='widget_params_container' original-name='widgets::params_container' inherits-from='widget_container'>
@@ -391,12 +447,13 @@
         <enum-item name='SELECTED'/>
         <enum-item name='SHOW_GENDER'/>
         <enum-item name='CUSTOM_BUILD'/>
+        <enum-item name='FORCE_JOB_WIDTH'/>
     </enum-type>
 
     <bitfield-type type-name='unit_list_flag'>
         <flag-bit name='show_gender'/>
         <flag-bit name='custom_build'/>
-        <flag-bit name='needs_resorted'/>
+        <flag-bit name='force_job_width'/>
     </bitfield-type>
 
     <class-type type-name='widget_unit_portrait' original-name='widgets::unit_portrait' inherits-from='widget'>
@@ -424,7 +481,7 @@
     </class-type>
 
     <struct-type type-name='sort_entry'>
-        <stl-function type-name='bool' name='fn'/> full type is std::function&lt;bool(std::pair&lt;void *,bool&gt;,std::pair&lt;void *,bool&gt;)&gt;
+        <stl-function type-name='bool' name='fn' comment='std::function&lt;bool(const Entry &amp;,const Entry &amp;)&gt;'/>
         <stl-string name='ident'/>
     </struct-type>
 
@@ -440,10 +497,11 @@
             <bool/>
         </stl-vector>
         <stl-shared-ptr type-name='widget' name='no_unit_entry'/>
-        <stl-vector type-name='sort_entry' name='sorting_by'/>
+        <stl-vector type-name='sort_entry' name='sorting_by' comment='std::vector&lt;sort_entry&lt;item_or_unit&gt;&gt;'/>
         <stl-vector name='always_sorting_by'> <stl-function type-name='bool'/> </stl-vector>
         <stl-vector name='partitions'> <stl-function type-name='bool'/> </stl-vector>
         <stl-unordered-map name='ascending_sort'/> std::unordered_map&lt;std::string,bool&gt;
+        <uint8_t name='sort_flags'/>
         <bitfield type-name='unit_list_flag' name='flags'/>
         <stl-vector name='filter_func'> <stl-function type-name='bool'/> </stl-vector>
         <stl-vector name='preprocess_unit_func'> <stl-function/> </stl-vector>
@@ -452,19 +510,25 @@
         <stl-vector name='postprocess_item_func'> <stl-function/> </stl-vector>
         <stl-function name='close_callback'/>
         <stl-vector type-name='item_or_unit' name='entry_list'/>
-        <stl-unordered-map name='selected'/> std::unordered_set&lt;void *&gt;
-        <stl-vector name='on_select_change'> <stl-function/> </stl-vector>
+        <stl-unordered-map name='selected' comment='std::unordered_set&lt;void *&gt;'/>
+        <stl-unordered-map name='job_sort_str' comment='std::unordered_map&lt;void *,std::string&gt;'/>
+        <int32_t name='cursor_idx'/>
+        <stl-vector name='on_select_change'>
+            <stl-function comment='std::function&lt;void(item_or_unit,bool)&gt;'/>
+        </stl-vector>
         <enum type-name='unit_list_options' name='skill_type'/>
         <stl-mutex name='mtx'/>
         <static-array type-name='int32_t' count='149' index-enum='job_skill' name='skills'/>
         <stl-string name='filter_str'/>
     </class-type>
 
-    <class-type type-name='widget_sort_widget' original-name='widgets::sort_widget' inherits-from='widget'>
+    <class-type type-name='widget_sort_widget' original-name='widgets::sort_widget' inherits-from='widget' comment='template&lt;T, Entry&gt;'>
         <bool name='display_text'/>
-        <pointer type-name='widget_unit_list' name='list'/>
-        <stl-function type-name='bool' name='sort_fun'/> std::function&lt;bool(unit_list::item_or_unit,unit_list::item_or_unit)&gt;
+        <pointer name='list' comment='T*'/>
+        <stl-function type-name='bool' name='sort_fun'/> std::function&lt;bool(const Entry &amp;, const Entry &amp;)&gt;
     </class-type>
+
+    <class-type type-name='widget_unit_sort_widget' inherits-from='widget_sort_widget' comment='original-name for this class is not yet known'/>
 
     <class-type type-name='MacroScreenLoad' inherits-from='viewscreen'>
         <compound name='menu' type-name='widget_menu'/>
