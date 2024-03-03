@@ -7,9 +7,9 @@
             (describe-obj $.name)
         </code-helper>
 
-        <uint8_t name='tile'/>
-        <int16_t name='fg_color'/>
-        <int16_t name='bg_color'/>
+        <uint8_t name='tile' init-value='43'/>
+        <int16_t name='fg_color' init-value='11'/>
+        <int16_t name='bg_color' init-value='3'/>
 
         <stl-vector name='block_x' type-name='int32_t'/>
         <stl-vector name='block_y' type-name='int32_t'/>
@@ -17,6 +17,15 @@
 
         <stl-vector name='units' type-name='int32_t' ref-target='unit'/>
         <int32_t name='limit_workshops' since='v0.40.07'/>
+        <int32_t name='solid_texpos'/>
+        <int32_t name='blended_texpos'/>
+        <int32_t name='symbol_index'/>
+        <uint8_t name='texture_r'/>
+        <uint8_t name='texture_g'/>
+        <uint8_t name='texture_b'/>
+        <uint8_t name='texture_br'/>
+        <uint8_t name='texture_bg'/>
+        <uint8_t name='texture_bb'/>
     </struct-type>
 
     <struct-type type-name='ui_hotkey'>
@@ -221,6 +230,17 @@
         <flag-bit name='buildings'/>
     </bitfield-type>
 
+    <struct-type type-name='labor_infost' since='v0.50.01'>
+        <bitfield name="flags">
+            <flag-bit name="children_do_chores" />
+        </bitfield>
+        <stl-vector name='work_details' pointer-type='work_detail'/>
+        <static-array type-name='bool' name='chores' index-enum='unit_labor' count='94'/>
+        <stl-vector name='chores_exempted_children' comment='toady: no_chore_child_unid'> sorted
+            <int32_t ref-target='unit'/>
+        </stl-vector>
+    </struct-type>
+
     <struct-type type-name='plotinfost'>
         ctor 86e33c0 x
         dtor 8534190
@@ -228,7 +248,7 @@
         <int16_t name='game_state' comment='2 running, 1 lost to siege, 0 lost'/>
         <int32_t name='lost_to_siege_civ' ref-target='historical_entity'/>
 
-        <compound name='tax_collection'>
+        <compound name='tax_collection'> bay12: plotinfo_taxinfost
             <int16_t name='state'/>
             <int32_t name='check_timer'/>
             <stl-vector name='rooms' type-name='int32_t' ref-target='building'/>
@@ -248,7 +268,7 @@
             <int8_t name='guard_lack_complained'/>
         </compound>
 
-        <compound name='nobles'>
+        <compound name='nobles'> bay12: plotinfo_positionst
             <int32_t name='unk_1'/>
             <int32_t name='manager_cooldown' comment='0-1008'/>
             <int32_t name='bookkeeper_cooldown' comment='0-1008'/>
@@ -262,7 +282,7 @@
             </enum>
         </compound>
 
-        <stl-vector name='caravans' pointer-type='caravan_state'/>
+        <stl-vector name='caravans' pointer-type='caravan_state' comment='bay12: merchant'/>
         <int8_t name='unk_2'/>
         <int16_t name='fortress_rank'/> outpost/hamlet/village/town/city/metropolis
         <int16_t name='progress_population' comment='?'/> (unles that's what the above is)
@@ -275,9 +295,9 @@
         <bool name='ignore_labor_shortage'/>
         <bool name='justice_active'/>
 
-        <uint16_t name='unk_3' init-value='60001'/>
-        <uint16_t name='unk_4' init-value='60001'/>
-        <int16_t name='manager_timer'/>
+        <uint16_t name='hi_temp' init-value='60001'/>
+        <uint16_t name='lo_temp' init-value='60001'/>
+        <int16_t name='manager_timer' comment='bay12: quota_checktime'/>
         <static-array name='units_killed' type-name='int16_t' count='152' index-enum='profession'/>
         <stl-vector name='currency_value' type-name='int32_t'
                     index-refers-to='(material-by-id 0 $)'/>
@@ -304,12 +324,12 @@
 
         <stl-vector name='punishments' pointer-type='punishment'/>
 
-        <stl-vector name='parties' pointer-type='party_info'/>
-
         <stl-vector name='dipscripts' pointer-type='dipscript_info'/>
 
+        <stl-vector name='dipscript_texts' pointer-type='dipscript_text'/>
+
         <stl-vector name='dipscript_popups' pointer-type='dipscript_popup'
-                    comment='cause viewscreen_meetingst to pop up'/>
+                    comment='bay12: meetingmoment; cause viewscreen_meetingst to pop up'/>
 
         <compound name='kitchen'>
             <stl-vector name='item_types'>
@@ -330,10 +350,15 @@
         <stl-vector name='economic_stone' type-name='bool'
                     index-refers-to='(material-by-id 0 $)'/>
 
-        <bitfield name='unk23c8_flags'>
-            <flag-bit name='first_year'/>
-            <flag-bit name='recheck_aid_requests'/>
-            <flag-bit name='force_elections'/>
+        <bitfield name='flags'>
+            <flag-bit name='first_year' comment='(FIRSTYEAR)'/>
+            <flag-bit name='recheck_aid_requests' comment='(EVAL_REQUESTERCANCHECK)'/>
+            <flag-bit name='force_elections' comment='(RUN_SPECIAL_ELECTIONS)'/>
+            <flag-bit name='need_to_do_tutorial' comment='(NEED_TO_DO_TUTORIAL)'/>
+            <flag-bit name='minor_victory' comment='(MINOR_VICTORY)'/>
+            <flag-bit name='major_victory' comment='(MAJOR_VICTORY)'/>
+            <flag-bit name='did_first_caravan_announcement' comment='(DID_FIRST_CARAVAN_ANNOUNCEMENT)'/>
+            <flag-bit name='did_first_cavern_announcement' comment='(DID_FIRST_CAVERN_ANNOUNCEMENT) required for CAVERNS_OPENED music context'/>
         </bitfield>
         <int16_t name='mood_cooldown'/>
 
@@ -596,16 +621,9 @@
             <int32_t name='cursor_stop'/>
 
             <int32_t/><int32_t/><int32_t/> 0.50.01
-            <bitfield name="flags">
-                <flag-bit name="children_do_chores" />
-            </bitfield>
-            <int32_t/> 0.50.01
-            <stl-vector name='work_details' pointer-type='work_detail'/> 0.50.01
-            <static-array type-name='bool' name='chores' index-enum='unit_labor' count='94'/>
-            <stl-vector name='chores_exempted_children'> sorted
-                <int32_t ref-target='unit'/>
-            </stl-vector>
         </compound>
+
+        <compound name='labor_info' type-name='labor_infost' since='v0.50.01'/>
 
         <stl-vector name='petitions' type-name='int32_t' comment='related to agreements'/>
         <stl-vector name='unk_6' type-name='int32_t' since='v0.47.01' comment="observed allocating 4 bytes"/>

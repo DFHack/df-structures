@@ -71,14 +71,14 @@
     </enum-type>
 
     <!-- This enum is tentative -->
-    <enum-type type-name='whereabouts_type' base-type='int16_t'>
+    <enum-type type-name='whereabouts_type' base-type='int16_t' comment='bay12: HistFigState'>
         <enum-item name='NONE' value='-1'/>
-        <enum-item name='wanderer' comment="wandering the wilds/region/depths of the world (none/region/underground_region)"/>
-        <enum-item name='settler' comment="site/region, region only for dead 'monsters'"/>
-        <enum-item name='refugee' comment="into region only for dead. refugees and abucted-imprisoned-turned"/>
-        <enum-item name='army_died' comment="either no record of participation in battle, or character died and defender won (character on either side)"/>
-        <enum-item name='army_survived' comment="either no record of participation in battle, or character survived and defender won (character on either side)"/>
-        <enum-item name='visitor' comment="'visited' as last movement seems to be the key"/>
+        <enum-item name='wanderer' comment="bay12: WANDERING; wandering the wilds/region/depths of the world (none/region/underground_region)"/>
+        <enum-item name='settler' comment="bay12: SETTLED; site/region, region only for dead 'monsters'"/>
+        <enum-item name='refugee' comment="bay12: REFUGEE; into region only for dead. refugees and abucted-imprisoned-turned"/>
+        <enum-item name='army_died' comment="bay12: IN_ARMY; either no record of participation in battle, or character died and defender won (character on either side)"/>
+        <enum-item name='army_survived' comment="bay12: IN_ARMY_CAMPING_AT_CZ_ALTERATION; either no record of participation in battle, or character survived and defender won (character on either side)"/>
+        <enum-item name='visitor' comment="bay12: VISITING; 'visited' as last movement seems to be the key"/>
     </enum-type>
 
     <enum-type type-name='season' base-type='int8_t'>
@@ -89,15 +89,15 @@
         <enum-item name='Winter'/>
     </enum-type>
 
-    <!-- This enum is very tentative -->
-    <enum-type type-name='death_condition_type' base-type='int8_t'>
-        <enum-item name='no_statement' comment="alive or dead, but death conditions not registered here"/>
-        <enum-item name='site_battle' comment="parameters: site id + optional structure"/>
-        <enum-item name='region_battle' comment="parameters: two unknown values, usually small, with same pair being the same region, but neither is region_id"/>
-        <enum-item name='wilderness' comment="parameters: region_id + -1"/>
-        <enum-item/>
-        <enum-item name='entombed' comment="same parameters as for site_battle, but structure seems to always be present and be a tomb"/>
-        <enum-item name='site' comment="same parameters as for site_battle, old age and deadly confrontation seen"/>
+    <enum-type type-name='death_condition_type' base-type='int8_t' comment='bay12: HistFigBodyState'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='no_statement' comment="bay12: ACTIVE; alive or dead, but death conditions not registered here"/>
+        <enum-item name='site_battle' comment="bay12: BURIED_AT_SITE; parameters: site id + optional structure"/>
+        <enum-item name='region_battle' comment="bay12: UNBURIED_AT_BATTLEFIELD; parameters: two unknown values, usually small, with same pair being the same region, but neither is region_id"/>
+        <enum-item name='wilderness' comment="bay12: UNBURIED_AT_SUBREGION; parameters: region_id + -1"/>
+        <enum-item name='feature_layer' comment='bay12: UNBURIED_AT_FEATURE_LAYER'/>
+        <enum-item name='entombed' comment="bay12: ENTOMBED_AT_SITE; same parameters as for site_battle, but structure seems to always be present and be a tomb"/>
+        <enum-item name='site' comment="bay12: UNBURIED_AT_SITE; same parameters as for site_battle, old age and deadly confrontation seen"/>
     </enum-type>
 
     <enum-type type-name='plot_role_type' base-type='int32_t'>
@@ -147,7 +147,113 @@
         <bool name='agreement_has_messenger'/>
     </struct-type>
 
-    <struct-type type-name='historical_figure_info'>
+    <struct-type type-name='state_profilest'>
+        <enum name='state' type-name='whereabouts_type' base-type='int16_t'/>
+        <int32_t name="site_id" ref-target='world_site' init-value='-1'/>
+        <int32_t name="subregion_id" ref-target='world_region' init-value='-1'/>
+        <int32_t name="feature_layer_id" ref-target='world_underground_region' init-value='-1'/>
+        <int32_t name="army_id" ref-target='army' init-value='-1'/>
+        <int32_t name='cz_id' init-value='-1'/>
+        <int32_t name='cz_bld_num' init-value='-1'/>
+        <int32_t init-value='-1' name='abs_smm_x' comment='same coordinate system as army'/>
+        <int32_t init-value='-1' name='abs_smm_y'/>
+        <bitfield name='flags'>
+            <flag-bit name='XY_LOCATION_SMM_LEVEL'/>
+            <flag-bit name='XY_LOCATION_IN_SUL'/>
+        </bitfield>
+        <enum name='body_state' type-name='death_condition_type' base-type='int8_t' init-value='NONE'/>
+        <int32_t name='body_state_id' init-value='-1' comment="-1/site     /?/region_id/?/site     /site"/>
+        <int32_t name='body_state_sub_id' init-value='-1' comment="-1/structure/?/-1       /?/structure/structure"/>
+        <int32_t name='year' since='v0.42.01' init-value='-1' comment="time of arrival at site/region_id, not time of death"/>
+        <int32_t name='year_tick' since='v0.42.01' init-value='-1'/>
+    </struct-type>
+
+    <struct-type type-name='knowledge_profilest'>
+        <stl-vector name='known_secrets' pointer-type='interaction' comment="bay12: interation_ptr; Interactions inflicted upon the figure through an I_SOURCE:SECRET means are recorded here; this appears to prevent the interaction from affecting the figure again on subsequent exposure (when rereading a necromancy slab, for example). For interactions with both I_SOURCE:SECRET and another source (I_SOURCE:INGESTION, for example), exposure to the interaction through the non-secret route does not result in the interaction being listed here."/>
+        <int32_t name='next_intervention_resistance_year' init-value='-1' comment="All are gods with the DEATH sphere having created slabs, but the value isn't the id of the slab"/>
+        <stl-vector name='known_written_contents' type-name='int32_t' ref-target='written_content' comment="bay12: read_written_content_id; ID of written_contents known to the historical figure. Aside from the contents of read books, these so-called written contents also include known derivations of poetic forms, dance forms and musical forms" since='v0.42.01'/>
+        <stl-vector name="known_identities" type-name='int32_t' ref-target='identity' comment="bay12: identity_known_id; identity ID of identities known to the historical figure, such as demon true names"/>
+        <stl-vector name='known_witness_reports' pointer-type='witness_incidentst' comment='bay12: witness_incident'/>
+        <!-- compound rumor_infost -->
+        <stl-vector name='known_events' pointer-type='entity_event'/>
+        <!-- end compound rumor_infost -->
+        <stl-vector name='heard_of_guide_hfid' type-name='int32_t'/>
+        <stl-vector name='heard_of_stid' type-name='int32_t'/>
+        <compound name='opinion_info' comment='bay12: type is opinion_infost'>
+            <stl-vector name='entity_id' type-name='int32_t' comment="same length as next vector. Some are definitely entities (e.g. player fortress or attacker site government), but others make no such sense"/>
+            <stl-vector name='entity_opinion' type-name='int32_t' comment="5, 7, 8 seen. 7/8 only seen on humanoid experiments"/>
+        </compound>
+        <stl-vector name='creature_knowledge'>
+            <pointer>
+                <!-- creature_knowledgest -->
+                <int32_t name='unk_1'/>
+                <int32_t name='unk_2'/>
+
+                <stl-vector name='unk_3' type-name='int32_t'/>
+                <stl-vector name='unk_4' type-name='int32_t'/>
+                <stl-vector name='unk_5' type-name='int32_t'/>
+
+                <int32_t name='unk_6' since='v0.42.01'/>
+            </pointer>
+        </stl-vector>
+        <stl-vector name="known_poetic_forms" type-name='int32_t' ref-target='poetic_form' since='v0.42.01' comment='bay12: poetic_form_known_id'/>
+        <stl-vector name="known_musical_forms" type-name='int32_t' ref-target='musical_form' since='v0.42.01' comment='bay12: musical_form_known_id'/>
+        <stl-vector name="known_dance_forms" type-name='int32_t' ref-target='dance_form' since='v0.42.01' comment='bay12: dance_form_known_id'/>
+        <pointer name="knowledge" since='v0.42.01'>
+            <!-- scholar_knowledgest -->
+            <bitfield type-name='knowledge_scholar_flags_0' name='philosophy'/>
+            <bitfield type-name='knowledge_scholar_flags_1' name='philosophy2'/>
+            <bitfield type-name='knowledge_scholar_flags_2' name='math'/>
+            <bitfield type-name='knowledge_scholar_flags_3' name='math2'/>
+            <bitfield type-name='knowledge_scholar_flags_4' name='history'/>
+            <bitfield type-name='knowledge_scholar_flags_5' name='astronomy'/>
+            <bitfield type-name='knowledge_scholar_flags_6' name='naturalist'/>
+            <bitfield type-name='knowledge_scholar_flags_7' name='chemistry'/>
+            <bitfield type-name='knowledge_scholar_flags_8' name='geography'/>
+            <bitfield type-name='knowledge_scholar_flags_9' name='medicine'/>
+            <bitfield type-name='knowledge_scholar_flags_10' name='medicine2'/>
+            <bitfield type-name='knowledge_scholar_flags_11' name='medicine3'/>
+            <bitfield type-name='knowledge_scholar_flags_12' name='engineering'/>
+            <bitfield type-name='knowledge_scholar_flags_13' name='engineering2'/>
+            <uint32_t name='knowledge_goal_category'/>
+            <uint32_t name='unk_1'/>
+            <uint32_t name='unk_2'/>
+            <uint32_t name='unk_3'/>
+            <bitfield name='knowledge_goal'>
+                <flag-bit name='unk0'/>
+            </bitfield>
+            <uint32_t name='research_points' comment='research is finished at 100k? amount gained depends on skills, attributes'/>
+            <uint32_t name='times_pondered' comment='one per ponder no matter what. turns into research_points somewhere around 40-60.'/>
+        </pointer>
+        <pointer name='belief_systems' comment="found in prophets; contains the ID of the belief system developed by that particular prophet">
+            <!-- hf_religious_datast -->
+            <stl-vector type-name='int32_t' ref-target='belief_system'/>
+        </pointer>
+        <pointer name='known_locations'>
+            <!-- ab_review_infost -->
+            <stl-vector>
+                <pointer>
+                    <int32_t name='site_id' ref-target='world_site'/>
+                    <int32_t name='location_id' ref-target='abstract_building' aux-value='$$.site_id'/>
+                    <int32_t name='unk_2' init-value='-1'/>
+                    <int32_t name='unk_3' init-value='-1'/>
+                    <int32_t name='unk_4' init-value='-1'/>
+                    <int32_t name='unk_5' init-value='-1'/>
+                    <int32_t name='unk_6' comment='increases by 10 when eating in a location'/>
+                    <int32_t name='room_quality' comment='15 times the best dfhack_room_quality_level seen when using this room for an activity'/>
+                    <int32_t name='unk_8'/>
+                    <int32_t name='unk_9'/>
+                    <int32_t name='unk_10'/>
+                    <int32_t name='used_as_temple'/>
+                    <int32_t name='used_as_library'/>
+                    <int32_t name='used_as_tavern'/>
+                </pointer>
+            </stl-vector>
+        </pointer>
+        <stl-vector name='known_agreement_id' type-name='int32_t' since='v0.47.01'/>
+    </struct-type>
+
+    <struct-type type-name='historical_figure_info' original-name='hf_profilest'>
         <pointer name="spheres">
             <stl-vector name="spheres">
                 <enum base-type='int16_t' type-name='sphere_type'/>
@@ -204,27 +310,7 @@
             <int32_t name='unk_v50_3'/>
         </pointer>
 
-       <!-- This pointer contents is tentative -->
-       <pointer name='whereabouts'>
-            <enum name='whereabouts_type' type-name='whereabouts_type' base-type='int16_t'/>
-            <int32_t name="site" ref-target='world_site'/>
-            <int32_t name="region_id" ref-target='world_region'/>
-            <int32_t name="underground_region_id" ref-target='world_underground_region'/>
-            <int32_t name="army_id" ref-target='army'/>
-            <int32_t name='unk_1' init-value='-1'/>
-            <int32_t name='unk_2' init-value='-1'/>
-            <int32_t init-value='-1' name='pos_x' comment='same coordinate system as army'/>
-            <int32_t init-value='-1' name='pos_y'/>
-            <bitfield name='flags'>
-                <flag-bit/>
-                <flag-bit/>
-            </bitfield>
-            <enum name='death_condition' type-name='death_condition_type' base-type='int8_t'/>
-            <int32_t name='death_condition_parameter_1' init-value='-1' comment="-1/site     /?/region_id/?/site     /site"/>
-            <int32_t name='death_condition_parameter_2' init-value='-1' comment="-1/structure/?/-1       /?/structure/structure"/>
-            <int32_t name='year' since='v0.42.01' init-value='-1' comment="time of arrival at site/region_id, not time of death"/>
-            <int32_t name='year_tick' since='v0.42.01' init-value='-1'/>
-        </pointer>
+        <pointer type-name='state_profilest' name='whereabouts'/>
 
         <pointer name="kills" type-name='historical_kills'/>
 
@@ -245,82 +331,7 @@
             </bitfield>
         </pointer>
 
-        <pointer name='known_info' since='v0.34.01'>
-            <stl-vector name='known_secrets' pointer-type='interaction' comment="Interactions inflicted upon the figure through an I_SOURCE:SECRET means are recorded here; this appears to prevent the interaction from affecting the figure again on subsequent exposure (when rereading a necromancy slab, for example). For interactions with both I_SOURCE:SECRET and another source (I_SOURCE:INGESTION, for example), exposure to the interaction through the non-secret route does not result in the interaction being listed here."/>
-            <int32_t name='unk_10' init-value='-1' comment="All are gods with the DEATH sphere having created slabs, but the value isn't the id of the slab"/>
-            <stl-vector name='known_written_contents' type-name='int32_t' ref-target='written_content' comment="ID of written_contents known to the historical figure. Aside from the contents of read books, these so-called written contents also include known derivations of poetic forms, dance forms and musical forms" since='v0.42.01'/>
-            <stl-vector name="known_identities" type-name='int32_t' ref-target='identity' comment="identity ID of identities known to the historical figure, such as demon true names"/>
-            <stl-vector name='known_witness_reports' pointer-type='witness_report'/>
-            <stl-vector name='known_events' pointer-type='entity_event'/>
-            <stl-vector name='unk_4' type-name='int32_t'/>
-            <stl-vector name='unk_5' type-name='int32_t'/>
-            <stl-vector name='unk_6' type-name='int32_t' comment="same length as next vector. Some are definitely entities (e.g. player fortress or attacker site government), but others make no such sense"/>
-            <stl-vector name='unk_7' type-name='int32_t' comment="5, 7, 8 seen. 7/8 only seen on humanoid experiments"/>
-            <stl-vector name='unk_8'>
-                <pointer>
-                    <int32_t name='unk_1'/>
-                    <int32_t name='unk_2'/>
-
-                    <stl-vector name='unk_3' type-name='int32_t'/>
-                    <stl-vector name='unk_4' type-name='int32_t'/>
-                    <stl-vector name='unk_5' type-name='int32_t'/>
-
-                    <int32_t name='unk_6' since='v0.42.01'/>
-                </pointer>
-            </stl-vector>
-            <stl-vector name="known_poetic_forms" type-name='int32_t' ref-target='poetic_form' since='v0.42.01'/>
-            <stl-vector name="known_musical_forms" type-name='int32_t' ref-target='musical_form' since='v0.42.01'/>
-            <stl-vector name="known_dance_forms" type-name='int32_t' ref-target='dance_form' since='v0.42.01'/>
-            <pointer name="knowledge" since='v0.42.01'>
-                <bitfield type-name='knowledge_scholar_flags_0' name='philosophy'/>
-                <bitfield type-name='knowledge_scholar_flags_1' name='philosophy2'/>
-                <bitfield type-name='knowledge_scholar_flags_2' name='math'/>
-                <bitfield type-name='knowledge_scholar_flags_3' name='math2'/>
-                <bitfield type-name='knowledge_scholar_flags_4' name='history'/>
-                <bitfield type-name='knowledge_scholar_flags_5' name='astronomy'/>
-                <bitfield type-name='knowledge_scholar_flags_6' name='naturalist'/>
-                <bitfield type-name='knowledge_scholar_flags_7' name='chemistry'/>
-                <bitfield type-name='knowledge_scholar_flags_8' name='geography'/>
-                <bitfield type-name='knowledge_scholar_flags_9' name='medicine'/>
-                <bitfield type-name='knowledge_scholar_flags_10' name='medicine2'/>
-                <bitfield type-name='knowledge_scholar_flags_11' name='medicine3'/>
-                <bitfield type-name='knowledge_scholar_flags_12' name='engineering'/>
-                <bitfield type-name='knowledge_scholar_flags_13' name='engineering2'/>
-                <uint32_t name='knowledge_goal_category'/>
-                <uint32_t name='unk_1'/>
-                <uint32_t name='unk_2'/>
-                <uint32_t name='unk_3'/>
-                <bitfield name='knowledge_goal'>
-                    <flag-bit name='unk0'/>
-                </bitfield>
-                <uint32_t name='research_points' comment='research is finished at 100k? amount gained depends on skills, attributes'/>
-                <uint32_t name='times_pondered' comment='one per ponder no matter what. turns into research_points somewhere around 40-60.'/>
-            </pointer>
-            <pointer name='belief_systems' comment="found in prophets; contains the ID of the belief system developed by that particular prophet">
-                <stl-vector type-name='int32_t' ref-target='belief_system'/>
-            </pointer>
-            <pointer name='known_locations'>
-                <stl-vector>
-                    <pointer>
-                        <int32_t name='site_id' ref-target='world_site'/>
-                        <int32_t name='location_id' ref-target='abstract_building' aux-value='$$.site_id'/>
-                        <int32_t name='unk_2' init-value='-1'/>
-                        <int32_t name='unk_3' init-value='-1'/>
-                        <int32_t name='unk_4' init-value='-1'/>
-                        <int32_t name='unk_5' init-value='-1'/>
-                        <int32_t name='unk_6' comment='increases by 10 when eating in a location'/>
-                        <int32_t name='room_quality' comment='15 times the best dfhack_room_quality_level seen when using this room for an activity'/>
-                        <int32_t name='unk_8'/>
-                        <int32_t name='unk_9'/>
-                        <int32_t name='unk_10'/>
-                        <int32_t name='used_as_temple'/>
-                        <int32_t name='used_as_library'/>
-                        <int32_t name='used_as_tavern'/>
-                    </pointer>
-                </stl-vector>
-            </pointer>
-            <stl-vector name='unk_3' type-name='int32_t' since='v0.47.01'/>
-        </pointer>
+        <pointer name='known_info' type-name='knowledge_profilest' since='v0.34.01' comment='knowledge_profile'/>
 
         <pointer name='curse' since='v0.34.01'>
             <stl-vector name="active_interactions" pointer-type='interaction'/>
@@ -803,37 +814,38 @@
         <enum-item name='HalfSibling'/>
     </enum-type>
 
-    <enum-type type-name='vague_relationship_type' base-type='int16_t' comment="not a great name given that lovers, ex lovers, and lieutenants appear here, but histfig and unit are both used...">
+    <enum-type type-name='vague_relationship_type' base-type='int16_t' comment="bay12: WGRelationship; not a great name given that lovers, ex lovers, and lieutenants appear here, but histfig and unit are both used...">
         <enum-item name='none' value='-1'/>
         <enum-item name='childhood_friend'/>
         <enum-item name='war_buddy'/>
         <enum-item name='jealous_obsession'/>
         <enum-item name='jealous_relationship_grudge'/>
         <enum-item name='lover'/>
-        <enum-item name='former_lover' comment="broke up"/>
-        <enum-item name='scholar_buddy'/>
-        <enum-item name='artistic_buddy'/>
-        <enum-item name='athlete_buddy'/>
-        <enum-item name='atheletic_rival'/>
-        <enum-item name='business_rival'/>
+        <enum-item name='former_lover' comment="bay12: BREAKUP; broke up"/>
+        <enum-item name='scholar_buddy' comment='bay12: SCHOLARLY_INTEREST'/>
+        <enum-item name='artistic_buddy' comment='bay12: ARTISTIC_INTEREST'/>
+        <enum-item name='athlete_buddy' comment='bay12: ATHLETES'/>
+        <enum-item name='athletic_rival' comment='bay12: ATHLETES_RIVALS'/>
+        <enum-item name='business_rival' comment='bay12: BUSINESS_RIVALS'/>
         <enum-item name='religious_persecution_grudge'/>
         <enum-item name='grudge'/>
         <enum-item name='persecution_grudge'/>
-        <enum-item name='supernatural_grudge'/>
-        <enum-item name='lieutenant'/>
-        <enum-item name='worshipped_deity'/>
+        <enum-item name='supernatural_grudge' comment='bay12: SUPERNATURAL_VENGEANCE'/>
+        <enum-item name='lieutenant' comment='bay12: INTRIGUE_LIEUTENANT'/>
+        <enum-item name='worshipped_deity' comment='bay12: DEITY'/>
         <enum-item name='spouse'/>
         <enum-item name='mother'/>
         <enum-item name='father'/>
         <enum-item name='master'/>
         <enum-item name='apprentice'/>
         <enum-item name='companion'/>
-        <enum-item name='ex_spouse'/>
+        <enum-item name='ex_spouse' comment='bay12: FORMER_SPOUSE'/>
         <enum-item name='neighbor'/>
         <enum-item name='shared_entity' comment="Religion/PerformanceTroupe/MerchantCompany/Guild"/>
     </enum-type>
 
-    <struct-type type-name='historical_figure' instance-vector='$global.world.history.figures' key-field='id'>
+    <struct-type type-name='historical_figure' instance-vector='$global.world.history.figures' key-field='id'
+                 original-name='history_figurest'>
         <enum base-type='int16_t' name='profession' type-name='profession'/>
 
         <int16_t name='race' ref-target='creature_raw'/>
@@ -877,13 +889,13 @@
         <int32_t name='nemesis_id' ref-target='nemesis_record' since='v0.40.01' comment='sometimes garbage'/>
         <int32_t name='id'/>
 
-        <int32_t name='unk4'/>
+        <int32_t name='art_count'/>
 
         <stl-vector name='entity_links' pointer-type='histfig_entity_link'/>
         <stl-vector name='site_links' pointer-type='histfig_site_link'/>
         <stl-vector name='histfig_links' pointer-type='histfig_hf_link'/>
 
-        <pointer name='info' type-name='historical_figure_info'/>
+        <pointer name='info' type-name='historical_figure_info' comment='bay12: hf_profilest profile'/>
 
         <pointer name='vague_relationships' comment="Do not have to be available mutually, i.e. DF can display Legends relations forming for the other party that does not have an entry (plus time and other conditions not located)">
             <static-array name='hfid' ref-target='historical_figure' type-name='int32_t' init-value='0' count='6'/>
@@ -1262,7 +1274,7 @@
         <enum-item name='HF_INTERROGATED'/>
     </enum-type>
 
-    <enum-type type-name='history_event_reason' comment="Some of these require at least one parameter of varying type. The text is what DF provides without parameter">
+    <enum-type type-name='history_event_reason' base-type='int32_t' comment="bay12: Reason; Some of these require at least one parameter of varying type. The text is what DF provides without parameter">
         <enum-attr name='caption'/>
         <enum-item name='none' value='-1'/>
 
@@ -1600,12 +1612,13 @@
         </compound>
     </struct-type>
 
-    <struct-type type-name='history_event_context'>
+    <struct-type type-name='history_event_context' original-name='contextst'>
         <bitfield name='flags'>
             <flag-bit name='is_interrogation_report'/>
+            <flag-bit name='do_markup'/>
         </bitfield>
-        <pointer name='interrogator_relationships' type-name='historical_figure_relationships'/>
-        <pointer name='interrogation'> TODO: check size
+        <pointer name='interrogator_relationships' type-name='historical_figure_relationships'/> evidence_repositoryst
+        <pointer name='interrogation'> TODO: check size - interrogation_reportst
             <int32_t name='unk_00' init-value='-1'/>
             <int32_t name='unk_04' init-value='-1'/>
             <int32_t name='interrogator_id' ref-target='historical_figure'/>
@@ -1850,7 +1863,7 @@
         <int32_t name='builder_hf' ref-target='historical_figure' since='v0.40.01'/>
     </class-type>
 
-    <enum-type type-name='death_type' base-type='int16_t'>
+    <enum-type type-name='death_type' base-type='int16_t' comment='bay12: KillCause'>
         <enum-item name='NONE' value='-1'/>
         <enum-item name='OLD_AGE'/>
         <enum-item name='HUNGER'/>
@@ -2675,12 +2688,12 @@
     </class-type>
 
     <class-type type-name='history_event_hf_gains_secret_goalst' inherits-from='history_event'>
-        <int32_t name='histfig' ref-target='historical_figure'/>
-        <enum name='goal' type-name='goal_type' base-type='int32_t'/>
-        <enum name='thought' type-name='unit_thought_type' since='v0.47.02' init-value='None'/>
-        <int32_t name='target_hf' since='v0.47.02' init-value='-1' ref-target='historical_figure'/>
+        <int32_t name='histfig' ref-target='historical_figure' comment='bay12: hist_figure_id'/>
+        <enum name='goal' type-name='goal_type' base-type='int32_t' comment='bay12: PersonalityGoal personality_goal'/>
+        <enum name='thought' type-name='unit_thought_type' since='v0.47.02' init-value='None' comment='bay12: Circumstance'/>
+        <int32_t name='target_hf' since='v0.47.02' init-value='-1' ref-target='historical_figure' comment='bay12: circumstance_id'/>
         <enum name='reason' type-name='history_event_reason' base-type='int32_t' since='v0.47.02'/>
-        <enum name='value' type-name='value_type' since='v0.47.02' init-value='NONE'/>
+        <enum name='value' type-name='value_type' since='v0.47.02' init-value='NONE' comment='bay12: reason_id'/>
     </class-type>
 
     <class-type type-name='history_event_artifact_storedst' inherits-from='history_event'>
@@ -3578,25 +3591,25 @@
         </compound>
     </struct-type>
 
-    <struct-type type-name='relationship_event'>
+    <struct-type type-name='relationship_event' original-name='history_relationship_event_blockst'>
         <static-array name='event' type-name='int32_t' count='1024' comment="not included in the main list"/>
         <static-array name='relationship' type-name='vague_relationship_type' count='1024'/>
-        <static-array name='source_hf' type-name='int32_t' count='1024' ref-target='historical_figure'/>
-        <static-array name='target_hf' type-name='int32_t' count='1024' ref-target='historical_figure'/>
+        <static-array name='source_hf' type-name='int32_t' count='1024' ref-target='historical_figure' comment='bay12: hfid_1'/>
+        <static-array name='target_hf' type-name='int32_t' count='1024' ref-target='historical_figure' comment='bay12: hfid_2'/>
         <static-array name='year' type-name='int32_t' count='1024'/>
-        <int32_t name='next_element' comment="1024 for all vectors except the last one"/>
+        <int32_t name='next_element' comment="bay12: number; 1024 for all vectors except the last one"/>
         <int32_t name='start_year' comment="first year of the events contained in the element"/>
     </struct-type>
 
-    <struct-type type-name='relationship_event_supplement'>
-        <int32_t name='event' comment="can be found in the relationship_events"/>
-        <int32_t name='occasion_type' comment="only 245/246 seen. 245:scholarly lecture, 246: performance"/>
-        <int32_t name='site' ref-target='world_site'/>
-        <int32_t name='unk_1' comment="only 81 seen"/>
-        <enum name='profession' type-name='profession'/>
+    <struct-type type-name='relationship_event_supplement' original-name='history_relationship_eventst'>
+        <int32_t name='event' comment="bay12: global_id; can be found in the relationship_events"/>
+        <int32_t name='occasion_type' comment="bay12: Circumstance circumstance; only 245/246 seen. 245:scholarly lecture, 246: performance"/>
+        <int32_t name='site' ref-target='world_site' comment='bay12: circumstance_id'/>
+        <enum name='reason' type-name='history_event_reason' comment="only 81 seen"/>
+        <enum name='profession' type-name='profession' comment='bay12: reason_id'/>
     </struct-type>
 
-    <struct-type type-name='world_history'>
+    <struct-type type-name='world_history' original-name='historyst'>
         dtor 8532fa0
 
         <stl-vector name='events' pointer-type='history_event'/>
@@ -3618,13 +3631,27 @@
         <stl-vector name='discovered_art_image_id' type-name='int32_t' ref-target='art_image_chunk'/>
         <stl-vector name='discovered_art_image_subid' type-name='int16_t' ref-target='art_image' aux-value='$$.discovered_art_image_id[$._key]'/>
 
-        <int32_t name='total_unk'/> some value during worldgen, and at the end equals to the number of entities plus that value
+        <int32_t name='total_art'/> some value during worldgen, and at the end equals to the number of entities plus that value
         <int32_t name='total_powers' comment='also includes megabeasts'/>
         <int32_t name='total_megabeasts'/>
         <int32_t name='total_semimegabeasts'/>
-        <stl-vector name='unk_14'/>
-        <static-array name='unk_v42_1' type-name='int16_t' count='28' since='v0.42.01'/> unsure but 16-bit values make more sense than 32-bit
-        <stl-vector name='intrigues' since='v0.47.01' pointer-type='intrigue'/>
+        <stl-vector name='secret_heid'/>
+        <uint32_t name='first_philosophy_flag'/>
+        <uint32_t name='first_philosophy_flag2'/>
+        <uint32_t name='first_mathematics_flag'/>
+        <uint32_t name='first_mathematics_flag2'/>
+        <uint32_t name='first_history_flag'/>
+        <uint32_t name='first_astronomy_flag'/>
+        <uint32_t name='first_naturalist_flag'/>
+        <uint32_t name='first_chemistry_flag'/>
+        <uint32_t name='first_geography_flag'/>
+        <uint32_t name='first_medicine_flag'/>
+        <uint32_t name='first_medicine_flag2'/>
+        <uint32_t name='first_medicine_flag3'/>
+        <uint32_t name='first_engineering_flag'/>
+        <uint32_t name='first_engineering_flag2'/>
+
+        <stl-vector name='intrigues' since='v0.47.01' pointer-type='intrigue' comment='bay12: history_support_event'/>
         <stl-vector name='live_megabeasts' pointer-type='historical_figure'/>
         <stl-vector name='live_semimegabeasts' pointer-type='historical_figure'/>
         <stl-vector name='unk_histfig_3' pointer-type='historical_figure'/>
@@ -3658,7 +3685,7 @@
         <pointer name='active_mission' type-name='mission_report'/>
     </struct-type>
 
-    <struct-type type-name='intrigue' instance-vector='$global.world.history.intrigues' key-field='event_id'>
+    <struct-type type-name='intrigue' instance-vector='$global.world.history.intrigues' key-field='event_id' original-name='history_support_eventst'>
         <int32_t name='event_id' ref-target='history_event' comment="NOTE: can be culled. Seen: failed_intrigue_corruption, event_agreement_formed, hfs_formed_intrigue_relationship"/>
         <pointer name='corruption' type-name='intrigue_corruption' comment="Mutually exclusive with circumstance. Exactly one is present. Presumably 'bring into network' action doesn't provide membership"/>
         <compound name='reason' type-name='history_event_reason_info'/>

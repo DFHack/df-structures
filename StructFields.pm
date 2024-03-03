@@ -73,6 +73,22 @@ sub get_container_item_type($;%) {
     }
 }
 
+sub get_variant_item_type($;%) {
+    my ($tag, %flags) = @_;
+    my ($rawtype) = $tag->getAttribute('raw-type');
+    if ($rawtype) {
+        return $rawtype;
+    }
+    my @items = $tag->findnodes('ld:item');
+    if (@items) {
+        return get_struct_field_type($items[0], -local => $in_struct_body, %container_flags, %flags);
+    } elsif ($flags{-void}) {
+        return $flags{-void};
+    } else {
+        die "Container without element: $tag\n";
+    }
+}
+
 sub get_container_count($;%) {
     my ($tag) = @_;
     my $count = $tag->getAttribute('count');
@@ -156,10 +172,20 @@ my %custom_container_handlers = (
         header_ref("optional");
         return "std::optional<$item >";
     },
+    'stl-variant' => sub {
+        my $item = get_variant_item_type($_, -void => 'void');
+        header_ref("variant");
+        return "std::variant<$item >"; # TODO handle more than one type?
+    },
     'stl-shared-ptr' => sub {
         my $item = get_container_item_type($_, -void => 'void');
         header_ref("memory");
         return "std::shared_ptr<$item >";
+    },
+    'stl-weak-ptr' => sub {
+        my $item = get_container_item_type($_, -void => 'void');
+        header_ref("memory");
+        return "std::weak_ptr<$item >";
     },
     'df-flagarray' => sub {
         my $type = decode_type_name_ref($_, -attr_name => 'index-enum', -force_type => 'enum-type') || 'int';

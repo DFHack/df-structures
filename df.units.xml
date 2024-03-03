@@ -385,7 +385,7 @@
                    comment='Seems to be used as default when not flags1.tame'/>
     </enum-type>
 
-    <enum-type type-name='unit_report_type' base-type='int16_t'>
+    <enum-type type-name='unit_report_type' base-type='int16_t' comment='(UnitAnnouncementCategory)'>
         <enum-item name='Combat'/>
         <enum-item name='Sparring'/>
         <enum-item name='Hunting'/>
@@ -766,7 +766,7 @@
 
         <stl-vector name='owned_items' type-name='int32_t' ref-target='item'/>
         <stl-vector name='traded_items' comment='items brought to trade depot' type-name='int32_t' ref-target='item'/>
-        <stl-vector name='owned_buildings' pointer-type='building'/>
+        <stl-vector name='owned_buildings' pointer-type='building_civzonest' comment='bay12: zone_assigned'/>
         <stl-vector name='corpse_parts' comment='entries remain even when items are destroyed' type-name='int32_t' ref-target='item'/>
 
         <int32_t name='riding_item_id' ref-target='item' since='v0.34.08'/>
@@ -1039,7 +1039,7 @@
 
             <stl-vector name='body_part_temperature' pointer-type='temperaturest'/>
 
-            <bitfield type-name='pathfinding_flags' name='add_path_flags' comment='pathing flags to OR, set to None after move'/>
+            <bitfield type-name='pathfinding_flags' name='add_path_flags' comment='bay12: override_permit; pathing flags to OR, set to None after move'/>
 
             <bitfield type-name='tile_designation' name='liquid_type'/>
             <uint8_t name='liquid_depth'/>
@@ -1071,17 +1071,20 @@
             <static-array type-name='int32_t' name='last_year_tick' count='3' index-enum='unit_report_type'/>
         </compound>
 
-        <pointer name='health' type-name='unit_health_info'/>
+        <pointer name='health' type-name='unit_health_info'/> unit_patient_profilest *patient_profile
 
         <stl-vector name='used_items' pointer-type='unit_item_use' comment='Contains worn clothes, armor, weapons, arrows fired by archers'/>
+        svector((item_familiarityst *)) item_familiarity
 
 <!--
         <stl-vector name='adventurer_knows' comment='if not, no names' type-name='int32_t' ref-target='unit'/>
 -->
 
+        !!this is not actually a compound!!
         <compound name='enemy'>
             <stl-vector name='sound_cooldown' type-name='int32_t' since='v0.34.01'
                         index-refers-to='$$._global.caste.ref-target.sound[$]'/>
+            svector((int32_t)) sound_timer
 
             <pointer name='undead' since='v0.34.01'>
                 <int32_t name='unk_1'/>
@@ -1095,25 +1098,44 @@
                 <int32_t name='unk_v43_1' since='v0.43.01'/>
                 <int32_t name='unk_v43_2' since='v0.43.01'/>
             </pointer>
-            <int32_t name='were_race' ref-target='creature_raw'/>
-            <int32_t name='were_caste' ref-target='caste_raw' aux-value='$$.were_race'/>
-            <int32_t name='normal_race' ref-target='creature_raw'/>
-            <int32_t name='normal_caste' ref-target='caste_raw' aux-value='$$.normal_race'/>
+            unit_active_animation *active_animation
+
+            <int32_t name='were_race' ref-target='creature_raw'/> transform_race
+            <int32_t name='were_caste' ref-target='caste_raw' aux-value='$$.were_race'/> transform_caste
+            <int32_t name='normal_race' ref-target='creature_raw'/> birth_race
+            <int32_t name='normal_caste' ref-target='caste_raw' aux-value='$$.normal_race'/> birth_caste
             <int32_t name='interaction' refers-to='$$._global.body.body_plan.interactions[$]' since='v0.34.01' comment='is set when a RETRACT_INTO_BP interaction is active'/>
+                retraction_body_action_index (???)
 
             <stl-vector name='appearances' pointer-type='unit_appearance'/>
-            <stl-vector name='witness_reports' pointer-type='witness_report'/>
+                svector((physical_formst *)) physical_form
+            <stl-vector name='witness_reports' pointer-type='witness_incidentst'/>
 
             <stl-vector name='unk_a5c' pointer-type='entity_event'/>
+                rumor_infost rumor_info
+
             <static-array name='gait_index' type-name='int32_t' count='5' index-enum='gait_type'/>
-            <static-array name='unk_unit_id_1' type-name='int32_t' ref-target='unit' count='10' since='v0.40.01' comment="number of non -1 entries control linked contents in following 4 vectors, rotating"/>
-            <static-array name='unk_v40_1b' type-name='int32_t' init-value='0' count='10' since='v0.40.01'/>
-            <static-array name='unk_v40_1c' type-name='int32_t' count='10' since='v0.40.01' comment="unused elements probably uninitialized"/>
-            <static-array name='unk_v40_1d' type-name='int32_t' count='10' since='v0.40.01' comment="unused elements probably uninitialized"/>
-            <static-array name='unk_v40_1e' type-name='int32_t' count='10' since='v0.40.01' comment="unused elements probably uninitialized"/>
-            <static-array name='unk_unit_id_2' type-name='int32_t' ref-target='unit' count='200' since='v0.40.01' comment="Seen own side, enemy side, not involved (witnesses?). Unused fields not cleared"/>
-            <int32_t name='unk_unit_id_2_count' since='v0.40.01'/>
-            <pointer name='unk_448' since='v0.40.01'>
+                int32_t gait_index[GAITNUM]
+
+            <compound name='attack_awareness'> attack_awarenessst
+                <static-array name='unit_id' type-name='int32_t' ref-target='unit' count='10' since='v0.40.01' comment="number of non -1 entries control linked contents in following 4 vectors, rotating"/>
+                <static-array name='unit_mvid' type-name='int32_t' init-value='0' count='10' since='v0.40.01'/>
+                <static-array name='precise_phase' type-name='int32_t' count='10' since='v0.40.01' comment="unused elements probably uninitialized"/>
+                <static-array name='abs_season' type-name='int32_t' count='10' since='v0.40.01' comment="unused elements probably uninitialized"/>
+                <static-array name='flag' type-name='int32_t' count='10' since='v0.40.01' comment="unused elements probably uninitialized"/>
+                    flags for previous:
+                        ATTACK_AWARENESS_FLAG_ATTACKING_PART_KNOWN BIT1
+                        ATTACK_AWARENESS_FLAG_ATTACK_TARGET_PART_KNOWN BIT2
+                        ATTACK_AWARENESS_FLAG_STRIKE_TIME_KNOWN BIT3
+                        ATTACK_AWARENESS_FLAG_STRIKE_CHARACTER_KNOWN BIT4
+            </compound>
+
+            <compound name='detection_info'> detection_infost
+                <static-array name='last_spotted_unid' type-name='int32_t' ref-target='unit' count='200' since='v0.40.01' comment="Seen own side, enemy side, not involved (witnesses?). Unused fields not cleared"/>
+                <int32_t name='last_spotted_unid_num' since='v0.40.01'/>
+            </compound>
+
+            <pointer name='unk_448' since='v0.40.01'> unit_sr_pop_specst *sr_pop_spec
                 <int32_t name='unk_1'/>
                 <int32_t name='unk_2'/>
                 <int32_t name='unk_3'/>
@@ -1130,7 +1152,8 @@
                     <int32_t name='unk_10' comment='not saved'/>
                 </compound>
             </pointer>
-            <pointer name='unk_44c' since='v0.40.01'>
+
+            <pointer name='unk_44c' since='v0.40.01'> unit_sr_walker_infost *sr_walker
                 <int32_t name='unk_1'/>
                 <int32_t name='unk_2'/>
                 <int16_t name='unk_3'/>
@@ -1144,68 +1167,71 @@
                 <int32_t name='unk_11'/>
                 <int32_t name='unk_12'/>
             </pointer>
-            <int32_t name='unk_450' since='v0.40.01'/>
-            <int32_t name='unk_454' since='v0.40.01'/>
+            <int32_t name='fallback_candidate_squad_enid' since='v0.40.01'/> probably references a historical_entity
+            <int32_t name='fallback_candidate_squad_epp_id' since='v0.40.01'/> probably references a entity_position_assignment
+
             <int32_t name='army_controller_id' ref-target='army_controller' since='v0.40.01'/>
-            <compound name='unk_v40_sub3' since='v0.40.01'>
-                <pointer name='controller' type-name='army_controller' since='v0.40.01'/>
-                <pointer name='unk_2' since='v0.40.01'>
-                    <stl-vector name='unk_1' type-name="int32_t"/>
-                    <stl-vector name='unk_2' type-name="int32_t"/>
-                    <stl-vector name='unk_3' type-name="int32_t"/>
-                    <stl-vector name='unk_4' type-name="int32_t"/>
-                </pointer>
-                <stl-vector name='unk_3' type-name='int32_t' since='v0.40.01'/>
-                <stl-vector name='unk_4' type-name='int32_t' since='v0.40.01'/>
-                <stl-vector name='unk_5' type-name='int32_t' since='v0.40.01'/>
-                <pointer name='unk_6'>
-                    <stl-vector name="unk_0" type-name="int32_t"/>
-                    <stl-vector name="unk_10" type-name="int32_t"/>
-                </pointer>
+<!--            <compound name='unk_v40_sub3' since='v0.40.01'> -->
+            <pointer name='army_controller' type-name='army_controller' since='v0.40.01'/>
+            <pointer name='army_info' since='v0.40.01'> unit_army_infost
+                <stl-vector name='unk_1' type-name="int32_t"/>
+                <stl-vector name='unk_2' type-name="int32_t"/>
+                <stl-vector name='unk_3' type-name="int32_t"/>
+                <stl-vector name='unk_4' type-name="int32_t"/>
+            </pointer>
+            <stl-vector name='animal_pre_bond_unid' type-name='int32_t' since='v0.40.01'/> probably references a unit
+            <stl-vector name='animal_pre_bond_count' type-name='int32_t' since='v0.40.01'/>
+            <stl-vector name='just_talked_unid' type-name='int32_t' since='v0.40.01'/> probably references a unit
+            <pointer name='opinion_info'> opinion_infost
+                <stl-vector name="unk_0" type-name="int32_t"/>
+                <stl-vector name="unk_10" type-name="int32_t"/>
+            </pointer>
 
-                <pointer name='visitor_info' since='v0.42.01'>
-                    <stl-vector name='visit_reasons'>
-                        <pointer>
-                            <enum base-type='int32_t' name='reason'>
-                                <enum-item name='PRAY'/>
-                                <enum-item name='STUDY'/>
-                                <enum-item name='RELAX'/>
-                                <enum-item name='PERFORM'/>
-                                <enum-item name='SLAY_BEASTS'/>
-                                <enum-item name='WORK_AS_PERFORMER'/>
-                                <enum-item name='WORK_AS_MERCENARY'/>
-                                <enum-item name='WORK_AS_SCHOLAR'/>
-                                <enum-item name='DIPLOMACY'/>
-                                <enum-item name='SEEKING_SANCTUARY'/>
-                                <enum-item name='ASKING_QUESTIONS'/>
-                            </enum>
-                            <int32_t name='site_id' ref-target='world_site'/>
-                            <int32_t name='location_id' ref-target='abstract_building'/>
-                            <int32_t name='remaining' init-value='-1' comment='set when praying; counts down to 0'/>
-                            <int32_t name='year'/>
-                            <int32_t name='year_tick'/>
-                            <bitfield name='flags'>
-                                <flag-bit/>
-                            </bitfield>
-                            <int32_t name='unk_sub1_8'/>
-                            <int32_t name='unk_sub1_9'/>
-                        </pointer>
-                    </stl-vector>
-                    <bitfield name='flags' comment='Affects the text shown in the unit summary'>
-                        <flag-bit name='talked_to_local'/>
-                        <flag-bit/>
-                        <flag-bit name='ready_to_leave'/>
-                    </bitfield>
-                    <int32_t name='year'/>
-                    <int32_t name='year_tick'/>
-                    <int32_t name='unk_4'/>
-                    <int32_t name='unk_5'/>
-                    <enum name='rumour_type' type-name='history_event_reason' base-type='int32_t' comment='for the "heard ... was the place for ..." text'/>
-                    <int32_t name='rumour_location_id' ref-target='abstract_building'/>
-                </pointer>
-            </compound>
+            <pointer name='travel_log' since='v0.42.01'> travel_logst
+                <stl-vector name='visit_reasons'>
+                    <pointer>
+                        <enum base-type='int32_t' name='reason'>
+                            <enum-item name='PRAY'/>
+                            <enum-item name='STUDY'/>
+                            <enum-item name='RELAX'/>
+                            <enum-item name='PERFORM'/>
+                            <enum-item name='SLAY_BEASTS'/>
+                            <enum-item name='WORK_AS_PERFORMER'/>
+                            <enum-item name='WORK_AS_MERCENARY'/>
+                            <enum-item name='WORK_AS_SCHOLAR'/>
+                            <enum-item name='DIPLOMACY'/>
+                            <enum-item name='SEEKING_SANCTUARY'/>
+                            <enum-item name='ASKING_QUESTIONS'/>
+                        </enum>
+                        <int32_t name='site_id' ref-target='world_site'/>
+                        <int32_t name='location_id' ref-target='abstract_building'/>
+                        <int32_t name='remaining' init-value='-1' comment='set when praying; counts down to 0'/>
+                        <int32_t name='year'/>
+                        <int32_t name='year_tick'/>
+                        <bitfield name='flags'>
+                            <flag-bit/>
+                        </bitfield>
+                        <int32_t name='unk_sub1_8'/>
+                        <int32_t name='unk_sub1_9'/>
+                    </pointer>
+                </stl-vector>
+                <bitfield name='flags' comment='Affects the text shown in the unit summary'>
+                    <flag-bit name='talked_to_local'/> CHATTED_WITH_LOCAL
+                    <flag-bit name='all_items_complete'/>
+                    <flag-bit name='ready_to_leave'/> WANT_TO_LEAVE
+                </bitfield>
+                <int32_t name='year'/>
+                <int32_t name='year_tick'/>
+                <int32_t name='wanted_leave_year'/>
+                <int32_t name='wanted_leave_year_tick'/>
+                <enum name='rumour_type' type-name='history_event_reason' base-type='int32_t' comment='for the "heard ... was the place for ..." text'/>
+                <int32_t name='rumour_location_id' ref-target='abstract_building'/>
+            </pointer>
+<!--            </compound> -->
 
-            <int32_t name='combat_side_id' init-value='-1'/>
+            <int32_t name='combat_side_id' init-value='-1'/> arena_side
+
+            -- below here unsaved --
             <int32_t name='histfig_vector_idx' init-value='-1' refers-to='$global.world.history.figures[$]'/>
 
             <df-flagarray name='caste_flags' index-enum='caste_raw_flags' since='v0.44.06'/>
@@ -1247,7 +1273,7 @@
 
         <int8_t name='cached_glowtile_type'/>
         <size_t name='pool_index'/>
-        <padding name='mtx' size='80'/> should be std::mutex
+        <stl-mutex name='mtx'/>
 
         <virtual-methods>
             <vmethod ret-type='uint8_t' name='getCreatureTile'/>
@@ -1256,31 +1282,29 @@
         </virtual-methods>
     </class-type>
 
-    <enum-type type-name='witness_report_type' base-type='int32_t'>
-        <enum-item name='None' value='-1'/>
-        <enum-item name='WitnessedCrime'/>
-        <enum-item name='FoundCorpse'/>
-    </enum-type>
-
     <bitfield-type type-name='witness_report_flags'>
-        <flag-bit name='accuses'/>
+        <flag-bit name='HAVE_SET_RPHS'/>
+        <flag-bit name='DO_NOT_SEARCH_WI_IF_NULL'/>
+        <flag-bit name='INCIDENT_NO_RUMOR_DATA_IF_WI_SET'/>
+        <flag-bit name='KNOW_NAME_OF_RELEVANT_HF_BY_OTHER_MEANS'/>
     </bitfield-type>
 
-    <struct-type type-name='witness_report'>
-        <int32_t name='death_id' ref-target='incident'/>
+    <struct-type type-name='witness_incidentst'>
+        <int32_t name='incident_id' ref-target='incident'/>
         <int32_t name='crime_id' ref-target='crime'/>
-        <enum name='type' type-name='witness_report_type'/>
+        <enum type-name='witness_type' name='type'/>
         <int32_t name='year'/>
         <int32_t name='year_tick'/>
         <bitfield name='flags' type-name='witness_report_flags'/>
-        <int32_t name='unk_18' init-value='-1' since='v0.47.01'/>
-        <int32_t name='unk_1c' init-value='-1' since='v0.47.01'/>
-        <int32_t name='unk_20' init-value='-1' since='v0.47.01'/>
-        <int32_t name='unk_24' init-value='-1' since='v0.47.01'/>
-        <int32_t name='unk_28' init-value='-1' since='v0.47.01'/>
-        <int32_t name='unk_2c' init-value='-1' since='v0.47.01'/>
-        <int32_t name='unk_30' init-value='-1' since='v0.47.01' ref-target='historical_figure'/>
-        <int32_t name='unk_34' init-value='-1' since='v0.47.01' ref-target='identity'/>
+        this looks like it "should be" two structures of the same type, but they're flat in bay12 code
+        <int32_t name='relevant_hfid' init-value='-1' since='v0.47.01' ref-target='historical_figure'/>
+        <int32_t name='relevant_visual_hfid' init-value='-1' since='v0.47.01' ref-target='historical_figure'/>
+        <int32_t name='relevant_historical_hfid' init-value='-1' since='v0.47.01' ref-target='historical_figure'/>
+        <int32_t name='relevant_ident_id' init-value='-1' since='v0.47.01' ref-target='identity'/>
+        <int32_t name='ic_hfid' init-value='-1' since='v0.47.01' ref-target='historical_figure'/>
+        <int32_t name='ic_visual_hfid' init-value='-1' since='v0.47.01' ref-target='historical_figure'/>
+        <int32_t name='ic_historical_hfid' init-value='-1' since='v0.47.01' ref-target='historical_figure'/>
+        <int32_t name='ic_ident_id' init-value='-1' since='v0.47.01' ref-target='identity'/>
         <compound type-name='coord' name='pos' since='v0.47.01'/>
     </struct-type>
 
@@ -1755,7 +1779,7 @@
         <flag-bit name='needs_cast' comment='used to remove once not needed'/>
     </bitfield-type>
 
-    <struct-type type-name='unit_health_info'>
+    <struct-type type-name='unit_health_info' original-name='unit_patient_profilest'>
         <int32_t name="unit_id" ref-target='unit'/>
 
         <bitfield name="flags" type-name='unit_health_flags'/>
@@ -1815,7 +1839,7 @@
             <flag-bit name='marry_female'/>
     </bitfield-type>
 
-    <struct-type type-name='unit_soul'>
+    <struct-type type-name='unit_soul' original-name='soulst'>
         <int32_t name='id'/>
 
         <compound name='name' type-name='language_name'/>
@@ -1898,7 +1922,30 @@
         <int32_t name='unk_v50_2' since='v0.50.01'/>
     </struct-type>
 
-    <struct-type type-name='unit_personality'>
+    <struct-type type-name='personality_moodst'>
+        <enum name='type' base-type='int32_t' type-name='emotion_type'/>
+        <int32_t name='strength'/>
+        <int32_t name='relative_strength'/>
+        <enum name='thought' base-type='int32_t' type-name='unit_thought_type' comment='bay12: circumstance'/>
+        <int32_t name='subthought' comment='for certain thoughts; bay12: circumstance_id'/>
+        <int32_t name='severity' comment='bay12: circumstance_value'/>
+        <bitfield name='flags' base-type='int32_t'>
+            <flag-bit name='failed_to_overcome'/>
+            <flag-bit name='was_dream_goal'/>
+            <flag-bit name='vocalized'/>
+            <flag-bit name='started_at_rel_zero'/>
+            <flag-bit name='remembered_longterm' comment='bay12: FROM_LONG_TERM_MEMORY'/>
+            <flag-bit name='remembered_shortterm' comment='bay12: FROM_SHORT_TERM_MEMORY'/>
+            <flag-bit name='remembered_reflected_on' comment='bay12: FROM_CORE_MEMORY'/>
+            <flag-bit name='facet_change'/>
+            <flag-bit name='value_change'/>
+        </bitfield>
+        <int32_t name='next_overcome_timer'/>
+        <int32_t name='year' comment='bay12: last_used_year'/>
+        <int32_t name='year_tick' comment='bay12: last_used_season_count'/>
+    </struct-type>
+
+    <struct-type type-name='unit_personality' original-name='unit_personalityst'>
         <stl-vector name='values' since='v0.40.01'>
             <pointer>
                 <enum name='type' base-type='int32_t' type-name='value_type'/>
@@ -1911,28 +1958,7 @@
                 <enum name='reponse' base-type='int16_t' type-name='ethic_response'/>
             </pointer>
         </stl-vector>
-        <stl-vector name='emotions' since='v0.40.01'>
-            <pointer>
-                <enum name='type' base-type='int32_t' type-name='emotion_type'/>
-                <int32_t name='unk2'/>
-                <int32_t name='strength'/>
-                <enum name='thought' base-type='int32_t' type-name='unit_thought_type'/>
-                <int32_t name='subthought' comment='for certain thoughts'/>
-                <int32_t name='severity'/>
-                <bitfield name='flags' base-type='int32_t'>
-                    <flag-bit name='unk0'/>
-                    <flag-bit name='unk1'/>
-                    <flag-bit name='unk2'/>
-                    <flag-bit name='unk3'/>
-                    <flag-bit name='remembered_longterm'/>
-                    <flag-bit name='remembered_shortterm'/>
-                    <flag-bit name='remembered_reflected_on'/>
-                </bitfield>
-                <int32_t name='unk7'/>
-                <int32_t name='year'/>
-                <int32_t name='year_tick'/>
-            </pointer>
-        </stl-vector>
+        <stl-vector pointer-type='personality_moodst' name='emotions' since='v0.40.01' comment='bay12: mood'/>
         <stl-vector name='dreams' since='v0.40.01'>
             <pointer>
                 <int32_t name='local_id' comment='next_dream_id related'/>
@@ -2151,7 +2177,7 @@
         </enum-item>
     </enum-type>
 
-    <struct-type type-name='unit_action'>
+    <struct-type type-name='unit_action' original-name='unit_movest'>
         <enum name='type' type-name='unit_action_type' base-type='int32_t' init-value='None'/>
 
         <code-helper name='find-instance'>
@@ -2499,42 +2525,67 @@
         <int32_t name='unk_19'/>
     </struct-type>
 
-    <struct-type type-name='work_detail'>
+    <enum-type type-name='work_detail_mode' base-type='uint32_t'>
+        <enum-item name='Default' value='0'/>
+        <enum-item name='EverybodyDoesThis'/>
+        <enum-item name='NobodyDoesThis'/>
+        <enum-item name='OnlySelectedDoesThis'/>
+    </enum-type>
+
+    <struct-type type-name='work_detail' original-name='work_detailst'>
         <stl-string name='name'/>
-        <bitfield name='work_detail_flags' base-type='int32_t'>
-            <flag-bit name='no_modify'/>
-            <flag-bit name='no_everyone_does_this'/>
-            <flag-bit name='enabled' comment='by itself is everybody does this, enabled|limited is only selected'/>
-            <flag-bit name='limited' comment='by itself is nobody does this'/>
+        <bitfield name='work_detail_flags' base-type='uint32_t'>
+            <flag-bit name='no_modify' comment='toady: DEFAULT'/>
+            <flag-bit name='cannot_be_everybody'/>
+            <flag-bit name='mode' count='2' type-name='work_detail_mode'/>
         </bitfield>
-        <stl-vector name='assigned_units' type-name='int32_t' ref-target='unit'/>
-        <static-array name='allowed_labors' type-name='bool' count='94' index-enum='unit_labor'/>
-        <int32_t name='icon'/>
+        <stl-vector name='assigned_units' type-name='int32_t' ref-target='unit' comment='toady: unid'/>
+        <static-array name='allowed_labors' type-name='bool' count='94' index-enum='unit_labor' comment='toady: profession'/>
+        <enum base-type='int32_t' name='icon'>
+            <enum-item name='ICON_NONE' value='-1'/>
+            <enum-item name='ICON_MINERS'/>
+            <enum-item name='ICON_WOODCUTTERS'/>
+            <enum-item name='ICON_HUNTERS'/>
+            <enum-item name='ICON_PLANTERS'/>
+            <enum-item name='ICON_FISHERMEN'/>
+            <enum-item name='ICON_STONECUTTERS'/>
+            <enum-item name='ICON_ENGRAVERS'/>
+            <enum-item name='ICON_PLANT_GATHERERS'/>
+            <enum-item name='ICON_HAULERS'/>
+            <enum-item name='ICON_ORDERLIES'/>
+            <enum-item name='ICON_CUSTOM_1'/>
+            <enum-item name='ICON_CUSTOM_2'/>
+            <enum-item name='ICON_CUSTOM_3'/>
+            <enum-item name='ICON_CUSTOM_4'/>
+            <enum-item name='ICON_CUSTOM_5'/>
+            <enum-item name='ICON_CUSTOM_6'/>
+            <enum-item name='ICON_CUSTOM_7'/>
+            <enum-item name='ICON_CUSTOM_8'/>
+        </enum>
     </struct-type>
 
-    <struct-type type-name='process_unit_aux'>
-        <pointer name='unit' type-name='unit'/>
-        <int32_t/>
+    <struct-type type-name='dungeon_contextst'>
+        <pointer name='target' type-name='unit'/>
+        <enum type-name='conflict_level' name='target_conflict_state'/>
         <bitfield name='flags' base-type='int32_t'>
-            <flag-bit name='unk0'/>
-            <flag-bit/>
-            <flag-bit name='unk2'/>
+            <flag-bit name='IN_CONFLICT'/>
+            <flag-bit name='CLOSE_OPPONENT'/>
+            <flag-bit name='CAN_SEE_TARGET'/>
+            <flag-bit name='TOUCHABLE_TARGET'/>
+            <flag-bit name='ALARMED_BY_ACTIVITY'/>
+            <flag-bit name='ALARMED_BY_UNIT'/>
         </bitfield>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/> could be padding
-        <static-array name='unitlist' count='200'>
-            per putnam, this is line of sight data
+        <int32_t name='highest_allied_strength'/>
+        <int32_t name='sum_opposed_strength'/>
+        <int32_t name='allied_loss'/>
+        <int32_t name='sum_opposed_loss'/>
+        <static-array name='spotted_unit' count='200'>
             <pointer type-name='unit'/>
         </static-array>
-        <int32_t/>
-        <int32_t/> could be padding
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
+        <int32_t name='spotted_num'/>
+        <pointer type-name='activity_event_conflictst' name='conflict_name'/>
+        <int32_t name='alarm_activity_id'/>
+        <int32_t name='alarm_unit_id'/>
     </struct-type>
 
 </data-definition>

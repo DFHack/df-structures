@@ -1,5 +1,6 @@
 <data-definition>
     <enum-type type-name='general_ref_type'>
+        <enum-item name='NONE' value='-1'/>
         <enum-item name="ARTIFACT"/>
         <enum-item name="IS_ARTIFACT"/>
         <enum-item name="NEMESIS"/>
@@ -78,6 +79,7 @@
 
     <class-type type-name='general_ref' original-name='general_refst'>
         <virtual-methods>
+            -- 0 --
             <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
             <vmethod name='read_file'>
                 <pointer name='file' type-name='file_compressorst'/>
@@ -90,6 +92,7 @@
             <vmethod name='getUnit'>
                 <ret-type><pointer type-name='unit'/></ret-type>
             </vmethod>
+            -- 5 --
             <vmethod name='getProjectile'>
                 <ret-type><pointer type-name='projectile'/></ret-type>
             </vmethod>
@@ -105,6 +108,7 @@
             <vmethod name='getNemesis'>
                 <ret-type><pointer type-name='nemesis_record'/></ret-type>
             </vmethod>
+            -- 10 --
             <vmethod name='getEvent'>
                 <ret-type><pointer type-name='activity_event'/></ret-type>
             </vmethod>
@@ -120,21 +124,23 @@
                 <pointer type-name='int32_t' name='out_y'/>
                 <pointer type-name='int32_t' name='out_z'/>
             </vmethod>
+            -- 15 --
             <vmethod is-destructor='true'/>
-            <vmethod name='clone'>
+            <vmethod name='clone' comment='bay12: copy'>
                 <ret-type><pointer type-name='general_ref'/></ret-type>
             </vmethod>
-            <vmethod>
-                <int32_t/>
-                <pointer type-name='stl-string'/>
+            <vmethod name='generateTitle' comment='bay12: generate_title'>
+                <enum type-name='written_content_type' name='form'/>
+                <pointer type-name='stl-string' name='title'/>
             </vmethod>
-            <vmethod name='getDescription'>
+            <vmethod name='getDescription' comment='bay12: descriptive_string'>
                 <pointer name='str' type-name='stl-string'/>
             </vmethod>
-            <vmethod name='getDescription2'>
+            <vmethod name='getDescription2' comment='bay12: short_name'>
                 <pointer name='str' type-name='stl-string'/>
             </vmethod>
-            <vmethod name='getDescription3' comment='for scholar flags'>
+            -- 20 --
+            <vmethod name='getDescription3' comment='bay12: unique_xml_name'>
                 <pointer name='str' type-name='stl-string'/>
             </vmethod>
         </virtual-methods>
@@ -344,11 +350,11 @@
     <class-type type-name='general_ref_entity_offeredst' inherits-from='general_ref_entity'/>
     <class-type type-name='general_ref_entity_itemownerst' inherits-from='general_ref_entity'/>
 
-    <enum-type type-name='specific_ref_type'>
+    <enum-type type-name='specific_ref_type'> Bay12: ReferenceType
         <enum-attr name='union_field'/>
 
         <enum-item name='NONE' value='-1'/>
-        <enum-item/>
+        <enum-item name='BUILDING'/>
         <enum-item name='UNIT'>
             <item-attr name='union_field' value='unit'/>
         </enum-item>
@@ -400,12 +406,12 @@
         <enum-item name='ART_IMAGE'/>
         <enum-item name='CREATURE_DEF'/>
         <enum-item name='ENTITY_ART_IMAGE' comment='unused?'/>
-        <enum-item/>
+        <enum-item name='ABSTRACT_BUILDING'/>
         <enum-item name='ENTITY_POPULATION'/>
         <enum-item name='BREED'/>
     </enum-type>
 
-    <struct-type type-name='specific_ref'>
+    <struct-type type-name='specific_ref' original-name='referencest'>
         <enum name='type' base-type='int32_t' type-name='specific_ref_type'/>
 
         <compound is-union='true' name='data' union-tag-attr='union_field'>
