@@ -643,7 +643,7 @@ The definition syntax is as follows::
         <global-address name='...' [value='0x...']/>
         ...
 
-        <vtable-address name='...' [value='0x...']/>
+        <vtable-address name='...' [value='0x...'] [base='...']/>
         ...
     </symbol-table>
 
@@ -659,7 +659,10 @@ in order to match several executables; this is especially useful with
 MD5 hashes, which change with patching.
 
 Global object addresses are specified with ``<global-address>`` tags.
-Virtual method table addresses may be pre-initialized with ``<vtable-address>`` tags.
+Virtual method table addresses may be pre-initialized with ``<vtable-address>``
+tags. If a ``base`` attribute is specified, it must be the name of a loaded
+library. That is, the filename without any path components. The ``value`` will
+then be interpreted as an offset from the load address of that library.
 
 It is allowed to specify addresses for objects and vtables that are otherwise
 not defined. Obviously, such values can only be used by directly quering the
