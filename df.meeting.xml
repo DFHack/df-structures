@@ -322,6 +322,25 @@
         <int32_t name='event_id'/>
     </struct-type>
 
+    <enum-type type-name='activity_event_item_role_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='TARGET_TO_POUR'/>
+        <enum-item name='TARGET_TO_FILL'/>
+        <enum-item name='TARGET_TO_READ'/>
+        <enum-item name='TARGET_TO_WRITE_ON'/>
+        <enum-item name='TARGET_TO_COPY'/>
+        <enum-item name='PERFORMANCE_INSTRUMENT'/>
+        <enum-item name='TOY'/>
+    </enum-type>
+
+    <enum-type type-name='activity_event_building_role_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='SIT_AND_READ'/>
+        <enum-item name='SIT_AND_WRITE'/>
+        <enum-item name='PLACED_WRITING_MATERIALS'/>
+        <enum-item name='PERFORMANCE_INSTRUMENT'/>
+    </enum-type>
+
     <class-type type-name='activity_event' original-name='activity_eventst'>
         <int32_t name='event_id'
                  comment='bay12: local_id; mostly, but not always, the index in activity.events'/>
@@ -339,20 +358,24 @@
             <flag-bit name='squad' comment='bay12: SQUAD; for all in training session, but not ind.drill'/>
         </bitfield>
 
-        <stl-vector name='unk_v42_1'>
+        <stl-vector name='item'>
             <pointer>
-                <int32_t name='unk_1'/>
-                <int32_t name='item_id' ref-target='item' comment='is artifact id for some activities ie. copy written'/>
-                <int32_t name='unk_2' init-value='0'/>
+                <enum type-name='activity_event_item_role_type' name='role'/>
+                <int32_t name='item_id' ref-target='item' init-value='-1' comment='is artifact id for some activities ie. copy written'/>
+                <bitfield name='flags' base-type='uint32_t'>
+                    <flag-bit name='HIT_BY_DELETION'/>
+                </bitfield>
             </pointer>
         </stl-vector>
-        <stl-vector name='unk_v42_2'>
+        <stl-vector name='building'>
             <pointer>
-                <int32_t name='unk_1'/>
-                <int32_t name='unk_2' init-value='-1'/>
-                <int32_t name='item_id' ref-target='item'
+                <int32_t name='role'/>
+                <int32_t name='bld_id' init-value='-1'/>
+                <int32_t name='unit_id' ref-target='unit'
                          comment='is unit ID for writing jobs and reading'/>
-                <int32_t name='unk_3' init-value='0'/>
+                <bitfield name='flags' base-type='uint32_t'>
+                    <flag-bit name='HIT_BY_DELETION'/>
+                </bitfield>
             </pointer>
         </stl-vector>
 
@@ -367,8 +390,8 @@
             <vmethod ret-type='bool' name='isEmpty'
                      comment='returns true if hist_figure_ids empty or if various subclass fields are uninitialized'/>
 
-            <vmethod ret-type='int32_t' comment='returns -1'/>
-            <vmethod comment='does nothing'> <pointer/> </vmethod>
+            <vmethod ret-type='int32_t' name='get_building_id' comment='returns -1'/>
+            <vmethod name='set_building_id' comment='does nothing'> <int32_t/> </vmethod>
             <vmethod name='getParticipantInfo'>
                 <ret-type> <pointer type-name='activity_event_participants'/> </ret-type>
             </vmethod>
