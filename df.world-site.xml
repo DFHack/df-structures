@@ -518,6 +518,42 @@
         <int32_t name="spec_flag" init-value='0' since="v0.44.07"/>
     </struct-type>
 
+    <struct-type type-name='wg_site_culture_identity_religious_practicest'>
+        <enum name='type' type-name='religious_practice_type'/>
+        <compound is-union='true' name='data'>
+            <int32_t name='practice_id'/>
+            <int32_t name='hfid' ref-target='historical_figure'/>
+            <int32_t name='enid' ref-target='historical_entity'/>
+        </compound>
+        <int32_t name='points'/>
+    </struct-type>
+
+    <struct-type type-name='wg_site_culture_identityst'>
+        <int32_t name='entity_id'/>
+        <stl-vector pointer-type='wg_site_culture_identity_religious_practicest' name='religious_practice'/>
+        <stl-vector pointer-type='wg_site_culture_identity_interactionst' name='interaction'/>
+    </struct-type>
+
+    <enum-type type-name='cultural_interaction_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='ENTITY_1_PERSECUTES_ENTITY_2'/>
+        <enum-item name='ENTITY_1_RIOTS_AGAINST_ENTITY_2'/>
+        <enum-item name='ENTITY_1_INVEIGHS_AGAINST_ENTITY_2'/>
+        <enum-item name='ENTITY_1_ENCOURAGES_TOLERANCE_OF_ENTITY_2'/>
+    </enum-type>
+
+    <struct-type type-name='wg_site_culture_identity_interactionst'>
+        <enum type-name='cultural_interaction_type' name='type'/>
+        <int32_t name='id1'/>
+        <int32_t name='id2'/>
+        <int32_t name='year'/>
+        <int32_t name='severity'/>
+    </struct-type>
+
+    <struct-type type-name='wg_site_culturest'>
+        <stl-vector pointer-type='wg_site_culture_identityst' name='identity'/>
+    </struct-type>
+
     <struct-type type-name='world_site' key-field='id'
                  instance-vector='$global.world.world_data.sites'
                  original-name='sitest'>
@@ -712,9 +748,7 @@
         <pointer name='unk_22'/>
         <pointer name='unk_23'/>
         <int32_t name='unk_24'/>
-        <pointer name='unk_25'>
-            <stl-vector name='unk_1'/>
-        </pointer>
+        <pointer name='unk_25' pointer-type='wg_site_culturest'/>
     </struct-type>
 
     <struct-type type-name='cultural_identity' key-field='id'
