@@ -22,6 +22,8 @@ use Bitfield;
 use StructFields;
 use StructType;
 
+my $errorlevel = 0;
+
 my $input_dir = $ARGV[0] || '.';
 my $output_dir = $ARGV[1] || 'codegen';
 
@@ -75,6 +77,7 @@ for my $name (sort { $a cmp $b } keys %types) {
     };
     if ($@) {
         print "Error preprocessing type $typename: ".$@;
+        $errorlevel++;
     }
 }
 
@@ -94,6 +97,7 @@ for my $name (sort { $a cmp $b } keys %types) {
     };
     if ($@) {
         print 'Error: '.$@."Type $typename in $filename ignored\n";
+        $errorlevel++;
     }
 }
 
@@ -126,6 +130,7 @@ with_header_file {
             };
             if ($@) {
                 print 'Error: '.$@."Global $typename in $filename failed\n";
+                $errorlevel++;
             }
         }
     } "namespace global ";
@@ -243,3 +248,5 @@ mkdir $output_dir;
         }
     }
 }
+
+exit $errorlevel;
