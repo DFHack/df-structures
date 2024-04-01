@@ -58,7 +58,7 @@
                         <xsl:apply-templates select='@key-field'/>
                         <xsl:apply-templates select='ld:field|text()'/>
                     </ld:item>
-                    <xsl:apply-templates select='node()[not(self::ld:field)]'/>
+                    <xsl:apply-templates select='node()[not(self::ld:field|self::text())]'/>
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:element>
