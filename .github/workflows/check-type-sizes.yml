@@ -62,14 +62,14 @@ jobs:
     - name: Install dependencies
       run: pip install Jinja2
     - name: Clone df-structures
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Download type sizes artifact (old)
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: sizes-${{ runner.os }}-${{ matrix.arch }}-old
         path: old
     - name: Download type sizes artifact (new)
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: sizes-${{ runner.os }}-${{ matrix.arch }}-new
         path: new
@@ -86,7 +86,7 @@ jobs:
     - name: Generate report
       run: python3 tools/compare-sizes.py --old sizes-old.txt --new sizes-new.txt --platform ${{ env.GHA_OS_TAG }} --output sizes-${{ env.GHA_OS_TAG }}.json
     - name: Upload report
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: sizes-${{ env.GHA_OS_TAG }}
         path: sizes-${{ env.GHA_OS_TAG }}.json
@@ -96,9 +96,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Clone df-structures
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Download artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         path: reports
     - name: Generate comment
@@ -119,7 +119,7 @@ jobs:
           --arg rows "${{ steps.generate_comment.outputs.rows }}" \
           '{$comment, $comment_search, $pr_number, update_only:($rows|tonumber <= 0)}' > comment-info.json
     - name: Upload artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: comment-info.json
         path: comment-info.json
