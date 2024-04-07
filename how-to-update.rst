@@ -35,6 +35,8 @@ Updating symbols.xml for Linux
 1. Close DF
 1. Reinstall DFHack so the updated ``hack/symbols.xml`` file is in place
 1. Relaunch DF and verify that DFHack functionality works as expected
+1. Remove ``symbol-table`` elements that are no longer relevant for this DF
+  version
 
 ---------------------------
 
