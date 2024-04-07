@@ -6,6 +6,43 @@ Updating DF-structures for a new DF version
   :local:
   :depth: 1
 
+Preparation
+===========
+
+Download the current DF package for Steam, Itch, and Classic. The following
+process must be completed for each package.
+
+Updating symbols.xml for Linux
+==============================
+
+1. Run ``md5sum dwarfort`` to get the hash of the main DF executable
+1. Add a fragment like this to the Linux section of the ``symbols.xml`` file
+  (use ``ITCH`` or ``CLASSIC`` instead of ``STEAM`` as appropriate)::
+
+    <symbol-table name='v0.50.12 linux64 STEAM' os-type='linux'>
+        <md5-hash value='c7dcc28bc714daff32f6f53c95542faf'/>
+    </symbol-table>
+
+1. Install DFHack to the DF directory
+1. Run ``./dfhack`` from a terminal
+1. Run ``devel/dump-offsets`` at the ``[DFHack]#`` prompt. Copy the output into
+  the ``symbol-table`` element in ``symbols.xml``
+1. From a different terminal in the DF directory, run::
+
+    ./dfhack-run devel/scan-vtables | ansifilter | LANG=C sort
+
+1. Copy the output into the ``symbol-table`` element in ``symbols.xml``
+1. Close DF
+1. Reinstall DFHack so the updated ``hack/symbols.xml`` file is in place
+1. Relaunch DF and verify that DFHack functionality works as expected
+
+---------------------------
+
+OLD DOCS BELOW THIS POINT. They can probably be removed once we document the
+current (post-v50) processes.
+
+---------------------------
+
 General Process
 ===============
 Download the new versions. The scripts expect the following
