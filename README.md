@@ -8,7 +8,7 @@ DF-structures is the core information on which
 For information on how to understand this format,
 see [./SYNTAX.rst](./SYNTAX.rst).  For how to update
 for a new version of DF, see
-[./how-to-update.rst](./how-to-update.rst)
+[new-release-processing.rst](https://github.com/DFHack/df_misc/blob/master/doc/new-release-processing.rst)
 
 Originally dfhack used a file called ``Memory.xml``
 to describe data structures of the game. It explicitly
