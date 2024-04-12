@@ -21,29 +21,19 @@ set -e
 # The script will act upon the symbols.xml in the same directory as the script,
 # regardless of what the the CWD is when the script is run.
 
-DFHACK_SRC_DIR=`cd "$(dirname ${0})/../.." && pwd`
+SCRIPT_DIR=`dirname $0`
+DFHACK_SRC_DIR=`cd "${SCRIPT_DIR}/../.." && pwd`
 
-DF_VER="${1}"
-DF_TYPE="${2}"
+. ${SCRIPT_DIR}/symbols_gen_common.sh
+
 BUILD_DIR="${DFHACK_SRC_DIR}/${3:-build}"
-
-SYMBOLS_XML="${DFHACK_SRC_DIR}/library/xml/symbols.xml"
 INSTALL_PREFIX=`grep CMAKE_INSTALL_PREFIX:PATH= ${BUILD_DIR}/CMakeCache.txt | cut -d= -f2`
 DF_DIR=`cd ${BUILD_DIR} && cd ${INSTALL_PREFIX} && pwd`
 DWARFORT="${DF_DIR}/dwarfort"
 ANSIFILTER="ansifilter"
 DFHACK_RUN="${DF_DIR}/dfhack-run"
 
-if [ -z "${DF_VER}" ]; then
-    echo "DF version (arg 1) must be specified"
-    exit 1
-elif [ -z "${DF_TYPE}" ]; then
-    echo "DF distribution type (arg 2) must be specified"
-    exit 1
-elif [ ! -w "${SYMBOLS_XML}" ]; then
-    echo "DFHack symbols not found or not writable: ${SYMBOLS_XML}"
-    exit 1
-elif [ ! -x "${DWARFORT}" ]; then
+if [ ! -x "${DWARFORT}" ]; then
     echo "DF executable not found or not executable: ${DWARFORT}"
     exit 1
 elif [ -z "$(which ${ANSIFILTER})" ]; then
@@ -52,30 +42,9 @@ elif [ -z "$(which ${ANSIFILTER})" ]; then
 fi
 
 df_hash=`md5sum "${DWARFORT}" | cut -d" " -f1`
-offsets=''
-vtables=''
+hash_elem="<md5-hash value='${df_hash}'/>"
 
-write_symbol_table() {
-    tmpfile=`mktemp`
-
-    cat >${tmpfile} <<EOF
-    <symbol-table name='v0.${DF_VER} linux64 ${DF_TYPE}' os-type='linux'>
-        <md5-hash value='${df_hash}'/>
-
-${offsets}
-
-${vtables}
-    </symbol-table>
-EOF
-
-    start_pattern="<symbol-table.*linux64 ${DF_TYPE}"
-    end_pattern="<\/symbol-table>"
-    sed -i "/${start_pattern}/,/${end_pattern}/{/${end_pattern}/{x;r ${tmpfile}
-    D};d}" "${SYMBOLS_XML}"
-    rm "${tmpfile}"
-}
-
-write_symbol_table
+write_symbol_table linux64 linux "${hash_elem}" "" ""
 (cd "${BUILD_DIR}" && ninja install)
 (cd "${DF_DIR}" && DFHACK_DISABLE_CONSOLE=1 ./dfhack) &
 
@@ -83,10 +52,10 @@ offsets=''
 while [ -z "${offsets}" ]; do
     sleep 1
     echo "waiting for DF to start"
-    offsets=`"${DFHACK_RUN}" devel/dump-offsets | ${ANSIFILTER} | fgrep global-address | sed "s/^/        /"`
+    offsets=`"${DFHACK_RUN}" devel/dump-offsets | ${ANSIFILTER} | fgrep global-address`
 done
-vtables=`"${DFHACK_RUN}" devel/scan-vtables | ${ANSIFILTER} | LANG=C sort | fgrep vtable-address | sed "s/^/        /"`
-write_symbol_table
+vtables=`"${DFHACK_RUN}" devel/scan-vtables | ${ANSIFILTER} | LANG=C sort | fgrep vtable-address`
+write_symbol_table linux64 linux "${hash_elem}" "$offsets" "$vtables"
 
 "${DFHACK_RUN}" die
 echo "done"
