@@ -1,9 +1,9 @@
 #!/bin/bash
-set -e
 
 # This script overwrites the windows symbol-table element in library/xml/symbols.xml
-# that has the specified $DF_TYPE with the current symbols for the specified DF
-# version $DF_VER executable. $DF_TYPE can be STEAM, ITCH, CLASSIC, or LOCAL.
+# that has the specified $DF_TYPE with the current symbols for the DF version $DF_VER
+# executable installed in the given DF dir. $DF_TYPE can be STEAM, ITCH, CLASSIC, or
+# LOCAL.
 #
 # Pre-requisites:
 #
@@ -19,21 +19,22 @@ set -e
 #
 # Syntax:
 #
-#   path/to/library/xml/symbols_gen_windows.sh <DF version> <DF type> [<path to DF executable>]
+#   path/to/library/xml/symbols_gen_windows.sh <DF version> <DF type> [<DF dir>]
 #
-# If not specified, the path to the DF executable defaults to:
-#   $HOME/.steam/bin32/steamapps/content/app_975370/depot_975372/Dwarf Fortress.exe
-# which is where it shows up when the manifest is downloaded with the Steam client.
+# If not specified, the DF dir defaults to:
+#   $HOME/.steam/bin32/steamapps/content/app_975370/depot_975372
+# which is where it shows up when the Windows binary manifest is downloaded with the
+# Steam client. The only file that must be in this directory is Dwarf Fortress.exe.
 #
 # The script will act upon the symbols.xml in the same directory as this script,
 # regardless of what the the CWD is when this script is run.
 
 SCRIPT_DIR=`dirname $0`
-DFHACK_SRC_DIR=`cd "${SCRIPT_DIR}/../.." && pwd`
 
 . ${SCRIPT_DIR}/symbols_gen_common.sh
 
-DF_EXE="${3:-$HOME/.steam/bin32/steamapps/content/app_975370/depot_975372/Dwarf Fortress.exe}"
+DF_DIR=${DF_DIR:-$HOME/.steam/bin32/steamapps/content/app_975370/depot_975372}
+DF_EXE="${DF_DIR}/Dwarf Fortress.exe"
 
 DF_MISC_DIR="$(pwd)/df_misc"
 METASM_DIR="$(pwd)/metasm"

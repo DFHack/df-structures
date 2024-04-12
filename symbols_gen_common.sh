@@ -1,13 +1,13 @@
 #!/bin/bash
-set -e
 
 # This script is intended to be sourced from the other symbols_gen scripts.
-# DFHACK_SRC_DIR must be defined before sourcing this script.
+# SCRIPT_DIR must be defined before sourcing this script.
 
 DF_VER="$1"
 DF_TYPE="$2"
+DF_DIR="$3"
 
-SYMBOLS_XML="${DFHACK_SRC_DIR}/library/xml/symbols.xml"
+SYMBOLS_XML="${SCRIPT_DIR}/symbols.xml"
 
 if [ -z "${DF_VER}" ]; then
     echo "DF version (arg 1) must be specified"
