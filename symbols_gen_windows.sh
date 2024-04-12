@@ -23,7 +23,7 @@ set -e
 #
 # If not specified, the path to the DF executable defaults to:
 #   $HOME/.steam/bin32/steamapps/content/app_975370/depot_975372/Dwarf Fortress.exe
-# which is where is shows up when the manifest is downloaded with the Steam client.
+# which is where it shows up when the manifest is downloaded with the Steam client.
 #
 # The script will act upon the symbols.xml in the same directory as this script,
 # regardless of what the the CWD is when this script is run.
