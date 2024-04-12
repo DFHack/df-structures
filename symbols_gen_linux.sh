@@ -2,9 +2,9 @@
 set -e
 
 # This script overwrites the linux symbol-table element in library/xml/symbols.xml
-# that has the specified $DF_TYPE (e.g. STEAM) with the current symbols for the DF
-# version $DF_VER installed in the directory specified by the CMAKE_INSTALL_PREFIX
-# cmake build variable.
+# that has the specified $DF_TYPE with the current symbols for the DF version
+# $DF_VER installed in the directory specified by the CMAKE_INSTALL_PREFIX cmake
+# build variable. $DF_TYPE can be STEAM, ITCH, CLASSIC, or LOCAL.
 #
 # Pre-requisites:
 #
@@ -14,12 +14,13 @@ set -e
 #
 # Syntax:
 #
-#   ./symbols_gen_linux.sh <DF version> <DF type> [<DFHack build dir>]
+#   path/to/library/xml/symbols_gen_linux.sh <DF version> <DF type> [<DFHack build dir>]
 #
-# If not specified, the DFHack build dir defaults to "build".
+# The DFHack build dir is relative to the DFHack source directory. If not specified, it
+# defaults to "build".
 #
-# The script will act upon the symbols.xml in the same directory as the script,
-# regardless of what the the CWD is when the script is run.
+# The script will act upon the symbols.xml in the same directory as this script,
+# regardless of what the the CWD is when this script is run.
 
 SCRIPT_DIR=`dirname $0`
 DFHACK_SRC_DIR=`cd "${SCRIPT_DIR}/../.." && pwd`
