@@ -55,7 +55,7 @@ hash_elem="<md5-hash value='${df_hash}'/>"
 
 write_symbol_table linux64 linux "${hash_elem}" "" ""
 cp "${SYMBOLS_XML}" "${DF_DIR}/hack/symbols.xml"
-(cd "${DF_DIR}" && DFHACK_DISABLE_CONSOLE=1 ./dfhack) &
+DFHACK_DISABLE_CONSOLE=1 "${DF_DIR}/dfhack" &
 
 offsets=''
 while [ -z "${offsets}" ]; do
