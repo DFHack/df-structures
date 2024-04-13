@@ -32,11 +32,17 @@ on:
       steam_branch:
         description: DF Steam branch
         required: true
+        type: choice
         default: testing
+        options:
+        - default
+        - testing
+        - beta
 
 jobs:
   package:
     uses: DFHack/dfhack/.github/workflows/build-linux.yml@develop
+    if: inputs.platform == 'all' || inputs.platform == 'linux'
     with:
       dfhack_ref: ${{ github.event.inputs.dfhack_ref }}
       artifact-name: dfhack-symbols-linux64-build
@@ -45,9 +51,11 @@ jobs:
       cache-readonly: true
     secrets: inherit
 
+
   generate-linux:
     name: Generate linux64 symbols
     runs-on: ubuntu-latest
+    if: inputs.platform == 'all' || inputs.platform == 'linux'
     needs:
     - package
     steps:
@@ -55,45 +63,76 @@ jobs:
       uses: actions/checkout@v4
       with:
         path: xml
-    - name: Setup steamcmd
-      id: steamcmd
-      uses: CyberAndrii/setup-steamcmd@v1
-    - name: Download DF Linux
-      env:
-        STEAM_USERNAME: myk002
-        STEAM_CONFIG_VDF: ${{ secrets.STEAM_CONFIG_VDF }}
-      run: |
-        mkdir -p $HOME/Steam/config
-        echo "$STEAM_CONFIG_VDF" | base64 -d >$HOME/Steam/config/config.vdf
-        ${{ steps.steamcmd.outputs.executable }} \
-          +@ShutdownOnFailedCommand 1 \
-          +force_install_dir $PWD/DF \
-          +login $STEAM_USERNAME \
-          +app_update 975370 validate \
-          +quit
     - name: Download DFHack
       uses: actions/download-artifact@v4
       with:
         name: dfhack-symbols-linux64-build
-    - name: Install DFHack
-      shell: bash
-      run: tar xjf dfhack-symbols-linux64-build.tar.bz2 -C DF
     - name: Start X server
       run: Xvfb :0 -screen 0 1600x1200x24 &
-    - name: Generate symbols
+
+    # Steam
+    - name: Setup steamcmd
+      if: inputs.channel == 'all' || inputs.channel == 'steam'
+      id: steamcmd
+      uses: CyberAndrii/setup-steamcmd@v1
+    - name: Generate Steam symbols
+      if: inputs.channel == 'all' || inputs.channel == 'steam'
       timeout-minutes: 10
       env:
         DISPLAY: :0
-        TERM: xterm-256color
-      run: xml/symbols_gen_linux.sh ${{ github.event.inputs.version }} ${{ github.event.inputs.channel }} DF
+        STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
+        STEAM_CONFIG_VDF: ${{ secrets.STEAM_CONFIG_VDF }}
+        STEAM_DF_TESTING: ${{ secrets.STEAM_DF_TESTING }}
+      run: |
+        mkdir DF_steam
+        mkdir -p $HOME/Steam/config
+        echo "$STEAM_CONFIG_VDF" | base64 -d >$HOME/Steam/config/config.vdf
+        if [ "${{ inputs.steam_branch }}" = "default" ]; then
+          BETA_PARAMS=""
+        elif [ "${{ inputs.steam_branch }}" = "testing" ]; then
+          BETA_PARAMS="-beta testing -betapassword $STEAM_DF_TESTING"
+        else
+          BETA_PARAMS="-beta ${{ inputs.steam_branch }}"
+        end
+        ${{ steps.steamcmd.outputs.executable }} \
+          +@ShutdownOnFailedCommand 1 \
+          +force_install_dir $PWD/DF_steam \
+          +login $STEAM_USERNAME \
+          +app_update "975370 validate $BETA_PARAMS" \
+          +quit
+        tar xjf dfhack-symbols-linux64-build.tar.bz2 -C DF_steam
+        xml/symbols_gen_linux.sh ${{ github.event.inputs.version }} STEAM DF_steam
+
+    # Itch
+    - name: Generate Itch symbols
+      if: inputs.channel == 'all' || inputs.channel == 'itch'
+      run: |
+        mkdir DF_itch
+        echo TODO
+
+    # Classic
+    - name: Generate Classic symbols
+      if: inputs.channel == 'all' || inputs.channel == 'classic'
+      run: |
+        mkdir DF_classic
+        minor=$(echo "${{ github.event.inputs.version }}" | cut -d. -f1)
+        patch=$(echo "${{ github.event.inputs.version }}" | cut -d. -f2)
+        fname="df_${minor}_${patch}_linux.tar.bz2"
+        wget "https://www.bay12games.com/dwarves/${fname}"
+        tar xjf "${fname}" -C DF_classic
+        xml/symbols_gen_linux.sh ${{ github.event.inputs.version }} CLASSIC DF_classic
+
+    # Finalize
     - name: Commit symbol updates
       run: ls -al
     - name: Update structures ref
       run: du -sh *
 
+
   generate-windows:
     name: Generate win64 symbols
     runs-on: ubuntu-latest
+    if: inputs.platform == 'all' || inputs.platform == 'windows'
     steps:
     - name: Install dependencies
       run: pip install 'pefile'
@@ -111,27 +150,60 @@ jobs:
       with:
         repository: jjyg/metasm
         path: metasm
+
+    # Steam
     - name: Setup steamcmd
+      if: inputs.channel == 'all' || inputs.channel == 'steam'
       id: steamcmd
       uses: CyberAndrii/setup-steamcmd@v1
-    - name: Download DF Windows binaries
+    - name: Generate Steam symbols
+      if: inputs.channel == 'all' || inputs.channel == 'steam'
+      timeout-minutes: 10
       env:
-        STEAM_USERNAME: myk002
+        STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
         STEAM_CONFIG_VDF: ${{ secrets.STEAM_CONFIG_VDF }}
+        STEAM_DF_TESTING: ${{ secrets.STEAM_DF_TESTING }}
       run: |
+        mkdir DF_steam
         mkdir -p $HOME/Steam/config
         echo "$STEAM_CONFIG_VDF" | base64 -d >$HOME/Steam/config/config.vdf
+        if [ "${{ inputs.steam_branch }}" = "default" ]; then
+          BETA_PARAMS=""
+        elif [ "${{ inputs.steam_branch }}" = "testing" ]; then
+          BETA_PARAMS="-beta testing -betapassword $STEAM_DF_TESTING"
+        else
+          BETA_PARAMS="-beta ${{ inputs.steam_branch }}"
+        end
         ${{ steps.steamcmd.outputs.executable }} \
           +@ShutdownOnFailedCommand 1 \
           +@sSteamCmdForcePlatformType windows \
-          +force_install_dir $PWD/DF \
+          +force_install_dir $PWD/DF_steam \
           +login $STEAM_USERNAME \
-          +app_update 975370 validate \
+          +app_update "975370 validate $BETA_PARAMS" \
           +quit
-    - name: Generate symbols
+        xml/symbols_gen_windows.sh ${{ github.event.inputs.version }} STEAM DF_steam
+
+    # Itch
+    - name: Generate Itch symbols
+      if: inputs.channel == 'all' || inputs.channel == 'itch'
       run: |
-        ls -al
-        du -sh *
-        xml/symbols_gen_windows.sh ${{ github.event.inputs.version }} ${{ github.event.inputs.channel }} DF
+        mkdir DF_itch
+        echo TODO
+
+    # Classic
+    - name: Generate Classic symbols
+      if: inputs.channel == 'all' || inputs.channel == 'classic'
+      run: |
+        mkdir DF_classic
+        minor=$(echo "${{ github.event.inputs.version }}" | cut -d. -f1)
+        patch=$(echo "${{ github.event.inputs.version }}" | cut -d. -f2)
+        fname="df_${minor}_${patch}_win.zip"
+        wget "https://www.bay12games.com/dwarves/${fname}"
+        unzip -d DF_classic "${fname}"
+        xml/symbols_gen_windows.sh ${{ github.event.inputs.version }} CLASSIC DF_classic
+
+    # Finalize
+    - name: Commit symbol updates
+      run: ls -al
     - name: Update structures ref
-      run: true
+      run: du -sh *
