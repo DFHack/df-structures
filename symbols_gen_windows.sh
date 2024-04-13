@@ -45,7 +45,7 @@ elif [ -r pefile/pefile.py ]; then
     PEFILE="cd pefile && python pefile.py"
 fi
 
-if [ ! -x "${DF_EXE}" ]; then
+if [ ! -r "${DF_EXE}" ]; then
     echo "DF executable not found: ${DF_EXE}"
     exit 1
 elif [ ! -d "${DF_MISC_DIR}" ]; then
