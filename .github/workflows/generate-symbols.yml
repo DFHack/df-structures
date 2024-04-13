@@ -65,17 +65,19 @@ jobs:
       run: |
         mkdir -p $HOME/Steam/config
         echo "$STEAM_CONFIG_VDF" | base64 -d >$HOME/Steam/config/config.vdf
-        ${{ steps.steamcmd.outputs.executable }} +@ShutdownOnFailedCommand 1 +login $STEAM_USERNAME +quit
+        ${{ steps.steamcmd.outputs.executable }} \
+          +@ShutdownOnFailedCommand 1 \
+          +force_install_dir $PWD/DF \
+          +login $STEAM_USERNAME \
+          +app_update 975370 validate \
+          +quit
     - name: Download DFHack
       uses: actions/download-artifact@v4
       with:
         name: dfhack-symbols-linux64-build
     - name: Install DFHack
       shell: bash
-      run: |
-        ls -al
-        ls -al *
-        tar xjf dfhack-symbols-linux64-build.tar.bz2 -C DF
+      run: tar xjf dfhack-symbols-linux64-build.tar.bz2 -C DF
     - name: Start X server
       run: Xvfb :0 -screen 0 1600x1200x24 &
     - name: Generate symbols
@@ -85,9 +87,9 @@ jobs:
         TERM: xterm-256color
       run: xml/symbols_gen_linux.sh ${{ github.event.inputs.version }} ${{ github.event.inputs.channel }} DF
     - name: Commit symbol updates
-      run: true
+      run: ls -al
     - name: Update structures ref
-      run: true
+      run: du -sh *
 
   generate-windows:
     name: Generate win64 symbols
@@ -119,11 +121,17 @@ jobs:
       run: |
         mkdir -p $HOME/Steam/config
         echo "$STEAM_CONFIG_VDF" | base64 -d >$HOME/Steam/config/config.vdf
-        ${{ steps.steamcmd.outputs.executable }} +@ShutdownOnFailedCommand 1 +login $STEAM_USERNAME +quit
+        ${{ steps.steamcmd.outputs.executable }} \
+          +@ShutdownOnFailedCommand 1 \
+          +@sSteamCmdForcePlatformType windows \
+          +force_install_dir $PWD/DF \
+          +login $STEAM_USERNAME \
+          +app_update 975370 validate \
+          +quit
     - name: Generate symbols
       run: |
         ls -al
-        ls -al *
-        xml/symbols_gen_windows.sh ${{ github.event.inputs.version }} ${{ github.event.inputs.channel }} "DF"
+        du -sh *
+        xml/symbols_gen_windows.sh ${{ github.event.inputs.version }} ${{ github.event.inputs.channel }} DF
     - name: Update structures ref
       run: true
