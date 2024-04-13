@@ -36,12 +36,13 @@ on:
 
 jobs:
   package:
-    uses: DFHack/dfhack/.github/workflows/package.yml@develop
+    uses: DFHack/dfhack/.github/workflows/build-linux.yml@develop
     with:
       dfhack_ref: ${{ github.event.inputs.dfhack_ref }}
+      artifact-name: dfhack-symbols-linux64-build
       append-date-and-hash: false
+      cache-id: release
       cache-readonly: true
-      include_windows: false
     secrets: inherit
 
   generate-linux:
@@ -63,18 +64,18 @@ jobs:
         STEAM_CONFIG_VDF: ${{ secrets.STEAM_CONFIG_VDF }}
       run: |
         mkdir steamcmd/config
-        echo $STEAM_CONFIG_VDF | base64 -d >steamcmd/config/config.vdf
+        echo "$STEAM_CONFIG_VDF" | base64 -d >steamcmd/config/config.vdf
         ${{ steps.steamcmd.outputs.executable }} +@ShutdownOnFailedCommand 1 +login $STEAM_USERNAME +quit
     - name: Download DFHack
       uses: actions/download-artifact@v4
       with:
-        name: dfhack-linux64-build
+        name: dfhack-symbols-linux64-build
     - name: Install DFHack
       shell: bash
       run: |
         ls -al
         ls -al *
-        tar xjf dfhack-linux64-build.tar.bz2 -C DF
+        tar xjf dfhack-symbols-linux64-build.tar.bz2 -C DF
     - name: Start X server
       run: Xvfb :0 -screen 0 1600x1200x24 &
     - name: Generate symbols
@@ -117,7 +118,7 @@ jobs:
         STEAM_CONFIG_VDF: ${{ secrets.STEAM_CONFIG_VDF }}
       run: |
         mkdir steamcmd/config
-        echo $STEAM_CONFIG_VDF | base64 -d >steamcmd/config/config.vdf
+        echo "$STEAM_CONFIG_VDF" | base64 -d >steamcmd/config/config.vdf
         ${{ steps.steamcmd.outputs.executable }} +@ShutdownOnFailedCommand 1 +login $STEAM_USERNAME +quit
     - name: Generate symbols
       run: |
