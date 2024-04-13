@@ -108,7 +108,9 @@ jobs:
       if: inputs.channel == 'all' || inputs.channel == 'itch'
       run: |
         mkdir DF_itch
-        echo TODO
+        echo TODO: download game from Itch
+        tar xjf dfhack-symbols-linux64-build.tar.bz2 -C DF_itch
+        sh -x xml/symbols_gen_linux.sh ${{ github.event.inputs.version }} ITCH DF_itch
 
     # Classic
     - name: Generate Classic symbols
@@ -120,6 +122,7 @@ jobs:
         fname="df_${minor}_${patch}_linux.tar.bz2"
         wget "https://www.bay12games.com/dwarves/${fname}"
         tar xjf "${fname}" -C DF_classic
+        tar xjf dfhack-symbols-linux64-build.tar.bz2 -C DF_classic
         sh -x xml/symbols_gen_linux.sh ${{ github.event.inputs.version }} CLASSIC DF_classic
 
     # Finalize
@@ -188,7 +191,8 @@ jobs:
       if: inputs.channel == 'all' || inputs.channel == 'itch'
       run: |
         mkdir DF_itch
-        echo TODO
+        echo TODO: download game from Itch
+        sh -x xml/symbols_gen_windows.sh ${{ github.event.inputs.version }} ITCH DF_itch
 
     # Classic
     - name: Generate Classic symbols
