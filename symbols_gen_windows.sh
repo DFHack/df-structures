@@ -60,8 +60,8 @@ pe_timestamp=`python "${PE_DIR}/pefile.py" "${DF_EXE}" | fgrep TimeDateStamp | h
 
 timestamp_elem="<binary-timestamp value='${pe_timestamp}'/>"
 
-offsets=`cd df_misc && RUBYLIB="${METASM_DIR}" ruby dump_df_globals.rb "${DF_EXE}"`
-vtables=`cd df_misc && RUBYLIB="${METASM_DIR}" ruby scan_vtable.rb "${DF_EXE}"`
+offsets=`RUBYLIB="${METASM_DIR}" ruby df_misc/dump_df_globals.rb "${DF_EXE}"`
+vtables=`RUBYLIB="${METASM_DIR}" ruby df_misc/scan_vtable.rb "${DF_EXE}"`
 
 write_symbol_table win64 windows "${timestamp_elem}" "$offsets" "$vtables"
 echo "done"
