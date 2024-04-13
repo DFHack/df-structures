@@ -59,6 +59,10 @@ jobs:
     needs:
     - package
     steps:
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install ansifilter
     - name: Clone structures
       uses: actions/checkout@v4
       with:
@@ -123,7 +127,7 @@ jobs:
         wget "https://www.bay12games.com/dwarves/${fname}"
         tar xjf "${fname}" -C DF_classic
         tar xjf dfhack-symbols-linux64-build.tar.bz2 -C DF_classic
-        sh -x xml/symbols_gen_linux.sh ${{ github.event.inputs.version }} CLASSIC DF_classic
+        xml/symbols_gen_linux.sh ${{ github.event.inputs.version }} CLASSIC DF_classic
 
     # Finalize
     - name: Commit symbol updates
@@ -204,7 +208,7 @@ jobs:
         fname="df_${minor}_${patch}_win.zip"
         wget "https://www.bay12games.com/dwarves/${fname}"
         unzip -d DF_classic "${fname}"
-        sh -x xml/symbols_gen_windows.sh ${{ github.event.inputs.version }} CLASSIC DF_classic
+        xml/symbols_gen_windows.sh ${{ github.event.inputs.version }} CLASSIC DF_classic
 
     # Finalize
     - name: Commit symbol updates
