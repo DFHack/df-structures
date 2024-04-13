@@ -1,0 +1,113 @@
+name: Generate symbols
+
+on:
+  workflow_dispatch:
+    inputs:
+      dfhack_ref:
+        description: DFHack branch for ref update
+        required: true
+        default: develop
+      version:
+        description: DF version
+        required: true
+      platform:
+        description: Target OS platform
+        type: choice
+        required: true
+        default: all
+        options:
+        - all
+        - windows
+        - linux
+      channel:
+        description: DF distribution channel
+        type: choice
+        required: true
+        default: steam
+        options:
+        - all
+        - steam
+        - itch
+        - classic
+      steam_branch:
+        description: DF Steam branch
+        required: true
+        default: testing
+
+jobs:
+  package:
+    uses: DFHack/dfhack/.github/workflows/package.yml@develop
+    with:
+      dfhack_ref: ${{ github.event.inputs.dfhack_ref }}
+      append-date-and-hash: false
+      cache-readonly: true
+      include_windows: false
+    secrets: inherit
+
+  generate-linux:
+    name: Generate linux64 symbols
+    runs-on: ubuntu-latest
+    needs:
+    - package
+    steps:
+    - name: Clone structures
+      uses: actions/checkout@v4
+      with:
+        path: xml
+    - name: Get 3rd party SDKs
+      uses: actions/checkout@v4
+      with:
+        repository: DFHack/3rdparty
+        ssh-key: ${{ secrets.DFHACK_3RDPARTY_TOKEN }}
+        path: steam
+    - name: Download DF Linux
+      run: ls -al
+    - name: Download DFHack
+      uses: actions/download-artifact@v4
+      with:
+        name: dfhack-linux64-build
+    - name: Install DFHack
+      shell: bash
+      run: tar xjf dfhack-linux64-build.tar.bz2 -C DF
+    - name: Start X server
+      if: matrix.os == 'ubuntu'
+      run: Xvfb :0 -screen 0 1600x1200x24 &
+    - name: Generate symbols
+      run: xml/symbols_gen_linux.sh ${{ github.event.inputs.version }} ${{ github.event.inputs.channel }} DF
+    - name: Commit symbol updates
+      run: true
+    - name: Update structures ref
+      run: true
+
+  generate-windows:
+    name: Generate win64 symbols
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install dependencies
+      run: pip install 'pefile'
+    - name: Clone structures
+      uses: actions/checkout@v4
+      with:
+        path: xml
+    - name: Clone df_misc
+      uses: actions/checkout@v4
+      with:
+        repository: DFHack/df_misc
+        path: df_misc
+    - name: Clone metasm
+      uses: actions/checkout@v4
+      with:
+        repository: jjyg/metasm
+        path: metasm
+    - name: Get 3rd party SDKs
+      uses: actions/checkout@v4
+      with:
+        repository: DFHack/3rdparty
+        ssh-key: ${{ secrets.DFHACK_3RDPARTY_TOKEN }}
+        path: steam
+    - name: Download DF Windows binaries
+      run: ls -al
+    - name: Generate symbols
+      run: xml/symbols_gen_windows.sh ${{ github.event.inputs.version }} ${{ github.event.inputs.channel }} "DF"
+    - name: Update structures ref
+      run: true
