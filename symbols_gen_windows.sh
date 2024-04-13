@@ -13,7 +13,7 @@
 #     - git clone --depth=1 https://github.com/DFHack/df_misc.git
 #   - the metasm repo is checked out in the metasm subdirectory of the current dir
 #     - git clone --depth=1 https://github.com/jjyg/metasm.git
-#   - pefile is installed or pefile.py is available in the pefile subdirectory of the current dir
+#   - pefile is installed via pip or pefile.py is available in the pefile subdirectory of the current dir
 #     - wget 'https://github.com/erocarrera/pefile/releases/download/v2023.2.7/pefile-2023.2.7.tar.gz
 #     - mkdir pefile && tar xzf pefile-2023.2.7.tar.gz -C pefile --strip-components=1
 #
@@ -39,10 +39,10 @@ DF_EXE="${DF_DIR}/Dwarf Fortress.exe"
 DF_MISC_DIR="$(pwd)/df_misc"
 METASM_DIR="$(pwd)/metasm"
 
-if which pefile >/dev/null 2>&1; then
-    PEFILE=pefile
-elif [ -r pefile/pefile.py ]; then
-    PEFILE="cd pefile && python pefile.py"
+if [ -r pefile/pefile.py ]; then
+    PE_DIR="pefile"
+else
+    PE_DIR=`pip show pefile | fgrep Location | sed 's/.*Location: //'`
 fi
 
 if [ ! -r "${DF_EXE}" ]; then
@@ -56,7 +56,7 @@ elif [ ! -d "${METASM_DIR}" ]; then
     exit 1
 fi
 
-pe_timestamp=`eval ${PEFILE} \"${DF_EXE}\" | fgrep TimeDateStamp | head -n1 | sed 's/  */ /g' | cut -d" " -f4`
+pe_timestamp=`cd ${PE_DIR} && python pefile.py "${DF_EXE}" | fgrep TimeDateStamp | head -n1 | sed 's/  */ /g' | cut -d" " -f4`
 
 timestamp_elem="<binary-timestamp value='${pe_timestamp}'/>"
 
