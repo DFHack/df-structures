@@ -1031,8 +1031,81 @@
         TODO
     </class-type>
 
+    <struct-type type-name='setup_race_selectionst'>
+        <int32_t name='race' ref-target='creature_raw'/>
+        <int32_t name='civ_id' ref-target='historical_entity'/>
+        <int32_t name='tier_count'/>
+        <bitfield base-type='uint32_t' name='flag'>
+            <flag-bit name='IS_REGIONPOP' comment='will be included in wild_creature_ids'/>
+        </bitfield>
+    </struct-type>
+
+    <struct-type type-name='dungeon_mode_start_sheetst'>
+        <stl-vector name='csheet' pointer-type='startup_charactersheetst'/>
+        <int32_t name='start_site_id'/>
+    </struct-type>
+
     <class-type type-name='viewscreen_setupadventurest' inherits-from='viewscreen'>
-        TODO
+        <enum type-name='setup_adventure_type' name='mode'/>
+        <stl-vector pointer-type='setup_race_selectionst' name='race_selection'/>
+        <enum base-type='int32_t' name='chosen_destiny'>
+            <enum-item name='Chosen'/>
+            <enum-item name='Hero'/>
+            <enum-item name='Ordinary'/>
+        </enum>
+        <enum base-type='int32_t' name='chosen_difficulty'>
+            <enum-item name='Easy'/>
+            <enum-item name='Normal'/>
+            <enum-item name='Hard'/>
+        </enum>
+        <static-array type-name='curses_text_boxst' name='destiny_desc' count='3'/>
+        <compound type-name='curses_text_boxst' name='difficulty_desc'/>
+        <int32_t name='chosen_race' ref-target='creature_raw'/>
+        <bool name='chosen_is_from_wilderpop_or_feature'/>
+        <enum name='sheet_page' base-type='int32_t'>
+            <enum-item name='ChooseRace'/>
+            <enum-item name='ChooseAnimalRace'/>
+            <enum-item name='ChooseHistfig'/>
+            <enum-item name='ChooseCiv'/>
+            <enum-item name='Skills'/>
+            5
+            <enum-item name='Appearance'/>
+            <enum-item name='Personality'/>
+            <enum-item name='Background'/>
+            <enum-item name='Equipment'/>
+            <enum-item name='MountsAndPets'/>
+        </enum>
+
+        <stl-vector name='valid_race' type-name='int32_t' ref-target='creature_raw'/>
+        <stl-vector name='highlight_entity_id' type-name='int32_t' ref-target='historical_entity'/>
+        <int32_t name='selected_race'/>
+        <int32_t name='scroll_position_race'/>
+        <bool name='scrolling_race'/>
+
+        <stl-vector name='valid_subrace' type-name='int32_t' ref-target='creature_raw'/>
+        <int32_t name='selected_subrace'/>
+        <int32_t name='scroll_position_subrace'/>
+        <bool name='scrolling_subrace'/>
+
+        <stl-vector name='nemesis_index' type-name='int32_t' ref-target='nemesis_record' refers-to='$global.world.nemesis.all[$]'/>
+        <int32_t name='selected_nem'/>
+        <int32_t name='scroll_position_nem'/>
+        <bool name='scrolling_nem'/>
+
+        <stl-vector name='valid_civ_id' type-name='int32_t' ref-target='historical_entity'/>
+        <int32_t name='selected_civ_id'/>
+        <int32_t name='scroll_position_civ_id'/>
+        <bool name='scrolling_civ_id'/>
+
+        <stl-vector name='csheet' pointer-type='startup_charactersheetst'/>
+        <int32_t name='active_sheet_index'/>
+
+        <stl-vector type-name='int32_t' name='final_start_site_id_cand'/>
+        <int32_t name='selected_final_start_site_index'/>
+        <int32_t name='scroll_final'/>
+        <bool name='scrolling_final'/>
+
+        <compound type-name='dungeon_mode_start_sheetst' name='dungeon_mode_start_sheet'/>
     </class-type>
 
     <class-type type-name='viewscreen_export_regionst' inherits-from='viewscreen'>
@@ -1789,7 +1862,24 @@
         <enum-item name='REGULAR_UNIT'/>
     </enum-type>
 
-    <struct-type type-name='setup_character_info' comment='bay12: startup_charactersheetst'>
+    <enum-type type-name='setup_adventure_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='DIFFICULTY'/>
+        <enum-item name='RACE'/>
+        <enum-item name='SUBRACE'/>
+        <enum-item name='NEMESIS'/>
+        <enum-item name='ENTITY'/>
+        <enum-item name='DOING_SUB'/>
+        <enum-item name='SUB_SKILLS'/>
+        <enum-item name='SUB_APPEARANCE'/>
+        <enum-item name='SUB_PERSONALITY'/>
+        <enum-item name='SUB_BACKGROUND'/>
+        <enum-item name='SUB_EQUIPMENT'/>
+        <enum-item name='SUB_MOUNTS_AND_PETS'/>
+        <enum-item name='FINAL_CONFIRMATION'/>
+    </enum-type>
+
+    <struct-type type-name='startup_charactersheetst'>
         <compound type-name='language_name' name='name'/>
         <int16_t name='race' ref-target='creature_raw'/>
         <int16_t name='caste' ref-target='caste_raw' aux-value='$$.race'/>
@@ -1836,22 +1926,7 @@
         <bool name='is_from_wilderpop_or_feature'/>
 
         <uint32_t name='flag'/>
-        <enum base-type='int32_t' name='sub_mode'>
-            <enum-item name='NONE' value='-1'/>
-            <enum-item name='DIFFICULTY'/>
-            <enum-item name='RACE'/>
-            <enum-item name='SUBRACE'/>
-            <enum-item name='NEMESIS'/>
-            <enum-item name='ENTITY'/>
-            <enum-item name='DOING_SUB'/>
-            <enum-item name='SUB_SKILLS'/>
-            <enum-item name='SUB_APPEARANCE'/>
-            <enum-item name='SUB_PERSONALITY'/>
-            <enum-item name='SUB_BACKGROUND'/>
-            <enum-item name='SUB_EQUIPMENT'/>
-            <enum-item name='SUB_MOUNTS_AND_PETS'/>
-            <enum-item name='FINAL_CONFIRMATION'/>
-        </enum>
+        <enum type-name='setup_adventure_type' name='sub_mode'/>
         <static-array name='visited_mode' type-name='bool' count='12'/>
 
         <int32_t name='selected_att'/>
@@ -1996,7 +2071,7 @@
 
     <class-type type-name='viewscreen_setupdwarfgamest' inherits-from='viewscreen'>
         <static-string size='768' name='title'/>
-        <stl-vector name='dwarf_info' pointer-type='setup_character_info'/>
+        <stl-vector name='dwarf_info' pointer-type='startup_charactersheetst'/>
         <static-array count='4' name='embark_skills'><stl-vector type-name='job_skill'/></static-array>
         <stl-vector name='reclaim_professions' type-name='profession'/>
 
