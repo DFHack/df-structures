@@ -38,14 +38,18 @@ jobs:
   test:
     uses: DFHack/dfhack/.github/workflows/test.yml@develop
     with:
-      dfhack_ref: ${{ github.repository_owner == 'DFHack' && (((github.base_ref || github.ref_name) == 'master') && 'develop' || (github.base_ref || github.ref_name)) || '' }}
+      dfhack_repo: ${{ format('{0}/dfhack', github.event_name == 'push' && github.repository_owner || github.event.pull_request.base.repo.owner.login) }}
+      dfhack_ref: ${{ (((github.base_ref || github.ref_name) == 'master') && 'develop' || (github.base_ref || github.ref_name)) }}
+      structures_repo: ${{ github.repository }}
       structures_ref: ${{ github.ref }}
     secrets: inherit
 
   docs:
     uses: DFHack/dfhack/.github/workflows/build-linux.yml@develop
     with:
-      dfhack_ref: ${{ github.repository_owner == 'DFHack' && (((github.base_ref || github.ref_name) == 'master') && 'develop' || (github.base_ref || github.ref_name)) || '' }}
+      dfhack_repo: ${{ format('{0}/dfhack', github.event_name == 'push' && github.repository_owner || github.event.pull_request.base.repo.owner.login) }}
+      dfhack_ref: ${{ (((github.base_ref || github.ref_name) == 'master') && 'develop' || (github.base_ref || github.ref_name)) }}
+      structures_repo: ${{ github.repository }}
       structures_ref: ${{ github.ref }}
       artifact-name: docs
       platform-files: false
