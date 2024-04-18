@@ -45,10 +45,13 @@ jobs:
           +app_info_request 975370 \
           +app_info_print 975370 \
           +quit | awk '/^{/,0' | awk '/^\t\t"branches"/,0' | awk '/^\t\t\t"beta"/,0' | fgrep timeupdated | head -n1 | cut -d'"' -f4)
+        echo "timestamp: $timestamp"
         mkdir -p state
         touch state/timestamp
         last_timestamp=$(cat state/timestamp)
+        echo "last_timestamp: $last_timestamp"
         if [ "$timestamp" != "$last_timestamp" ]; then
+          echo "launching generate-symbols"
           echo "$timestamp" >state/timestamp
           gh workflow run generate-symbols.yml -R DFHack/dfhack -r ${{ matrix.dfhack_ref }} -f structures_ref=${{ matrix.structures_ref }} -f version=${{ matrix.version }} -f platform=all -f channel=steam -f df_steam_branch=${{ matrix.df_steam_branch }} -f steam_branch=${{ matrix.steam_branch }}
           echo TIMESTAMP_UPDATED=1 >> $GITHUB_ENV
