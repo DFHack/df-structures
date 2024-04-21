@@ -431,6 +431,17 @@
         <enum-item name='INTIMIDATE'/>
     </enum-type>
 
+    <bitfield-type type-name='tracking_flag_type'>
+        <flag-bit name='DISPLAY_LATEST'/>
+        <flag-bit name='DISPLAY_TRAVEL'/>
+        <flag-bit name='DISPLAY_ODOR'/>
+    </bitfield-type>
+
+    <bitfield-type type-name='adventure_flag_type'>
+        <flag-bit name='BUILDING_ACTION_LIST'/>
+        <flag-bit name='ALWAYS_PROMPT'/>
+    </bitfield-type>
+
     <struct-type type-name='adventurest'>
         <enum base-type='int16_t' name='menu' type-name='ui_advmode_menu'/>
 
@@ -493,7 +504,7 @@
         <static-array name='tracks_y' type-name='int32_t' count='1000' comment='bay12: latest_tract_abs_y; Y coordinates of spoors encountered by the player. The coordinate system used counts local tiles from the upper left most tile of the world map, so df.global.world.map.region_y*48 is added to the local y coordinate.'/>
         <static-array name='tracks_z' type-name='int32_t' count='1000' comment='bay12: latest_tract_abs_z; Z coordinates of spoors encountered by the player. The local z coordinate is corrected by adding df.global.world.map.region_z to it.'/>
         <int32_t name='tracks_next_idx' comment='bay12: latest_track_pos; Index of the next entry in tracks_x, tracks_y, tracks_z'/>
-        <uint32_t name='view_tracks_odors' comment='bay12: tracking_flag; The value of view_tracks_odors determines the combination of local/travel mode track/odor screens currently displayed. Opening the local tracks screen increments this value by 1, opening travel mode tracks+odors increments by 2, opening local odors increments by 4. Closing the screens decrements respectively.'/>
+        <bitfield type-name='tracking_flag_type' name='view_tracks_odors' comment='bay12: tracking_flag; The value of view_tracks_odors determines the combination of local/travel mode track/odor screens currently displayed. Opening the local tracks screen increments this value by 1, opening travel mode tracks+odors increments by 2, opening local odors increments by 4. Closing the screens decrements respectively.'/>
         <int32_t name='tracks_visible' comment='bay12: lit_latest_track_count; The quantity of spoors currently visible to the player.'/>
 
         <static-array name='travel_exemplar_x' type-name='int16_t' count='9'/>
@@ -533,7 +544,7 @@
         <int32_t name='travel_odor_caste' ref-target='caste_raw' aux-value='$$.travel_odor_race' comment='bay12: travel_smell_caste; caste ID of strongest odor creature in fast travel mode'/>
         <bool name='travel_odor_death'/>
 
-        <uint32_t name='multiattack' comment='bay12: flag; Set when the player is preparing to carry out a multi-attack; resetting this to 0 makes the multi-attack window disappear.'/>
+        <bitfield type-name='adventure_flag_type' name='flag' comment='was multiattack in dfhack before 51.01; Set when the player is preparing to carry out a multi-attack; resetting this to 0 makes the multi-attack window disappear.'/>
 
         <compound name='rumor_info' comment='bay12 type: adventure_rumor_infost'>
             <stl-vector name='base_data' pointer-type='adventure_rumor_datast' since='v0.44.10'/>
@@ -887,6 +898,14 @@
             <vmethod><pointer/></vmethod>
             <vmethod/>
         </virtual-methods>
+    </class-type>
+
+    <class-type type-name='adventure_movement_pathst' inherits-from='adventure_movement_optionst'>
+        <int16_t name='gx'/>
+        <int16_t name='gy'/>
+        <int16_t name='gz'/>
+        <int16_t name='vpz'/>
+        <bool name='is_acrobatic'/>
     </class-type>
 
     <class-type type-name='adventure_movement_release_hold_itemst' inherits-from='adventure_movement_optionst'/>
