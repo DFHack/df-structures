@@ -56,7 +56,7 @@ elif [ ! -d "${METASM_DIR}" ]; then
     exit 1
 fi
 
-pe_timestamp=`python "${PE_DIR}/pefile.py" "${DF_EXE}" | fgrep TimeDateStamp | head -n1 | sed 's/  */ /g' | cut -d" " -f4`
+pe_timestamp=`python3 "${PE_DIR}/pefile.py" "${DF_EXE}" | fgrep TimeDateStamp | head -n1 | sed 's/  */ /g' | cut -d" " -f4`
 
 timestamp_elem="<binary-timestamp value='${pe_timestamp}'/>"
 
