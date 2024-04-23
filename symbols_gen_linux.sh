@@ -29,9 +29,9 @@ SCRIPT_DIR=`dirname $0`
 
 if [ -z "${DF_DIR}" ]; then
     build_dir=`cd "${SCRIPT_DIR}/../../build" && pwd`
-    if [ -n ${build_dir} ]; then
-        install_prefix=`grep CMAKE_INSTALL_PREFIX:PATH= ${build_dir}/CMakeCache.txt | cut -d= -f2`
-        DF_DIR=`cd ${build_dir} && cd ${install_prefix} && pwd`
+    if [ -n "${build_dir}" ]; then
+        install_prefix=`grep CMAKE_INSTALL_PREFIX:PATH= "${build_dir}/CMakeCache.txt" | cut -d= -f2`
+        DF_DIR=`cd "${build_dir}" && cd "${install_prefix}" && pwd`
     fi
 fi
 
