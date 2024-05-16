@@ -86,6 +86,38 @@
         <enum-item name='RemoveRottenTissue'/>
     </enum-type>
 
+    <struct-type type-name='job_spec_flags' is-union='true' comment='representation of the overloading of job.specflag'>
+        <uint32_t name='whole'/>
+        <bitfield name='construct_building_flags' base-type='uint32_t'>
+            <flag-bit name='SWITCHED_SPOT'/>
+        </bitfield>
+        <bitfield name='clean_patient_flags' base-type='uint32_t'>
+            <flag-bit name='TRIED_SOAP'/>
+        </bitfield>
+        <bitfield name='clean_self_flags' base-type='uint32_t'>
+            <flag-bit name='TRIED_SOAP'/>
+        </bitfield>
+        <bitfield name='place_track_vehicle_flags' base-type='uint32_t'>
+            <flag-bit name='CLEARED_JOBS'/>
+        </bitfield>
+        <bitfield name='gather_flags' base-type='uint32_t'>
+            <flag-bit name='FROM_ZONE'/>
+            <flag-bit name='PICK_TREES'/>
+            <flag-bit name='PICK_SHRUBS'/>
+            <flag-bit name='GATHER_FALLEN'/>
+            <flag-bit name='NO_LADDER_SEARCH'/>
+            <flag-bit name='LADDER_RESTRICTED'/>
+            <flag-bit name='PICK_TREES_GROUND'/>
+        </bitfield>
+        <bitfield name='drink_item_flags' base-type='uint32_t'>
+            <flag-bit name='LOOKED_FOR_NEARBY_GOBLET'/>
+        </bitfield>
+        <bitfield name='interrogation_flags' base-type='uint32_t'>
+            <flag-bit name='DID_OFFICE_ATTEMPT'/>
+        </bitfield>
+        <bitfield name='carve_track_flags' type-name='tile_occupancy'/>
+    </struct-type>
+
     <struct-type type-name='job' df-list-link-type='job_list_link' df-list-link-field='list_link' key-field='id'>
         <int32_t name='id' init-value='-1'/>
         <pointer name='list_link' type-name='job_list_link'/>
@@ -100,7 +132,7 @@
 
         <int32_t name='completion_timer' init-value='-1' comment='toady: duration; -1 every time unit.counters.job_counter is below 0' />
 
-        <uint32_t name='maxdur'/>
+        <int32_t name='maxdur'/>
 
         <bitfield name='flags' type-name='job_flags'/>
 
@@ -110,22 +142,13 @@
         <enum base-type='int16_t' name='item_type' type-name='item_type' comment='for Bait Trap jobs'/>
         <int16_t name='item_subtype' init-value='-1' comment='when StoreInStockpile this is a unit_labor'/>
 
-        not actually a stockpile_group_set
-        this field encodes multiple overlapping flags:
-        bit0: ConstructBuildingSwitchedSpot, CleanPatientTriedSoap, CleanSelfTriedSoap, PlaceTrackVehicleClearedJobs, GatherFromZone, DrinkItemLookedForNearbyGoblet, InterrogationDidOfficeAttempt
-        bit1: GatherPickTrees
-        bit2: GatherPickShrubs
-        bit3: GatherGatherFallen
-        bit4: GatherNoLadderSearch
-        bit5: GatherLadderRestricted
-        bit6: GatherLadderGround
-        <bitfield name="item_category" type-name='stockpile_group_set' comment='type and name are inappropriate'/>
+        <compound name='specflag' type-name='job_spec_flags'/>
         <compound is-union='true'> toady: spec_id
             <int32_t name="hist_figure_id" ref-target='historical_figure'/>
             <int32_t name="race" ref-target='creature_raw'/>
             <enum base-type='int32_t' name="improvement" type-name='improvement_type'/>
         </compound>
-        <bitfield name='material_category' type-name='job_material_category'/>
+        <bitfield name='material_category' type-name='job_material_category' comment='bay12: uint32_t job_item_flag'/>
 
         <stl-string name='reaction_name'/>
 
