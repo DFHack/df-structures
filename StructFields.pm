@@ -671,7 +671,7 @@ sub emit_struct_fields($$;%) {
         } 'fields-' . $fields_group;
 
         # Needed for unions with fields with non-default ctors (e.g. bitfields)
-        emit "$name(){}";
+        emit "$name(){memset(this, 0, sizeof($name));}";
 
         return;
     }
