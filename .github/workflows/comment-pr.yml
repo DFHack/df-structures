@@ -21,11 +21,13 @@ jobs:
       id: format
       run: |
         set -ex
+        echo 'body<<EOF' >>$GITHUB_OUTPUT
         jq --raw-output .comment comment-info.json >>$GITHUB_OUTPUT
+        echo 'EOF' >>$GITHUB_OUTPUT
 
-        echo "COMMENT_SEARCH=$(jq --raw-output .comment_search comment-info.json)" >> $GITHUB_ENV
-        echo "COMMENT_PR_NUMBER=$(jq --raw-output .pr_number comment-info.json)" >> $GITHUB_ENV
-        echo "COMMENT_UPDATE_ONLY=$(jq --raw-output 'if .update_only then 1 else 0 end' comment-info.json)" >> $GITHUB_ENV
+        echo "COMMENT_SEARCH=$(jq --raw-output .comment_search comment-info.json)" >>$GITHUB_ENV
+        echo "COMMENT_PR_NUMBER=$(jq --raw-output .pr_number comment-info.json)" >>$GITHUB_ENV
+        echo "COMMENT_UPDATE_ONLY=$(jq --raw-output 'if .update_only then 1 else 0 end' comment-info.json)" >>$GITHUB_ENV
     - name: Find existing comment
       id: find_comment
       uses: peter-evans/find-comment@v3
