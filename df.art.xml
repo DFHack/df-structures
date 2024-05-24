@@ -1,5 +1,5 @@
 <data-definition>
-    <enum-type type-name='art_image_element_type'>
+    <enum-type type-name='art_image_element_type'> bay12: ArtImageElement
         <enum-item name="CREATURE"/>
         <enum-item name="PLANT"/>
         <enum-item name="TREE"/>
@@ -7,7 +7,7 @@
         <enum-item name="ITEM"/>
     </enum-type>
 
-    <class-type type-name='art_image_element'  original-name='art_image_elementst'>
+    <class-type type-name='art_image_element' original-name='art_image_elementst'>
         <int32_t name='count'/>
         <virtual-methods>
             <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
@@ -23,17 +23,22 @@
                 <ret-type><pointer type-name='art_image_element'/></ret-type>
             </vmethod>
             <vmethod name='getSymbol'>
-                <pointer type-name='int8_t' name='sym'/>
-                <pointer type-name='int32_t'/>
+                <pointer type-name='uint8_t' name='sym'/>
+                <pointer type-name='int32_t' name='priority'/>
             </vmethod>
-            <vmethod name='getName1'>
+            <vmethod name='getName'>
                 <pointer type-name='stl-string' name='name'/>
                 <bool name='useThe'/>
                 <bool name='useName'/>
+                <bool name='doMarkup'/>
             </vmethod>
-            <vmethod name='getName2'> seems to return like getName1 but with useName true
+            <vmethod name='getShortName'>
                 <pointer type-name='stl-string' name='name'/>
-                <bool/>
+                <bool name='useThe'/>
+            </vmethod>
+            <vmethod name='getGraphicsInfo'>
+                <pointer type-name='int32_t' name='gfx_type'/>
+                <pointer type-name='int32_t' name='gfx_id'/>
             </vmethod>
             <vmethod name='markDiscovered'/>
 
@@ -69,16 +74,16 @@
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
         <int16_t name='mat_index'/>
         <bitfield name='flags' type-name='item_flags'/>
-        <int32_t name='item_id' ref-target='item'/>
+        <int32_t name='item_id' ref-target='item' comment='for artifacts'/>
     </class-type>
 
-    <enum-type type-name='art_image_property_type'>
+    <enum-type type-name='art_image_property_type'> bay12: ArtImageProperty
         <enum-item name="transitive_verb"/>
         <enum-item name="intransitive_verb"/>
     </enum-type>
 
-    <class-type type-name='art_image_property'  original-name='art_image_propertyst'>
-        <df-flagarray name='flags'/>
+    <class-type type-name='art_image_property' original-name='art_image_propertyst'>
+        <df-flagarray name='flags' comment='currently none used'/>
         <virtual-methods>
             <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
             <vmethod name='read_file'>
@@ -92,14 +97,15 @@
             </vmethod>
 
             <vmethod name='getName'>
-                <pointer type-name='stl-string'/>
-                <pointer type-name='art_image'/>
+                <pointer type-name='stl-string' name='str'/>
+                <pointer type-name='art_image' name='image'/>
                 <bool name='useName'/>
+                <bool name='doMarkup'/>
             </vmethod>
         </virtual-methods>
     </class-type>
 
-    <enum-type type-name='art_image_property_verb' base-type='int16_t'>
+    <enum-type type-name='art_image_property_verb' base-type='int16_t'> bay12: ArtImageActionType
         <enum-item name='Withering'/>
         <enum-item name='SurroundedBy'/>
         <enum-item name='Massacring'/>
@@ -161,14 +167,14 @@
         <enum base-type='int16_t' name="verb" type-name='art_image_property_verb'/>
     </class-type>
 
-    <enum-type type-name='art_facet_type'>
+    <enum-type type-name='art_facet_type'> bay12: ArtFacet
         <enum-item name="OWN_RACE"/>
         <enum-item name="FANCIFUL"/>
         <enum-item name="GOOD"/>
         <enum-item name="EVIL"/>
     </enum-type>
 
-    <struct-type type-name='art_image'>
+    <struct-type type-name='art_image' original-name='art_imagest'>
         <code-helper name='find-instance'>$(find-instance $art_image_chunk $$).images[$]</code-helper>
         <code-helper name='describe'>(describe-obj $.name)</code-helper>
 
@@ -185,12 +191,12 @@
         <int32_t name='site' ref-target='world_site'/>
         <pointer name='ref' type-name='general_ref'/>
         <int32_t name='year'/>
-        <int32_t name='unk_1'/>
+        <int32_t name='season_tick'/>
         <int32_t name='id' ref-target='art_image_chunk'/>
         <int16_t name='subid' ref-target='art_image' aux-value='$$.id'/>
     </struct-type>
 
-    <struct-type type-name='art_image_chunk'
+    <struct-type type-name='art_image_chunk' original-name='art_image_chunkst'
                  instance-vector='$global.world.art_image_chunks' key-field='id'>
         <int32_t name='id' comment='art_image_*.dat'/>
         <static-array name='images' count='500'>
@@ -198,14 +204,14 @@
         </static-array>
     </struct-type>
 
-    <struct-type type-name='art_image_ref'>
+    <struct-type type-name='art_image_ref' comment='not actually a real structure'>
         <int32_t name='id' ref-target='art_image_chunk'/>
         <int16_t name='subid' ref-target='art_image' aux-value='$$.id'/>
         <int32_t name='civ_id' ref-target='historical_entity' since='v0.34.01'/>
         <int32_t name='site_id' ref-target='world_site' since='v0.34.01'/>
     </struct-type>
 
-    <enum-type type-name='poetic_form_action' base-type='int32_t'>
+    <enum-type type-name='poetic_form_action' base-type='int32_t'> bay12: PoeticIntentType
         <enum-item name='None' value='-1'/>
         <enum-item name='Describe'/>
         <enum-item name='Satirize'/>
@@ -233,30 +239,30 @@
     </enum-type>
 
     A - even, B - uneven for tone patterns, A - unstressed, B - stressed for accent patterns
-    <enum-type type-name='poetic_form_pattern' base-type='int32_t'>
+    <enum-type type-name='poetic_form_pattern' base-type='int32_t'> bay12: PoeticStressType
         <enum-item name='None' value='-1'/>
-        <enum-item name='AA'/>
-        <enum-item name='AB'/>
-        <enum-item name='BA'/>
-        <enum-item name='BB'/>
-        <enum-item name='AAA'/>
-        <enum-item name='BAA'/>
-        <enum-item name='ABA'/>
-        <enum-item name='AAB'/>
-        <enum-item name='ABB'/>
-        <enum-item name='BBA'/>
-        <enum-item name='BAB'/>
-        <enum-item name='BBB'/>
+        <enum-item name='AA' comment='Pyrrhic'/>
+        <enum-item name='AB' comment='Iambic'/>
+        <enum-item name='BA' comment='Trochaic'/>
+        <enum-item name='BB' comment='Spondaic'/>
+        <enum-item name='AAA' comment='Tribrachic'/>
+        <enum-item name='BAA' comment='Dactylic'/>
+        <enum-item name='ABA' comment='Amphibrachic'/>
+        <enum-item name='AAB' comment='Anapestic'/>
+        <enum-item name='ABB' comment='Bacchic'/>
+        <enum-item name='BBA' comment='Antibacchic'/>
+        <enum-item name='BAB' comment='Cretic'/>
+        <enum-item name='BBB' comment='Molossic'/>
     </enum-type>
 
-    <enum-type type-name='poetic_form_caesura_position' base-type='int32_t'>
+    <enum-type type-name='poetic_form_caesura_position' base-type='int32_t'> bay12: PoeticCaesuraType
         <enum-item name='None' value='-1'/>
         <enum-item name='Initial'/>
         <enum-item name='Medial'/>
         <enum-item name='Terminal'/>
     </enum-type>
 
-    <enum-type type-name='poetic_form_mood' base-type='int32_t'>
+    <enum-type type-name='poetic_form_mood' base-type='int32_t'> bay12: PoeticStyleType
         <enum-item name='None' value='-1'/>
         <enum-item name='Narrative'/>
         <enum-item name='Dramatic'/>
@@ -267,21 +273,21 @@
         <enum-item name='Solemn'/>
     </enum-type>
 
-    <enum-type type-name='poetic_form_subject' base-type='int32_t'>
+    <enum-type type-name='poetic_form_subject' base-type='int32_t'> bay12: PoeticSubjectType
         <enum-item name='None' value='-1'/> "a chosen subject"
         <enum-item name='Past'/>
-        <enum-item name='CurrentEvents'/>
+        <enum-item name='CurrentEvents' comment='Present'/>
         <enum-item name='Future'/>
         <enum-item name='SomeoneRecentlyDeceased'/>
         <enum-item name='SomeoneRecentlyRetired'/>
         <enum-item name='Religion'/>
-        <enum-item name='SpecificPlace'/>
-        <enum-item name='SpecificWildernessRegion'/>
+        <enum-item name='SpecificPlace' comment='Site'/>
+        <enum-item name='SpecificWildernessRegion' comment='Subregion'/>
         <enum-item name='Nature'/>
         <enum-item name='Lover'/>
         <enum-item name='Family'/>
-        <enum-item name='AlcoholicBeverages'/>
-        <enum-item name='Journey'/>
+        <enum-item name='AlcoholicBeverages' comment='Booze'/>
+        <enum-item name='Journey' comment='Travels'/>
         <enum-item name='War'/>
         <enum-item name='Hunt'/>
         <enum-item name='Mining'/>
@@ -289,7 +295,7 @@
         <enum-item name='Immortality'/>
         <enum-item name='SomeonesCharacter'/>
         <enum-item name='Histfig'/> "a historical figure" or a specific figure
-        <enum-item name='Concept'/> "an abstract concept" or a specific concept
+        <enum-item name='Concept' comment='Sphere'/> "an abstract concept" or a specific concept
     </enum-type>
 
     <struct-type type-name='poetic_form_subject_target' is-union='true'>
@@ -301,21 +307,22 @@
         </compound>
     </struct-type>
 
-    <bitfield-type type-name="poetic_form_feature" base-type="uint32_t">
+    <bitfield-type type-name="poetic_form_feature" base-type="uint32_t"> bay12: POETIC_FORM_LINE_FLAG_*
         <flag-bit name="InternalRhyme"/>
-        <flag-bit name="EndRhymesDontMatch"/>
+        <flag-bit name="EndRhymesDontMatch" comment='SoftEndRhyme'/>
         <flag-bit name="Alliteration"/>
         <flag-bit name="Onomatopoeia"/>
         <flag-bit name="Antanaclasis"/>
         <flag-bit name="DifferentReadings"/> "different readings depending on word breaks"
         <flag-bit name="ReadBackwards"/> "can be read backwards as well as forwards"
         <flag-bit name="ReadOrthogonally"/> "can be read orthogonally across the standard lines"
-        <flag-bit name="Emerge"/> "emerge when reading along certain prescribed paths across the body of the poem"
+        <flag-bit name="Emerge" comment='ReadPathwise'/> "emerge when reading along certain prescribed paths across the body of the poem"
         <flag-bit name="Assonance"/>
         <flag-bit name="Consonance"/>
         <flag-bit name="Elision"/>
         <flag-bit name="Epenthesis"/>
         <flag-bit name="Synchysis"/>
+        <flag-bit name="QuantitativeMeter"/>
         <flag-bit name="Allegory"/>
         <flag-bit name="Ambiguity"/>
         <flag-bit name="Symbolism"/>
@@ -326,7 +333,7 @@
         <flag-bit name="Juxtaposision"/>
     </bitfield-type>
 
-    <enum-type type-name='poetic_form_additional_feature' base-type='int32_t'>
+    <enum-type type-name='poetic_form_additional_feature' base-type='int32_t'> bay12: PoeticParallelismType
         <enum-item name='SharesUnderlyingMeaning'/>
         <enum-item name='ContrastsUnderlyingMeaning'/>
         <enum-item name='RequiredToMaintainPhrasing'/>
@@ -338,20 +345,20 @@
         <enum-item name='MustExpandIdea'/>
     </enum-type>
 
-    <struct-type type-name='poetic_form' instance-vector='$global.world.poetic_forms.all' key-field='id'>
+    <struct-type type-name='poetic_form' original-name='poetic_formst' instance-vector='$global.world.poetic_forms.all' key-field='id'>
         <int32_t name='id'/>
         <compound name='name' type-name='language_name'/>
         <int32_t name='originating_entity' ref-target='historical_entity'/> "originating in ..."
         <int32_t name='original_author' ref-target='historical_figure'/> "originally devised by ..."
-        <int32_t name='subject_hf' ref-target='historical_figure'/>
+        <int32_t name='subject_hf' ref-target='historical_figure' comment='worship target'/>
 
         <bitfield base-type='uint32_t' name='flags'>
-            <flag-bit name='tone_patterns'/> patterns will be tone patterns if set, otherwise accent patterns
-            <flag-bit name='produces_individual_poems'/> 'applied by poets to produce individual poems' if set,  otherwise 'guides poets during improvised performances'
+            <flag-bit name='tone_patterns' comment='tonal_replaces_stress'/>
+            <flag-bit name='produces_individual_poems' comment='has_compositions'/>
         </bitfield>
 
         <stl-vector name='parts' pointer-type='poetic_form_part'/>
-        <int32_t name='each_line_feet'/>
+        <int32_t name='each_line_feet' comment='meter'/>
         <enum name='each_line_pattern' base-type='int32_t' type-name='poetic_form_pattern'/>
 
         <enum name='every_line_caesura_position' base-type='int32_t' type-name='poetic_form_caesura_position'/>
@@ -376,9 +383,11 @@
         <stl-vector name='perspectives' pointer-type='poetic_form_perspective'/>
     </struct-type>
 
-    <struct-type type-name='poetic_form_part'>
+    <struct-type type-name='poetic_form_part' original-name='poetic_form_sectionst'>
         <bitfield base-type='uint32_t' name='flags'>
-            <flag-bit name='size_in_lines'/> "line, couplet, tercet" if set, "brief verse paragraphs"/"full verse paragraphs" otherwise
+            <flag-bit name='end_rhyme_global_pattern'/> "line, couplet, tercet" if set, "brief verse paragraphs"/"full verse paragraphs" otherwise
+            <flag-bit name='verse_paragraph'/>
+            <flag-bit name='end_rhyme_shared_in_stanzas'/>
         </bitfield>
 
         "has X to Y couplets/..."
@@ -389,10 +398,9 @@
         size_in_lines is not set: "brief verse" if less than 6, otherwise "full verse"
         <int32_t name='size'/>
 
-        <int32_t name='unk_1'/>
-        <int32_t name='unk_2'/>
-        <int32_t name='unk_3'/>
-        <int32_t name='unk_4'/>
+        <static-array name='refrain_line' count='2' type-name='int32_t'/>
+        <static-array name='refrain_id' count='2' type-name='int32_t'/>
+
         <stl-vector name='line_endings' type-name='int32_t'/>
         <stl-vector name='line_feet' type-name='int32_t'/> "the Nth line has XX feet"
         <stl-vector name='line_patterns'>
@@ -425,10 +433,10 @@
         <stl-vector name='line_action'>
             <enum base-type='int32_t' type-name='poetic_form_action'/>
         </stl-vector>
-        <stl-vector name='unk_5' type-name='int32_t'/>
+        <stl-vector name='line_persona_ind' type-name='int32_t'/>
 
         <int32_t name='some_lines_syllables'/> "it has lines with ... syllables"
-        <int32_t name='some_lines_pattern'/> "it has lines with a tone/accent pattern of ..."
+        <enum name='some_lines_pattern' type-name='poetic_form_pattern'/> "it has lines with a tone/accent pattern of ..."
 
         "it has ... caesura in each line"
         <enum name='each_line_caesura_position' base-type='int32_t' type-name='poetic_form_caesura_position'/>
@@ -439,16 +447,16 @@
         </stl-vector>
 
         <enum name='mood' base-type='int32_t' type-name='poetic_form_mood'/>
-        <int32_t name='unk_6'/>
-        <int32_t name='unk_7'/>
+        <enum name='subject' base-type='int32_t' type-name='poetic_form_subject'/>
+        <int32_t name='subject_id'/>
         <enum name='action' base-type='int32_t' type-name='poetic_form_action'/>
-        <int32_t name='unk_8'/>
-        <int32_t name='unk_9'/>
+        <int32_t name='persona_id'/>
+        <bitfield base-type='uint32_t' name='line_flags' type-name='poetic_form_feature'/>
     </struct-type>
 
-    <struct-type type-name='poetic_form_perspective'>
+    <struct-type type-name='poetic_form_perspective' original-name='poetic_form_personast'>
         "written from the perspective of ..."
-        <enum name='type' base-type='int32_t'>
+        <enum name='type' base-type='int32_t'> bay12: PoeticFormPersonaType
             <enum-item name='Author'/>
             <enum-item name='Soldier'/>
             <enum-item name='Traveller'/>
@@ -458,18 +466,18 @@
             <enum-item name='Histfig'/>
             <enum-item name='Animal'/>
         </enum>
-        <int32_t name='histfig' ref-target='historical_figure'/>
-        <int32_t name='unk_1'/>
+        <int32_t name='subtype' comment='Histfig:ID, Animal:Race'/>
+        <int32_t name='subtype2' comment='Animal:Caste'/>
     </struct-type>
 
-    <enum-type type-name='musical_form_purpose' base-type='int32_t'>
+    <enum-type type-name='musical_form_purpose' base-type='int32_t'> bay12: MusicalFormIntentType
         <enum-item name='Entertainment'/>
         <enum-item name='Commemoration'/>
         <enum-item name='Devotion'/>
         <enum-item name='Military'/>
     </enum-type>
 
-    <enum-type type-name='musical_form_style' base-type='int32_t'>
+    <enum-type type-name='musical_form_style' base-type='int32_t'> bay12: MusicalDynamicType
         <enum-item name='None' value='-1'/>
 
         -- tempo styles
@@ -524,7 +532,7 @@
         <enum-item name='BeDelicate'/>
         <enum-item name='BeFiery'/>
         <enum-item name='BringSenseOfMotion'/>
-        <enum-item name='BeFiery2'/>
+        <enum-item name='BeDecisive'/>
         <enum-item name='WithFeeling' since='v0.47.01'/>
         <enum-item name='FeelAgitated'/>
         <enum-item name='BePassionate'/>
@@ -558,7 +566,7 @@
         <enum-item name='BeTriumphant'/>
     </enum-type>
 
-    <enum-type type-name='musical_form_pitch_style' base-type='int32_t'>
+    <enum-type type-name='musical_form_pitch_style' base-type='int32_t'> bay12: HarmonicStructureType
         <enum-item name='None' value='-1'/>
         <enum-item name='SinglePitchesOnly'/>
         <enum-item name='IntervalsOnly'/>
@@ -567,15 +575,15 @@
         <enum-item name='ChordLayers'/>
     </enum-type>
 
-    <bitfield-type type-name="musical_form_feature" base-type="uint32_t">
-        <flag-bit name='GlideFromNoteToNote'/>
+    <bitfield-type type-name="musical_form_feature" base-type="uint32_t"> bay12: MUSICAL_FLAG_*
+        <flag-bit name='GlideFromNoteToNote' comment='Slides'/>
         <flag-bit name='UseGraceNotes'/>
         <flag-bit name='UseMordents'/>
         <flag-bit name='MakeTrills'/>
         <flag-bit name='PlayRapidRuns'/>
-        <flag-bit name='LocallyImprovise'/>
-        <flag-bit name='SpreadSyllablesOverManyNotes'/>
-        <flag-bit name='MatchNotesAndSyllables'/>
+        <flag-bit name='LocallyImprovise' comment='Melisma'/>
+        <flag-bit name='SpreadSyllablesOverManyNotes' comment='Syllabic'/>
+        <flag-bit name='MatchNotesAndSyllables' comment='LocalImprovisation'/>
 
         <flag-bit name='Syncopate'/>
         <flag-bit name='AddFills'/>
@@ -587,7 +595,7 @@
         <flag-bit name='FreelyAdjustBeats'/>
     </bitfield-type>
 
-    <enum-type type-name='musical_form_passage_component_type' base-type='int32_t'>
+    <enum-type type-name='musical_form_passage_component_type' base-type='int32_t'> bay12: VoiceRoleType
         <enum-item name='Melody'/>
         <enum-item name='Counterpoint'/>
         <enum-item name='Harmony'/>
@@ -595,8 +603,8 @@
         <enum-item name='Unspecified'/>
     </enum-type>
 
-    <enum-type type-name='musical_form_passage_type' base-type='int32_t'>
-        <enum-item name='Unrelated'/>
+    <enum-type type-name='musical_form_passage_type' base-type='int32_t'> bay12: MusicalPassageType
+        <enum-item name='Unrelated' comment='Simple'/>
         <enum-item name='Introduction'/>
         <enum-item name='Exposition'/>
         <enum-item name='Recapitulation'/>
@@ -610,7 +618,7 @@
         <enum-item name='Variation'/>
     </enum-type>
 
-    <enum-type type-name='musical_form_passage_length_type' base-type='int32_t'>
+    <enum-type type-name='musical_form_passage_length_type' base-type='int32_t'> bay12: VoicePhraseLengthType
         <enum-item name='NONE' value='-1'/>
         <enum-item name='Short'/>
         <enum-item name='MidLength'/>
@@ -618,41 +626,41 @@
         <enum-item name='Varied'/>
     </enum-type>
 
-    <enum-type type-name='musical_form_melody_style' base-type='int32_t'>
+    <enum-type type-name='musical_form_melody_style' base-type='int32_t'> bay12: MelodyPatternType
         <enum-item name='Rising'/>
         <enum-item name='Falling'/>
         <enum-item name='RisingFalling'/>
         <enum-item name='FallingRising'/>
     </enum-type>
 
-    <enum-type type-name='musical_form_melody_frequency' base-type='int32_t'>
+    <enum-type type-name='musical_form_melody_frequency' base-type='int32_t'> bay12: MelodyFrequencyType
         <enum-item name='Always'/>
         <enum-item name='Often'/>
         <enum-item name='Sometimes'/>
     </enum-type>
 
-    <struct-type type-name='musical_form_interval'>
+    <struct-type type-name='musical_form_interval' original-name='melody_accidentalst'>
         <int32_t name='degree'/>
-        <bitfield name='flags' base-type='uint32_t'>
+        <bitfield name='flags' base-type='uint32_t'> bay12: MELODY_ACCIDENTAL_FLAG_*
             <flag-bit name='rising' comment='otherwise falling'/>
             <flag-bit name='flattened'/>
             <flag-bit name='sharpened'/>
         </bitfield>
     </struct-type>
 
-    <struct-type type-name='musical_form_melodies'>
+    <struct-type type-name='musical_form_melodies' original-name='melodyst'>
         <enum name='style' type-name='musical_form_melody_style' base-type='int32_t'/>
         <enum name='frequency' type-name='musical_form_melody_frequency' base-type='int32_t'/>
         <stl-vector name='intervals' pointer-type='musical_form_interval'/>
         <bitfield name='features' type-name='musical_form_feature'/>
     </struct-type>
 
-    <struct-type type-name='musical_form_passage'>
+    <struct-type type-name='musical_form_passage' original-name='musical_form_passagest'>
         <enum name='type' type-name='musical_form_passage_type' base-type='int32_t'/>
         <int32_t name='passage_reference' init-value='-1' comment="used when doing Exposition, Recapitualation, Synthesis, and Variation"/>
         <int32_t name='passage_range_end' init-value='-1' comment="when doing Synthesis of a range of passages"/>
-        <int32_t name='unk_4' comment="'min_times' for a 3-5 range, but doesn't match up with 1 for both repeat 2 times and no repeat mentioned"/>
-        <int32_t name='unk_5' comment="'max_times' for a 3-5 range, but doesn't match up with 1 for both repeat 2 times and no repeat mentioned"/>
+        <int32_t name='min_number'/>
+        <int32_t name='max_number'/>
         <int32_t name='poetic_form_id' ref-target='poetic_form'/>
         <int32_t name='written_content_id' ref-target='written_content' comment="suspect bug in exported legends (and possibly DF itself) as no mentioning of the poems (or any alternative) referenced here were mentioned in the two entries examined"/>
         <int32_t name='scale_id' ref-target='scale'/>
@@ -675,13 +683,13 @@
         <bitfield name='features' type-name='musical_form_feature'/>
         <enum name='pitch_style' type-name='musical_form_pitch_style' base-type='int32_t'/>
         <stl-vector name='melodies' pointer-type='musical_form_melodies'/>
-        <int32_t name='unk_22' init-value='-1' comment="0-40 seen"/>
-        <int32_t name='unk_23' init-value='-1' comment="0-78 seen"/>
+        <int32_t name='min_unit_length' init-value='-1'/>
+        <int32_t name='max_unit_length' init-value='-1'/>
     </struct-type>
 
-    <struct-type type-name='musical_form_instruments'>
+    <struct-type type-name='musical_form_instruments' original-name='musical_form_voicest'>
         <int32_t name='instrument_subtype' ref-target='itemdef_instrumentst' comment='-1 = vocal'/>
-        <bitfield base-type='uint32_t' name='substitutions'>
+        <bitfield base-type='uint32_t' name='substitutions'> bay12: MUSICAL_FORM_VOICE_FLAG_*
             <flag-bit name='singer'/>
             <flag-bit name='speaker'/>
             <flag-bit name='chanter'/>
@@ -693,16 +701,14 @@
         <enum name='overall_style' base-type='int32_t' type-name='musical_form_style'/>
     </struct-type>
 
-    <struct-type type-name='musical_form_sub4'>
-        <int32_t name='passage' comment="the passage index this structure refers to"/>
-        <int32_t name='unk_2'/>
-        <int32_t name='unk_3'/>
-        <int32_t name='unk_4'/>
-        <int32_t name='unk_5'/>
-        <int32_t name='unk_6'/>
+    <struct-type type-name='musical_form_play_orderst'>
+        <static-array name='passage_index' count='3' type-name='int32_t'/>
+        <int32_t name='passage_num'/>
+        <int32_t name='min_number'/>
+        <int32_t name='max_number'/>
     </struct-type>
 
-    <struct-type type-name='musical_form' instance-vector='$global.world.musical_forms.all' key-field='id'>
+    <struct-type type-name='musical_form' original-name='musical_formst' instance-vector='$global.world.musical_forms.all' key-field='id'>
         <int32_t name='id'/>
         <compound name='name' type-name='language_name'/>
         <int32_t name="originating_entity" ref-target="historical_entity" comment="ID of the entity from which the musical form originated."/>
@@ -710,7 +716,7 @@
         <stl-vector name='passages' pointer-type='musical_form_passage'/>
         <stl-vector name='instruments' pointer-type='musical_form_instruments'/>
         <stl-vector name='melodies' pointer-type='musical_form_melodies'/>
-        <stl-vector name='unk_1' pointer-type='musical_form_sub4'/>
+        <stl-vector name='play_order' pointer-type='musical_form_play_orderst'/>
         <enum name='tempo_style' base-type='int32_t' type-name='musical_form_style'/>
         <enum name='dynamic_style' base-type='int32_t' type-name='musical_form_style'/>
         <enum name='overall_style' base-type='int32_t' type-name='musical_form_style'/>
@@ -725,13 +731,13 @@
         <enum name='pitch_style' base-type='int32_t' type-name='musical_form_pitch_style'/>
         <enum name='purpose' base-type='int32_t' type-name='musical_form_purpose'/>
         <int32_t name='devotion_target' ref-target='historical_figure'/>
-        <bitfield base-type='uint32_t' name='flags'>
-            <flag-bit name='produces_individual_songs'/> 'applied by composers to produce individual pieces of music' if set, otherwise 'guides musicians during improvised performances'
+        <bitfield base-type='uint32_t' name='flags'> bay12: MUSICAL_FORM_FLAG_*
+            <flag-bit name='produces_individual_songs' comment='has_compositions'/>
             <flag-bit name='repeats_as_necessary'/>
         </bitfield>
     </struct-type>
 
-    <enum-type type-name='dance_form_context' base-type='int32_t'>
+    <enum-type type-name='dance_form_context' base-type='int32_t'> bay12: DancePurposeType
         <enum-item name='Sacred'/>
         <enum-item name='Celebration'/>
         <enum-item name='Participation'/>
@@ -740,13 +746,13 @@
         <enum-item name='War'/>
     </enum-type>
 
-    <enum-type type-name='dance_form_group_size' base-type='int32_t'>
+    <enum-type type-name='dance_form_group_size' base-type='int32_t'> bay12: DanceGroupingType
         <enum-item name='Solo'/>
         <enum-item name='Partner'/>
         <enum-item name='Group'/>
     </enum-type>
 
-    <enum-type type-name='dance_form_configuration' base-type='int32_t'>
+    <enum-type type-name='dance_form_configuration' base-type='int32_t'> bay12: DanceGroupShapeType
         <enum-item name='NONE' value='-1' comment="hard to have a configuration with a solo performer"/>
         <enum-item name='SingleLine'/>
         <enum-item name='SeveralLines'/>
@@ -755,7 +761,7 @@
         <enum-item name='LooselyMingled'/>
     </enum-type>
 
-    <enum-type type-name='dance_form_movement_path' base-type='int32_t'>
+    <enum-type type-name='dance_form_movement_path' base-type='int32_t'> bay12: DanceLineOfDanceType
         <enum-item name='NONE' value='-1'/>
         <enum-item name='TurnClockwise'/>
         <enum-item name='TurnCounterClockwise'/>
@@ -763,14 +769,14 @@
         <enum-item name='IntricatePath'/>
     </enum-type>
 
-    <enum-type type-name='dance_form_partner_distance' base-type='int32_t'>
+    <enum-type type-name='dance_form_partner_distance' base-type='int32_t'> bay12: DanceConnectionDistanceType
         <enum-item name='NONE' value='-1'/>
         <enum-item name='Closely'/>
         <enum-item name='OpenContact'/>
         <enum-item name='RareContact'/>
     </enum-type>
 
-    <enum-type type-name='dance_form_partner_intent' base-type='int32_t'>
+    <enum-type type-name='dance_form_partner_intent' base-type='int32_t'> bay12: DanceConnectionTensionType
         <enum-item name='NONE' value='-1'/>
         <enum-item name='PushingTogether'/>
         <enum-item name='PullingAway'/>
@@ -780,13 +786,13 @@
         <enum-item name='SpokenCues'/>
     </enum-type>
 
-    <enum-type type-name='dance_form_partner_cue_frequency' base-type='int32_t'>
+    <enum-type type-name='dance_form_partner_cue_frequency' base-type='int32_t'> bay12: DanceConnectionTimeType
         <enum-item name='NONE' value='-1'/>
         <enum-item name='Constantly'/>
         <enum-item name='Briefly'/>
     </enum-type>
 
-    <enum-type type-name='dance_form_partner_change_type' base-type='int32_t'>
+    <enum-type type-name='dance_form_partner_change_type' base-type='int32_t'> bay12: DanceGroupDynamicType
         <enum-item name='NONE' value='-1'/>
         <enum-item name='LeadAdvanceAlongMainLineOfMotion'/>
         <enum-item name='LeadAdvanceAgainstMainLineOfMotion'/>
@@ -794,7 +800,7 @@
         <enum-item name='LeadTurningOutCounterClockwise'/>
     </enum-type>
 
-    <enum-type type-name='dance_form_move_type' base-type='int32_t'>
+    <enum-type type-name='dance_form_move_type' base-type='int32_t'> bay12: DanceComponentType
         <enum-item name='SquareStep'/>
         <enum-item name='CircularStep'/>
         <enum-item name='TriangleStep'/>
@@ -831,15 +837,15 @@
         <enum-item name='LeftwardBend'/>
         <enum-item name='RightwardBend'/>
         <enum-item name='Footwork'/>
-        <enum-item name='MovementAlongLineOfDance'/>
+        <enum-item name='MovementAlongLineOfDance' comment='BodyFlight'/>
     </enum-type>
 
-    <enum-type type-name='dance_form_move_modifier' base-type='int32_t'>
+    <enum-type type-name='dance_form_move_modifier' base-type='int32_t'> bay12: DanceComponentAdjectiveType
         <enum-item name='NONE' value='-1'/>
         --  0
         <enum-item name='Graceful'/>
         <enum-item name='Serene'/>
-        <enum-item name='SharpEdged'/>
+        <enum-item name='Calm'/>
         <enum-item name='Grotesque'/>
         <enum-item name='Crude'/>
         <enum-item name='Refined'/>
@@ -855,7 +861,7 @@
         <enum-item name='Undulating'/>
         <enum-item name='Soft'/>
         <enum-item name='Jerking'/>
-        <enum-item name='Calm'/>
+        <enum-item name='SharpEdged'/>
         <enum-item name='StraightLined'/>
         <enum-item name='High'/>
         --  20
@@ -889,9 +895,9 @@
         <enum-item name='Sinuous'/>
     </enum-type>
 
-    <bitfield-type type-name="dance_form_move_location" base-type="uint32_t">
-        <flag-bit comment="Standard value, but not described"/>
-        <flag-bit comment="Common value, but not described"/>
+    <bitfield-type type-name="dance_form_move_location" base-type="uint32_t"> bay12: DANCE_COMPONENT_FLAG_*
+        <flag-bit name='SimultaneousWithPrevious'/>
+        <flag-bit name='ChainsAfterPrevious'/>
         <flag-bit name='MirroredByGroupMembers'/>
         <flag-bit name='InRetrogradeByGroupMembers'/>
         <flag-bit name='InSuccessionByGroupMembers'/>
@@ -900,11 +906,11 @@
         <flag-bit name='Follower'/>
     </bitfield-type>
 
-    <struct-type type-name='dance_form_section'>
-        <int32_t name='unk_1' init-value='0'/>
-        <int32_t name='unk_2' init-value='1'/>
-        <int32_t name='unk_3' init-value='1'/>
-        <int32_t name='unk_4' init-value='-1'/>
+    <struct-type type-name='dance_form_section' original-name='dance_sectionst'>
+        <enum name='section_grouping' type-name='dance_form_group_size' base-type='int32_t'/>
+        <int32_t name='section_grouping_number_min' init-value='1'/>
+        <int32_t name='section_grouping_number_max' init-value='1'/>
+        <enum name='section_group_shape' type-name='dance_form_configuration' base-type='int32_t'/>
         <enum name='movement_path' type-name='dance_form_movement_path' base-type='int32_t'/>
         <int32_t name='move_id' comment="index in the moves vector"/>
         <enum name='partner_distance' type-name='dance_form_partner_distance' base-type='int32_t'/>
@@ -913,10 +919,10 @@
         <stl-vector name='partner_changes'>
             <enum type-name='dance_form_partner_change_type' base-type='int32_t'/>
         </stl-vector>
-        <int32_t name='unk_11' init-value='0'/>
-        <int32_t name='unk_12' init-value='-1'/>
-        <int32_t name='unk_13' init-value='-1'/>
-        <int32_t name='unk_14' init-value='-1'/>
+        <uint32_t name='dance_flag' init-value='0'/>
+        <int32_t name='acts_out_civ' ref-target='historical_entity'/>
+        <int32_t name='acts_out_hf_story' ref-target='historical_figure'/>
+        <int32_t name='imitate_animal_movement' ref-target='creature_raw'/>
         <stl-vector name='type'>
             <enum type-name='dance_form_move_type' base-type='int32_t'/>
         </stl-vector>
@@ -927,18 +933,16 @@
         <stl-vector name='location'>
             <bitfield type-name='dance_form_move_location'/>
         </stl-vector>
-        <int32_t name='id'/>
+        <int32_t name='musical_passage_id'/>
     </struct-type>
 
-    <enum-type type-name='dance_form_move_group_type' base-type='int32_t'>
-        <enum-item comment="Might be a null value. Hacked in it did not result in any entry in exported Legends info"/>
-        <enum-item name='BasicMovement'/>
-        <enum-item name='DancePosition'/>
-        <enum-item comment="Might not be a group value. Hacked into a group dance it did result in the name but not any description in exported Legends info"/>
-        <enum-item name='DanceMove'/>
-    </enum-type>
+    <bitfield-type type-name="dance_move_flag" base-type="uint32_t"> bay12: DANCE_MOVE_FLAG_*
+        <flag-bit name='BasicMovement'/>
+        <flag-bit name='DancePosition'/>
+        <flag-bit name='DanceMove'/>
+    </bitfield-type>
 
-    <struct-type type-name='dance_form_move'>
+    <struct-type type-name='dance_form_move' original-name='dance_movest'>
         <stl-string name='name'/>
         <stl-vector name='type'>
             <enum type-name='dance_form_move_type' base-type='int32_t'/>
@@ -950,10 +954,10 @@
         <stl-vector name='location'>
             <bitfield type-name='dance_form_move_location'/>
         </stl-vector>
-        <enum name='group_type' type-name='dance_form_move_group_type' base-type='int32_t'/>
+        <bitfield name='flag' type-name='dance_move_flag'/>
     </struct-type>
 
-    <struct-type type-name='dance_form' instance-vector='$global.world.dance_forms.all' key-field='id'>
+    <struct-type type-name='dance_form' original-name='dance_formst' instance-vector='$global.world.dance_forms.all' key-field='id'>
         <int32_t name='id'/>
         <compound name='name' type-name='language_name'/>
         <int32_t name='musical_form_id'/>
@@ -961,21 +965,25 @@
         <enum name='context' type-name='dance_form_context' base-type='int32_t'/>
         <int32_t name="originating_entity" ref-target="historical_entity" comment="ID of the entity from which the dance form originated."/>
         <int32_t name="original_author" ref-target="historical_figure" comment="ID of the historical figure who developed the dance form."/>
-        <int32_t name='produce_individual_dances' comment="0:improvise, 1:apply by choreographers. May be bitfield if analogous to corresponding music, but no other values seen"/>
+        <bitfield base-type='uint32_t' name='flags'> bay12: DANCE_FORM_FLAG_*
+            <flag-bit comment='has_compositions'/>
+        </bitfield>
         <enum name='group_size' type-name='dance_form_group_size' base-type='int32_t'/>
-        <int32_t name='unk_4' init-value='-1' comment="1 seen, and it's always paired with the next field"/>
-        <int32_t name='unk_5' init-value='-1' comment="1 seen, and it's always paired with the previous field"/>
+        <int32_t name='group_number_min' init-value='-1'/>
+        <int32_t name='group_number_max' init-value='-1'/>
         <enum name='configuration' type-name='dance_form_configuration' base-type='int32_t'/>
         <enum name='movement_path' type-name='dance_form_movement_path' base-type='int32_t'/>
-        <int32_t name='unk_8' init-value='-1' comment='0 seen'/>
+        <int32_t name='basic_movement_index' init-value='-1'/>
         <enum name='partner_distance' type-name='dance_form_partner_distance' base-type='int32_t' comment="NONE when not pair dance"/>
         <enum name='partner_intent' type-name='dance_form_partner_intent' base-type='int32_t' comment="NONE when not pair dance"/>
         <enum name='partner_cue_frequency' type-name='dance_form_partner_cue_frequency' base-type='int32_t' comment="NONE when not pair dance and when 'normal'"/>
         <stl-vector name='partner_changes'>
             <enum type-name='dance_form_partner_change_type' base-type='int32_t'/>
         </stl-vector>
-        <bool name='poetry_referenced' comment="Weird, but all instances where it was set examined have the dance act out any composition of a named poetic form, without any presence of the form number found"/>
-        <int32_t name='unk_14' init-value='-1'/>
+        <bitfield base-type='uint32_t' name='dance_flags'> bay12: DANCE_FLAG_*
+            <flag-bit comment='acts_out_story_in_musics_poetry'/>
+        </bitfield>
+        <int32_t name='entity' ref-target='historical_entity' comment='Civilization the dance acts out'/>
         <int32_t name='hfid' ref-target='historical_figure' comment="Character whose story the dance acts out"/>
         <int32_t name='race' ref-target='creature_raw' comment="Creature whose movements are imitated"/>
         <stl-vector name='move_type'>
@@ -992,87 +1000,108 @@
         <stl-vector name='moves' pointer-type='dance_form_move'/>
     </struct-type>
 
-    <enum-type type-name='scale_type' base-type='int32_t'>
+    <enum-type type-name='scale_type' base-type='int32_t'> bay12: ScaleFoundationType
         <enum-item name='Octave' comment="The octave is divided into X steps of even length"/>
         <enum-item name='Variable' comment="The octave is divided into notes at varying intervals, approximated by quartertones"/>
         <enum-item name='PerfectFourth' comment="The perfect fourth interval is divided into steps of even length"/>
     </enum-type>
 
-    <struct-type type-name='chord'>
+    <struct-type type-name='chord' original-name='scale_chordst'>
         <stl-string name='name'/>
         <static-array name='notes' type-name='int32_t' count='5' comment="chord_size entries used. Refers to the notes indices"/>
         <int32_t name='chord_size'/>
-        <int32_t name='unk_3' comment="0 and 1 seen"/>
+        <bitfield base-type='uint32_t' name='flags'> bay12: SCALE_CHORD_FLAG_*
+            <flag-bit comment='lower'/>
+        </bitfield>
     </struct-type>
 
-    <struct-type type-name='named_scale' comment="Seems odd with a 'scale' consisting of two chords, but that's what the exported XML calls it.">
-        <int32_t name='unk_1' comment="0-4 seen. 0: nothing, for when degrees are used, 1: joined chords, 2/3: disjoined chords (varying kinds of chords seen for both), 4: as always, disjoined chords"/>
+    <enum-type type-name='scale_construction_type' base-type='int32_t'> bay12: ScaleConstructionType
+        <enum-item name='ByInterval'/>
+        <enum-item name='PerfectFifthJoinedPerfectFourth'/>
+        <enum-item name='PerfectFifthHalfMajorThird'/>
+        <enum-item name='TritoneHalfPercentFourth'/>
+        <enum-item name='PerfectFourthWholePerfectFourth'/>
+    </enum-type>
+
+    <struct-type type-name='named_scale' original-name='scale_constructionst'>
+        <enum name='type' type-name='scale_construction_type'/>
         <stl-string name='name'/>
         <static-array name='degrees' type-name='int32_t' count='7' comment="indices into the (not necessarily named) notes of the scale"/>
         <int32_t name='degrees_used' comment="elements used in array above"/>
-        <int32_t name='first_chord' init-value='-1' comment="this pair seems to be used when degrees_used = 0. Refers to indices in the chords vector"/>
-        <int32_t name='second_chord' init-value='-1'/>
+        <static-array name='chord_index' type-name='int32_t' count='2'/>
+    </struct-type>
+
+    <enum-type type-name='scale_naming_type' base-type='int32_t'> bay12: ScaleNamingType
+        <enum-item name='EveryNote'/>
+        <enum-item name='PreferredNotes'/>
+        <enum-item name='EveryNoteAfterConstructionByDegree'/>
+        <enum-item name='PreferredNoteAfterConstructionByDegree'/>
+    </enum-type>
+
+    <struct-type type-name='scale_namingst'>
+        <enum name='type' type-name='scale_naming_type'/>
+        <static-array name='name' type-name='stl-string' count='25'/>
+        <static-array name='abreviation' type-name='stl-string' count='25'/>
+        <static-array name='number' type-name='int32_t' count='25'/>
+        <int32_t name='length' comment='number of elements of the arrays above used'/>
     </struct-type>
 
     <struct-type type-name='scale' instance-vector='$global.world.scales.all' key-field='id'>
         <int32_t name='id'/>
-        <bitfield name='flags' base-type='uint32_t'>
-            <flag-bit name='tonic_note_fixed_at_performance' comment="'The tonic note is a fixed tone passed from teacher to student' when 0, 'The tonic note is fixed only at the time of performance' when 1"/>
+        <bitfield name='flags' base-type='uint32_t'> bay12: SCALE_FLAG_*
+            <flag-bit name='tonic_note_fixed_at_performance' comment='moveable_tonic'/>
         </bitfield>
         <enum name='type' type-name='scale_type' base-type='int32_t'/>
         <static-array name='quartertones_used' type-name='int32_t' count='25' comment="Quartertone corresponding note matches. Scale_length elements are used when type = Variable. Unused elements uninitialized"/>
         <int32_t name='scale_length' comment="Number of notes in the scale. When type = Variable this is the number of used indices pointing out their placement."/>
         <stl-vector name='chords' pointer-type='chord'/>
         <stl-vector name='scales' pointer-type='named_scale' comment="Note that the top level scale doesn't have a name. These seem to be named scales using the unnamed scale's notes as their foundation"/>
-        <compound name='notes' comment="Curiously, the named notes do not have to match the number of defined notes">
-            <int32_t name='unk_1' comment="Frequently looks like garbage for all values of type. Suspect it's actually a filler"/>
-            <static-array name='name' type-name='stl-string' count='25'/>
-            <static-array name='abreviation' type-name='stl-string' count='25'/>
-            <static-array name='number' type-name='int32_t' count='25'/>
-            <int32_t name='length' comment='number of elements of the arrays above used'/>
-        </compound>
+        <compound name='notes' type-name='scale_namingst'/>
     </struct-type>
 
     <struct-type type-name='rhythm' instance-vector='$global.world.rhythms.all' key-field='id'>
         <int32_t name='id'/>
         <stl-vector name='patterns' pointer-type='rhythm_pattern'/>
         <stl-vector name='sub_rhythms' pointer-type='sub_rhythm'/>
-        <int32_t name='unk_2'/>
+        <bitfield name='flags' base-type='uint32_t'> bay12: RHYTHM_FLAG_*
+            <flag-bit name='fundamental_polyrhythm'/>
+            <flag-bit name='fundamental_polymeter'/>
+        </bitfield>
     </struct-type>
 
-    <enum-type type-name='beat_type' base-type='int32_t'>
-        <enum-item name='Silent' comment="-"/>
-        <enum-item name='AccentedBeat' comment="X"/>
-        <enum-item name='Beat' comment="x"/>
-        <enum-item name='PrimaryAccent' comment="!"/>
-        <enum-item name='SilentEarly' comment="-`"/>
-        <enum-item name='AccentedBeatEarly' comment="X`"/>
-        <enum-item name='BeatEarly' comment="x`"/>
-        <enum-item name='AccentedEarly' comment="!`"/>
-        <enum-item name='SilentSyncopated' comment="-'"/>
-        <enum-item name='AccentedBeatSyncopated' comment="X'"/>
-        <enum-item name='BeatSyncopated' comment="x'"/>
-        <enum-item name='AccentedSyncopated' comment="!'"/>
-    </enum-type>
+    <bitfield-type type-name='beat_flag' base-type='uint32_t'> bay12: RHYTHM_BEAT_FLAG_*
+        <flag-bit name='PrimaryAccent'/>
+        <flag-bit name='Accent'/>
+        <flag-bit name='Regular'/>
+        <flag-bit name='Early'/>
+        <flag-bit name='Late'/>
+    </bitfield-type>
 
-    <struct-type type-name='rhythm_pattern'>
+    <struct-type type-name='rhythm_barst'>
+        <pointer name='beat' is-array='true' type-name='beat_flag' comment="Length as per length field"/>
+        <int32_t name='length'/>
+    </struct-type>
+
+    <struct-type type-name='rhythm_pattern' original-name='rhythm_patternst'>
         <stl-string name='name'/>
-        <stl-vector name='bars'>
-            <pointer>
-                <pointer name='beat' is-array='true' comment="Length as per length field"><enum name='value' type-name='beat_type' base-type='int32_t'/></pointer>
-                <int32_t name='length'/>
-            </pointer>
-        </stl-vector>
+        <stl-vector name='bars' pointer-type='rhythm_barst'/>
         <pointer name='beat_name' type-name='stl-string' is-array='true' comment="length as per length field"/>
         <pointer name='beat_abbreviation' type-name='stl-string' is-array='true' comment="length as per length field"/>
         <int32_t name='length'/>
     </struct-type>
 
-    <struct-type type-name='sub_rhythm'>
+    <bitfield-type type-name='rhythm_construction_pattern_flag' base-type='uint32_t'> bay12: RHYTHM_CONSTRUCTION_PATTERN_FLAG_*
+        <flag-bit name='Primary'/>
+        <flag-bit name='Secondary'/>
+    </bitfield-type>
+
+    <struct-type type-name='sub_rhythm' original-name='rhythm_constructionst'>
         <stl-string name='name'/>
         <stl-vector name='patterns' type-name='int32_t' comment="indices into patterns"/>
-        <stl-vector name='unk_2' type-name='int32_t' comment="Same length as patterns, but with unknown purpose"/>
-        <int32_t name='unk_3'/>
+        <stl-vector name='pattern_flags' type-name='rhythm_construction_pattern_flag' comment="Same length as patterns"/>
+        <bitfield name='flags' base-type='uint32_t'> bay12: RHYTHM_CONSTRUCTION_FLAG_*
+            <flag-bit name='polymetric'/>
+        </bitfield>
     </struct-type>
 
     <enum-type type-name='occupation_type' base-type='int32_t' comment='bay12: Occupation'>
