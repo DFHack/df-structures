@@ -1,7 +1,7 @@
 <data-definition>
-    <enum-type type-name='entity_raw_flags'>
-        <enum-item name='CIV_CONTROLLABLE'/>
-        <enum-item name='INDIV_CONTROLLABLE'/>
+    <enum-type type-name='entity_raw_flags'> bay12: EntityDefFlagType
+        <enum-item name='CIV_CONTROLLABLE'/> SITE_CONTROLLABLE
+        <enum-item name='INDIV_CONTROLLABLE'/> ALL_MAIN_POPS_CONTROLLABLE
         <enum-item name='LAYER_LINKED'/>
         <enum-item name='INDOOR_WOOD'/>
         <enum-item name='WOOD_ARMOR'/>
@@ -48,10 +48,10 @@
         <enum-item name='AT_PEACE_WITH_WILDLIFE'/>
         <enum-item name='EQUIPMENT_IMPROVEMENTS'/>
         <enum-item name='ABUSE_BODIES'/>
-        <enum-item name='UNDEAD_CANDIDATE'/>
+        <enum-item comment='unused'/>
         <enum-item name='GENERATED'/>
         <enum-item name='SKULKING'/>
-        <enum-item/>
+        <enum-item name='HAS_LAND_HOLDER'/>
         <enum-item name='MERCHANT_NOBILITY'/>
 
         <enum-item name='TREE_CAP_DIPLOMACY'/>
@@ -83,23 +83,25 @@
 
         <enum-item name='SET_SCHOLARS_ON_VALUES_AND_JOBS'/>
         <enum-item name='NO_ARTIFACT_CLAIMS'/>
+        <enum-item name='USE_NON_EXOTIC_PET_RACE'/>
+        <enum-item name='MISSING_UNDERWORLD_DISASTERS'/>
     </enum-type>
 
-    <enum-type type-name='site_type'>
+    <enum-type type-name='site_type'> bay12: SiteType
         <enum-item name='PLAYER_FORTRESS'/>
         <enum-item name='DARK_FORTRESS'/>
         <enum-item name='CAVE'/>
         <enum-item name='CAVE_DETAILED'/>
         <enum-item name='TREE_CITY'/>
         <enum-item name='CITY'/>
-        <enum-item/>
-        <enum-item/>
+        <enum-item name='IMPORTANT_LOCATION'/>
+        <enum-item name='LAIR'/>
         <enum-item name='FORTRESS'/>
-        <enum-item/>
+        <enum-item name='CAMP'/>
         <enum-item name='MONUMENT'/>
     </enum-type>
 
-    <enum-type type-name='ethic_type'>
+    <enum-type type-name='ethic_type' base-type='int16_t'> bay12: EthicType
         <enum-item name='NONE' value='-1'/>
         <enum-item name='KILL_ENTITY_MEMBER'/>
         <enum-item name='KILL_NEUTRAL'/>
@@ -125,7 +127,7 @@
         <enum-item name='MAKE_TROPHY_ANIMAL'/>
     </enum-type>
 
-    <enum-type type-name='ethic_response' base-type='int16_t'>
+    <enum-type type-name='ethic_response' base-type='int16_t'> bay12: EthicResponseType
         <enum-item name='NOT_APPLICABLE'/>
         <enum-item name='ACCEPTABLE'/>
         <enum-item name='PERSONAL_MATTER'/>
@@ -145,8 +147,8 @@
         <enum-item name='REQUIRED'/>
     </enum-type>
 
-    <enum-type type-name='entity_name_type' base-type='int16_t'>
-        <enum-item name='OTHER'/>
+    <enum-type type-name='entity_name_type' base-type='int16_t'> bay12: EntityDefSelector
+        <enum-item name='OTHER' comment='MAIN'/>
         <enum-item name='CIV'/>
         <enum-item name='SITE'/>
         <enum-item name='VESSEL'/>
@@ -167,7 +169,7 @@
         <enum-item name='HOSPITAL'/>
     </enum-type>
 
-    <struct-type type-name='entity_raw' instance-vector='$global.world.raws.entities'>
+    <struct-type type-name='entity_raw' original-name='entity_defst' instance-vector='$global.world.raws.entities'>
         <stl-string name='code'/>
         <int32_t name='index' since='v0.40.01' comment='into instace-vector'/>
         <stl-vector name='raws' pointer-type='stl-string' since='v0.40.01'/>
@@ -177,7 +179,7 @@
         <stl-vector name='creature_ids' type-name='int16_t' ref-target='creature_raw'/>
         <stl-vector name='creatures' pointer-type='stl-string'/>
 
-        <compound name='equipment'>
+        <compound name='equipment'> not an actual compound
             <stl-vector name='digger_id' type-name='int16_t' ref-target='itemdef_weaponst'/>
             <stl-vector name='weapon_id' type-name='int16_t' ref-target='itemdef_weaponst'/>
             <stl-vector name='armor_id' type-name='int16_t' ref-target='itemdef_armorst'/>
@@ -221,9 +223,9 @@
         <df-flagarray name='flags' index-enum='entity_raw_flags'/>
         <stl-string name='translation'/>
 
-        <compound name='symbols'>
-            <static-array name='symbols1' type-name='language_word_table' index-enum='entity_name_type' count='19'/>
-            <static-array name='symbols2' type-name='language_word_table' index-enum='entity_name_type' count='19'/>
+        <compound name='symbols'> not an actual compound
+            <static-array name='symbols_major' type-name='language_word_table' index-enum='entity_name_type' count='19'/>
+            <static-array name='symbols_minor' type-name='language_word_table' index-enum='entity_name_type' count='19'/>
             <static-array name='select_symbol' index-enum='entity_name_type' count='19'>
                 <stl-vector pointer-type='stl-string'/>
             </static-array>
@@ -235,27 +237,25 @@
             </static-array>
         </compound>
 
-<!--        <compound name='habitat'> -->
-            <static-array name='sphere_alignment' type-name='int32_t' count='130' index-enum='sphere_type'/>
-            <static-array name='art_facet_modifier' type-name='int32_t' count='4' index-enum='art_facet_type'/>
-            <static-array name='art_image_element_modifier' type-name='int32_t' count='5' index-enum='art_image_element_type'/>
-            <static-array name='item_improvement_modifier' type-name='int32_t'
-                          count='14' index-enum='improvement_type'/>
+        <static-array name='sphere_alignment' type-name='int32_t' count='130' index-enum='sphere_type'/>
+        <static-array name='art_facet_modifier' type-name='int32_t' count='4' index-enum='art_facet_type'/>
+        <static-array name='art_image_element_modifier' type-name='int32_t' count='5' index-enum='art_image_element_type'/>
+        <static-array name='item_improvement_modifier' type-name='int32_t'
+                      count='14' index-enum='improvement_type'/>
 
-            <static-array name='friendly_color' type-name='int16_t' count='3'/>
+        <static-array name='friendly_color' type-name='int16_t' count='3'/>
 
-            <enum base-type='int32_t' name='default_site_type' type-name='world_site_type'/>
-            <static-array name='likes_site' type-name='int8_t' count='11' index-enum='site_type'/>
-            <static-array name='tolerates_site' type-name='int8_t' count='11' index-enum='site_type'/>
+        <enum base-type='int32_t' name='default_site_type' type-name='world_site_type'/>
+        <static-array name='likes_site' type-name='int8_t' count='11' index-enum='site_type'/>
+        <static-array name='tolerates_site' type-name='int8_t' count='11' index-enum='site_type'/>
 
-            <static-array name='biome_support' type-name='int32_t' count='51' index-enum='biome_type'/>
-            <static-array name='start_biome' type-name='int8_t' count='51' index-enum='biome_type'/>
-            <static-array name='settlement_biome' type-name='int8_t' count='51' index-enum='biome_type'/>
+        <static-array name='biome_support' type-name='int32_t' count='51' index-enum='biome_type'/>
+        <static-array name='start_biome' type-name='int8_t' count='51' index-enum='biome_type'/>
+        <static-array name='settlement_biome' type-name='int8_t' count='51' index-enum='biome_type'/>
 
-            <static-array name='active_season' type-name='int8_t' count='4' index-enum='season'/>
-<!--        </compound> -->
+        <static-array name='active_season' type-name='int8_t' count='4' index-enum='season'/>
 
-        <compound name='progress_trigger'>
+        <compound name='progress_trigger'>  not an actual compound
             <int16_t name='population'/>
             <int16_t name='production'/>
             <int16_t name='trade'/>
@@ -271,7 +271,7 @@
         <static-array name='values' type-name='int32_t' count='64' index-enum='value_type'/>
         <static-array name='variable_value_min' type-name='int32_t' count='64' index-enum='value_type' since='v0.42.01'/>
         <static-array name='variable_value_max' type-name='int32_t' count='64' index-enum='value_type' since='v0.42.01'/>
-        <bitfield name='scholar' base-type='uint32_t'>
+        <bitfield name='scholar' base-type='uint32_t'> bay12: ENTITY_SCHOLAR_FLAG_*
             <flag-bit name='PHILOSOPHER'/>
             <flag-bit name='MATHEMATICIAN'/>
             <flag-bit name='HISTORIAN'/>
@@ -293,7 +293,7 @@
             <enum base-type='int16_t' type-name='sphere_type'/>
         </stl-vector>
 
-        <compound name='jobs'>
+        <compound name='jobs'> not an actual compound
             <static-array name='permitted_job' type-name='bool'
                           index-enum='profession'/>
             <static-array name='permitted_labor' type-name='bool'
@@ -312,15 +312,15 @@
                       index-enum='entity_position_responsibility' count='43'/>
 
         <stl-vector name='tissue_styles'>
-            <pointer>
+            <pointer> bay12: entity_def_tissue_stylest
                 <stl-string name='name'/>
-                <stl-vector name='preferred_shapings' type-name='int16_t'/>
+                <stl-vector name='preferred_shapings' type-name='tissue_style_type'/>
                 <int32_t name='maintain_length_min'/>
                 <int32_t name='maintain_length_max'/>
             </pointer>
         </stl-vector>
 
-        <compound name='workshops'>
+        <compound name='workshops'> not an actual compound
             <stl-vector name='permitted_building_str' pointer-type='stl-string'/>
             <stl-vector name='permitted_building_id' type-name='int32_t' ref-target='building_def'/>
             <stl-vector name='permitted_reaction_str' pointer-type='stl-string'/>
@@ -334,18 +334,19 @@
         <stl-vector name='gem_shapes' type-name='int32_t' ref-target='descriptor_shape'/>
         <stl-vector name='stone_shapes' type-name='int32_t' ref-target='descriptor_shape'/>
         <int32_t name='source_hfid' ref-target='historical_figure'/>
-        <int32_t name='unk_v4201_1' init-value='-1' since='v0.42.01'/>
+        <int32_t name='source_enid' ref-target='historical_entity' since='v0.42.01'/>
+        <stl-vector pointer-type='entity_animal_raw' name='animal'/>
+
         <stl-vector pointer-type='stl-string' name='currency_str1'/>
         <stl-vector pointer-type='stl-string' name='currency_str2'/>
-        <stl-vector pointer-type='entity_animal_raw' name='animal'/>
     </struct-type>
 
-    <struct-type type-name='entity_animal_raw'>
+    <struct-type type-name='entity_animal_raw' original-name='entity_def_animalst'>
         <stl-string name='token'/>
         <stl-vector pointer-type='stl-string' name='caste_token'/>
         <stl-vector pointer-type='stl-string' name='animal_class'/>
         <stl-vector pointer-type='stl-string' name='forbidden_class'/>
-        <bitfield name='flags' base-type='uint32_t'>
+        <bitfield name='flags' base-type='uint32_t'> bay12: ENTITY_DEF_ANIMAL_FLAG_*
             <flag-bit name='ALWAYS_PRESENT'/>
             <flag-bit name='NEVER_MOUNT'/>
             <flag-bit name='ALWAYS_MOUNT'/>
@@ -361,7 +362,7 @@
         </bitfield>
     </struct-type>
 
-    <enum-type type-name='entity_position_raw_flags'>
+    <enum-type type-name='entity_position_raw_flags'> bay12: EntityDefPositionFlagType
         <enum-item name='SITE'/>
         <enum-item name='ELECTED'/>
         <enum-item name='CONQUERED_SITE'/>
@@ -392,7 +393,7 @@
         <enum-item name='REQUIRES_MARKET'/>
     </enum-type>
 
-    <enum-type type-name='entity_position_responsibility' base-type='int16_t'>
+    <enum-type type-name='entity_position_responsibility' base-type='int16_t'> bay12: PositionResponsibilityType
         <enum-item name='NONE' value='-1'/>
         <enum-item name='LAW_MAKING'/>
         <enum-item name='LAW_ENFORCEMENT'/>
@@ -439,7 +440,7 @@
         <enum-item name='DELIVER_MESSAGES'/>
     </enum-type>
 
-    <struct-type type-name='entity_position_raw'>
+    <struct-type type-name='entity_position_raw' original-name='entity_def_positionst'>
         <stl-string name='code'/>
         <int32_t name='id'/>
         <df-flagarray name='flags' index-enum='entity_position_raw_flags'/>
@@ -456,7 +457,7 @@
         <stl-vector name='rejected_creature' type-name='int32_t' ref-target='creature_raw'/>
         <stl-vector name='rejected_class' pointer-type='stl-string'/>
 
-        <static-array type-name='stl-string' name='name' count='2'/>
+        <static-array type-name='stl-string' name='name' count='2'/> bay12: string[EntityDefPositionStringType]
         <static-array type-name='stl-string' name='name_female' count='2'/>
         <static-array type-name='stl-string' name='name_male' count='2'/>
         <static-array type-name='stl-string' name='spouse' count='2'/>
@@ -493,15 +494,16 @@
         <int32_t name='required_cabinets'/>
         <int32_t name='required_racks'/>
         <int32_t name='required_stands'/>
-        <int32_t name='required_office'/>
+
+        <int32_t name='required_office'/> bay12: int32_t[DemandRooms]
         <int32_t name='required_bedroom'/>
         <int32_t name='required_dining'/>
         <int32_t name='required_tomb'/>
+
         <int32_t name='mandate_max'/>
         <int32_t name='demand_max'/>
 
-        <int32_t/>
-        <stl-string/>
+        <stl-string name='description'/>
     </struct-type>
 </data-definition>
 
