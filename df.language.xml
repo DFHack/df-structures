@@ -1,5 +1,5 @@
 <data-definition>
-    <bitfield-type type-name='language_word_flags'>
+    <bitfield-type type-name='language_word_flags' base-type='uint32_t'> bay12: WORDFLAG_*
         <flag-bit name='front_compound_noun_sing'/>
         <flag-bit name='front_compound_noun_plur'/>
         <flag-bit name='front_compound_adj'/>
@@ -16,9 +16,10 @@
         <flag-bit name='of_noun_sing'/>
         <flag-bit name='of_noun_plur'/>
         <flag-bit name='standard_verb'/>
+        <flag-bit name='generated'/>
     </bitfield-type>
 
-    <enum-type type-name='part_of_speech' base-type='int16_t'>
+    <enum-type type-name='part_of_speech' base-type='int16_t'> bay12: WordAspect
         <enum-item name='Noun'/>
         <enum-item name='NounPlural'/>
         <enum-item name='Adjective'/>
@@ -30,7 +31,7 @@
         <enum-item name='VerbGerund'/>
     </enum-type>
 
-    <enum-type type-name='language_word_table_index' base-type='int16_t'>
+    <enum-type type-name='language_word_table_index' base-type='int16_t'> bay12: WordPlace
         <enum-item name='FrontCompound'/>
         <enum-item name='RearCompound'/>
         <enum-item name='FirstName'/>
@@ -39,7 +40,7 @@
         <enum-item name='OfX'/>
     </enum-type>
 
-    <enum-type type-name='sphere_type' base-type='int16_t'>
+    <enum-type type-name='sphere_type' base-type='int16_t'> bay12: SphereType
         <enum-item name='NONE' value='-1'/>
         <enum-item name='AGRICULTURE'/>
         <enum-item name='ANIMALS'/>
@@ -173,53 +174,57 @@
         <enum-item name='YOUTH'/>
     </enum-type>
 
-    <struct-type type-name='language_word'
+    <struct-type type-name='language_word' original-name='wordst'
                  instance-vector='$global.world.raws.language.words'>
         <stl-string name='word'/>
 
         <code-helper name='describe'>$.word</code-helper>
 
-        <static-array type-name='stl-string' name='forms' count='9' index-enum='part_of_speech'/>
+        <static-array type-name='stl-string' name='forms' count='9' index-enum='part_of_speech'/> bay12: actually WordDefStrings which happens to match
 
-        <uint8_t name='adj_dist'/>
-
-        <padding size='7' name='pad_1' comment='looks like garbage'/>
+        <int8_t name='adj_dist'/> bay12: char[WordDefChars]
+        <int16_t name='s_empty'/> bay12: short[WordDefShorts]
+        <int32_t name='l_empty'/> bay12: int32_t[WordDefLongs]
 
         <bitfield name='flags' type-name='language_word_flags'/>
 
         <stl-vector pointer-type='stl-string' name='str' since='v0.40.01'/>
     </struct-type>
 
-    <struct-type type-name='language_translation'
+    <struct-type type-name='language_translation' original-name='translationst'
                  instance-vector='$global.world.raws.language.translations'>
         <stl-string name='name'/>
 
         <code-helper name='describe'>$.name</code-helper>
 
-        <stl-vector name='unknown1' pointer-type='stl-string' comment='looks like english words'/>
-        <stl-vector name='unknown2' pointer-type='stl-string' comment='looks like translated words'/>
+        <stl-vector name='word_token' pointer-type='stl-string' comment='looks like english words'/>
+        <stl-vector name='word_gloss_tmp' pointer-type='stl-string' comment='looks like translated words'/>
 
         <stl-vector name='words' index-refers-to='$global.world.raws.language.words[$]' pointer-type='stl-string'/>
 
-        <int32_t name='flags' since='v0.40.01' comment='1 = generated'/>
+        <bitfield name='flags' base-type='uint32_t'> bay12: TRANSLATIONFLAG_*
+            <flag-bit name='generated'/>
+        </bitfield>
         <stl-vector pointer-type='stl-string' name='str' since='v0.40.01'/>
     </struct-type>
 
-    <struct-type type-name='language_symbol'
+    <struct-type type-name='language_symbol' original-name='symbolst'
                  instance-vector='$global.world.raws.language.symbols'>
         <stl-string name='name'/>
 
-        <stl-vector name='unknown' comment='empty'/>
+        <stl-vector name='s_word_token' pointer-type='stl-string'/>
 
         <stl-vector name='words'>
             <int32_t ref-target='language_word'/>
         </stl-vector>
 
-        <int32_t name='flags' since='v0.40.01'/>
+        <bitfield name='flags' base-type='uint32_t'> bay12: SYMBOLFLAG_*
+            <flag-bit name='generated'/>
+        </bitfield>
         <stl-vector pointer-type='stl-string' name='str' since='v0.40.01'/>
     </struct-type>
 
-    <struct-type type-name='language_name'>
+    <struct-type type-name='language_name' original-name='namest'>
         <stl-string name='first_name'/>
         <stl-string name='nickname'/>
 
@@ -280,10 +285,10 @@
         </static-array>
     </struct-type>
 
-    <enum-type type-name='language_name_category'>
+    <enum-type type-name='language_name_category'> bay12: DefaultName
         <enum-item name='Unit'/>
-        <enum-item name='Artifact'/>
-        <enum-item name='ArtifactEvil'/>
+        <enum-item name='Artifact' comment='ItemGood'/>
+        <enum-item name='ArtifactEvil' comment='ItemBad'/>
         <enum-item name='Swamp'/>
         <enum-item name='Desert'/>
         <enum-item name='Forest'/>
@@ -330,13 +335,13 @@
         <enum-item name='CommonReligion'/>
         <enum-item name='Temple'/>
         <enum-item name='Keep'/>
-        <enum-item name='Unknown2'/>
-        <enum-item name='SymbolArtifice'/>
-        <enum-item name='SymbolViolent'/>
-        <enum-item name='SymbolProtect'/>
-        <enum-item name='SymbolDomestic'/>
+        <enum-item name='MeadHall'/>
+        <enum-item name='CraftStore'/>
+        <enum-item name='WeaponStore'/>
+        <enum-item name='ArmorStore'/>
+        <enum-item name='GeneralStore'/>
 
-        <enum-item name='SymbolFood'/>
+        <enum-item name='FoodStore'/>
         <enum-item name='War'/>
         <enum-item name='Battle'/>
         <enum-item name='Siege'/>
@@ -345,40 +350,40 @@
         <enum-item name='Bridge'/>
         <enum-item name='Tunnel'/>
         <enum-item name='Tomb'/>
-        <enum-item name='SymbolProtect2'/>
+        <enum-item name='Vault'/>
 
         <enum-item name='Library'/>
         <enum-item name='Festival'/>
         <enum-item name='EntityMerchantCompany'/>
         <enum-item name='CountingHouse'/>
-        <enum-item name='EntityMerchantCompany2'/>
+        <enum-item name='CraftGuild'/>
         <enum-item name='Guildhall'/>
         <enum-item name='NecromancerTower'/>
         <enum-item name='Hospital'/>
     </enum-type>
 
-    <enum-type type-name='language_name_type' base-type='int16_t'>
+    <enum-type type-name='language_name_type' base-type='int16_t'> bay12: NameType
         <enum-item name='NONE' value='-1'/>
 
         0
-        <enum-item name='Figure'/>
-        <enum-item name='Artifact'/>
+        <enum-item name='Figure' comment='Unit'/>
+        <enum-item name='Artifact' comment='Item'/>
         <enum-item name='Civilization'/>
         <enum-item name='Squad'/>
-        <enum-item name='Site'/>
+        <enum-item name='Site' comment='Fortress'/>
         <enum-item name='World'/>
         <enum-item name='Region'/>
-        <enum-item name='Dungeon'/>
-        <enum-item name='LegendaryFigure'/>
-        <enum-item name='FigureNoFirst'/>
+        <enum-item name='Dungeon' comment='Cave'/>
+        <enum-item name='LegendaryFigure' comment='Unit_OfThe'/>
+        <enum-item name='FigureNoFirst' comment='Unit_Rear'/>
 
         10
-        <enum-item name='FigureFirstOnly'/>
+        <enum-item name='FigureFirstOnly' comment='Unit_Front'/>
         <enum-item name='ArtImage'/>
-        <enum-item name='AdventuringGroup'/>
-        <enum-item name='ElfTree'/>
-        <enum-item name='SiteGovernment'/>
-        <enum-item name='NomadicGroup'/> uses site word table. Can also be SiteGovernment founded by a group not belonging to a civ.
+        <enum-item name='EntitySite'/>
+        <enum-item name='ElfTree' comment='Vegetation'/>
+        <enum-item name='NomadicGroup'/>
+        <enum-item name='MigratingGroup'/>
         <enum-item name='Vessel'/>
         <enum-item name='MilitaryUnit'/>
         <enum-item name='Religion'/>
@@ -389,11 +394,11 @@
         <enum-item name='Temple'/>
         <enum-item name='Keep'/>
         <enum-item name='MeadHall'/>
-        <enum-item name='SymbolArtifice'/>
-        <enum-item name='SymbolViolent'/>
-        <enum-item name='SymbolProtect'/>
-        <enum-item name='SymbolDomestic' comment='Market'/>
-        <enum-item name='SymbolFood' comment='Tavern'/>
+        <enum-item name='CraftStore'/>
+        <enum-item name='WeaponStore'/>
+        <enum-item name='ArmorStore'/>
+        <enum-item name='GeneralStore'/>
+        <enum-item name='FoodStore'/>
         <enum-item name='War'/>
 
         30
@@ -403,14 +408,14 @@
         <enum-item name='Wall'/>
         <enum-item name='Bridge'/>
         <enum-item name='Tunnel'/>
-        <enum-item name='PretentiousEntityPosition'/>
+        <enum-item name='HighPriest'/>
         <enum-item name='Monument'/>
         <enum-item name='Tomb'/>
         <enum-item name='OutcastGroup'/>
 
         40
         <enum-item name='TrueName' comment='vault slabs'/>
-        <enum-item name='SymbolProtect2'/>
+        <enum-item name='Vault'/>
         <enum-item name='PerformanceTroupe'/> uses military unit word table
         <enum-item name='Library'/>
         <enum-item name='PoeticForm'/>
@@ -428,7 +433,7 @@
         <enum-item name='Hospital' since='v0.50.01'/>
     </enum-type>
 
-    <enum-type type-name='language_name_component'>
+    <enum-type type-name='language_name_component'> bay12: NamePlaceType
         <enum-item name='FrontCompound'/>
         <enum-item name='RearCompound'/>
         <enum-item name='FirstAdjective'/>
