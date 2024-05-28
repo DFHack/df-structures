@@ -38,7 +38,7 @@ sub with_struct_block(&$;$%) {
 
     my $is_union = is_attr_true($tag,'is-union');
     my $kwd = ($is_union ? "union" : "struct");
-    my $exp = $export_prefix; #$flags{-export} ? $export_prefix : '';
+    my $exp = $name ? $export_prefix : '';
     header_ref("Export.h");
     header_ref("DataDefs.h");
     my $prefix = $kwd.' '.$exp.($name ? $name.' ' : '');
