@@ -55,7 +55,7 @@
         </enum-item>
     </enum-type>
 
-    <enum-type type-name='builtin_mats'>
+    <enum-type type-name='builtin_mats' base-type='int16_t'> bay12: MaterialType
         <enum-item name='INORGANIC'/>
         <enum-item name='AMBER'/>
         <enum-item name='CORAL'/>
@@ -75,9 +75,13 @@
         <enum-item name='FILTH_Y'/>
         <enum-item name='UNKNOWN_SUBSTANCE'/>
         <enum-item name='GRIME'/>
+        CREATURE_1 thru CREATURE_200
+        HIST_FIG_1 thru HIST_FIG_200
+        PLANT_1 thru PLANT_200
+        UNUSED01 thru UNUSED40
     </enum-type>
 
-    <enum-type type-name='material_flags'>
+    <enum-type type-name='material_flags'> bay12: MaterialDefinitionFlagType
         <enum-attr name='type' type-name='craft_material_class' default-value='None'/>
 
         <enum-item name='BONE'>
@@ -140,7 +144,7 @@
         <enum-item name='LIQUID_MISC'/>
         <enum-item name='STRUCTURAL_PLANT_MAT'/>
         <enum-item name='SEED_MAT'/>
-        <enum-item name='LEAF_MAT'/> now named STOCKPILE_PLANT_GROWTH
+        <enum-item name='STOCKPILE_PLANT_GROWTH'/>
         <enum-item name='CHEESE'/>
 
         <enum-item name='ENTERS_BLOOD'/>
@@ -190,7 +194,7 @@
         <enum-item name='SPIT_MAP_DESCRIPTOR'/>
 
         <enum-item name='EVAPORATES'/>
-        <enum-item/>
+        <enum-item name='STOCKPILE_PLANT'/>
         <enum-item name='IS_CERAMIC'/>
         <enum-item name='CARTILAGE'/> new in 50.0x
         <enum-item name='FEATHER'/>
@@ -202,7 +206,7 @@
         <enum-item name='ANTLER'/>
     </enum-type>
 
-    <enum-type type-name='matter_state' base-type='int16_t'>
+    <enum-type type-name='matter_state' base-type='int16_t'> bay12: MaterialStateType
         <enum-item name='None' value='-1'/>
         <enum-item name='Solid'/>
         <enum-item name='Liquid'/>
@@ -212,7 +216,7 @@
         <enum-item name='Pressed'/>
     </enum-type>
 
-    <enum-type type-name='strain_type'>
+    <enum-type type-name='strain_type' base-type='int16_t'> bay12: PhysicalForceType
         <enum-item name='BENDING'/>
         <enum-item name='SHEAR'/>
         <enum-item name='TORSION'/>
@@ -221,13 +225,29 @@
         <enum-item name='COMPRESSIVE'/>
     </enum-type>
 
-    <struct-type type-name='material_common'>
+    <enum-type type-name='meat_category_type' base-type='int32_t'> bay12: MeatCategoryType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='STANDARD'/>
+        <enum-item name='EYE'/>
+        <enum-item name='LUNG'/>
+        <enum-item name='HEART'/>
+        <enum-item name='INTESTINES'/>
+        <enum-item name='LIVER'/>
+        <enum-item name='STOMACH'/>
+        <enum-item name='PANCREAS'/>
+        <enum-item name='SPLEEN'/>
+        <enum-item name='KIDNEY'/>
+        <enum-item name='BRAIN'/>
+        <enum-item name='GIZZARD'/>
+    </enum-type>
+
+    <struct-type type-name='material_common' comment='not a real structure'>
         <stl-string name='id'/>
         <stl-string name='gem_name1'/>
         <stl-string name='gem_name2'/>
         <stl-string name='stone_name'/>
 
-        <compound name='heat'>
+        <compound name='heat'> not a compound
             <uint16_t name='spec_heat'/>
             <uint16_t name='heatdam_point'/>
             <uint16_t name='colddam_point'/>
@@ -248,7 +268,7 @@
         <static-array name='state_adj' type-name='stl-string'
                       count='6' index-enum='matter_state'/>
 
-        <compound name='strength'>
+        <compound name='strength'> not a compound
             <int32_t name='absorption'/>
 
             <static-array name='yield' type-name='int32_t'
@@ -265,17 +285,17 @@
 
         <df-flagarray name='flags' index-enum='material_flags'/>
 
-        <enum base-type='int16_t' name='extract_storage' type-name='item_type'/>
-        <enum base-type='int16_t' name='butcher_special_type' type-name='item_type'/>
+        <enum name='extract_storage' type-name='item_type'/>
+        <enum name='butcher_special_type' type-name='item_type'/>
         <int16_t name='butcher_special_subtype' refers-to='(item-subtype-target $$._parent.butcher_special_type $)'/>
 
         <static-array name='meat_name' type-name='stl-string' count='3'/>
-        <int32_t name='meat_organ' comment='used for texture selection'/>
+        <enum name='meat_organ' type-name='meat_category_type' comment='used for texture selection'/>
         <static-array name='block_name' type-name='stl-string' count='2'/>
 
-        <compound name='reaction_product'>
+        <compound name='reaction_product'> not a compound
             <stl-vector name='id' pointer-type='stl-string'/>
-            <stl-vector name='item_type' type-name='int16_t'/>
+            <stl-vector name='item_type' type-name='item_type'/>
             <stl-vector name='item_subtype' type-name='int16_t'/>
             <compound name='material' type-name='material_vec_ref'/>
 
@@ -284,7 +304,7 @@
             </static-array>
         </compound>
 
-        <compound name='hardens_with_water'>
+        <compound name='hardens_with_water'> not a compound
             <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
             <int32_t name='mat_index'/>
 
@@ -292,11 +312,6 @@
         </compound>
 
         <stl-vector name='reaction_class' pointer-type='stl-string'/>
-    </struct-type>
-
-    <struct-type type-name='material' inherits-from='material_common' custom-methods='true'>
-        <code-helper name='find-instance'>(material-by-id $ $$)</code-helper>
-        <code-helper name='describe'> (describe-material $) </code-helper>
 
         <uint8_t name='tile'/>
 
@@ -305,17 +320,22 @@
         <static-array name='tile_color' type-name='int16_t' count='3'/>
 
         <uint8_t name='item_symbol'/>
+    </struct-type>
 
-        <int32_t/><int32_t/><int32_t/> 0.50.01
+    <struct-type type-name='material' original-name='material_definitionst' inherits-from='material_common' custom-methods='true' comment='does not actually inherit'>
+        <code-helper name='find-instance'>(material-by-id $ $$)</code-helper>
+        <code-helper name='describe'> (describe-material $) </code-helper>
+
+        <static-array name='mat_rgb' count='3' type-name='s-float'/>
 
         <int16_t name='powder_dye'/> // color token index
         <int16_t name='temp_diet_info'/>
 
-        <stl-vector name='syndrome' pointer-type='syndrome'/>
+        <compound name='syndrome' type-name='creature_interactionst'/>
 
         <int32_t name='soap_level'/>
 
-        <stl-vector name='unk_41c' type-name='int16_t' since='v0.40.01'/>
+        <stl-vector name='sphere' type-name='sphere_type' since='v0.40.01'/>
 
         <stl-string name='prefix'/>
 
@@ -335,7 +355,7 @@
         <int32_t name='bar_texpos'/>
         <int32_t name='cheese_texpos1'/>
         <int32_t name='cheese_texpos2'/>
-        <int32_t/> 0.50.01
+        <uint32_t name='texflag'/>
 
         <custom-methods>
             <cmethod name='isGem'/>
@@ -350,34 +370,26 @@
         <stl-vector name='mat_index' type-name='int32_t'/>
     </struct-type>
 
-    <struct-type type-name='material_template' inherits-from='material_common'>
+    <struct-type type-name='material_template' original-name='material_templatest' inherits-from='material_common' comment='does not actually inherit'>
         <code-helper name='describe'> (describe-material $) </code-helper>
-
-        <uint8_t name='tile'/>
-
-        <static-array name='basic_color' type-name='int16_t' count='2'/>
-        <static-array name='build_color' type-name='int16_t' count='3'/>
-        <static-array name='tile_color' type-name='int16_t' count='3'/>
-
-        <uint8_t name='item_symbol'/>
 
         <int16_t name='powder_dye'/> // color token index
         <int16_t name='temp_diet_info'/>
 
-        <stl-vector name='syndrome' pointer-type='syndrome'/>
+        <compound name='syndrome' type-name='creature_interactionst'/>
 
         <int32_t name='soap_level'/>
 
-        <stl-vector name='unk_41c' type-name='int16_t' since='v0.40.01'/>
+        <stl-vector name='sphere' type-name='sphere_type' since='v0.40.01'/>
 
         <stl-string name='powder_dye_str' comment='temporary'/>
         <static-array name='state_color_str' type-name='stl-string' count='6' index-enum='matter_state'/>
     </struct-type>
 
-    <enum-type type-name='inorganic_flags'>
+    <enum-type type-name='inorganic_flags'> bay12: InorganicFlagType
         <enum-item name='LAVA'/>
         <enum-item name='GENERATED'/>
-        <enum-item name='ENVIRONMENT_NON_SOIL_OCEAN' comment='is METAMORPHIC, or has ENVIRONMENT with anything but SOIL_OCEAN'/>
+        <enum-item name='CAN_OCCUR_ON_SURFACE'/>
         <enum-item name='SEDIMENTARY'/>
         <enum-item name='SEDIMENTARY_OCEAN_SHALLOW'/>
         <enum-item name='IGNEOUS_INTRUSIVE'/>
@@ -397,7 +409,7 @@
         <enum-item name='SOIL'/>
         <enum-item name='DEEP_SPECIAL'/>
         <enum-item name='DIVINE'/>
-        <enum-item/>
+        <enum-item/> these are all UNUSED
         <enum-item/>
         <enum-item/>
         <enum-item/>
@@ -412,7 +424,7 @@
         <enum-item/>
     </enum-type>
 
-    <enum-type type-name='environment_type' base-type='int16_t'>
+    <enum-type type-name='environment_type'> bay12: StoneEnvironment, no base type
         <enum-item name='SOIL'/>
         <enum-item name='SOIL_OCEAN'/>
         <enum-item name='SOIL_SAND'/>
@@ -423,15 +435,15 @@
         <enum-item name='ALLUVIAL'/>
     </enum-type>
 
-    <enum-type type-name='inclusion_type' base-type='int16_t'>
-        <enum-item comment='unused'/>
+    <enum-type type-name='inclusion_type'> bay12: InclusionType, no base type
+        <enum-item name='TOTAL'/>
         <enum-item name='VEIN'/>
         <enum-item name='CLUSTER'/>
         <enum-item name='CLUSTER_SMALL'/>
         <enum-item name='CLUSTER_ONE'/>
     </enum-type>
 
-    <struct-type type-name='inorganic_raw' instance-vector='$global.world.raws.inorganics' custom-methods='true'>
+    <struct-type type-name='inorganic_raw' original-name='inorganic_material_definitionst' instance-vector='$global.world.raws.inorganics' custom-methods='true'>
         <stl-string name='id'/>
 
         <stl-vector name='str' since='v0.34.01' pointer-type='stl-string'/>
@@ -441,9 +453,9 @@
         <df-flagarray name='flags' index-enum='inorganic_flags'/>
 
         <int32_t name='source_hfid' ref-target='historical_figure'/>
-        <int32_t name='unk_v4201_1' init-value='-1' since='v0.42.01'/>
+        <int32_t name='source_enid' ref-target='historical_entity' since='v0.42.01'/>
 
-        <compound name='metal_ore'>
+        <compound name='metal_ore'> not a compound
             <stl-vector name='str' comment='only during parsing' pointer-type='stl-string'/>
             <stl-vector name='mat_index'>
                 <int16_t ref-target='inorganic_raw'/>
@@ -451,7 +463,7 @@
             <stl-vector type-name='int16_t' name='probability'/>
         </compound>
 
-        <compound name='thread_metal'>
+        <compound name='thread_metal'> not a compound
             <stl-vector name='str' comment='only during parsing' pointer-type='stl-string'/>
             <stl-vector name='mat_index'>
                 <int16_t ref-target='inorganic_raw'/>
@@ -461,7 +473,7 @@
 
         <stl-vector type-name='int32_t' name='economic_uses' ref-target='reaction'/>
 
-        <compound name='environment_spec'>
+        <compound name='environment_spec'> not a compound
             <stl-vector name='str' comment='only during parsing' pointer-type='stl-string'/>
             <stl-vector name='mat_index'>
                 <int16_t ref-target='inorganic_raw'/>
@@ -472,7 +484,7 @@
             <stl-vector type-name='int8_t' name='probability'/>
         </compound>
 
-        <compound name='environment'>
+        <compound name='environment'> not a compound
             <stl-vector name='location'>
                 <enum base-type='int16_t' type-name='environment_type'/>
             </stl-vector>
@@ -482,8 +494,8 @@
             <stl-vector type-name='int8_t' name='probability'/>
         </compound>
 
-        <uint16_t name='times_used_land'/>
-        <uint16_t name='times_used_ocean'/>
+        <int16_t name='times_used_land'/>
+        <int16_t name='times_used_ocean'/>
 
         <compound name='material' type-name='material'/>
         <custom-methods>
@@ -491,7 +503,7 @@
         </custom-methods>
     </struct-type>
 
-    <enum-type type-name='organic_mat_category'>
+    <enum-type type-name='organic_mat_category' base-type='int16_t'> bay12: StockpileIndexType
         <enum-item name='Meat'/>
         <enum-item name='Fish'/>
         <enum-item name='UnpreparedFish'/>
@@ -502,7 +514,7 @@
         <enum-item name='PlantCheese'/>
         <enum-item name='CreatureCheese'/>
         <enum-item name='Seed'/>
-        <enum-item name='Leaf'/>
+        <enum-item name='PlantGrowth'/>
         <enum-item name='PlantPowder'/>
         <enum-item name='CreaturePowder'/>
         <enum-item name='Glob'/>
@@ -524,7 +536,7 @@
         <enum-item name='CookableLiquid'/>
         <enum-item name='CookablePowder'/>
         <enum-item name='CookableSeed'/>
-        <enum-item name='CookableLeaf'/>
+        <enum-item name='CookablePlantGrowth'/>
         <enum-item name='Paste'/>
         <enum-item name='Pressed'/>
         <enum-item name='Yarn'/>
@@ -533,14 +545,14 @@
         <enum-item name='Parchment'/>
     </enum-type>
 
-    <struct-type type-name='special_mat_table'>
+    <struct-type type-name='special_mat_table' original-name='material_infost'>
         <static-array name='organic_types' count='39' index-enum='organic_mat_category'>
             <stl-vector type-name='int16_t' index-refers-to='(food-mat-by-idx $$._key $)'/>
         </static-array>
         <static-array name='organic_indexes' count='39' index-enum='organic_mat_category'>
             <stl-vector type-name='int32_t'/>
         </static-array>
-        <static-array name='organic_unknown' count='39' comment='everything 0'
+        <static-array name='organic_temp' count='39' comment='everything 0'
                       index-enum='organic_mat_category'>
             <stl-vector type-name='int32_t'/>
         </static-array>
@@ -548,6 +560,8 @@
         <static-array name='builtin' count='659' index-enum='builtin_mats'>
             <pointer type-name='material'/>
         </static-array>
+
+        NOTE: world_raws.syndromes and world_raws.effects should both be directly in here
     </struct-type>
 </data-definition>
 

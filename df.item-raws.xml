@@ -1,5 +1,5 @@
 <data-definition>
-    <enum-type type-name='item_type' base-type='int16_t'>
+    <enum-type type-name='item_type' base-type='int16_t'> bay12: ItemType
         <enum-attr name='caption'/>
         <enum-attr name='is_rawable' type-name='bool'/>
         <enum-attr name='is_stackable' type-name='bool'/>
@@ -411,7 +411,7 @@
         </enum-item>
     </enum-type>
 
-    <struct-type type-name='weapon_attack'>
+    <struct-type type-name='weapon_attack' original-name='itemdef_attackst'>
         <bool name='edged'/>
         <int32_t name='contact'/>
         <int32_t name='penetration'/>
@@ -421,14 +421,32 @@
         <stl-string name='noun'/>
         <int32_t name="prepare" since='v0.40.01'/>
         <int32_t name="recover" since='v0.40.01'/>
-        <bitfield name='flags' since='v0.40.01'>
+        <bitfield name='flags' base-type='uint32_t' since='v0.40.01'> bay12: ITEMDEF_ATTACK_FLAG_*
             <flag-bit name='independent_multiattack'/>
             <flag-bit name='bad_multiattack'/>
         </bitfield>
     </struct-type>
 
-    <enum-type type-name='itemdef_flags'>
+    <enum-type type-name='itemdef_flags'> bay12: ItemDefFlagType
         <enum-item name='GENERATED'/>
+    </enum-type>
+
+    <enum-type type-name='itemdef_type' base-type='int32_t'> bay12: ItemDefType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='WEAPON'/>
+        <enum-item name='TOY'/>
+        <enum-item name='TOOL'/>
+        <enum-item name='INSTRUMENT'/>
+        <enum-item name='TRAPCOMP'/>
+        <enum-item name='ARMOR'/>
+        <enum-item name='AMMO'/>
+        <enum-item name='SIEGEAMMO'/>
+        <enum-item name='GLOVES'/>
+        <enum-item name='SHOES'/>
+        <enum-item name='SHIELD'/>
+        <enum-item name='HELM'/>
+        <enum-item name='PANTS'/>
+        <enum-item name='FOOD'/>
     </enum-type>
 
     <class-type type-name='itemdef' original-name='itemdefst'>
@@ -440,28 +458,29 @@
         <int32_t name='source_hfid' ref-target='historical_figure' since='v0.40.01'/>
         <int32_t name='source_enid' ref-target='historical_entity' since='v0.42.01'/>
         <stl-vector name='raw_strings' pointer-type='stl-string'/>
-        <int32_t/>
-        <int32_t/>
+        <int32_t name='statue_texpos_top'/>
+        <int32_t name='statue_texpos_bottom'/>
 
         <code-helper name='describe'>$.id</code-helper>
 
         <virtual-methods>
-            <vmethod/>
-            <vmethod name='parseRaws'>
-                <pointer/>
-                <pointer/>
-                <pointer/>
-                <pointer/>
-                <pointer/>
+            <vmethod name='getType' ret-type='itemdef_type'/>
+
+            <vmethod name='parseRaws' ret-type='bool'>
+                <pointer name='context'/>
+                <pointer name='str' type-name='stl-string'/>
+                <pointer name='maintok' type-name='stl-string'/>
+                <int32_t name='pos'/>
+                <bool name='can_use_internal'/>
             </vmethod>
             <vmethod name='categorize' comment='add to world.raws.itemdefs.whatever'/>
             <vmethod name='finalize' comment='calculate stuff like base value'/>
-            <vmethod/>
+            <vmethod name='init_material_information'/>
             <vmethod is-destructor='true'/>
         </virtual-methods>
     </class-type>
 
-    <enum-type type-name='ammo_flags'>
+    <enum-type type-name='ammo_flags'> bay12: ItemDefAmmoFlagType
         <enum-item name='HAS_EDGE_ATTACK'/>
     </enum-type>
 
@@ -479,12 +498,12 @@
 
         <stl-vector name="attacks" pointer-type='weapon_attack'/>
 
-        <static-array type-name='int32_t' count='16'/>
-        <stl-vector comment='items pointed to are 8 bytes'/>
+        <static-array name='texpos' type-name='int32_t' count='16'/>
+        <stl-vector name='graphics_info' comment='itemdef_ammo_graphics_infost'/>
 
     </class-type>
 
-    <enum-type type-name='armor_general_flags'>
+    <enum-type type-name='armor_general_flags'> bay12: ClothingDefFlagType
         <enum-item name='SOFT'/>
         <enum-item name='HARD'/>
         <enum-item name='METAL'/>
@@ -499,15 +518,22 @@
         <enum-item name='STRUCTURAL_ELASTICITY_CHAIN_ALL'/>
     </enum-type>
 
-    <struct-type type-name='armor_properties'>
+    <enum-type type-name='clothing_layer_type'> bay12: ClothingLayer, does NOT have matching typedef so use compiler default
+        <enum-item name='UNDER'/>
+        <enum-item name='OVER'/>
+        <enum-item name='ARMOR'/>
+        <enum-item name='COVER'/>
+    </enum-type>
+
+    <struct-type type-name='armor_properties' original-name='clothingdefst'>
         <df-flagarray name='flags' index-enum='armor_general_flags'/>
-        <int32_t name="layer"/>
+        <enum name="layer" type-name='clothing_layer_type'/>
         <int16_t name="layer_size"/>
         <int16_t name="layer_permit"/>
         <int16_t name="coverage"/>
     </struct-type>
 
-    <enum-type type-name='armor_flags'>
+    <enum-type type-name='armor_flags'> bay12: ItemDefArmorFlagType
         <enum-item name='METAL_ARMOR_LEVELS'/>
     </enum-type>
 
@@ -528,9 +554,8 @@
         <compound name='props' type-name='armor_properties'/>
 
         <df-flagarray name='flags' index-enum='armor_flags'/>
-        <int32_t/>
-        <int32_t/>
-        <stl-vector comment='items pointed to are 8 bytes'/>
+        <int32_t name='texpos_item'/>
+        <stl-vector name='graphics_info' comment='item_armor_graphics_infost'/>
 
     </class-type>
 
@@ -538,11 +563,11 @@
                 instance-vector='$global.world.raws.itemdefs.food'>
         <stl-string name="name"/>
         <int16_t name="level"/>
-        <int32_t/>
-        <int32_t/>
+        <int32_t name='texpos_item'/>
+        <int32_t name='texpos_food_container_top'/>
     </class-type>
 
-    <enum-type type-name='gloves_flags'>
+    <enum-type type-name='gloves_flags'> bay12: ItemDefGlovesFlagType
         <enum-item name='METAL_ARMOR_LEVELS'/>
     </enum-type>
 
@@ -557,12 +582,11 @@
         <df-flagarray name='flags' index-enum='gloves_flags'/>
         <int32_t name="material_size"/>
         <compound name='props' type-name='armor_properties'/>
-        <int32_t/>
-        <int32_t/>
-        <stl-vector comment='items pointed to are 8 bytes'/>
+        <int32_t name='texpos_item'/>
+        <stl-vector name='graphics_info' comment='item_gloves_graphics_infost'/>
     </class-type>
 
-    <enum-type type-name='helm_flags'>
+    <enum-type type-name='helm_flags'> bay12: ItemDefHelmFlagType
         <enum-item name='METAL_ARMOR_LEVELS'/>
     </enum-type>
 
@@ -576,12 +600,11 @@
         <df-flagarray name='flags' index-enum='helm_flags'/>
         <int32_t name="material_size"/>
         <compound name='props' type-name='armor_properties'/>
-        <int32_t/>
-        <int32_t/>
-        <stl-vector comment='items pointed to are 8 bytes'/>
+        <int32_t name='texpos_item'/>
+        <stl-vector name='graphics_info' comment='item_helm_graphics_infost'/>
     </class-type>
 
-    <enum-type type-name='instrument_flags'>
+    <enum-type type-name='instrument_flags'> bay12: ItemDefInstrumentFlagType
         <enum-item name='INDEFINITE_PITCH'/>
         <enum-item name='PLACED_AS_BUILDING'/>
         <enum-item name='METAL_MAT'/>
@@ -613,22 +636,24 @@
         <stl-vector type-name='sound_production_type' name="sound_production"/>
         <stl-vector pointer-type='stl-string' name="sound_production_parm1"/>
         <stl-vector pointer-type='stl-string' name="sound_production_parm2"/>
-        <stl-vector type-name='int32_t' name="unk_100"/>
-        <stl-vector type-name='int32_t' name="unk_110"/>
+        <stl-vector type-name='int32_t' name="sound_production_actor_id"/>
+        <stl-vector type-name='int32_t' name="sound_production_target_id"/>
         <stl-vector type-name='pitch_choice_type' name="pitch_choice"/>
         <stl-vector pointer-type='stl-string' name="pitch_choice_parm1"/>
         <stl-vector pointer-type='stl-string' name="pitch_choice_parm2"/>
-        <stl-vector type-name='int32_t' name="unk_150"/>
-        <stl-vector type-name='int32_t' name="unk_160"/>
+        <stl-vector type-name='int32_t' name="pitch_choice_piece_id1"/>
+        <stl-vector type-name='int32_t' name="pitch_choice_piece_id2"/>
         <stl-vector type-name='tuning_type' name="tuning"/>
         <stl-vector pointer-type='stl-string' name="tuning_parm"/>
-        <stl-vector type-name='int32_t' name="unk_190"/>
+        <stl-vector type-name='int32_t' name="tuning_piece_id"/>
+        <!-- <compound name='timbre'> --> bay12: timbre_infost
         <stl-vector pointer-type='instrument_register' name="registers"/>
         <stl-vector type-name='timbre_type' name="timbre"/>
+        <!-- </compound>-->
         <stl-string name="description"/>
     </class-type>
 
-    <enum-type type-name='sound_production_type'>
+    <enum-type type-name='sound_production_type' base-type='int32_t'> bay12: SoundProductionMethodType
         <enum-item name='PLUCKED_BY_BP'/>
         <enum-item name='PLUCKED'/>
         <enum-item name='BOWED'/>
@@ -654,7 +679,7 @@
         <enum-item name='AIR_AGAINST_FIPPLE'/>
     </enum-type>
 
-    <enum-type type-name='pitch_choice_type'>
+    <enum-type type-name='pitch_choice_type' base-type='int32_t'> bay12: PitchChoiceMethodType
         <enum-item name='MEMBRANE_POSITION'/>
         <enum-item name='SUBPART_CHOICE'/>
         <enum-item name='KEYBOARD'/>
@@ -670,7 +695,7 @@
         <enum-item name='FOOT_PEDALS'/>
     </enum-type>
 
-    <enum-type type-name='tuning_type'>
+    <enum-type type-name='tuning_type' base-type='int32_t'> bay12: TuningMethodType
         <enum-item name='PEGS'/>
         <enum-item name='ADJUSTABLE_BRIDGES'/>
         <enum-item name='CROOKS'/>
@@ -678,7 +703,7 @@
         <enum-item name='LEVERS'/>
     </enum-type>
 
-    <enum-type type-name='timbre_type'>
+    <enum-type type-name='timbre_type' base-type='int32_t'> bay12: TimbreType
         <enum-item name='CLEAR'/>
         <enum-item name='NOISY'/>
         <enum-item name='FULL'/>
@@ -751,25 +776,25 @@
         <enum-item name='SPARKLING'/>
     </enum-type>
 
-    <struct-type type-name='instrument_piece'>
+    <struct-type type-name='instrument_piece' original-name='instrument_piece_defst'>
         <stl-string name='type'/>
         <stl-string name='id'/>
         <int32_t name ='index'/>
         <stl-string name="name"/>
         <stl-string name="name_plural"/>
-        <bitfield base-type='uint32_t' name='flags'>
+        <bitfield base-type='uint32_t' name='flags'> bay12: INSTRUMENT_PIECE_DEF_FLAG_*
             <flag-bit name='always_singular'/>
             <flag-bit name='always_plural'/>
         </bitfield>
     </struct-type>
 
-    <struct-type type-name='instrument_register'>
+    <struct-type type-name='instrument_register' original-name='instrument_registerst'>
         <int32_t name ='pitch_range_min'/>
         <int32_t name ='pitch_range_max'/>
         <stl-vector type-name='timbre_type' name='timbres'/>
     </struct-type>
 
-    <enum-type type-name='pants_flags'>
+    <enum-type type-name='pants_flags'> bay12: ItemDefPantsFlagType
         <enum-item name='METAL_ARMOR_LEVELS'/>
     </enum-type>
 
@@ -788,9 +813,9 @@
         <int16_t name="lbstep"/>
 
         <compound name='props' type-name='armor_properties'/>
-        <int32_t/>
-        <int32_t/>
-        <stl-vector comment='items pointed to are 8 bytes'/>
+
+        <int32_t name='texpos_item'/>
+        <stl-vector name='graphics_info' comment='item_pants_graphics_infost'/>
     </class-type>
 
     <class-type type-name='itemdef_shieldst' inherits-from='itemdef'
@@ -803,12 +828,12 @@
         <int8_t name='armorlevel'/>
         <int16_t name="upstep"/>
         <int32_t name="material_size"/>
-        <int32_t/>
-        <int32_t/>
-        <stl-vector comment='items pointed to are 8 bytes'/>
+        <int32_t name='texpos_item'/>
+        <int32_t name='texpos_item_wooden'/>
+        <stl-vector name='graphics_info' comment='item_shield_graphics_infost'/>
     </class-type>
 
-    <enum-type type-name='shoes_flags'>
+    <enum-type type-name='shoes_flags'> bay12: ItemDefShoesFlagType
         <enum-item name='METAL_ARMOR_LEVELS'/>
     </enum-type>
 
@@ -824,9 +849,9 @@
         <int32_t name="material_size"/>
 
         <compound name='props' type-name='armor_properties'/>
-        <int32_t/>
-        <int32_t/>
-        <stl-vector comment='items pointed to are 8 bytes'/>
+        <int32_t name='texpos_item'/>
+        <int32_t name='texpos_item_metal'/>
+        <stl-vector name='graphics_info' comment='item_shoes_graphics_infost'/>
     </class-type>
 
     <class-type type-name='itemdef_siegeammost' inherits-from='itemdef'
@@ -835,11 +860,11 @@
         <stl-string name="name_plural"/>
         <stl-string name="ammo_class"/>
 
-        <static-array type-name='int32_t' count='16'/>
-        <stl-vector comment='items pointed to are 8 bytes'/>
-</class-type>
+        <static-array name='texpos' type-name='int32_t' count='16'/>
+        <stl-vector name='graphics_info' comment='itemdef_siegeammo_graphics_infost'/>
+    </class-type>
 
-    <enum-type type-name='tool_flags'>
+    <enum-type type-name='tool_flags' base-type='int32_t'> bay12: ItemDefToolFlagType
         <enum-item name='HARD_MAT'/>
         <enum-item name='METAL_MAT'/>
         <enum-item name='HAS_EDGE_ATTACK'/>
@@ -860,9 +885,11 @@
         <enum-item name='NO_DEFAULT_JOB'/>
         <enum-item name='INCOMPLETE_ITEM'/>
         <enum-item name='SHEET_MAT'/>
+        <enum-item name='NO_DEFAULT_IMPROVEMENTS'/>
+        <enum-item name='USES_FACE_IMAGE_SET'/>
     </enum-type>
 
-    <enum-type type-name='tool_uses' base-type='int16_t'>
+    <enum-type type-name='tool_uses' base-type='int16_t'> bay12: ItemDefToolUseType
         <enum-item name='NONE' value='-1'/>
         <enum-item name='LIQUID_COOKING'/>
         <enum-item name='LIQUID_SCOOP'/>
@@ -900,14 +927,12 @@
         <int32_t name="value"/>
         <uint8_t name="tile"/>
 
-        <stl-vector name="tool_use">
-            <enum base-type='int16_t' type-name='tool_uses'/>
-        </stl-vector>
+        <stl-vector name="tool_use" type-name='tool_uses'/>
 
         <stl-string name="adjective"/>
         <int32_t name="size"/>
-        <enum base-type="int16_t" type-name="job_skill" name="skill_melee"/>
-        <enum base-type="int16_t" type-name="job_skill" name="skill_ranged"/>
+        <enum type-name="job_skill" name="skill_melee"/>
+        <enum type-name="job_skill" name="skill_ranged"/>
         <stl-string name="ranged_ammo"/>
         <int32_t name="two_handed"/>
         <int32_t name="minimum_size"/>
@@ -924,21 +949,21 @@
         <stl-vector name='shape_category' type-name='int32_t' ref-target='descriptor_shape' since='v0.47.01'/>
         <stl-string name="description" since='v0.42.01'/>
         <stl-vector name="default_improvements" since='v0.42.01'>
-            <pointer>
-                <enum base-type="int32_t" type-name="improvement_type" name="type"/>
+            <pointer> bay12: itemdef_default_improvementst
+                <enum type-name="improvement_type" name="type"/>
                 <enum base-type="int32_t" type-name="itemimprovement_specific_type" name="specific_type"/>
                 <stl-string name="instrument_part"/>
-                <enum base-type="int32_t" type-name="tool_flags" name="restriction"/>
+                <enum type-name="tool_flags" name="restriction"/>
             </pointer>
         </stl-vector>
-        <static-array type-name="int32_t" count="68"/>
-        <stl-vector type-name="int32_t"/>
-        <stl-vector type-name="int32_t"/>
-        <stl-vector/>
-        <stl-vector/>
+        <static-array name='texpos' type-name="int32_t" count="68"/>
+        <stl-vector name='texpos_global_shape_index' type-name="int32_t"/>
+        <stl-vector name='texpos_global_shape_texpos' type-name="int32_t"/>
+        <stl-vector name='graphics_info' comment='item_tool_graphics_infost'/>
+        <stl-vector name='food_container_graphics_info' comment='item_food_container_graphics_infost'/>
     </class-type>
 
-    <enum-type type-name='toy_flags'>
+    <enum-type type-name='toy_flags'> bay12: ItemDefToyFlagType
         <enum-item name='HARD_MAT'/>
     </enum-type>
 
@@ -947,15 +972,15 @@
         <stl-string name="name"/>
         <stl-string name="name_plural"/>
         <df-flagarray name='flags' index-enum='toy_flags'/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <int32_t/>
-        <stl-vector/>
+        <int32_t name='texpos_item'/>
+        <int32_t name='texpos_item_wood'/>
+        <int32_t name='texpos_item_stone'/>
+        <int32_t name='texpos_item_metal'/>
+        <int32_t name='texpos_item_glass'/>
+        <stl-vector name='graphics_info' comment='item_toy_graphics_infost'/>
     </class-type>
 
-    <enum-type type-name='trapcomp_flags'>
+    <enum-type type-name='trapcomp_flags'> bay12: ItemDefTrapCompFlagType
         <enum-item name='IS_SCREW'/>
         <enum-item name='IS_SPIKE'/>
         <enum-item name='WOOD'/>
@@ -977,11 +1002,11 @@
         <df-flagarray name='flags' index-enum='trapcomp_flags'/>
 
         <stl-vector name="attacks" pointer-type='weapon_attack'/>
-        <static-array type-name='int32_t' count='22'/>
-        <stl-vector/>
+        <static-array name='texpos' type-name='int32_t' count='22'/>
+        <stl-vector name='graphics_info' comment='itemdef_trapcomp_graphics_infost'/>
     </class-type>
 
-    <enum-type type-name='weapon_flags'>
+    <enum-type type-name='weapon_flags'> bay12: ItemDefWeaponFlagType
         <enum-item name='CAN_STONE'/>
         <enum-item name='HAS_EDGE_ATTACK'/>
         <enum-item name='TRAINING'/>
@@ -994,8 +1019,8 @@
         <stl-string name="adjective"/>
         <int32_t name="size"/>
         <int32_t name="value"/>
-        <enum base-type="int16_t" type-name="job_skill" name="skill_melee"/>
-        <enum base-type="int16_t" type-name="job_skill" name="skill_ranged"/>
+        <enum type-name="job_skill" name="skill_melee"/>
+        <enum type-name="job_skill" name="skill_ranged"/>
         <stl-string name="ranged_ammo"/>
         <int32_t name="two_handed"/>
         <int32_t name="minimum_size"/>
@@ -1004,8 +1029,8 @@
         <stl-vector name="attacks" pointer-type='weapon_attack'/>
         <int32_t name="shoot_force"/>
         <int32_t name="shoot_maxvel"/>
-        <static-array type-name='int32_t' count='26'/>
-        <stl-vector/>
+        <static-array name='texpos' type-name='int32_t' count='25'/>
+        <stl-vector name='graphics_info' comment='itemdef_weapon_graphics_infost'/>
     </class-type>
 </data-definition>
 
