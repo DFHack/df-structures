@@ -312,6 +312,19 @@
         </compound>
 
         <stl-vector name='reaction_class' pointer-type='stl-string'/>
+        NOTE: the last field here MUST be one containing pointers,
+        otherwise Windows and Linux will end up with different
+        alignment/padding between the "base class" and the "subclass".
+
+        In reality, the two structures which "inherit" from this one
+        are just two separate structures which happen to have the exact
+        same set of fields at the beginning, and we're abusing inheritance
+        in order to avoid having to copy/paste everything.
+    </struct-type>
+
+    <struct-type type-name='material' original-name='material_definitionst' inherits-from='material_common' custom-methods='true' comment='does not actually inherit'>
+        <code-helper name='find-instance'>(material-by-id $ $$)</code-helper>
+        <code-helper name='describe'> (describe-material $) </code-helper>
 
         <uint8_t name='tile'/>
 
@@ -320,11 +333,6 @@
         <static-array name='tile_color' type-name='int16_t' count='3'/>
 
         <uint8_t name='item_symbol'/>
-    </struct-type>
-
-    <struct-type type-name='material' original-name='material_definitionst' inherits-from='material_common' custom-methods='true' comment='does not actually inherit'>
-        <code-helper name='find-instance'>(material-by-id $ $$)</code-helper>
-        <code-helper name='describe'> (describe-material $) </code-helper>
 
         <static-array name='mat_rgb' count='3' type-name='s-float'/>
 
@@ -372,6 +380,14 @@
 
     <struct-type type-name='material_template' original-name='material_templatest' inherits-from='material_common' comment='does not actually inherit'>
         <code-helper name='describe'> (describe-material $) </code-helper>
+
+        <uint8_t name='tile'/>
+
+        <static-array name='basic_color' type-name='int16_t' count='2'/>
+        <static-array name='build_color' type-name='int16_t' count='3'/>
+        <static-array name='tile_color' type-name='int16_t' count='3'/>
+
+        <uint8_t name='item_symbol'/>
 
         <int16_t name='powder_dye'/> // color token index
         <int16_t name='temp_diet_info'/>
