@@ -1,5 +1,5 @@
 <data-definition>
-    <enum-type type-name='resource_allotment_specifier_type' base-type='int32_t' comment='bay12: ResourceAllotment'>
+    <enum-type type-name='resource_allotment_specifier_type' base-type='int32_t'> bay12: ResourceAllotmentType
         <enum-item name='CROP'/>
         <enum-item name='STONE'/>
         <enum-item name='METAL'/>
@@ -103,10 +103,10 @@
     </enum-type>
 
     <class-type type-name='resource_allotment_specifier' original-name='resource_allotment_specifierst'>
-        <int32_t name='unk_1'/>
+        <uint32_t name='flags'/>
 
-        <int32_t name='unk_2' since='v0.34.01-04'/>
-        <int32_t name='unk_3' since='v0.34.01-04'/>
+        <enum name='town_labor' type-name='town_labor_type' since='v0.34.01-04'/>
+        <int32_t name='last_spec_hours' since='v0.34.01-04'/>
 
         <virtual-methods>
             <vmethod ret-type='resource_allotment_specifier_type' name='getType'/>
@@ -120,36 +120,77 @@
     </class-type>
 
     <class-type type-name='resource_allotment_specifier_cropst' inherits-from='resource_allotment_specifier'>
-        <int32_t name='mat_type' ref-target='plant_raw' aux-value='$$.mat_index' comment='index to world.raws.plant.all' />
-        <int32_t name='unk_4'/>
-        <int32_t name='unk_v40_01' since='v0.40.01'/>
-        <static-array name='unk_5' count='5' type-name='int32_t'/>
+        <int32_t name='plant_type' ref-target='plant_raw'/>
+        <int32_t name='growth_index'/>
+        <bitfield name='crop_flags' base-type='uint32_t'> bay12: RAS_CROP_FLAG_*
+            <flag-bit name='edible_raw'/>
+            <flag-bit name='edible_cooked'/>
+            <flag-bit name='thread'/>
+            <flag-bit name='millable'/>
+            <flag-bit name='extractable_vial'/>
+            <flag-bit name='extractable_barrel'/>
+            <flag-bit name='extractable_still_vial'/>
+            <flag-bit name='orchard'/>
+            <flag-bit name='garden'/>
+            <flag-bit name='farmed'/>
+        </bitfield>
+        <int32_t name='pz_ai_mill_product'/>
+        <int32_t name='pz_ai_extract_still_vial'/>
+        <int32_t name='pz_ai_extract_barrel'/>
+        <int32_t name='pz_ai_extract_vial'/>
+        <int32_t name='pz_ai_thread'/>
     </class-type>
 
     <class-type type-name='resource_allotment_specifier_stonest' inherits-from='resource_allotment_specifier'>
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name='mat_index'/>
-        <int32_t name='unk_4'/>
-        <int32_t name='unk_5'/>
-        <static-array name='unk_6' count='5' type-name='int32_t'/>
+        <int32_t name='frequency'/>
+        <bitfield name='stone_flags' base-type='uint32_t'> bay12: RAS_STONE_FLAG_*
+            <flag-bit name='metal_ore'/>
+            <flag-bit name='rough_gem'/>
+        </bitfield>
+        <int32_t name='pz_ai_gem'/>
+        <int32_t name='pz_ai_chair'/>
+        <int32_t name='pz_ai_table'/>
+        <int32_t name='pz_ai_box'/>
+        <int32_t name='pz_ai_cabinet'/>
     </class-type>
 
     <class-type type-name='resource_allotment_specifier_metalst' inherits-from='resource_allotment_specifier'>
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name='mat_index'/>
-        <int32_t name='unk_4'/>
-        <static-array name='unk_5' count='12' type-name='int32_t'/>
+        <bitfield name='metal_flags' base-type='uint32_t'> bay12: RAS_METAL_FLAG_*
+            <flag-bit name='items_weapon'/>
+            <flag-bit name='items_weapon_ranged'/>
+            <flag-bit name='anvil'/>
+            <flag-bit name='ammo'/>
+            <flag-bit name='digger'/>
+            <flag-bit name='armor'/>
+            <flag-bit name='hard'/>
+        </bitfield>
+        <int32_t name='pz_ai_pants'/>
+        <int32_t name='pz_ai_body'/>
+        <int32_t name='pz_ai_boots'/>
+        <int32_t name='pz_ai_gloves'/>
+        <int32_t name='pz_ai_helm'/>
+        <int32_t name='pz_ai_weapon_melee'/>
+        <int32_t name='pz_ai_chair'/>
+        <int32_t name='pz_ai_table'/>
+        <int32_t name='pz_ai_box'/>
+        <int32_t name='pz_ai_cabinet'/>
+        <int32_t name='pz_ai_crafts'/>
+        <int32_t name='pz_ai_ammo'/>
     </class-type>
 
     <class-type type-name='resource_allotment_specifier_woodst' inherits-from='resource_allotment_specifier'>
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name='mat_index'/>
-        <int32_t name='unk_4'/>
-        <int32_t name='unk_5'/>
-        <int32_t name='unk_6'/>
-        <int32_t name='unk_7'/>
-        <int32_t name='unk_8'/>
-        <int32_t name='unk_9'/>
+        <int32_t name='pz_ai_weapon_ranged'/>
+        <int32_t name='pz_ai_chair'/>
+        <int32_t name='pz_ai_table'/>
+        <int32_t name='pz_ai_box'/>
+        <int32_t name='pz_ai_cabinet'/>
+        <int32_t name='pz_ai_bed'/>
     </class-type>
 
     <class-type type-name='resource_allotment_specifier_armor_bodyst' inherits-from='resource_allotment_specifier'>
@@ -230,32 +271,32 @@
     <class-type type-name='resource_allotment_specifier_threadst' inherits-from='resource_allotment_specifier'>
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name='mat_index'/>
-        <int32_t name='unk_4'/>
+        <int32_t name='pz_ai_cloth'/>
     </class-type>
 
     <class-type type-name='resource_allotment_specifier_clothst' inherits-from='resource_allotment_specifier'>
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name='mat_index'/>
-        <int32_t name='unk_4'/>
-        <int32_t name='unk_5'/>
-        <int32_t name='unk_6'/>
-        <int32_t name='unk_7'/>
-        <int32_t name='unk_8'/>
+        <int32_t name='pz_ai_pants'/>
+        <int32_t name='pz_ai_body'/>
+        <int32_t name='pz_ai_boots'/>
+        <int32_t name='pz_ai_gloves'/>
+        <int32_t name='pz_ai_helm'/>
     </class-type>
 
     <class-type type-name='resource_allotment_specifier_leatherst' inherits-from='resource_allotment_specifier'>
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name='mat_index'/>
-        <int32_t name='unk_4'/>
-        <int32_t name='unk_5'/>
-        <int32_t name='unk_6'/>
-        <int32_t name='unk_7'/>
-        <int32_t name='unk_8'/>
-        <int32_t name='unk_9'/>
-        <int32_t name='unk_10'/>
-        <int32_t name='unk_11'/>
-        <int32_t name='unk_12'/>
-        <int32_t name='unk_13'/>
+        <int32_t name='pz_ai_pants'/>
+        <int32_t name='pz_ai_body'/>
+        <int32_t name='pz_ai_boots'/>
+        <int32_t name='pz_ai_gloves'/>
+        <int32_t name='pz_ai_helm'/>
+        <int32_t name='pz_ai_quiver'/>
+        <int32_t name='pz_ai_backpack'/>
+        <int32_t name='pz_ai_flask'/>
+        <int32_t name='pz_ai_bag'/>
+        <int32_t name='pz_ai_crafts'/>
     </class-type>
 
     <class-type type-name='resource_allotment_specifier_quiverst' inherits-from='resource_allotment_specifier'>
@@ -316,19 +357,19 @@
     <class-type type-name='resource_allotment_specifier_bonest' inherits-from='resource_allotment_specifier'>
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name='mat_index'/>
-        <int32_t name='unk_4'/>
+        <int32_t name='pz_ai_crafts'/>
     </class-type>
 
     <class-type type-name='resource_allotment_specifier_hornst' inherits-from='resource_allotment_specifier'>
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name='mat_index'/>
-        <int32_t name='unk_4'/>
+        <int32_t name='pz_ai_crafts'/>
     </class-type>
 
     <class-type type-name='resource_allotment_specifier_shellst' inherits-from='resource_allotment_specifier'>
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name='mat_index'/>
-        <int32_t name='unk_4'/>
+        <int32_t name='pz_ai_crafts'/>
     </class-type>
 
     <class-type type-name='resource_allotment_specifier_tallowst' inherits-from='resource_allotment_specifier'>
@@ -339,7 +380,7 @@
     <class-type type-name='resource_allotment_specifier_toothst' inherits-from='resource_allotment_specifier'>
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name='mat_index'/>
-        <int32_t name='unk_4'/>
+        <int32_t name='pz_ai_crafts'/>
     </class-type>
 
     <class-type type-name='resource_allotment_specifier_pearlst' inherits-from='resource_allotment_specifier'>
@@ -355,10 +396,14 @@
     <class-type type-name='resource_allotment_specifier_extractst' inherits-from='resource_allotment_specifier'>
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name='mat_index'/>
-        <int32_t name='unk_4'/>
-        <int16_t name='mat_type2' ref-target='material' aux-value='$$.mat_index2'/>
-        <int32_t name='mat_index2'/>
-        <int32_t name='unk_5' comment='uninitialized'/>
+        <bitfield name='extract_flags' base-type='uint32_t'> bay12: RAS_EXTRACT_FLAG_*
+            <flag-bit name='edible_raw'/>
+            <flag-bit name='edible_cooked'/>
+            <flag-bit name='cheeseable'/>
+        </bitfield>
+        <int16_t name='cheese_mat_type' ref-target='material' aux-value='$$.mat_index2'/>
+        <int32_t name='cheese_mat_index'/>
+        <int32_t name='pz_ai_cheese'/>
     </class-type>
 
     <class-type type-name='resource_allotment_specifier_cheesest' inherits-from='resource_allotment_specifier'>
@@ -369,15 +414,18 @@
     <class-type type-name='resource_allotment_specifier_skinst' inherits-from='resource_allotment_specifier'>
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name='mat_index'/>
-        <int16_t name='mat_type2' ref-target='material' aux-value='$$.mat_index2'/>
-        <int32_t name='mat_index2'/>
-        <int32_t name='unk_4'/>
+        <int16_t name='product_mat_type' ref-target='material' aux-value='$$.mat_index2'/>
+        <int32_t name='product_mat_index'/>
+        <int32_t name='pz_ai_leather'/>
     </class-type>
 
     <class-type type-name='resource_allotment_specifier_powderst' inherits-from='resource_allotment_specifier'>
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name='mat_index'/>
-        <int32_t name='unk_4'/>
+        <bitfield name='extract_flags' base-type='uint32_t'> bay12: RAS_POWDER_FLAG_*
+            <flag-bit name='edible_raw'/>
+            <flag-bit name='edible_cooked'/>
+        </bitfield>
     </class-type>
 
     <struct-type type-name='resource_allotment_data' original-name='production_zonest'
@@ -388,10 +436,10 @@
         </static-array>
         <int32_t name='center_x'/>
         <int32_t name='center_y'/>
-        <int32_t name='producing_civilization_enid'/>
-        <int32_t name="last_market_stid"/>
+        <int32_t name='producing_civilization_enid' ref-target='historical_entity'/>
+        <int32_t name="last_market_stid" ref-target='world_site'/>
         <stl-vector name="butchery_specifier">
-            <pointer>
+            <pointer> bay12: pz_butchery_specifierst
                 <int32_t name="id_or_combined_caste_id"/>
                 <stl-vector name="resource_allotment" type-name="resource_allotment_specifier_type"/>
                 <stl-vector name="allotment_index" type-name="int32_t"/>

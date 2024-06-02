@@ -1,5 +1,5 @@
 <data-definition>
-    <struct-type type-name='coord2d' custom-methods='true'>
+    <struct-type type-name='coord2d' custom-methods='true' comment='not a real structure'>
         <int16_t name='x' init-value='-30000'/>
         <int16_t name='y' init-value='-30000'/>
 
@@ -11,7 +11,7 @@
         <code-helper name='describe'>(fmt "(~A,~A)" $.x $.y)</code-helper>
     </struct-type>
 
-    <struct-type type-name='coord2d_path' custom-methods='true'>
+    <struct-type type-name='coord2d_path' custom-methods='true' comment='not a real structure'>
         <stl-vector type-name='int16_t' name='x'/>
         <stl-vector type-name='int16_t' name='y'/>
 
@@ -27,7 +27,7 @@
         </code-helper>
     </struct-type>
 
-    <struct-type type-name='coord' custom-methods='true'>
+    <struct-type type-name='coord' custom-methods='true' comment='not a real structure'>
         <int16_t name='x' init-value='-30000'/>
         <int16_t name='y' init-value='-30000'/>
         <int16_t name='z' init-value='-30000'/>
@@ -41,7 +41,7 @@
         <code-helper name='describe'>(fmt "(~A,~A,~A)" $.x $.y $.z)</code-helper>
     </struct-type>
 
-    <struct-type type-name='coord_path' custom-methods='true'>
+    <struct-type type-name='coord_path' custom-methods='true' comment='not a real structure'>
         <stl-vector type-name='int16_t' name='x'/>
         <stl-vector type-name='int16_t' name='y'/>
         <stl-vector type-name='int16_t' name='z'/>
@@ -61,14 +61,14 @@
         </code-helper>
     </struct-type>
 
-    <enum-type type-name='tile_traffic' base-type='uint32_t'>
+    <enum-type type-name='tile_traffic' base-type='uint32_t'> bay12: TRAFFIC_DESIGNATION_*
         <enum-item name='Normal'/>
         <enum-item name='Low'/>
         <enum-item name='High'/>
         <enum-item name='Restricted'/>
     </enum-type>
 
-    <enum-type type-name='tile_dig_designation' base-type='uint32_t'>
+    <enum-type type-name='tile_dig_designation' base-type='uint32_t'> bay12: DIG_DESIGNATION_*
         <enum-item name='No' comment='no designation'/>
         <enum-item name='Default' comment='dig walls, remove stairs and ramps, gather plants, fell trees'/>
         <enum-item name='UpDownStair'/>
@@ -78,12 +78,12 @@
         <enum-item name='UpStair'/>
     </enum-type>
 
-    <enum-type type-name='tile_liquid' base-type='uint32_t'>
+    <enum-type type-name='tile_liquid' base-type='uint32_t'> bay12: LIQUID_TYPE_*
         <enum-item name='Water'/>
         <enum-item name='Magma'/>
     </enum-type>
 
-    <bitfield-type type-name='tile_designation'>
+    <bitfield-type type-name='tile_designation' base-type='uint32_t'> bay12: DESIGNATION_*
         <flag-bit name='flow_size' count='3' comment='liquid amount'/>
         <flag-bit name='pile' comment='stockpile; Adventure: lit'/>
         <flag-bit name='dig' count='3' type-name='tile_dig_designation' comment='Adventure: line_of_sight, furniture_memory, item_memory'/>
@@ -111,18 +111,18 @@
         <flag-bit name='water_salt'/>
     </bitfield-type>
 
-    <enum-type type-name='tile_building_occ' base-type='uint32_t'>
+    <enum-type type-name='tile_building_occ' base-type='uint32_t'> bay12: BUILDING_OCCUPANCY_*
         <enum-item name='None' comment='no building'/>
-        <enum-item name='Planned' comment='nothing built yet'/>
-        <enum-item name='Passable'/>
-        <enum-item name='Obstacle' comment='workshop tile; ~fortification'/>
-        <enum-item name='Well'/>
-        <enum-item name='Floored' comment='depot; lowered bridge'/>
-        <enum-item name='Impassable'/>
-        <enum-item name='Dynamic' comment='doors, grates, etc'/>
+        <enum-item name='Planned' comment='CONST; nothing built yet'/>
+        <enum-item name='Passable' comment='NO_BLOCK'/>
+        <enum-item name='Obstacle' comment='BLOCK_FLOOR'/>
+        <enum-item name='Well' comment='BLOCK'/>
+        <enum-item name='Floored' comment='FLOOR; depot; lowered bridge'/>
+        <enum-item name='Impassable' comment='TOTAL'/>
+        <enum-item name='Dynamic' comment='SPECIAL; doors, grates, etc'/>
     </enum-type>
 
-    <bitfield-type type-name='tile_occupancy' base-type='uint32_t'>
+    <bitfield-type type-name='tile_occupancy' base-type='uint32_t'> bay12: OCCUPANCY_*
         <flag-bit name='building' count='3' type-name='tile_building_occ'/>
         <flag-bit name='unit' comment='standing'/>
         <flag-bit name='unit_grounded' comment='prone'/>
@@ -149,9 +149,10 @@
         <flag-bit name='dig_marked'/>
         <flag-bit name='dig_auto'/>
         <flag-bit name='heavy_aquifer' since='v0.47.01' comment="Light/Heavy aquifer flag"/>
+        <flag-bit name='temp_value' comment='bay12: currently used by location calcs'/>
     </bitfield-type>
 
-    <bitfield-type type-name='block_flags'>
+    <bitfield-type type-name='block_flags' base-type='uint32_t'> bay12: BLOCKFLAG_*
         <flag-bit name='designated' comment='for jobs etc'/>
         <flag-bit name='update_temperature'/>
         <flag-bit name='update_liquid'/>
@@ -164,11 +165,9 @@
         <flag-bit name='has_aquifer'
                   comment='has at least one "water_table" designation flag'/>
         <flag-bit name='check_aquifer'
-                  comment='has tiles that may get flooded by an adjacent aquifer'/>
-        <flag-bit name='may_have_item_spatter'
-                  comment="Seems to be surface or level above surface up to some limit (air biome?), with trees reaching higher than the limit. All have at least one tile of Outside. Cutting all trees in area did not seem to cause any change"/>
-        <flag-bit name='subterranean_water'
-                  comment="bay12: may_have_material_spatter; has tiles with designation flow_size > 0, liquid_type = true, and subterranean. At embark:not checked how player actions affect this flag"/>
+                  comment='bay12: NEARBY_WATER_TABLE; has tiles that may get flooded by an adjacent aquifer'/>
+        <flag-bit name='may_have_item_spatter'/>
+        <flag-bit name='may_have_material_spatter' comment="usually mud"/>
         <flag-bit name='has_magma_close'/>
         <flag-bit name='has_magma_far'/>
         <flag-bit name='mas_magma_low'/>
@@ -183,8 +182,8 @@
         <flag-bit name='update_twice'/> bay12: STOP_REMOVE_ADJUSTMENTS_FLAG
     </bitfield-type>
 
-    <enum-type type-name='tile_liquid_flow_dir' base-type='uint16_t'>
-        <enum-item name='none'/>
+    <enum-type type-name='tile_liquid_temp_flow_dir' base-type='uint16_t'> bay12: FLOW_DIR_TEMP_DIR_*
+        <enum-item name='north'/>
         <enum-item name='south'/>
         <enum-item name='east'/>
         <enum-item name='northeast'/>
@@ -192,27 +191,31 @@
         <enum-item name='northwest'/>
         <enum-item name='southeast'/>
         <enum-item name='southwest'/>
-        <enum-item name='inv_8'/>
-        <enum-item name='inv_9'/>
-        <enum-item name='north'/>
-        <enum-item name='inv_b'/>
-        <enum-item name='inv_c'/>
-        <enum-item name='inv_d'/>
-        <enum-item name='inv_e'/>
-        <enum-item name='inv_f'/>
     </enum-type>
 
-    <bitfield-type type-name='tile_liquid_flow' base-type='uint16_t'>
+    <enum-type type-name='tile_liquid_flow_dir' base-type='uint16_t'> bay12: FLOW_DIR_SINK_DIR_*
+        <enum-item name='inactive'/>
+        <enum-item name='south'/>
+        <enum-item name='east'/>
+        <enum-item name='northeast'/>
+        <enum-item name='west'/>
+        <enum-item name='northwest'/>
+        <enum-item name='southeast'/>
+        <enum-item name='southwest'/>
+        <enum-item name='down'/>
+        <enum-item name='none'/>
+        <enum-item name='north'/>
+    </enum-type>
+
+    <bitfield-type type-name='tile_liquid_flow' base-type='uint16_t'> bay12: FLOW_DIR_*
         <flag-bit name='temp_flow_timer' count='3' comment='set when water sloshes around, counts down to zero'/>
-        <flag-bit name='temp_dir' count='3'/>
+        <flag-bit name='temp_dir' count='3' type-name='tile_liquid_temp_flow_dir'/>
         <flag-bit name='perm_flow_dir' count='4' type-name='tile_liquid_flow_dir'/>
         <flag-bit name='sink_dist' count='6' comment='periodically set whenever perm_flow_dir is nonzero'/>
     </bitfield-type>
 
-    <struct-type type-name='tile_bitmask' custom-methods='true'>
-        <static-array name='bits' count='16'>
-            <uint16_t/>
-        </static-array>
+    <struct-type type-name='tile_bitmask' custom-methods='true' comment='not in DF, 16x16 bitmask'>
+        <static-array name='bits' count='16' type-name='uint16_t'/>
         <custom-methods>
             <cmethod name='clear'/>
             <cmethod name='set_all'/>
@@ -220,7 +223,7 @@
         </custom-methods>
     </struct-type>
 
-    <struct-type type-name='block_burrow' df-list-link-type='block_burrow_link' df-list-link-field='link' custom-methods='true'>
+    <struct-type type-name='block_burrow' original-name='burrow_blockst' df-list-link-type='block_burrow_link' df-list-link-field='link' custom-methods='true'>
         <int32_t name='id' ref-target='burrow'/>
 
         <compound name='tile_bitmask' type-name='tile_bitmask'/>
@@ -232,9 +235,9 @@
         </custom-methods>
     </struct-type>
 
-    <df-linked-list-type type-name='block_burrow_link' item-type='block_burrow'/>
+    <df-linked-list-type type-name='block_burrow_link' item-type='block_burrow'/> bay12: tlink{burrow_blockst}
 
-    <struct-type type-name='map_block'>
+    <struct-type type-name='map_block' original-name='blockst'>
         <bitfield name='flags' type-name='block_flags'/>
 
         <stl-vector name='block_events' pointer-type='block_square_event'/>
@@ -252,21 +255,17 @@
         <int32_t name='dsgn_check_cooldown'/>
         <bitfield type-name='tile_designation' name='default_liquid'/>
 
-        <stl-vector name='items'>
-            <int32_t ref-target='item'/>
-        </stl-vector>
+        <stl-vector name='items' type-name='int32_t' ref-target='item'/>
         <stl-vector name='flows' pointer-type='flow_info'/>
 
-        <compound name='flow_pool' type-name='flow_reuse_pool'/>
-
-        <!--<stl-vector name='plants' pointer-type='plant'/>-->
+        <compound name='flow_pool' type-name='flow_reuse_pool' comment='actually inline'/>
 
         <compound name='map_pos' type-name='coord'/>
         <compound name='region_pos' type-name='coord2d'/>
 
         <static-array name='tiletype' count='16'>
             <static-array count='16'>
-                <enum base-type='int16_t' type-name='tiletype' init-value='OpenSpace'/>
+                <enum base-type='uint16_t' type-name='tiletype' init-value='OpenSpace'/>
             </static-array>
         </static-array>
         <static-array name='designation' count='16'>
@@ -299,22 +298,22 @@
         <static-array name='walkable' count='16' comment='bay12: levelmap'>
             <comment>0 = non-walkable; same nonzero at A and B = walkable from A to B</comment>
             <static-array count='16'>
-                <uint16_t/>
+                <int16_t/>
             </static-array>
         </static-array>
         <static-array name='map_edge_distance' count='16' comment='bay12: dlevelmap'>
             <comment>1 at walkable map edge; then +1 per 10 tiles it seems; 0 in dug tunnels</comment>
             <static-array count='16'>
-                <uint16_t/>
+                <int16_t/>
             </static-array>
         </static-array>
 
-        <static-array name='temperature_1' count='16'>
+        <static-array name='temperature_1' count='16' comment='bay12: current_temperature'>
             <static-array count='16'>
                 <uint16_t/>
             </static-array>
         </static-array>
-        <static-array name='temperature_2' count='16'>
+        <static-array name='temperature_2' count='16' comment='bay12: normal_temperature'>
             <static-array count='16'>
                 <uint16_t/>
             </static-array>
@@ -332,7 +331,7 @@
         </static-array>
 
         <static-array name='region_offset' count='9'>
-            <uint8_t/>
+            <int8_t/>
         </static-array>
     </struct-type>
 
@@ -341,8 +340,8 @@
     <class-type type-name='cave_column' df-list-link-type='cave_column_link' df-list-link-field='' original-name='cave_columnst'>
         <int16_t name='base_z'/>
         <int16_t name='top_z'/>
-        <int16_t name='rect_index' init-value='30000'/>
-        <bitfield name='flags' base-type='uint8_t'>
+        <uint16_t name='rect_index' init-value='30000'/>
+        <bitfield name='flags' base-type='uint8_t'> bay12: CAVE_COLUMN_FLAG_*
             <flag-bit name='UNSTABLE'/>
             <flag-bit name='ULTRA_SUPPORTED'/>
         </bitfield>
@@ -366,7 +365,7 @@
         <stl-vector type-name='int16_t' name='neighbor_bx'/>
         <stl-vector type-name='int16_t' name='neighbor_by'/>
         <stl-vector type-name='uint16_t' name='neighbor_index'/>
-        <bitfield name='flags'>
+        <bitfield name='flags' base-type='uint32_t'> bay12: CAVE_COLUMN_RECTANGLE_FLAG_*
             <flag-bit name='SUPPORTED'/>
             <flag-bit name='UNSTABLE'/>
             <flag-bit name='ULTRA_SUPPORTED'/>
@@ -381,14 +380,18 @@
         </virtual-methods>
     </class-type>
 
-    <struct-type type-name='map_block_column'>
-        <int16_t name="sink_level" comment='water at or above this level sinks into aquifer tiles'/>
-        <int16_t name="beach_level" comment='water at this level disappears if above more water'/>
+    <enum-type type-name='map_block_column_flags'> bay12: BlockColumnFlagType
+        <enum-item name='UPDATE_CAVE_COLUMNS'/>
+    </enum-type>
 
-        <int16_t name='ground_level' comment='for coloring unallocated blocks'/>
+    <struct-type type-name='map_block_column' original-name='block_columnst'>
+        <int16_t name="sink_level" comment='bay12: water_el_table_block; water at or above this level sinks into aquifer tiles'/>
+        <int16_t name="beach_level" comment='bay12: water_el_sink_height; water at this level disappears if above more water'/>
+
+        <int16_t name='ground_level' comment='bay12: central_el_z; for coloring unallocated blocks'/>
 
         <stl-vector name='unmined_glyphs'>
-            <pointer>
+            <pointer> bay12: block_column_print_infost
                 <static-array name='x' count='4' type-name='int16_t'/>
                 <static-array name='y' count='4' type-name='int16_t'/>
                 <static-array name='tile' count='4' type-name='uint8_t'/>
@@ -407,21 +410,19 @@
 
         <int16_t name='z_shift' comment='seems to be 0 originally, but updated when map is shifted'/>
 
-        <df-flagarray name='flags' comment='0 process cave columns for caveins'/>
+        <df-flagarray name='flags' index-enum='map_block_column_flags'/>
 
         <static-array name='elevation' count='16' since='v0.40.01'>
             <static-array count='16' type-name='int16_t' init-value='100'/>
         </static-array>
 
-        <compound name='map_pos' type-name='coord2d' comment='top left in tiles'/>
-        <int16_t name='unk_c3c' comment='uninitialized'/>
-
+        <compound name='map_pos' type-name='coord' comment='top left in tiles'/>
         <compound name='region_pos' type-name='coord2d'/>
 
         <stl-vector name='plants' pointer-type='plant' comment="Only populated for the top left column in each mid level tile"/>
     </struct-type>
 
-    <enum-type type-name='block_square_event_type'>
+    <enum-type type-name='block_square_event_type' base-type='int16_t'> bay12: BlockSquareEventType
         <enum-item name='mineral'/>
         <enum-item name='frozen_liquid'/>
         <enum-item name='world_construction'/>
@@ -446,7 +447,7 @@
             <vmethod name='checkTemperature'>
                 <int16_t name='x'/>
                 <int16_t name='y'/>
-                <int16_t name='temperature'/>
+                <uint16_t name='temperature'/>
             </vmethod>
         </virtual-methods>
     </class-type>
@@ -454,7 +455,7 @@
     <class-type type-name='block_square_event_mineralst' inherits-from='block_square_event' custom-methods='true'>
         <int32_t name='inorganic_mat' ref-target='inorganic_raw'/>
         <compound name='tile_bitmask' type-name='tile_bitmask'/>
-        <bitfield name='flags'>
+        <bitfield name='flags' base-type='uint32_t'> bay12: MINERAL_EVENT_FLAG_*
             <flag-bit name='discovered'/>
             <flag-bit name='cluster'/>
             <flag-bit name='vein'/>
@@ -469,12 +470,12 @@
     <class-type type-name='block_square_event_frozen_liquidst' inherits-from='block_square_event'>
         <static-array name='tiles' count='16'>
             <static-array count='16'>
-                <enum base-type='int16_t' type-name='tiletype'/>
+                <enum base-type='uint16_t' type-name='tiletype'/>
             </static-array>
         </static-array>
         <static-array name='liquid_type' count='16'>
             <static-array count='16'>
-                <enum base-type='int8_t' type-name='tile_liquid'/>
+                <enum base-type='uint8_t' type-name='tile_liquid'/>
             </static-array>
         </static-array>
     </class-type>
@@ -487,7 +488,7 @@
     <class-type type-name='block_square_event_material_spatterst' inherits-from='block_square_event'>
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name='mat_index'/>
-        <enum name='mat_state' type-name='matter_state' base-type='int16_t'/>
+        <enum name='mat_state' type-name='matter_state'/>
         <static-array name='amount' count='16'>
             <static-array count='16' type-name='uint8_t'/>
         </static-array>
@@ -498,47 +499,65 @@
     <class-type type-name='block_square_event_grassst' inherits-from='block_square_event'>
         <int32_t name='plant_index' ref-target='plant_raw' />
         <static-array name='amount' count='16'>
-            <static-array count='16' type-name='int8_t'/>
+            <static-array count='16' type-name='uint8_t'/>
         </static-array>
     </class-type>
 
+    <bitfield-type type-name='spoor_flag' base-type='uint16_t'> bay12: BSE_SPOOR_FLAG_*
+        <flag-bit name='present'/>
+        <flag-bit name='has_direction'/>
+        <flag-bit name='direction' count='3' type-name='spoor_flag_dir'/>
+        <flag-bit name='yours'/>
+        <flag-bit name='liquid_print'/>
+        <flag-bit name='level' count='2' type-name='spoor_flag_level'/>
+    </bitfield-type>
+
+    <enum-type type-name='spoor_flag_dir' base-type='uint16_t'> bay12: BSE_SPOOR_FLAG_DIR_*
+        <enum-item name='north'/>
+        <enum-item name='south'/>
+        <enum-item name='east'/>
+        <enum-item name='northeast'/>
+        <enum-item name='west'/>
+        <enum-item name='northwest'/>
+        <enum-item name='southeast'/>
+        <enum-item name='southwest'/>
+    </enum-type>
+
+    <enum-type type-name='spoor_flag_level' base-type='uint16_t'> bay12: BSE_SPOOR_FLAG_LEVEL_*
+        <enum-item name='normal'/>
+        <enum-item name='vague'/>
+        <enum-item name='light'/>
+        <enum-item name='heavy'/>
+    </enum-type>
+
+    <enum-type type-name='spoor_type' base-type='int8_t'> bay12: BSESpoorType, defined as Uint8_t but that won't work here
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='BROKEN_VEGETATION'/>
+        <enum-item name='HFID_COMBINEDCASTE_BP'/>
+        <enum-item name='ITEMT_ITEMST_ORIENT'/>
+        <enum-item name='MESS'/>
+    </enum-type>
+
     <class-type type-name='block_square_event_spoorst' inherits-from='block_square_event'>
+        bay12: block_square_event_spoor_infost
         <static-array name='flags' count='16'>
-            <static-array count='16'>
-                <bitfield base-type='uint16_t'>
-                    <flag-bit/>
-
-                    <flag-bit/>
-                    <flag-bit/>
-                    <flag-bit/>
-                    <flag-bit/>
-                    <flag-bit/>
-                    <flag-bit/>
-
-                    <flag-bit/>
-                    <flag-bit/>
-                </bitfield>
+            <static-array count='16' type-name='spoor_flag'>
             </static-array>
         </static-array>
-        <static-array name='unk_2' count='16'>
+        <static-array name='type' count='16'>
+            <static-array count='16' type-name='spoor_type'/>
+        </static-array>
+        <static-array name='id1' count='16'>
             <static-array count='16'>
-                <enum base-type='int8_t'>
-                    <enum-item name='unk_2_a'/>
-                    <enum-item name='unk_2_b'/>
-                    <enum-item name='unk_2_c'/>
-                    <enum-item name='unk_2_d'/>
-                </enum>
+                <int32_t/>
             </static-array>
         </static-array>
-        <static-array name='unk_3' count='16'>
-            <static-array count='16' type-name='int32_t'/>
-        </static-array>
-        <static-array name='race' count='16'>
+        <static-array name='race' count='16' comment='bay12: id2, varies based on type'>
             <static-array count='16'>
                 <int32_t ref-target='creature_raw'/>
             </static-array>
         </static-array>
-        <static-array name='caste' count='16'>
+        <static-array name='caste' count='16' comment='bay12: id3, varies based on type'>
             <static-array count='16'>
                 <int32_t ref-target='caste_raw'/>
             </static-array>
@@ -550,22 +569,26 @@
         <int32_t name='year_tick' init-value='-1'/>
     </class-type>
 
+    <bitfield-type type-name='item_spatter_flag' base-type='uint8_t'> bay12: BLOCK_SQUARE_EVENT_ITEM_SPATTER_FLAG_*
+        <flag-bit name='season_full_timer' count='3'/>
+    </bitfield-type>
+
     <class-type type-name='block_square_event_item_spatterst' inherits-from='block_square_event'>
-        <enum base-type='int16_t' name='item_type' type-name='item_type'/>
+        <enum name='item_type' type-name='item_type'/>
         <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
         <int16_t name='mattype' ref-target='material' aux-value='$$.matindex'/>
         <int32_t name='matindex'/>
 
-        <int32_t name='unk1' />
+        <int32_t name='print_variant'/>
         <static-array name='amount' count='16'>
             <static-array count='16' type-name='int32_t'/>
         </static-array>
-        <static-array name='unk2' count='16'>
-            <static-array count='16' type-name='int8_t'/>
+        <static-array name='flag' count='16'>
+            <static-array count='16' type-name='item_spatter_flag'/>
         </static-array>
 
-        <uint16_t name='temp1'/>
-        <uint16_t name='temp2'/>
+        <uint16_t name='min_temperature'/>
+        <uint16_t name='max_temperature'/>
     </class-type>
 
     <class-type type-name='block_square_event_designation_priorityst' inherits-from='block_square_event'>
@@ -574,7 +597,7 @@
         </static-array>
     </class-type>
 
-    <enum-type type-name='feature_type'>
+    <enum-type type-name='feature_type' base-type='int16_t'> bay12: FeatureType
         <enum-item name='outdoor_river'/>
         <enum-item name='cave'/>
         <enum-item name='pit'/>
@@ -605,7 +628,7 @@
                 <enum name='loadversion' type-name='save_version'/>
             </vmethod>
             <vmethod name='shiftCoords'><int16_t name='x'/><int16_t name='y'/><int16_t name='z'/></vmethod>
-            <vmethod/>
+            <vmethod name='discovery_realize' comment='originally used in 40d to populate demon pits'/>
 
             <vmethod is-destructor='true'/>
         </virtual-methods>
@@ -626,7 +649,7 @@
     <class-type type-name='feature_magma_core_from_layerst' inherits-from='feature'/>
     <class-type type-name='feature_underworld_from_layerst' inherits-from='feature'/>
 
-    <enum-type type-name='feature_init_flags'>
+    <enum-type type-name='feature_init_flags'> bay12: FeatureInitFlagType
         <enum-item name='AddSavage'/>
         <enum-item name='AddEvil'/>
         <enum-item name='AddGood'/>
@@ -665,7 +688,7 @@
                 <enum name='loadversion' type-name='save_version'/>
                 <bool name='include_feature'/>
             </vmethod>
-            <vmethod name='createFeature'>
+            <vmethod name='createFeature' comment='for load'>
                 <ret-type><pointer type-name='feature'/></ret-type>
             </vmethod>
             <vmethod name='recreateFeature' comment='destroyFeature(), then createFeature()'>
@@ -681,11 +704,11 @@
                 <pointer name='mat_type' type-name='int16_t'/>
                 <pointer name='mat_index' type-name='int32_t'/>
             </vmethod>
-            <vmethod ret-type='bool'/>
+            <vmethod ret-type='bool' name='generates_river_vermin'/>
 
-            <vmethod ret-type='bool'/>
-            <vmethod ret-type='bool'/>
-            <vmethod ret-type='bool'/>
+            <vmethod ret-type='bool' name='outdoor_wildlife_feature'/>
+            <vmethod ret-type='bool' name='indoor_wildlife_feature'/>
+            <vmethod ret-type='bool' name='fishing_feature'/>
             <vmethod name='getColor'>
                 <pointer name='foreground' type-name='int16_t'/>
                 <pointer name='background' type-name='int16_t'/>
@@ -699,9 +722,9 @@
             <vmethod name='isSubterranean' ret-type='bool'/>
             <vmethod name='isMagma' ret-type='bool'/>
             <vmethod name='isChasm' ret-type='bool'/>
-            <vmethod name='isLayer' ret-type='bool'/>
+            <vmethod name='isUnderworld' ret-type='bool'/>
 
-            <vmethod ret-type='bool'/>
+            <vmethod ret-type='bool' name='isOutdoorRiver'/>
             <vmethod ret-type='int32_t' name='getLayer'/>
         </virtual-methods>
     </class-type>
@@ -755,7 +778,7 @@
         <pointer name='feature' type-name='feature_underworld_from_layerst'/>
     </class-type>
 
-    <enum-type type-name='feature_alteration_type'>
+    <enum-type type-name='feature_alteration_type' base-type='int16_t'> bay12: FeatureAlterationType
         <enum-item name='new_pop_max'/>
         <enum-item name='new_lava_fill_z'/>
     </enum-type>
@@ -773,15 +796,15 @@
     </class-type>
 
     <class-type type-name='feature_alteration_new_pop_maxst' inherits-from='feature_alteration'>
-        <int32_t name='unk_1'/>
-        <int32_t name='unk_2'/>
+        <int32_t name='index'/>
+        <int32_t name='new_num'/>
     </class-type>
 
     <class-type type-name='feature_alteration_new_lava_fill_zst' inherits-from='feature_alteration'>
         <int32_t name='magma_fill_z'/>
     </class-type>
 
-    <enum-type type-name='world_construction_type'>
+    <enum-type type-name='world_construction_square_type' base-type='int16_t'> bay12: WorldConstructionSquareType
         <enum-item name='ROAD'/>
         <enum-item name='TUNNEL'/>
         <enum-item name='BRIDGE'/>
@@ -796,11 +819,11 @@
 
         <stl-vector name='embark_x' type-name='int16_t'/>
         <stl-vector name='embark_y' type-name='int16_t'/>
-        <stl-vector name='embark_unk' type-name='int16_t'/>
+        <stl-vector name='embark_exit' type-name='int16_t'/>
         <stl-vector name='embark_z' type-name='int16_t'/>
 
         <virtual-methods>
-            <vmethod ret-type='world_construction_type' name='getType'/>
+            <vmethod ret-type='world_construction_square_type' name='getType'/>
             <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
             <vmethod name='read_file'>
                 <pointer name='file' type-name='file_compressorst'/>
@@ -820,7 +843,7 @@
     <class-type type-name='world_construction_square_tunnelst' inherits-from='world_construction_square'/>
 
     <class-type type-name='world_construction_square_bridgest' inherits-from='world_construction_square'>
-        <int32_t name='road_id' ref-target='world_construction' comment='guess'/>
+        <int32_t name='road_id' ref-target='world_construction'/>
         <enum type-name='item_type' base-type='int16_t' name='item_type'/>
         <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
@@ -833,6 +856,13 @@
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name='mat_index'/>
     </class-type>
+
+    <enum-type type-name='world_construction_type' base-type='int16_t'> bay12: WorldConstructionType
+        <enum-item name='ROAD'/>
+        <enum-item name='TUNNEL'/>
+        <enum-item name='BRIDGE'/>
+        <enum-item name='WALL'/>
+    </enum-type>
 
     <class-type type-name='world_construction' original-name='world_constructionst'
                 instance-vector='$global.world.world_data.constructions.list' key-field='id'>
@@ -869,7 +899,7 @@
         <compound type-name='language_name' name='name'/>
     </class-type>
 
-    <enum-type type-name='biome_type'>
+    <enum-type type-name='biome_type'> bay12: Biome, no base type
         <enum-attr name='caption'/>
         <enum-attr name='plant_raw_flag' type-name='plant_raw_flags' default-value='BIOME_SUBTERRANEAN_LAVA'/>
 
@@ -1079,25 +1109,25 @@
         </enum-item>
     </enum-type>
 
-    <bitfield-type type-name='construction_flags' base-type='uint8_t'>
-        <flag-bit name='no_build_item' comment='build item is created from scratch upon removing construction, does not exist beforehand'/>
-        <flag-bit name='top_of_wall' comment='used on the floors above constructed walls so you cannot remove them'/>
+    <bitfield-type type-name='construction_flags' base-type='uint8_t'> bay12: EVENT_CONSTRUCTION_FLAG_*
+        <flag-bit name='no_build_item' comment='bay12: MUST_GENERATE_ITEMS; build item is created from scratch upon removing construction, does not exist beforehand'/>
+        <flag-bit name='top_of_wall' comment='bay12: ITEMLESS_CEILING; used on the floors above constructed walls so you cannot remove them'/>
     </bitfield-type>
 
     <struct-type type-name='construction' instance-vector='$global.world.constructions' key-field='pos' original-name='event_constructionst' custom-methods='true'>
         <compound name='pos' type-name='coord'/>
-        <enum type-name='item_type' base-type='int16_t' name='item_type'/>
+        <enum type-name='item_type' name='item_type'/>
         <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name='mat_index'/>
         <bitfield type-name='construction_flags' name='flags'/>
-        <enum base-type='int16_t' type-name='tiletype' name='original_tile'/>
+        <enum base-type='uint16_t' type-name='tiletype' name='original_tile'/>
     </struct-type>
 
-    <enum-type type-name='flow_type' base-type='int16_t'>
+    <enum-type type-name='flow_type'> bay12: FlowTypes, no base type
         <enum-item name='Miasma'/>
-        <enum-item name='Steam' comment='only if mat_type=1'/>
-        <enum-item name='Mist'/>
+        <enum-item name='Steam' comment='bay12: MIST_WATER'/>
+        <enum-item name='Mist' comment='bay12: MIST_WATERFALL'/>
         <enum-item name='MaterialDust'/>
         <enum-item name='MagmaMist'/>
         <enum-item name='Smoke'/>
@@ -1119,18 +1149,22 @@
         <compound name='pos' type-name='coord'/>
         <compound name='dest' type-name='coord'/>
         <bool name='expanding' init-value='1'/>
-        <bool name='reuse'/>
+        <bitfield name='flags' base-type='uint8_t'> bay12: EVENTFLOW_FLAG_*
+            <flag-bit name='DEAD'/>
+            <flag-bit name='FAST'/>
+            <flag-bit name='CREEPING'/>
+        </bitfield>
         <int32_t name='guide_id' ref-target='flow_guide'/>
     </struct-type>
 
-    <struct-type type-name='flow_reuse_pool'>
+    <struct-type type-name='flow_reuse_pool' original-name='flow_trackerst'>
         <int32_t name='reuse_idx' init-value='-1'/>
-        <bitfield name='flags'>
-            <flag-bit name='active'/>
+        <bitfield name='flags' base-type='uint32_t'> bay12: FLOWTRACKER_FLAG_*
+            <flag-bit name='active' comment='SOMETHINGDIED'/>
         </bitfield>
     </struct-type>
 
-    <enum-type type-name='flow_guide_type'>
+    <enum-type type-name='flow_guide_type' base-type='int16_t'> bay12: FlowGuideType
         <enum-item name='TrailingFlow'/>
         <enum-item name='ItemCloud'/>
     </enum-type>
@@ -1138,7 +1172,7 @@
     <class-type type-name='flow_guide' original-name='flow_guidest'
                 key-field='id' instance-vector='$global.world.flow_guides.all'>
         <int32_t name='id'/>
-        <int8_t name='unk_8'/>
+        <bool name='tagged' comment='for culling'/>
         <virtual-methods>
             <vmethod ret-type='flow_guide_type' name='getType'/>
             <vmethod name='shiftCoords'><int16_t name='x'/><int16_t name='y'/><int16_t name='z'/></vmethod>
@@ -1147,37 +1181,47 @@
                 <pointer name='file' type-name='file_compressorst'/>
                 <enum name='loadversion' type-name='save_version'/>
             </vmethod>
-            <vmethod><pointer type-name='flow_info'/></vmethod>
+            <vmethod name='advance_flow'><pointer type-name='flow_info'/></vmethod>
             <vmethod is-destructor='true'/>
         </virtual-methods>
     </class-type>
 
     <class-type type-name='flow_guide_trailing_flowst' inherits-from='flow_guide'>
-        <static-array name='unk_1' type-name='coord' count='15'/>
+        <static-array name='line' type-name='coord' count='15'/>
     </class-type>
 
     <class-type type-name='flow_guide_item_cloudst' inherits-from='flow_guide'>
-        <enum base-type='int16_t' name='item_type' type-name='item_type'/>
+        <enum name='item_type' type-name='item_type'/>
         <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
         <int16_t name='mattype' ref-target='material' aux-value='$$.matindex'/>
         <int32_t name='matindex'/>
-        <int32_t name="unk_18"/>
-        <int32_t name="unk_1c"/>
-        <static-array name='unk_1' type-name='coord' count='15'/>
+        <int32_t name="print_variant"/>
+        <bitfield name='flags' base-type='uint32_t'> bay12: FLOW_GUIDE_ITEM_CLOUD_FLAG_*
+            <flag-bit name='undirected'/>
+            <flag-bit name='trailing'/>
+        </bitfield>
+        <static-array name='line' type-name='coord' count='15'/>
     </class-type>
 
-    <struct-type type-name='effect_info'>
-        <int32_t name='id' comment='assigned during Save'/>
+    <enum-type type-name='effect_type'> bay12: Effects, no base type
+        <enum-item name='Sparkles'/>
+        <enum-item name='Color'/>
+        <enum-item name='ShrinkingDot'/>
+    </enum-type>
+
+    <struct-type type-name='effect_info' original-name='effectst'>
+        <int32_t name='save_idx'/>
         <pointer name='job' type-name='job'/>
-        <int16_t name='type' comment='2 = falling into chasm'/>
+        <enum name='type' type-name='effect_type' base-type='int16_t'/>
         <int16_t name='foreground'/>
         <int16_t name='background'/>
         <int8_t name='bright'/>
         <compound type-name='coord' name='pos'/>
         <int32_t name='timer'/>
+        <int32_t name='id'/>
     </struct-type>
 
-    <enum-type type-name='region_block_event_type'>
+    <enum-type type-name='region_block_event_type' base-type='int16_t'> bay12: RegionBlockEventType
         <enum-item name='SphereField'/>
     </enum-type>
 
@@ -1189,13 +1233,13 @@
                 <pointer name='file' type-name='file_compressorst'/>
                 <enum name='loadversion' type-name='save_version'/>
             </vmethod>
-            <vmethod ret-type='bool'/>
+            <vmethod name='isEmpty' ret-type='bool'/>
             <vmethod is-destructor='true'/>
         </virtual-methods>
     </class-type>
 
     <class-type type-name='region_block_event_sphere_fieldst' inherits-from='region_block_eventst'>
-        <static-array name='unk_1' type-name='int16_t' count='16'/>
+        <compound name='tile_bitmask' type-name='tile_bitmask'/>
     </class-type>
 
 </data-definition>
