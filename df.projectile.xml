@@ -1,5 +1,5 @@
 <data-definition>
-    <enum-type type-name='projectile_type'>
+    <enum-type type-name='projectile_type'> bay12: Projectile
         <enum-item name='Item'/>
         <enum-item name='Unit'/>
         <enum-item name='Magic'/>
@@ -7,9 +7,9 @@
 
     <df-linked-list-type type-name='proj_list_link' item-type='projectile'/>
 
-    <bitfield-type type-name='projectile_flags'>
-        <flag-bit name='no_impact_destroy'/>
-        <flag-bit name='has_hit_ground'/>
+    <bitfield-type type-name='projectile_flags' base-type='uint32_t'> bay12: PROJFLAG_*
+        <flag-bit name='no_impact_destroy' comment='LANDS'/>
+        <flag-bit name='has_hit_ground' comment='DELETE'/>
         <flag-bit name='bouncing'/>
         <flag-bit name='high_flying'/>
 
@@ -50,14 +50,14 @@
         <int16_t name='fall_delay'/>
 
         <int32_t name='hit_rating'/>
-        <int32_t name='unk21'/>
-        <int32_t name='unk22'/>
+        <int32_t name='total_z_dist'/>
+        <int32_t name='velocity'/>
         <int32_t name='bow_id' ref-target='item'/>
 
         -- Parabolic projectile info:
-        <int32_t name="unk_item_id" ref-target='item'/>
-        <int32_t name="unk_unit_id" ref-target='unit'/>
-        <int32_t name="unk_v40_1" since='v0.40.01' comment='uninitialized+saved'/>
+        <int32_t name="last_knock_item" ref-target='item'/>
+        <int32_t name="last_knock_unit" ref-target='unit'/>
+        <int32_t name="spec_target_unit" ref-target='unit' since='v0.40.01' comment='uninitialized+saved'/>
 
         <int32_t name="pos_x"/>
         <int32_t name="pos_y"/>
@@ -80,11 +80,9 @@
                 <enum name='loadversion' type-name='save_version'/>
             </vmethod>
             <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
-            <vmethod>
-                <pointer/>
-            </vmethod>
+            <vmethod name='print'><pointer type-name='map_viewport'/></vmethod>
+            <vmethod name='print_to_viewport'><pointer type-name='map_viewport'/></vmethod>
             <vmethod ret-type='bool' name='isObjectLost'/>
-            <vmethod ret-type='int8_t'/>
             <vmethod is-destructor='true'/>
         </virtual-methods>
     </class-type>
@@ -97,8 +95,12 @@
         <pointer name='unit' type-name='unit' comment='?'/>
     </class-type>
 
+    <enum-type type-name='proj_magic_type'> bay12: ProjMagicType
+        <enum-item name='FIREBALL'/>
+    </enum-type>
+
     <class-type type-name='proj_magicst' inherits-from='projectile'>
-        <int16_t name='type'/>
+        <enum name='type' type-name='proj_magic_type' base-type='int16_t'/>
         <int16_t name='damage'/>
     </class-type>
 </data-definition>
