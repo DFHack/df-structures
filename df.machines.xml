@@ -1,23 +1,23 @@
 <data-definition>
     -- MACHINE
 
-    <enum-type type-name='machine_type'>
+    <enum-type type-name='machine_type'> bay12: MachineType
         <enum-item name='standard'/>
     </enum-type>
 
-    <struct-type type-name='machine_info'>
+    <struct-type type-name='machine_info' original-name='building_machine_informationst'>
         <int32_t name="machine_id" ref-target='machine'/>
-        <bitfield name='flags'>
+        <bitfield name='flags' base-type='uint32_t'> bay12: BUILDING_MACHINE_INFO_FLAG_*
             <flag-bit name='frozen'/>
         </bitfield>
     </struct-type>
 
-    <struct-type type-name='power_info'>
+    <struct-type type-name='power_info' original-name='machine_power_profilest'>
         <int32_t name='produced'/>
         <int32_t name='consumed'/>
     </struct-type>
 
-    <bitfield-type type-name='machine_conn_modes' base-type='uint8_t'>
+    <bitfield-type type-name='machine_conn_modes' base-type='uint8_t'> bay12: BUILDING_MACHINE_HOOKUP_DIR_*
         <flag-bit name='up'/>
         <flag-bit name='down'/>
         <flag-bit name='right'/>
@@ -26,11 +26,9 @@
         <flag-bit name='z_down'/>
     </bitfield-type>
 
-    <struct-type type-name='machine_tile_set'>
+    <struct-type type-name='machine_tile_set' original-name='building_machine_hookup_listst'>
         <compound name='tiles' type-name='coord_path'/>
-        <stl-vector name='can_connect'>
-            <bitfield type-name='machine_conn_modes'/>
-        </stl-vector>
+        <stl-vector name='can_connect' type-name='machine_conn_modes'/>
     </struct-type>
 
     <class-type type-name='machine' original-name='machinest'
@@ -42,7 +40,7 @@
         <int32_t name="id"/>
 
         <stl-vector name="components">
-            <pointer>
+            <pointer> bay12: machine_nodest
                 <int32_t name="building_id" ref-target='building'/>
                 <stl-vector name="connections" type-name='int32_t'
                             comment='indices into the same component vector'/>
@@ -55,10 +53,10 @@
         <int8_t name='visual_phase'/>
         <int16_t name="phase_timer"/>
 
-        <bitfield name="flags">
+        <bitfield name="flags" base-type='uint32_t'> bay12: MACHINE_FLAG_*
             <flag-bit name='active'/>
-            <flag-bit name='frozen' comment='?'/>
-            <flag-bit name='unfreeze' comment='?'/>
+            <flag-bit name='frozen'/>
+            <flag-bit name='unfreeze_check'/>
         </bitfield>
 
         <virtual-methods>
@@ -77,8 +75,7 @@
         </virtual-methods>
     </class-type>
 
-    <class-type type-name='machine_standardst' inherits-from='machine'>
-    </class-type>
+    <class-type type-name='machine_standardst' inherits-from='machine'/>
 
     -- MACHINE COMPONENT BUILDINGS
 
@@ -93,7 +90,7 @@
 
     <class-type type-name='building_gear_assemblyst' inherits-from='building_actual'>
         <compound name='machine' type-name='machine_info'/>
-        <bitfield name='gear_flags'>
+        <bitfield name='gear_flags' base-type='uint32_t'> bay12: BUILDINGFLAG_GEAR_ASSEMBLY_*
             <flag-bit name='disengaged'/>
         </bitfield>
     </class-type>
@@ -105,7 +102,7 @@
         <int16_t name="orient_y"/>
 
         <int16_t name="is_working"/>
-        <bool name="visual_rotated"/>
+        <int8_t name="rotation"/>
         <int16_t name="rotate_timer"/>
 
         <int16_t name="orient_timer"/>
@@ -117,7 +114,7 @@
         <bool name='gives_power'/>
     </class-type>
 
-    <enum-type type-name='screw_pump_direction' base-type='int8_t'>
+    <enum-type type-name='screw_pump_direction'> bay12: BUILDING_SCREW_PUMP_DIR_*
         <enum-item name='FromNorth'/>
         <enum-item name='FromEast'/>
         <enum-item name='FromSouth'/>
@@ -127,7 +124,7 @@
     <class-type type-name='building_screw_pumpst' inherits-from='building_actual'>
         <compound name='machine' type-name='machine_info'/>
 
-        <uint8_t name='pump_energy' comment='decreases by 1 every frame. powering or manually pumping maintains near 100'/>
+        <int8_t name='pump_energy' comment='decreases by 1 every frame. powering or manually pumping maintains near 100'/>
 
         <enum name='direction' base-type='int8_t' type-name='screw_pump_direction'/>
 

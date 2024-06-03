@@ -1,11 +1,11 @@
 <data-definition>
-    <enum-type type-name='mission_type' base-type='int16_t'>
+    <enum-type type-name='mission_type' base-type='int16_t'> bay12: MissionType
         <enum-item name='NONE' value='-1'/>
         <enum-item name='SUPPORT_THIEVES'/>
         <enum-item name='KILL_ALL_AT_SITE'/>
     </enum-type>
 
-    <struct-type type-name='invasion_info'
+    <struct-type type-name='invasion_info' original-name='plot_invasionst'
                  instance-vector='$global.plotinfo.invasions.list' key-field='id'>
         <int32_t name='id'/>
         <int32_t name='civ_id' ref-target='historical_entity'/>
@@ -13,9 +13,9 @@
         <int32_t name='active_size2'/>
         <int32_t name='size'/>
         <int32_t name='duration_counter'/>
-        <bitfield base-type='uint16_t' name='flags'>
+        <bitfield base-type='uint16_t' name='flags'> bay12: PLOTFLAG_INVASION_*
             <flag-bit name='active'/>
-            <flag-bit name='siege'/>
+            <flag-bit name='siege' comment='announced'/>
             <flag-bit name='layer_source'/>
             <flag-bit name='undead_source'/>
             <flag-bit name='want_parley'/>
@@ -30,29 +30,6 @@
         <int32_t name='origin_master_army_controller_id' ref-target='army_controller' since='v0.44.01'/>
     </struct-type>
 
-    <struct-type type-name='entity_population_unk4'>
-        <stl-vector name='unk_1' comment="all 3 vectors share a single index series, with the third being interleaved with at least the second one">
-            <pointer>
-                <int32_t name='idx'/>
-                <int32_t name='unk1'/>
-                <int32_t name='unk2'/>
-            </pointer>
-        </stl-vector>
-        <stl-vector name='unk_2'>
-            <pointer>
-                <int32_t name='idx'/>
-                <int32_t name='unk1'/>
-                <int32_t name='unk2'/>
-            </pointer>
-        </stl-vector>
-        <stl-vector name='unk_3'>
-            <pointer>
-                <int32_t name='idx'/>
-                <int32_t name='unk1'/>
-            </pointer>
-        </stl-vector>
-    </struct-type>
-
     <struct-type type-name='entity_population' key-field='id' instance-vector='$global.world.entity_populations' original-name='entity_populationst'>
         <compound name='name' type-name='language_name'/>
 
@@ -60,24 +37,22 @@
             (describe-obj $.name)
         </code-helper>
 
-        <stl-vector name='races' comment="all the 3 vectors are always the same length, and thus coupled">
-            <int16_t ref-target='creature_raw'/>
-        </stl-vector>
+        <stl-vector name='races' type-name='int16_t' ref-target='creature_raw' comment="all the 3 vectors are always the same length, and thus coupled"/>
         <stl-vector name='counts' type-name='int32_t'/>
-        <stl-vector name='unk3' type-name='int32_t' init-value='-1' comment="Set only for cave civs. When set, >= counts. Pre first embark all those are equal"/>
-        <stl-vector name='unk4'>
-            <pointer type-name='entity_population_unk4'/>
-        </stl-vector>
-        <int32_t name='unk5'/>
+        <stl-vector name='population_cap' type-name='int32_t' init-value='-1' comment="Set only for cave civs. When set, >= counts. Pre first embark all those are equal"/>
+        <stl-vector name='gene_pool' pointer-type='gene_poolst'/>
+        <int32_t name='subregion_id' ref-target='world_region'/>
         <int32_t name='layer_id' ref-target='world_underground_region'/>
         <int32_t name='id'/>
-        <int32_t name='flags' comment='?; layer_id == -1'/>
+        <bitfield name='flags' base-type='uint32_t'> bay12: ENTITY_POPULATION_FLAG_*
+            <flag-bit name='all_local_links'/>
+        </bitfield>
         <int32_t name='civ_id' ref-target='historical_entity'/>
     </struct-type>
 
-    <enum-type type-name='nemesis_flags'>
+    <enum-type type-name='nemesis_flags'> bay12: NemesisFlagType
         <enum-item name='ACTIVE_ADVENTURER' comment='used when loading save. Swapping the player character via tactical mode disables this flag on the old player character and sets it for the new one.'/>
-        <enum-item name='RETIRED_ADVENTURER' comment='allows resuming play'/>
+        <enum-item/>
         <enum-item name='ADVENTURER' comment='blue color and guided by forces unknown description in legends mode'/>
         <enum-item name='TEMP_FLAG_ASSOCIATE_PEOPLE_TO_REALIZATION'/>
         <enum-item name='BRAG_ON_KILL'/>
@@ -108,19 +83,23 @@
         </code-helper>
 
         <int32_t name='group_leader_id' ref-target='nemesis_record'/>
-        <stl-vector name='companions'>
-            <int32_t ref-target='nemesis_record'/>
-        </stl-vector>
+        <stl-vector name='companions' type-name='int32_t' ref-target='nemesis_record'/>
 
         <int16_t name='activeplotindex' init-value='-1'/>
-        <int32_t name='travel_link_nemid' init-value='-1'/>
+        <int32_t name='travel_link_nemid' ref-target='nemesis_record'/>
         <int32_t name='ideal_item_container_id' init-value='-1'/>
         <int32_t name='next_plot_year'/>
         <int32_t name='next_plot_season_count'/>
         <df-flagarray name='flags' index-enum='nemesis_flags'/>
     </struct-type>
 
-    <struct-type type-name='artifact_record' key-field='id'
+    <enum-type type-name='artifact_flags'> bay12: ArtifactFlagType
+        <enum-item name='ART_REVEALED'/>
+        <enum-item name='LAST_SITE_PLACEMENT_WAS_BEING_LOST'/>
+        <enum-item name='LAST_GLOBALLY_KNOWN_LOCATION_WAS_BEING_LOST'/>
+    </enum-type>
+
+    <struct-type type-name='artifact_record' original-name='artifactst' key-field='id'
                  instance-vector='$global.world.artifacts.all'>
         <int32_t name='id'/>
 
@@ -130,48 +109,48 @@
 
         <compound name='name' type-name='language_name'/>
 
-        <df-flagarray name='flags'/>
+        <df-flagarray name='flags' index-enum='artifact_flags'/>
 
         <pointer name='item' type-name='item'/>
 
         <int32_t name='abs_tile_x'/>
         <int32_t name='abs_tile_y'/>
         <int32_t name='abs_tile_z'/>
-        <int32_t name='unk_1' since='v0.44.01'/>
+        <int32_t name='last_local_bld_id' ref-target='building' since='v0.44.01'/>
         <int32_t name='site' ref-target='world_site'/>
         <int32_t name='structure_local' ref-target='abstract_building'/>
-        <int32_t name='unk_2' init-value='-1' since='v0.47.01'/>
+        <int32_t name='site_building_profile' init-value='-1' since='v0.47.01'/>
         <int32_t name='subregion' ref-target='world_region'/>
         <int32_t name='feature_layer' ref-target='world_underground_region'/>
         <int32_t name='owner_hf' ref-target='historical_figure' comment="namer/creator does not seem to require a claim to be shown"/>
         <stl-vector name='remote_claims' type-name='int32_t' ref-target='historical_figure' since='v0.44.01' comment="all afar, heirloom from afar seen"/>
         <stl-vector name='entity_claims' type-name='int32_t' ref-target='historical_entity' since='v0.44.01'/>
-        <stl-vector name='direct_claims' type-name='int32_t' ref-target='historical_figure' since='v0.44.01'/>
+        <stl-vector name='family_claims' type-name='int32_t' ref-target='historical_figure' since='v0.44.01'/>
         <int32_t name='storage_site' ref-target='world_site' since='v0.44.01'/>
         <int32_t name='storage_structure_local' ref-target='abstract_building' since='v0.44.01'/>
         <int32_t name='loss_region' ref-target='world_region' since='v0.44.01'/>
-        <int32_t name='unk_3' since='v0.44.01' init-value='-1'/>
+        <int32_t name='last_layer' ref-target='world_underground_region' since='v0.44.01'/>
         <int32_t name='holder_hf' since='v0.44.01' ref-target='historical_figure' comment="doesn't seem to require a claim"/>
         <int32_t name='year' since='v0.44.01' init-value='-1' comment="seems to be current year or -1"/>
-        <int32_t name='unk_4' since='v0.44.01' init-value='-1'/>
-        <int32_t name='unk_5' init-value='0' comment="Small set of non zero fairly small numbers seen?"/>
+        <int32_t name='season_tick' since='v0.44.01' init-value='-1'/>
+        <int32_t name='temp_sort' init-value='0'/>
     </struct-type>
 
     <struct-type type-name='artifact_rumor_locationst'>
         <pointer name='art' type-name='artifact_record'/>
 
         <int32_t name='stid' init-value='-1' ref-target='world_site'/>
-        <int32_t name='abid' init-value='-1' comment='abstract building id at site'/>
+        <int32_t name='abid' init-value='-1' ref-target='abstract_building'/>
         <int32_t name='hfid' init-value='-1' ref-target='historical_figure'/>
         <int32_t name='srid' init-value='-1' ref-target='world_region'/>
-        <int32_t name='flid' init-value='-1' comment='feature layer id in region'/>
+        <int32_t name='flid' init-value='-1' ref-target='world_underground_region'/>
 
         <int32_t name='latest_year' init-value='-1'/>
         <int32_t name='latest_season_count' init-value='-1'/>
 
         <uint32_t name='flag'/>
 
-        <pointer name='latest_wi' comment='witness_incidentst'/>
+        <pointer name='latest_wi' type-name='witness_incidentst'/>
     </struct-type>
 
 </data-definition>
