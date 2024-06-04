@@ -405,15 +405,16 @@
         <flag-bit name="active"/>
     </bitfield-type>
 
-    <struct-type type-name='job_art_specification' comment='not a real structure'>
-        <enum base-type='int32_t' name='type'> bay12: JobArtSpecifierType
-            <enum-item name='None' value='-1'/>
-            <enum-item name='HistoricalFigure'/>
-            <enum-item name='Site'/>
-            <enum-item name='Entity'/>
-            <enum-item name='ArtImage'/>
-        </enum>
+    <enum-type type-name='job_art_specifier_type' base-type='int32_t'> bay12: JobArtSpecifierType
+        <enum-item name='None' value='-1'/>
+        <enum-item name='HistoricalFigure'/>
+        <enum-item name='Site'/>
+        <enum-item name='Entity'/>
+        <enum-item name='ArtImage'/>
+    </enum-type>
 
+    <struct-type type-name='job_art_specification' comment='not a real structure'>
+        <enum name='type' type-name='job_art_specifier_type'/>
         <code-helper name='describe'>
             (describe-obj $.type)
             (describe-obj (or $.subid.refers-to $.id.refers-to))
@@ -576,13 +577,13 @@
     </struct-type>
 
     <struct-type type-name='training_assignment'
-                 instance-vector='$global.plotinfo.equipment.training_assignments'
+                 instance-vector='$global.plotinfo.training.training_assignments'
                  key-field='animal_id'
                  original-name='unit_animal_training_infost'>
         <int32_t name="animal_id" ref-target='unit'/>
         <int32_t name="trainer_id" ref-target='unit'/>
 
-        <bitfield name='flags' base-type='uint32_t'> bay12: UNIT_ANIMAL_TRAINING_INFO_FLAG_
+        <bitfield name='flags' base-type='uint32_t'> bay12: UNIT_ANIMAL_TRAINING_INFO_FLAG_*
             <flag-bit name='any_trainer'/>
             <flag-bit name='any_unassigned_trainer'/>
             <flag-bit name='train_war'/>
