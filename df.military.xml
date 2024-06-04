@@ -1,57 +1,51 @@
 <data-definition>
-    <bitfield-type type-name='uniform_indiv_choice'> bay12: ITEM_CREATION_PARAM_FLAG_*
+    <bitfield-type type-name='uniform_indiv_choice' base-type='uint32_t'> bay12: ITEM_CREATION_PARAM_FLAG_*
         <flag-bit name='any'/>
         <flag-bit name='melee'/>
         <flag-bit name='ranged'/>
     </bitfield-type>
 
-    <struct-type type-name='item_filter_spec'>
-        <enum base-type='int16_t' name="item_type" type-name='item_type'/>
-        <int16_t name="item_subtype" refers-to='(item-subtype-target $$._parent.item_type $)'/>
-
-        <enum name="material_class" type-name='entity_material_category'/>
-
-        <int16_t name='mattype' ref-target='material' aux-value='$$.matindex'/>
-        <int32_t name='matindex'/>
-    </struct-type>
-
-    <struct-type type-name='squad_uniform_spec'>
+    <struct-type type-name='squad_uniform_spec' original-name='squad_position_equipment_slotst'>
         <int32_t name="item" ref-target='item'/>
 
-        <compound name='item_filter' type-name='item_filter_spec'/>
+        <enum base-type='int16_t' name="item_type" type-name='item_type'/>
+        <int16_t name="item_subtype" refers-to='(item-subtype-target $$._parent.item_type $)'/>
+        <enum name="material_class" type-name='entity_material_category'/>
+        <int16_t name='mattype' ref-target='material' aux-value='$$.matindex'/>
+        <int32_t name='matindex'/>
 
         <int32_t name="color"/>
 
-        <stl-vector name="assigned">
-            <int32_t ref-target='item'/>
-        </stl-vector>
+        <stl-vector name="assigned" type-name='int32_t' ref-target='item'/>
 
-        <bitfield name="indiv_choice" type-name='uniform_indiv_choice'/>
+        <bitfield name="indiv_choice" type-name='uniform_indiv_choice' comment='actually signed int32'/>
     </struct-type>
 
-    <struct-type type-name='squad_ammo_spec'>
-        <compound name='item_filter' type-name='item_filter_spec'/>
+    <struct-type type-name='squad_ammo_spec' original-name='squad_equipment_ammost'>
+        <enum name="item_type" type-name='item_type'/>
+        <int16_t name="item_subtype" refers-to='(item-subtype-target $$._parent.item_type $)'/>
+        <enum name="material_class" type-name='entity_material_category'/>
+        <int16_t name='mattype' ref-target='material' aux-value='$$.matindex'/>
+        <int32_t name='matindex'/>
 
         <int32_t name="amount"/>
 
-        <bitfield name='flags' base-type='uint32_t'>
+        <bitfield name='flags' base-type='uint32_t'> bay12: SQUAD_EQUIPMENT_AMMO_FLAG_*
             <flag-bit name='use_combat'/>
             <flag-bit name='use_training'/>
         </bitfield>
 
-        <stl-vector name="assigned">
-            <int32_t ref-target='item'/>
-        </stl-vector>
+        <stl-vector name="assigned" type-name='int32_t' ref-target='item'/>
     </struct-type>
 
-    <bitfield-type type-name='squad_use_flags' base-type='uint32_t'>
+    <bitfield-type type-name='squad_use_flags' base-type='int32_t'> bay12: SQUAD_BARRACKS_FLAG_*
         <flag-bit name='sleep'/>
         <flag-bit name='train'/>
         <flag-bit name='indiv_eq'/>
         <flag-bit name='squad_eq'/>
     </bitfield-type>
 
-    <enum-type type-name='uniform_category' base-type='int16_t'>
+    <enum-type type-name='uniform_category' base-type='int16_t'> bay12: EntityUniformItemCategoryType
         <enum-item name='body'/>
         <enum-item name='head'/>
         <enum-item name='pants'/>
@@ -66,21 +60,21 @@
         <flag-bit name='exact_matches'/>
     </bitfield-type>
 
-    <enum-type type-name='barrack_preference_category'>
+    <enum-type type-name='barrack_preference_category'> bay12: SquadPositionBuildingType
         <enum-item name='Bed'/>
         <enum-item name='Armorstand'/>
         <enum-item name='Box'/>
         <enum-item name='Cabinet'/>
     </enum-type>
 
-    <enum-type type-name='squad_event_type' base-type='int16_t'>
+    <enum-type type-name='squad_event_type' base-type='int16_t'> bay12: SquadActivityIndexType
         <enum-item name='None' value='-1'/>
-        <enum-item name='Unk0'/>
-        <enum-item name='Unk1'/>
-        <enum-item name='Unk2'/>
+        <enum-item name='Order'/>
+        <enum-item name='Barracks'/>
+        <enum-item name='Specific'/>
     </enum-type>
 
-    <struct-type type-name='squad_position'>
+    <struct-type type-name='squad_position' original-name='squad_positionst'>
         <int32_t name='occupant' ref-target='historical_figure'/>
 
         <code-helper name='describe'>(describe-obj @.occupant)</code-helper>
@@ -91,50 +85,62 @@
             <stl-vector type-name='int32_t' ref-target='building'/>
         </static-array>
 
-        <static-array name='uniform' count='7' index-enum='uniform_category'>
-            <stl-vector pointer-type='squad_uniform_spec'/>
-        </static-array>
+        <compound name='equipment'> bay12: squad_position_equipmentst
+            <static-array name='uniform' count='7' index-enum='uniform_category'>
+                <stl-vector pointer-type='squad_uniform_spec'/>
+            </static-array>
 
-        <stl-string name="unk_c4"/>
+            <stl-string name="nickname"/>
 
-        <bitfield name='flags' type-name='uniform_flags'/>
+            <bitfield name='flags' type-name='uniform_flags'/>
 
-        <stl-vector name='assigned_items'>
-            <int32_t ref-target='item'/>
-        </stl-vector>
+            <stl-vector name='assigned_items' type-name='int32_t' ref-target='item'/>
 
-        <int32_t name="quiver" ref-target='item'/>
-        <int32_t name="backpack" ref-target='item'/>
-        <int32_t name="flask" ref-target='item'/>
+            <int32_t name="quiver" ref-target='item'/>
+            <int32_t name="backpack" ref-target='item'/>
+            <int32_t name="flask" ref-target='item'/>
+        </compound>
 
-        <int32_t name='unk_1'/>
         <static-array name='activities' count='3' index-enum='squad_event_type'
                       type-name='int32_t' ref-target='activity_entry'/>
         <static-array name='events' count='3' index-enum='squad_event_type'
                       type-name='int32_t' ref-target='activity_event'
                       aux-value='$._global.activities[$._key]'/>
 
-        <int32_t name='unk_2' init-value='-1'/>
+        <int32_t name='current_patrol_id' init-value='-1'/>
+        <int32_t name='current_patrol_point_id' init-value='-1'/>
     </struct-type>
 
-    <struct-type type-name='squad_schedule_order'>
+    <struct-type type-name='squad_schedule_order' original-name='squad_month_orderst'>
         <pointer name="order" type-name='squad_order'/>
         <int32_t name="min_count"/>
         <stl-bit-vector name="positions"/>
     </struct-type>
 
-    <struct-type type-name='squad_schedule_entry'>
+    <enum-type type-name='squad_sleep_option_type' base-type='int16_t'> bay12: SquadSleepOptionType
+        <enum-item name='None' value='-1'/>
+        <enum-item name='AnywhereAtWill'/>
+        <enum-item name='InBarracksAtWill'/>
+        <enum-item name='InBarracksAtNeed'/>
+    </enum-type>
+
+    <enum-type type-name='squad_civilian_uniform_type' base-type='int16_t'> bay12: SquadCivilianUniformType
+        <enum-item name='None' value='-1'/>
+        <enum-item name='Regular'/>
+        <enum-item name='Civilian'/>
+    </enum-type>
+
+    <struct-type type-name='squad_schedule_entry' original-name='squad_month_schedulest'>
         <stl-string name='name'/>
 
-        <int16_t name='sleep_mode' comment='0 room, 1 barrack will, 2 barrack need'/>
-        <int16_t name='uniform_mode' comment='0 uniformed, 1 civ clothes'/>
+        <enum name='sleep_mode' type-name='squad_sleep_option_type'/>
+        <enum name='uniform_mode' type-name='squad_civilian_uniform_type'/>
 
         <stl-vector name='orders' pointer-type='squad_schedule_order'/>
 
         <stl-vector name='order_assignments' index-refers-to='$$._global._upglobal.positions[$]'>
-            -- weird change to pointer to int in v0.34.01
-            <pointer>
-                <int32_t refers-to='$$._parent._parent._parent.orders[$]'/>
+            <pointer> bay12: squad_month_positionst
+                <int32_t name='assigned_order_idx' refers-to='$$._parent._parent._parent.orders[$]'/>
             </pointer>
         </stl-vector>
     </struct-type>
@@ -154,8 +160,9 @@
 
         <stl-vector name="orders" pointer-type='squad_order'/>
 
+        bay12: squad_schedulest
         <stl-vector name="schedule">
-            <pointer>
+            <pointer> bay12: squad_routine_schedulest
                 <static-array count='12' type-name='squad_schedule_entry'/>
             </pointer>
         </stl-vector>
@@ -163,7 +170,7 @@
         <int32_t name="cur_routine_idx" refers-to='$$._parent.schedule[$]' init-value='0'/>
 
         <stl-vector name="rooms">
-            <pointer>
+            <pointer> bay12: squad_barracks_infost
                 <int32_t name='building_id' ref-target='building'/>
                 <bitfield name='mode' type-name='squad_use_flags'/>
             </pointer>
@@ -175,27 +182,26 @@
         <int32_t name="uniform_priority"/>
         <int32_t name="activity" ref-target='activity_entry'/>
 
-        <compound name='ammo'>
+        <compound name='ammo'> bay12: squad_equipmentst
             <stl-vector name="ammunition" pointer-type='squad_ammo_spec'/>
 
-            <stl-vector name="train_weapon_free">
-                <int32_t ref-target='item'/>
-            </stl-vector>
-            <stl-vector name="train_weapon_inuse">
-                <int32_t ref-target='item'/>
-            </stl-vector>
+            <stl-vector name="train_weapon_free" type-name='int32_t' ref-target='item'/>
+            <stl-vector name="train_weapon_inuse" type-name='int32_t' ref-target='item'/>
 
-            <stl-vector name="ammo_items">
-                <int32_t ref-target='item'/>
-            </stl-vector>
-            <stl-vector name="ammo_units">
-                <int32_t ref-target='unit'/>
-            </stl-vector>
+            <stl-vector name="ammo_items" type-name='int32_t' ref-target='item'/>
+            <stl-vector name="ammo_units" type-name='int32_t' ref-target='unit'/>
             <bitfield name='update' type-name='equipment_update'/>
         </compound>
 
-        <int16_t name="carry_food"/>
-        <int16_t name="carry_water"/>
+        <compound name='supplies'> bay12: squad_suppliesst
+            <int16_t name="carry_food"/>
+            <enum name="carry_water" base-type='int16_t'>
+                <enum-item name='None' value='-1'/>
+                <enum-item name='NoWater'/>
+                <enum-item name='Water'/>
+                <enum-item name='AnyDrink'/>
+            </enum>
+        </compound>
 
         <int32_t name="entity_id" ref-target='historical_entity' since='v0.40.01'/>
         <int32_t name="leader_position" since='v0.40.01'
@@ -214,7 +220,7 @@
         <uint8_t name='background_b'/>
     </struct-type>
 
-    <enum-type type-name='squad_order_type'>
+    <enum-type type-name='squad_order_type' base-type='int32_t'> bay12: SquadOrderType
         <enum-item name='MOVE'/>
         <enum-item name='KILL_LIST'/>
         <enum-item name='DEFEND_BURROWS'/>
@@ -229,8 +235,7 @@
         <enum-item name='RESCUE_HF'/>
     </enum-type>
 
-    <enum-type type-name='squad_order_cannot_reason'>
-        text in viewscreen_unitlistst
+    <enum-type type-name='squad_order_cannot_reason' base-type='int32_t'> bay12: CanFollowOrderType
         <enum-item name='not_following_order'/>
         <enum-item name='activity_cancelled'/>
         <enum-item name='no_barracks'/>
@@ -252,15 +257,18 @@
         <enum-item name='no_library'/>
         <enum-item name='no_item'/>
         <enum-item name='cannot_leave_site'/>
+        <enum-item name='location_no_longer_in_zone'/>
     </enum-type>
 
     <class-type type-name='squad_order' original-name='squad_orderst'>
-        <int32_t name='unk_v40_1' init-value='-1' since='v0.40.01'/>
-        <int32_t name='unk_v40_2' init-value='-1' since='v0.40.01'/>
+        <int32_t name='issuer_hf' ref-target='historical_figure' since='v0.40.01'/>
+        <int32_t name='recipient_hf' ref-target='historical_figure' since='v0.40.01'/>
         <int32_t name='year' init-value='-1' since='v0.40.01'/>
         <int32_t name='year_tick' init-value='-1' since='v0.40.01'/>
-        <int32_t name='unk_v40_3' init-value='-1' since='v0.40.01'/>
-        <int32_t name='unk_1'/>
+        <int32_t name='origin_army_controller' ref-target='army_controller' since='v0.40.01'/>
+        <bitfield name='flags' base-type='uint32_t'> bay12: SQUAD_ORDER_FLAG_*
+            <flag-bit name='reported_as_complete'/>
+        </bitfield>
 
         <virtual-methods>
             <vmethod name='clone'> <ret-type><pointer type-name='squad_order'/></ret-type> </vmethod>
@@ -277,7 +285,7 @@
                 <int16_t name='x'/> <int16_t name='y'/> <int16_t name='z'/>
             </vmethod>
             <vmethod name='process'>
-                <int32_t/> <int32_t/> <pointer name='soldier' type-name='unit'/>
+                <pointer name='action' comment='actionst'/> <pointer type-name='dungeon_contextst'/> <pointer name='soldier' type-name='unit'/>
             </vmethod>
             <vmethod ret-type='squad_order_cannot_reason' name='reasonCannot'>
                 <pointer name='soldier' type-name='unit'/>
@@ -288,13 +296,13 @@
 
             <vmethod name='isFulfilled' ret-type='bool' since='v0.34.11' comment='true if all killed'/>
             <vmethod name='getTargetUnits'>
-                <ret-type><pointer><stl-vector type-name='int32_t'/></pointer></ret-type>
+                <ret-type><pointer><stl-vector type-name='int32_t' ref-target='unit'/></pointer></ret-type>
             </vmethod>
-            <vmethod ret-type='int16_t' name='getUniformType'>
+            <vmethod ret-type='unit_uniform_mode_type' name='getUniformType'>
                 <pointer name='soldier' type-name='unit'/>
             </vmethod>
             <vmethod name='getDescription'> <pointer type-name='stl-string'/> </vmethod>
-            <vmethod name='isInactive' ret-type='bool' comment='always false'> <int32_t/> </vmethod>
+            <vmethod name='isInactive' ret-type='bool' comment='always false'> <pointer type-name='unit'/> </vmethod>
             <vmethod name='isCombat' ret-type='bool' comment='not train'/>
             <vmethod name='isEqual' ret-type='bool'><pointer name='other' type-name='squad_order'/></vmethod>
         </virtual-methods>
@@ -306,12 +314,8 @@
     </class-type>
 
     <class-type type-name='squad_order_kill_listst' inherits-from='squad_order'>
-        <stl-vector name='units'>
-            <int32_t ref-target='unit'/>
-        </stl-vector>
-        <stl-vector name='histfigs'>
-            <int32_t ref-target='historical_figure'/>
-        </stl-vector>
+        <stl-vector name='units' type-name='int32_t' ref-target='unit'/>
+        <stl-vector name='histfigs' type-name='int32_t' ref-target='historical_figure'/>
         <stl-string name='title'/>
     </class-type>
 
@@ -326,9 +330,9 @@
     <class-type type-name='squad_order_trainst' inherits-from='squad_order'/>
 
     <class-type type-name='squad_order_drive_entity_off_sitest' inherits-from='squad_order'>
-        <int32_t name='unk_2'/>
-        <int32_t name='unk_3'/>
-        <stl-string name='unk_4'/>
+        <int32_t name='target_civ' ref-target='historical_entity'/>
+        <int32_t name='target_site' ref-target='world_site'/>
+        <stl-string name='title'/>
     </class-type>
 
     <class-type type-name='squad_order_cause_trouble_for_entityst' inherits-from='squad_order'>
@@ -342,27 +346,27 @@
     </class-type>
 
     <class-type type-name='squad_order_drive_armies_from_sitest' inherits-from='squad_order'>
-        <int32_t name='unk_2'/>
-        <int32_t name='unk_3'/>
-        <stl-string name='unk_4'/>
+        <int32_t name='army_civ' ref-target='historical_entity'/>
+        <int32_t name='target_site' ref-target='world_site'/>
+        <stl-string name='title'/>
     </class-type>
 
     <class-type type-name='squad_order_retrieve_artifactst' inherits-from='squad_order'>
         <int32_t name='artifact_id' ref-target='artifact_record'/>
-        <compound name='unk_2' type-name='coord'/>
+        <compound name='exit_point' type-name='coord'/>
     </class-type>
 
     <class-type type-name='squad_order_raid_sitest' inherits-from='squad_order'>
-        <int32_t name='unk_2'/>
-        <compound name='unk_3' type-name='coord'/>
+        <int32_t name='site_id' ref-target='world_site'/>
+        <compound name='exit_point' type-name='coord'/>
     </class-type>
 
     <class-type type-name='squad_order_rescue_hfst' inherits-from='squad_order'>
-        <int32_t name='unk_2'/>
-        <compound name='unk_3' type-name='coord'/>
+        <int32_t name='rescue_hf' ref-target='historical_figure'/>
+        <compound name='exit_point' type-name='coord'/>
     </class-type>
 
-    <enum-type type-name='invasion_intent_type' base-type='int32_t' comment='bay12: InvasionIntent'>
+    <enum-type type-name='invasion_intent_type' base-type='int32_t'> bay12: InvasionIntentType
         <enum-item name='NONE' value='-1'/>
         <enum-item name='OBLITERATION'/>
         <enum-item name='TAKE_OVER_SITE'/>
@@ -373,7 +377,7 @@
         <enum-item name='PILLAGE'/>
     </enum-type>
 
-    <enum-type type-name='invasion_stage_type' base-type='int32_t' comment='bay12: InvasionStage'>
+    <enum-type type-name='invasion_stage_type' base-type='int32_t'> bay12: InvasionStageType
         <enum-item name='NONE' value='-1'/>
         <enum-item name='ORGANIZE'/>
         <enum-item name='TRAVEL'/>
@@ -383,7 +387,7 @@
         <enum-item name='SITE_TAKEN'/>
     </enum-type>
 
-    <enum-type type-name='army_controller_goal_type' base-type='int32_t' comment='bay12: ArmyControllerGoalType'>
+    <enum-type type-name='army_controller_goal_type' base-type='int32_t'> bay12: ArmyControllerGoalType
         <enum-item name='NONE' value='-1'/>
         <enum-item name='HOLD_TERRITORY'/>
         <enum-item name='HARASS'/>
@@ -452,7 +456,7 @@
         <int32_t name='origin_plot_holder_nemesis_id' ref-target='nemesis_record'/>
         <int32_t name='origin_plot_id'/>
         <stl-vector name="ignore_track_entity_id" type-name='int32_t'/>
-        <bitfield name="flag" base-type='int32_t'>
+        <bitfield name="flag" base-type='int32_t'> bay12: ARMY_CONTROLLER_FLAG_
             <flag-bit name='do_not_clear_army_dependencies'/>
             <flag-bit name='delete_me'/>
             <flag-bit name='site_realized_over_goal'/>
@@ -503,9 +507,9 @@
         <int32_t name='arrive_year' init-value='-1'/>
         <int32_t name='arrive_season_count' init-value='-1'/>
         <stl-vector name='camp_profile' pointer-type='army_camp_profilest'/>
-        <stl-vector name='connected_hamlet_site_id' type-name='int32_t' comment='not sorted'/>
+        <stl-vector name='connected_hamlet_site_id' type-name='int32_t' ref-target='world_site'/>
         <stl-vector name='connected_hamlet_site_flag' type-name='uint32_t'/>
-        <bitfield name="flag" base-type='uint32_t'>
+        <bitfield name="flag" base-type='uint32_t'> bay12: AC_GOAL_SITE_INVASION_FLAG_*
             <flag-bit name='RETURNING_HOME'/>
             <flag-bit name='DEMAND_TRIBUTE_ONE_TIME'/>
             <flag-bit name='DEMAND_TRIBUTE_ONGOING'/>
@@ -524,7 +528,7 @@
 
     <struct-type type-name='army_controller_goal_campst' original-name='ac_goal_campst'>
         <int32_t name='camp_cz_alt_id' init-value='-1'/>
-        <bitfield name='camp_flag' base-type='uint32_t'>
+        <bitfield name='camp_flag' base-type='uint32_t'> bay12: AC_GOAL_CAMP_FLAG_*
             <flag-bit name='ALARM_INTRUDER' comment='set to 1 to make army wake up'/>
             <flag-bit name='ONE_NIGHT_ONLY' comment='seen set on gobbo/necro attack controller'/>
             <flag-bit name='DONE'/>
@@ -541,7 +545,7 @@
     </struct-type>
 
     <struct-type type-name='army_controller_goal_harassst' original-name='ac_goal_harassst'>
-        <bitfield name="flag" base-type='uint32_t'>
+        <bitfield name="flag" base-type='uint32_t'> bay12: AC_GOAL_HARASS_FLAG_*
             <flag-bit name='RETURNING_HOME'/>
         </bitfield>
         <int32_t name='source_abs_smm_x'/>
@@ -551,7 +555,7 @@
     <struct-type type-name='army_controller_goal_huntingst' original-name='ac_goal_huntingst'>
         <int32_t name='arrive_year' init-value='-1'/>
         <int32_t name='arrive_season_count' init-value='-1'/>
-        <bitfield name='flag' base-type='uint32_t'>
+        <bitfield name='flag' base-type='uint32_t'> bay12: AC_GOAL_HUNTING_FLAG_*
             <flag-bit name='RETURNING_HOME'/>
             <flag-bit name='DAWN_PERMITTED'/>
             <flag-bit name='DAY_PERMITTED'/>
@@ -570,7 +574,7 @@
         <int32_t name='arrive_year' init-value='-1'/>
         <int32_t name='arrive_season_count' init-value='-1'/>
         <stl-vector name='camp_profile' pointer-type='army_camp_profilest'/>
-        <bitfield name="flag" base-type='uint32_t'>
+        <bitfield name="flag" base-type='uint32_t'> bay12: AC_GOAL_PATROL_FLAG_*
             <flag-bit name='RETURNING_HOME'/>
             <flag-bit name='HARASS_ONLY'/>
         </bitfield>
@@ -589,21 +593,21 @@
     </struct-type>
 
     <struct-type type-name='army_controller_goal_move_to_sitest' original-name='ac_goal_move_to_sitest'>
-        <int32_t name='goal_hfid' init-value='-1'/>
+        <int32_t name='goal_hfid' ref-target='historical_figure'/>
         <int32_t name='goal_srbid' init-value='-1'/>
-        <bitfield name="flag" base-type='uint32_t'>
+        <bitfield name="flag" base-type='uint32_t'> bay12: AC_GOAL_MOVE_TO_SITE_FLAG_*
             <flag-bit name='PERMANENT_MOVE'/>
             <flag-bit name='RETURNING_TO_CURRENT_HOME'/>
         </bitfield>
         <stl-vector name='camp_profile' pointer-type='army_camp_profilest'/>
-        <int32_t name='goal_ent_id' init-value='-1'/>
+        <int32_t name='goal_ent_id' ref-target='historical_entity'/>
         <int32_t name='goal_epp_id' init-value='-1'/>
         <int32_t name='goal_ab_id' init-value='-1' comment="abstract building id; monster slayers have -1"/>
         <enum name='reason' type-name='history_event_reason'/>
     </struct-type>
 
     <struct-type type-name='army_controller_goal_reclaim_sitest' original-name='ac_goal_reclaim_sitest'>
-        <bitfield name='flag' base-type='uint32_t'>
+        <bitfield name='flag' base-type='uint32_t'> bay12: AC_GOAL_RECLAIM_SITE_FLAG_*
             <flag-bit name='RETURNING_HOME'/>
         </bitfield>
         <int32_t name='source_abs_smm_x'/>
@@ -612,7 +616,7 @@
     </struct-type>
 
     <struct-type type-name='army_controller_goal_create_new_sitest' original-name='ac_goal_create_new_sitest'>
-        <bitfield name='flag' base-type='uint32_t'>
+        <bitfield name='flag' base-type='uint32_t'> bay12: AC_GOAL_CREATE_NEW_SITE_FLAG_*
             <flag-bit name='RETURNING_HOME'/>
         </bitfield>
         <int32_t name='source_abs_smm_x'/>
@@ -625,7 +629,7 @@
         <int32_t name='arrive_year' init-value='-1'/>
         <int32_t name='arrive_season_count' init-value='-1'/>
         <stl-vector name='camp_profile' pointer-type='army_camp_profilest'/>
-        <bitfield name='flag' base-type='uint32_t'>
+        <bitfield name='flag' base-type='uint32_t'> bay12: AC_GOAL_POSSE_FLAG_*
             <flag-bit name='RETURNING_HOME'/>
         </bitfield>
         <int32_t name='source_abs_smm_x'/>
@@ -636,7 +640,7 @@
         <int32_t name='latest_track_abs_smm_y' init-value='-1'/>
         <int32_t name='target_race' init-value='-1'/>
         <int32_t name='target_caste' init-value='-1'/>
-        <int32_t name='target_hfid' init-value='-1'/>
+        <int32_t name='target_hfid' ref-target='historical_figure'/>
     </struct-type>
 
     <struct-type type-name='army_controller_goal_site_workst' original-name='ac_goal_site_workst'>
@@ -645,24 +649,24 @@
 
     <struct-type type-name='army_controller_goal_recover_artifactst' original-name='ac_goal_recover_artifactst'>
         <int32_t name='artifact_id' ref-target="artifact_record"/>
-        <int32_t name='return_site_id' init-value='-1'/>
-        <int32_t name='return_to_hfid' init-value='-1'/>
-        <bitfield name="flag" base-type='uint32_t'>
+        <int32_t name='return_site_id' ref-target='world_site'/>
+        <int32_t name='return_to_hfid' ref-target='historical_figure'/>
+        <bitfield name="flag" base-type='uint32_t'> bay12: AC_GOAL_RECOVER_ARTIFACT_FLAG_*
             <flag-bit name='RETURNING'/>
             <flag-bit name='REMAIN_ANONYMOUS'/>
         </bitfield>
     </struct-type>
 
     <struct-type type-name='army_controller_goal_rescue_hfst' original-name='ac_goal_rescue_hfst'>
-        <int32_t name='hfid' init-value='-1'/>
-        <bitfield name="flag" base-type='uint32_t'>
+        <int32_t name='hfid' ref-target='historical_figure'/>
+        <bitfield name="flag" base-type='uint32_t'> bay12: AC_GOAL_RESCUE_HF_FLAG_*
             <flag-bit name='RETURNING'/>
         </bitfield>
     </struct-type>
 
     <struct-type type-name='army_controller_goal_make_requestst' original-name='ac_goal_make_requestst'>
         <stl-vector name='requested_hfid' type-name='int32_t' comment='sorted'/>
-        <bitfield name="flag" base-type='uint32_t'>
+        <bitfield name="flag" base-type='uint32_t'> bay12: AC_GOAL_MAKE_REQUEST_FLAG_*
             <flag-bit name='RETURNING_HOME'/>
         </bitfield>
         <int32_t name='source_abs_smm_x' init-value='-1'/>
@@ -671,81 +675,101 @@
 
     <struct-type type-name='army_controller_goal_perform_taskst' original-name='ac_goal_perform_taskst'>
         <int32_t name='task_id' init-value='-1'/>
-        <int32_t name='task_holder_nem_id' init-value='-1'/>
-        <bitfield name="flag" base-type='uint32_t'>
+        <int32_t name='task_holder_nem_id' ref-target='nemesis_record'/>
+        <bitfield name="flag" base-type='uint32_t'> bay12: AC_GOAL_PERFORM_TASK_FLAG_*
             <flag-bit name='RETURNING'/>
         </bitfield>
     </struct-type>
 
     <struct-type type-name='army_controller_goal_assassinate_hfst' original-name='ac_goal_assassinate_hfst'>
-        <int32_t name='hfid' init-value='-1'/>
-        <bitfield name="flag" base-type='uint32_t'>
+        <int32_t name='hfid' ref-target='historical_figure'/>
+        <bitfield name="flag" base-type='uint32_t'> bay12: AC_GOAL_ASSASSINATE_HF_FLAG_*
             <flag-bit name='RETURNING'/>
         </bitfield>
     </struct-type>
 
     <struct-type type-name='army_controller_goal_abduct_hfst' original-name='ac_goal_abduct_hfst'>
-        <int32_t name='target_hfid' init-value='-1'/>
-        <bitfield name="flag" base-type='uint32_t'>
+        <int32_t name='target_hfid' ref-target='historical_figure'/>
+        <bitfield name="flag" base-type='uint32_t'> bay12: AC_GOAL_ABDUCT_HF_FLAG_*
             <flag-bit name='RETURNING'/>
         </bitfield>
     </struct-type>
 
     <struct-type type-name='army_controller_goal_sabotage_entityst' original-name='ac_goal_sabotage_entityst'>
-        <int32_t name='target_hfid' init-value='-1'/>
-        <int32_t name='target_enid' init-value='-1'/>
-        <int32_t name='target_stid' init-value='-1'/>
-        <bitfield name="flag" base-type='uint32_t'>
+        <int32_t name='target_hfid' ref-target='historical_figure'/>
+        <int32_t name='target_enid' ref-target='historical_entity'/>
+        <int32_t name='target_stid' ref-target='world_site'/>
+        <bitfield name="flag" base-type='uint32_t'> bay12: AC_GOAL_SABOTAGE_ENTITY_FLAG_*
             <flag-bit name='RETURNING'/>
         </bitfield>
     </struct-type>
 
     <struct-type type-name='army_controller_goal_infiltrate_societyst' original-name='ac_goal_infiltrate_societyst'>
-        <int32_t name='target_stid' ref-target='world_site' init-value='-1'/>
-        <int32_t name='target_enid' ref-target='historical_entity' init-value='0'/>
+        <int32_t name='target_stid' ref-target='world_site'/>
+        <int32_t name='target_enid' ref-target='historical_entity'/>
         <int32_t name='agoal_ab_id' init-value='-1' comment="abstract building ID, -1 before arrival"/>
         <enum name='reason' type-name='history_event_reason' comment="none before arrival"/>
     </struct-type>
 
-    <enum-type type-name='army_flags'>
+    <enum-type type-name='army_flags'> bay12: ArmyFlag
         <enum-item name='player'/>
+        <enum-item name='hidden'/>
+        <enum-item name='sleeping'/>
+        <enum-item name='waiting'/>
+        <enum-item name='sneaking'/>
+        <enum-item name='composing'/>
+        <enum-item name='working'/>
+        <enum-item name='dwarf_mode_preparing'/>
     </enum-type>
 
-    <struct-type type-name='army' key-field='id'
+    <struct-type type-name='army_popst'>
+        <int32_t name="count"/>
+        <compound name='pop_spec' type-name='entity_pop_specifierst'/>
+    </struct-type>
+
+    <struct-type type-name='army' key-field='id' original-name='armyst'
                  instance-vector='$global.world.armies.all'>
         <int32_t name='id'/>
         <compound name='pos' type-name='coord'/>
         <compound name='last_pos' type-name='coord'/>
-        <int16_t name='unk_10' init-value='0' comment="1, 2, 5, 10, 15, 20, 21 seen"/>
-        <int32_t name='unk_14' init-value='0' comment="When set, large value like army or army_controller id, but no match found"/>
-        <int32_t name='unk_18' init-value='0'/>
+        <int16_t name='travel_count' init-value='0' comment="1, 2, 5, 10, 15, 20, 21 seen"/>
+        <int32_t name='wait_count' init-value='0' comment="When set, large value like army or army_controller id, but no match found"/>
+        <int32_t name='watch_time' init-value='0'/>
         <stl-vector name='members'>
-            <pointer>
+            <pointer> bay12: army_nemesisst
                 <int32_t name='nemesis_id' init-value='-1'/>
                 <int32_t name='hunger_timer'/>
                 <int32_t name='thirst_timer'/>
                 <int32_t name='sleepiness_timer'/>
                 <int32_t name='stored_fat'/>
-                <int32_t name='unk_14'/>
-                <int32_t name='unk_18'/>
-                <int32_t name='unk_1c' init-value='-1000000'/>
-                <int32_t name='unk_20' init-value='-1000000'/>
-                <int32_t name='unk_24' init-value='-1000000'/>
-                <int32_t name='unk_28'/>
-                <int32_t name='unk_1' since='v0.44.01'/>
-                <int32_t name='unk_2c' init-value='100'/>
-                <int32_t name='unk_30'/>
-                <int32_t name='unk_34'/>
-                <stl-vector name='unk_38' pointer-type='stl-string'/>
-                <int32_t name='unk_v42_1' since='v0.42.01'/>
-                <int32_t name='unk_2' init-value='-1' since='v0.47.01'/>
-                <int32_t name='unk_3' since='v0.47.01'/>
+                <int32_t name='blood_thirst'/>
+                <bitfield name='flags' base-type='uint32_t'> bay12: ARMY_NEMESIS_FLAG_*
+                    <flag-bit name='sleeps'/>
+                    <flag-bit name='eats'/>
+                    <flag-bit name='drinks'/>
+                    <flag-bit name='is_sleeping'/>
+                    <flag-bit name='on_watch'/>
+                    <flag-bit name='bloodsucker'/>
+                    <flag-bit name='do_needs'/>
+                </bitfield>
+                <int32_t name='abs_x' init-value='-1000000'/>
+                <int32_t name='abs_y' init-value='-1000000'/>
+                <int32_t name='abs_z' init-value='-1000000'/>
+                <int32_t name='tracking_rating'/>
+                <int32_t name='sneak_rating' since='v0.44.01'/>
+                <int32_t name='smell_trigger' init-value='100'/>
+                <int32_t name='low_light_vision'/>
+                <int32_t name='odor_level'/>
+                <stl-vector name='can_sense_by_class' pointer-type='stl-string'/>
+                <int32_t name='needs_build_up' since='v0.42.01'/>
+                <int32_t name='mount_nemid' ref-target='nemesis_record' since='v0.47.01'/>
+                <int32_t name='travel_rate' since='v0.47.01'/>
             </pointer>
         </stl-vector>
-        <stl-vector name='squads' pointer-type='world_site_inhabitant'/>
-        <int32_t name='unk_3c'/>
-        <int32_t name='unk_1' since='v0.44.01'/>
-        <int32_t name='unk_2' since='v0.47.03' comment="16 only value seen"/>
+        <stl-vector name='squads' pointer-type='army_popst'/>
+        <int32_t name='tracking_rating'/>
+        <int32_t name='sneak_rating' since='v0.44.01'/>
+        <int32_t name='travel_rate' since='v0.47.03' comment="16 only value seen"/>
         <int32_t name='controller_id' ref-target='army_controller'/>
         <pointer name='controller' type-name="army_controller"/>
         <df-flagarray name='flags' index-enum='army_flags'/>
@@ -753,19 +777,19 @@
         <stl-vector name='block_path_y' type-name='int32_t'/>
         <stl-vector name='path_x' type-name='int32_t' comment="path in world coordinates. Seems to be the extension beyond those laid out in block_path_x/y"/>
         <stl-vector name='path_y' type-name='int32_t'/>
-        <int32_t name='unk_90' init-value='-1'/>
-        <int32_t name='unk_94' init-value='-1' comment="Number counting down. In examined save starts at 80 for id 38 counting down to 0 at 113, obviously with missing numbers somewhere"/>
-        <int32_t name='unk_98' init-value='-1'/>
+        <int32_t name='hidden_sr_ind' init-value='-1'/>
+        <int32_t name='hidden_fl_ind' init-value='-1'/>
+        <int32_t name='current_army_tracking_info_id' init-value='-1'/>
         <int32_t name='min_smell_trigger'/>
         <int32_t name='max_odor_level' comment='1000 if undead are present'/>
         <int32_t name='max_low_light_vision'/>
         <stl-vector name='sense_creature_classes' pointer-type='stl-string'/>
         <stl-vector name='creature_class' pointer-type='stl-string' comment="Usually 'GENERAL_POISON' and 'MAMMAL'. Seen something else for undead"/>
-        <enum type-name='item_type' base-type='int16_t' name='item_type'/>
+        <enum type-name='item_type' name='item_type' comment='for tent'/>
         <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name='mat_index'/>
-        <stl-vector name='unk_4407_1' pointer-type='item' since='v0.44.07'/>
+        <stl-vector name='items' pointer-type='item' since='v0.44.07'/>
     </struct-type>
 </data-definition>
 
