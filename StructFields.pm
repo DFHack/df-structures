@@ -148,6 +148,12 @@ my %custom_container_handlers = (
         header_ref("vector");
         return "std::vector<bool>";
     },
+    'stl-array' => sub {
+        my $item = get_container_item_type($_, -void => 'void*');
+        my $count = get_container_count($_);
+        header_ref("array");
+        return "std::array<$item, $count>";
+    },
     'stl-map' => sub {
         # TODO: implement get_container_key_type?
         my $key  = 'void*';
