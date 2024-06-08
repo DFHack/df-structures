@@ -1,40 +1,41 @@
 <data-definition>
-    <struct-type type-name='scribejob'>
-        <int32_t name='idmaybe'/>
-        <int32_t name='unk_1' comment='not locationid'/>
-        <int32_t name='item_id'/>
-        <int32_t name='written_content_id'/>
-        <int32_t name='unit_id'/>
-        <int32_t name='activity_entry_id'/>
-        <int32_t name='unk_2'/>
+    <enum-type type-name='abstract_building_order_type' base-type='int32_t'> bay12: AbstractBuildingOrderType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='COPY_ITEM'/>
+    </enum-type>
+
+    <struct-type type-name='scribejob' original-name='abstract_building_orderst'>
+        <int32_t name='id'/>
+        <enum name='type' type-name='abstract_building_order_type'/>
+        <int32_t name='item_id' comment='may vary once more types are added'/>
+        <int32_t name='written_content_id' comment='may vary once more types are added'/>
+        <int32_t name='unit_id' ref-target='unit'/>
+        <int32_t name='activity_entry_id' ref-target='activity_entry'/>
+        <int32_t name='activity_event_id'/>
     </struct-type>
 
-    <struct-type type-name='site_reputation_report'>
-        <int32_t name='site_id'/>
-        <int32_t name='location_id'/>
-        <int32_t name='unk_1'/>
-        <int32_t name='unk_2'/>
+    <struct-type type-name='site_reputation_report' original-name='abstract_building_reviewst'>
+        <int32_t name='site_id' ref-target='world_site'/>
+        <int32_t name='location_id' ref-target='abstract_building'/>
+        <int32_t name='x'/>
+        <int32_t name='y'/>
         <int32_t name='year'/>
-        <int32_t name='tickmaybe'/>
-        <static-array name='unk_3' type-name='int32_t' count='8'/>
+        <int32_t name='season_tick'/>
+        <static-array name='reputation' type-name='int32_t' count='8' index-enum='abstract_building_reputation_type'/>
     </struct-type>
 
-    <struct-type type-name='site_reputation_info'>
+    <struct-type type-name='site_reputation_info' original-name='ab_review_infost'>
         <stl-vector name='reports' pointer-type='site_reputation_report'/>
     </struct-type>
 
-    <struct-type type-name='location_scribe_jobs'>
+    <struct-type type-name='location_scribe_jobs' original-name='abstract_building_order_informationst'>
         <stl-vector name='scribejobs' pointer-type='scribejob'/>
-        <int32_t name='nextidmaybe'/>
-        <int32_t name='year'/>
-        <uint16_t name='unk_1'/>
-        <int16_t name='unk_2'/>
-        <int32_t name='unk_3'/>
-        <int32_t name='unk_4'/>
-        <int32_t name='unk_5'/>
+        <int32_t name='next_id'/>
+        <int32_t name='next_check_year'/>
+        <int32_t name='next_check_season_tick'/>
     </struct-type>
 
-    <enum-type type-name='abstract_building_type'>
+    <enum-type type-name='abstract_building_type'> bay12: AbstractBuilding
         <enum-item name='MEAD_HALL'/>
         <enum-item name='KEEP'/>
         <enum-item name='TEMPLE'/>
@@ -51,7 +52,7 @@
         <enum-item name='HOSPITAL'/>
     </enum-type>
 
-    <enum-type type-name='abstract_building_flags'>
+    <enum-type type-name='abstract_building_flags'> bay12: AbstractBuildingFlag
         <enum-item name='WG_RUINED'/>
         <enum-item name='DOES_NOT_EXIST'/>
         <enum-item name='DISCOVERED' comment="gets toggled when an adventurer has visited it."/>
@@ -59,31 +60,14 @@
         <enum-item name='VISITORS_ALLOWED'/>
         <enum-item name='NON_CITIZENS_ALLOWED'/>
         <enum-item name='MEMBERS_ONLY'/>
-        <enum-item name='UNUSED8'/>
     </enum-type>
 
-    <struct-type type-name='abstract_building_entombed' comment='used within Tomb and Dungeon'>
-        <stl-vector name='populations'>
-            <pointer>
-                <int32_t name='count'/>
-                <int32_t name='race' ref-target='creature_raw'/>
-                <int32_t name='population' ref-target='entity_population'/>
-                <int32_t name='unk_4' init-value='-1'/>
-                <int32_t name='unk_5' comment='min year?'/>
-                <int32_t name='unk_6' comment='max year? seems to always be slightly before the construction of the building for tombs'/>
-                <int32_t name='unk_7' comment='seen equal to count'/>
-                <int32_t name='unk_8' since='v0.40.01' comment='seen values 0, 6'/>
-            </pointer>
-        </stl-vector>
-        <stl-vector name='histfigs' ref-target='historical_figure' type-name='int32_t'/>
-    </struct-type>
-
-    <struct-type type-name='abstract_building_contents' comment='used within Temple, Library, and Inn/Tavern'>
-        <bitfield name='need_more'>
+    <struct-type type-name='abstract_building_contents' original-name='location_infost'>
+        <bitfield name='need_more' base-type='uint32_t'> bay12: LOCATION_INFO_FLAG_*
             <flag-bit name='goblets'/>
             <flag-bit name='instruments'/>
             <flag-bit name='paper'/>
-            <flag-bit/>
+            <flag-bit name='entity_recognized'/>
             <flag-bit name='splints'/>
             <flag-bit name='thread'/>
             <flag-bit name='cloth'/>
@@ -118,8 +102,8 @@
         <int32_t name='count_powder'/>
         <int32_t name='count_buckets'/>
         <int32_t name='count_soap'/>
-        <int32_t name='unk_v47_2' init-value='100'/>
-        <int32_t name='unk_v47_3'/>
+        <int32_t name='update_timer' init-value='100'/>
+        <int32_t name='update_count'/>
         <stl-vector name='building_ids' type-name='int32_t' ref-target='building'/>
     </struct-type>
 
@@ -131,28 +115,27 @@
         </code-helper>
 
         <stl-vector name='inhabitants'>
-            <pointer>
-                <int16_t name='unk_1'/>
+            <pointer> bay12: abstract_building_hf_linkst
+                <enum name='type' type-name='histfig_hf_link_type' base-type='int16_t'/>
                 <int32_t name='histfig_id' ref-target='historical_figure'/>
             </pointer>
         </stl-vector>
         <df-flagarray name='flags' index-enum='abstract_building_flags'/>
-        <pointer name='unk1' comment='in temples; hfig is the god'>
+        <pointer name='archinfo' comment='in temples; hfig is the god'> bay12: architectural_infost
             <stl-vector name='hfig' ref-target='historical_figure' type-name='int32_t'/>
-            <int32_t name='unk_1'/>
-            <stl-vector name='architectural_elements' comment='used by temples' type-name='architectural_element'/>
-
+            <int32_t name='architect_hf' ref-target='historical_figure'/>
+            <stl-vector name='architectural_elements'><enum type-name='architectural_element' base-type='int16_t'/></stl-vector>
             <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index' comment='just a guess'/>
             <int32_t name='mat_index'/>
         </pointer>
-        <stl-vector name='unk2' type-name='int32_t'/>
+        <stl-vector name='item_id' type-name='int32_t' ref-target='item'/>
         <int32_t name='parent_building_id' ref-target='abstract_building' comment='Tombs use this to hold which catacomb they are part of.'/>
         <stl-vector name='child_building_ids' type-name='int32_t' ref-target='abstract_building' comment='Used by catacombs to hold their tombs'/>
         <int32_t name='site_owner_id' ref-target='historical_entity' comment='entity that constructed the building'/>
         <pointer name='scribeinfo' since='v0.42.01' type-name='location_scribe_jobs'/>
-        <pointer name='reputation_reports' since='v0.42.01' type-name='site_reputation_info'/>
-        <pointer name='unk_v42_3' since='v0.42.01'>
-            <static-array type-name='int32_t' count='8'/>
+        <pointer name='review_info' since='v0.42.01' type-name='site_reputation_info'/>
+        <pointer name='reputation_info' since='v0.42.01'> bay12: ab_reputation_infost
+            <static-array name='reputation' type-name='int32_t' count='8' index-enum='abstract_building_reputation_type'/>
         </pointer>
         <int32_t name='site_id' ref-target='world_site'
                  comment='not initialized/saved/loaded, assumed member of base class'/>
@@ -163,9 +146,9 @@
             <vmethod ret-type='abstract_building_type' name='getType'/>
             <vmethod name='getDisplayTile' comment='on navigation minimap'>
                 <pointer type-name='uint8_t' name='tile'/>
-                <pointer type-name='uint16_t' name='fg'/>
-                <pointer type-name='uint16_t' name='bg'/>
-                <pointer type-name='uint16_t' name='bright'/>
+                <pointer type-name='int16_t' name='fg'/>
+                <pointer type-name='int16_t' name='bg'/>
+                <pointer type-name='int16_t' name='bright'/>
             </vmethod>
             <vmethod name='getName'><ret-type><pointer type-name='language_name'/></ret-type></vmethod>
             <vmethod name='getContents'><ret-type><pointer type-name='abstract_building_contents'/></ret-type></vmethod>
@@ -177,11 +160,11 @@
             </vmethod>
             <vmethod is-destructor='true'/>
             <vmethod ret-type='int32_t' name='getReligionID'/>
-            <vmethod ret-type='bool' comment='returns false for dark tower, dungeon, keep, market, tomb, and underworld spire; true for all others'/>
-            <vmethod ret-type='bool' comment='returns true for dark tower, tavern, keep, library, temple, and underworld spire; false for all others'/>
+            <vmethod ret-type='bool' name='razeable'/>
+            <vmethod ret-type='bool' name='canDisplayBody'/>
 
-            <vmethod ret-type='int32_t' comment='possibly related to importance; return values include 20, 50, 100'/>
-            <vmethod name='getEntombed'><ret-type><pointer type-name='abstract_building_entombed'/></ret-type></vmethod>
+            <vmethod ret-type='int32_t' name='getDefensePerc'/>
+            <vmethod name='getEntombed'><ret-type><pointer type-name='location_deathst'/></ret-type></vmethod>
             <vmethod name='generate_xml'>
                 <pointer type-name='stl-fstream'/>
                 <int32_t name='indent'/>
@@ -191,28 +174,29 @@
 
     <class-type type-name='abstract_building_mead_hallst' inherits-from='abstract_building'>
         <compound name='name' type-name='language_name'/>
-        <compound name='item1' type-name='site_building_item'/>
-        <compound name='item2' type-name='site_building_item'/>
+        <compound name='door' type-name='site_building_item'/>
+        <compound name='wall' type-name='site_building_item'/>
     </class-type>
 
     <class-type type-name='abstract_building_keepst' inherits-from='abstract_building'>
         <compound name='name' type-name='language_name'/>
     </class-type>
 
-    <enum-type type-name='temple_deity_type' base-type='int32_t'>
-        <enum-item name='None' value='-1'/>
-        <enum-item name='Deity'/>
-        <enum-item name='Religion'/>
+    <enum-type type-name='religious_practice_type' base-type='int32_t'> bay12: ReligiousPracticeType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='WORSHIP_HFID'/>
+        <enum-item name='RELIGION_ENID'/>
     </enum-type>
 
-    <struct-type type-name='temple_deity_data' is-union='true'>
+    <struct-type type-name='religious_practice_data' is-union='true'>
+        <int32_t name='practice_id'/>
         <int32_t name='Deity' ref-target='historical_figure'/>
         <int32_t name='Religion' ref-target='historical_entity'/>
     </struct-type>
 
     <class-type type-name='abstract_building_templest' inherits-from='abstract_building'>
-        <enum name='deity_type' type-name='temple_deity_type'/>
-        <compound name='deity_data' type-name='temple_deity_data'/>
+        <enum name='deity_type' type-name='religious_practice_type'/>
+        <compound name='deity_data' type-name='religious_practice_data'/>
         <compound name='name' type-name='language_name'/>
         <compound name='contents' type-name='abstract_building_contents'/>
     </class-type>
@@ -227,36 +211,39 @@
 
     <class-type type-name='abstract_building_tombst' inherits-from='abstract_building'>
         <compound name='name' type-name='language_name'/>
-        <compound name='entombed' type-name='abstract_building_entombed'/>
-        <int32_t name='precedence'/>
+        <compound name='entombed' type-name='location_deathst'/>
+        <int32_t name='precedence' comment='rough_side_size'/>
     </class-type>
 
     <class-type type-name='abstract_building_dungeonst' inherits-from='abstract_building'>
         <compound name='name' type-name='language_name'/>
-        <enum base-type='int16_t' name='dungeon_type'>
-            <enum-item name='DUNGEON'/>
+        <enum base-type='int16_t' name='dungeon_type'> bay12: DungeonType
+            <enum-item name='DUNGEON' comment='STANDARD'/>
             <enum-item name='SEWERS'/>
             <enum-item name='CATACOMBS'/>
         </enum>
-        <int32_t name='unk_1'/>
-        <compound name='entombed' type-name='abstract_building_entombed'/>
-        <int32_t name='unk_2'/>
-        <int32_t name='unk_3' comment='not saved'/>
-        <int32_t name='unk_4' comment='not saved'/>
+        <int32_t name='upper_abb_id'/>
+        <compound name='entombed' type-name='location_deathst'/>
+        <int32_t name='total_block_size'/>
+        <int32_t name='worldgen_entity_total' comment='not saved'/>
+        <int32_t name='worldgen_beast_total' comment='not saved'/>
     </class-type>
 
     <class-type type-name='abstract_building_underworld_spirest' inherits-from='abstract_building'>
         <compound name='name' type-name='language_name'/>
-        <int32_t name="unk_bc"/>
+        <bitfield name='spire_flags' base-type='uint32_t'> bay12: AB_UNDERWORLD_SPIRE_FLAG_*
+            <flag-bit name='gate_open'/>
+        </bitfield>
     </class-type>
 
     <class-type type-name='abstract_building_inn_tavernst' inherits-from='abstract_building'>
         <compound name='name' type-name='language_name'/>
         <compound name='contents' type-name='abstract_building_contents'/>
         <stl-vector name='room_info'>
-            <pointer>
+            <pointer> bay12: rental_roomst
                 <int32_t name='id'/>
-                <stl-string name='unk_1'/>
+                <stl-string name='location'/>
+                <int32_t name='civzone' ref-target='building'/>
                 <int32_t name='world_x'/>
                 <int32_t name='world_y'/>
                 <int32_t name='world_z'/>
@@ -268,10 +255,10 @@
     <class-type type-name='abstract_building_libraryst' inherits-from='abstract_building'>
         <compound name='name' type-name='language_name'/>
         <stl-vector name='copied_artifacts' type-name='int32_t' ref-target='artifact_record'/>
-        <int32_t name='unk_1' init-value='-1'/>
-        <int32_t name='unk_2' init-value='-1'/>
-        <int32_t name='unk_3' init-value='-1'/>
-        <int32_t name='unk_4' init-value='-1'/>
+        <int32_t name='last_check_year' init-value='-1'/>
+        <int32_t name='last_check_season_tick' init-value='-1'/>
+        <int32_t name='last_posting_year' init-value='-1'/>
+        <int32_t name='last_posting_season_tick' init-value='-1'/>
         <compound name='contents' type-name='abstract_building_contents'/>
     </class-type>
 
@@ -286,7 +273,12 @@
 
     <class-type type-name='abstract_building_towerst' inherits-from='abstract_building'>
         <compound name='name' type-name='language_name'/>
-        <int32_t name='unk_1'/>
+        <bitfield name='spec_flag' base-type='uint32_t'> bay12: ABSTRACT_BUILDING_TOWER_FLAG_*
+            <flag-bit name='dungeon'/>
+            <flag-bit name='improved_fortifications'/>
+            <flag-bit name='gated_courtyard'/>
+            <flag-bit name='feast_hall'/>
+        </bitfield>
     </class-type>
 
     <class-type type-name='abstract_building_hospitalst' inherits-from='abstract_building'>
@@ -294,7 +286,7 @@
         <compound name='contents' type-name='abstract_building_contents'/>
     </class-type>
 
-    <enum-type type-name='world_site_type' base-type='int16_t'>
+    <enum-type type-name='world_site_type'> bay12: SiteType
         <enum-item name='PlayerFortress'/>
         <enum-item name='DarkFortress'/>
         <enum-item name='Cave'/>
@@ -308,7 +300,7 @@
         <enum-item name='Monument'/>
     </enum-type>
 
-    <enum-type type-name='fortress_type' base-type='int16_t'>
+    <enum-type type-name='fortress_type' base-type='int16_t'> bay12: FortressType
         <enum-item name='NONE' value='-1'/>
         <enum-item name='CASTLE'/>
         <enum-item name='TOWER'/>
@@ -316,13 +308,13 @@
         <enum-item name='FORT'/>
     </enum-type>
 
-    <enum-type type-name='monument_type' base-type='int16_t'>
+    <enum-type type-name='monument_type' base-type='int16_t'> bay12: MonumentType
         <enum-item name='NONE' value='-1'/>
         <enum-item name='TOMB'/>
         <enum-item name='VAULT'/>
     </enum-type>
 
-    <enum-type type-name='lair_type' base-type='int16_t'>
+    <enum-type type-name='lair_type' base-type='int16_t'> bay12: LairType
         <enum-item name='NONE' value='-1'/>
         <enum-item name='SIMPLE_MOUND' comment='Night creatures'/>
         <enum-item name='SIMPLE_BURROW' comment='animal, (semi)megabeast, night creature(!)'/>
@@ -331,16 +323,21 @@
         <enum-item name='WILDERNESS_LOCATION' comment='In mountains, hosting Rocs in vanilla'/>
     </enum-type>
 
+    <enum-type type-name='site_building_profile_type' base-type='int32_t'> bay12: SiteBuildingProfileType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='AB' comment='abstract building'/>
+        <enum-item name='SRB' comment='site realization building'/>
+    </enum-type>
+
     <struct-type type-name='property_ownership' original-name='site_building_profilest'>
         <int32_t name="index"/>
-        <bool name="is_concrete_property" comment="true if house [property_index = 4 only one seen], or index into buildings"/>
-        <padding name='pad_1' size='3'/>
-        <int32_t name='property_index' comment="index into buildings when is_concrete_property is false. Only seen 4 = house with is_concrete_property = true"/>
-        <int32_t name="unk_hfid" ref-target='historical_figure' comment="Always same as owner_hfid when set, but not always set when that field is."/>
-        <int32_t name="owner_entity_id" ref-target='historical_entity' comment='Mutually exclusive with owner_hfid. All seen were merchant companies.'/>
+        <enum name='profile' type-name='site_building_profile_type'/>
+        <int32_t name='property_index' comment="union: ab_id or srb_type"/>
         <int32_t name="owner_hfid" ref-target='historical_figure'/>
-        <int32_t name="unk_owner_entity_id" ref-target='historical_entity' comment="Seen only in subset of owner_entity_id case, and always same value"/>
-    </struct-type>  --  Cannot rule out the type having additional fields, although the 8 following bytes were all 0 in all cases in the save examined.
+        <int32_t name="owner_entity_id" ref-target='historical_entity'/>
+        <int32_t name="last_owner_hfid" ref-target='historical_figure'/>
+        <int32_t name="last_owner_entity_id" ref-target='historical_entity'/>
+    </struct-type>
 
     <struct-type type-name='unit_placement_infost'>
         <int32_t name="unit_id" ref-target='unit'/> this is a union in bay12 but they're both the same type so why bother
@@ -391,24 +388,14 @@
         <int32_t name='planting_week'/>
         <stl-vector name='growth_allotment_index' type-name='int32_t'/>
         <stl-vector name='growth_num_multiplier' type-name='int32_t'/>
-        <bitfield name='flag'>
+        <bitfield name='flag'> bay12: SITE_CROP_FLAG_*
             <flag-bit name='has_growths'/>
         </bitfield>
     </struct-type>
 
-    <enum-type type-name='religious_practice_type' base-type='int32_t'> bay12: ReligiousPractice
-        <enum-item name='NONE' value='-1'/>
-        <enum-item name='WORSHIP_HFID'/>
-        <enum-item name='RELIGION_ENID'/>
-    </enum-type>
-
     <struct-type type-name='site_religious_structurest'>
         <enum name='type' type-name='religious_practice_type'/>
-        <compound is-union='true' name='data'>
-            <int32_t name='practice_id'/>
-            <int32_t name='hfid' ref-target='historical_figure'/>
-            <int32_t name='enid' ref-target='historical_entity'/>
-        </compound>
+        <compound name='data' type-name='religious_practice_data'/>
         <int32_t name='points'/>
     </struct-type>
 
@@ -434,23 +421,9 @@
         <enum-item name='PASSED_FIRST_REALIZATION'/>
         <enum-item name='SETTLED'/>
         <enum-item name='COMPLETELY_SUPERCEDED'/>
-        <enum-item name='UNUSED12'/>
-        <enum-item name='UNUSED13'/>
-        <enum-item name='UNUSED14'/>
-        <enum-item name='UNUSED15'/>
-        <enum-item name='UNUSED16'/>
-
-        <enum-item name='UNUSED17'/>
-        <enum-item name='UNUSED18'/>
-        <enum-item name='UNUSED19'/>
-        <enum-item name='UNUSED20'/>
-        <enum-item name='UNUSED21'/>
-        <enum-item name='UNUSED22'/>
-        <enum-item name='UNUSED23'/>
-        <enum-item name='UNUSED24'/>
     </enum-type>
 
-    <enum-type type-name='location_death_type' comment='bay12: LocationDeath'>
+    <enum-type type-name='location_death_type' base-type='int32_t'> bay12: LocationDeathType
         <enum-item name='NATURAL'/>
         <enum-item name='STARVATION'/>
         <enum-item name='FAILED_DEFENDER'/>
@@ -479,27 +452,27 @@
     </struct-type>
 
     <struct-type type-name='site_map_infost'>
-        <enum base-type='int16_t' name="fortress_type" type-name='fortress_type' init-value='NONE' comment='Only when site.type=Fortress'/>
-        <enum base-type='int16_t' name="monument_type" type-name='monument_type' init-value='NONE' comment='Only when site.type=Monument'/>
-        <enum base-type='int16_t' name="lair_type" type-name='lair_type' init-value='NONE' comment='Only when site.type=LairShrine'/>
-        <stl-vector name="unk_night_creature_lair" type-name='int16_t' comment="only on SIMPLE_MOUND and SIMPLE_BURROW, all mounds but not all burrows, all had night creatures. All instances seen had single element with value 0"/>
-        <int32_t name="unk_14" init-value='-1000000'/>
-        <int32_t name="unk_18" init-value='-1000000'/>
-        <int32_t name="unk_1c" init-value='-1000000'/>
+        <enum name="fortress_type" type-name='fortress_type' init-value='NONE' comment='Only when site.type=Fortress'/>
+        <enum name="monument_type" type-name='monument_type' init-value='NONE' comment='Only when site.type=Monument'/>
+        <enum name="lair_type" type-name='lair_type' init-value='NONE' comment='Only when site.type=LairShrine'/>
+        <stl-vector name="lair_characteristic" type-name='lair_characteristic_type' comment="only on SIMPLE_MOUND and SIMPLE_BURROW"/>
+        <int32_t name="entrance_x" init-value='-1000000'/>
+        <int32_t name="entrance_y" init-value='-1000000'/>
+        <int32_t name="entrance_z" init-value='-1000000'/>
         <int32_t name="creator" ref-target='historical_figure' since='v0.40.01' comment="all vaults, no others seen"/>
-        <int32_t name="unk_vault" init-value='0' since='v0.40.01' comment="all vaults, no others seen, always 100"/>
-        <int32_t name='tower_seed' init-value='0' comment="all towers, no others. Seed is a guess based on the very large numbers"/>
-        <int32_t name='unk_monastery' init-value='-1' comment="all monasteries, no others. Only seen '1'"/>
-        <int32_t name='founding_entity' ref-target='historical_entity' comment="all monasteries, no others"/>
+        <int32_t name="overall_pop_capacity" init-value='0' since='v0.40.01' comment="all vaults, no others seen, always 100"/>
+        <int32_t name='wg_build_work_days' init-value='0' comment="all towers, no others. Seed is a guess based on the very large numbers"/>
+        <enum name='practice_type' type-name='religious_practice_type' base-type='int32_t'/>
+        <compound name='practice_data' type-name='religious_practice_data'/>
     </struct-type>
 
-    <enum-type type-name='site_architecture_change_type' comment='bay12: SiteArchitectureChangeType'>
+    <enum-type type-name='site_architecture_change_type' base-type='int32_t'> bay12: SiteArchitectureChangeType
         <enum-item name='NONE' value='-1'/>
         <enum-item name='DOMINANT_ENTITY'/>
         <enum-item name='SRB_RUINED'/>
         <enum-item name='SRP_RUINED'/>
-        <enum-item name='GENERALIZED_DAMAGE'/>
-        <enum-item name='GENERALIZED_DEATH'/>
+        <enum-item name='GENERALIZED_DAMAGE'/>  bay12: SITE_ARCHITECTURE_CHANGE_GENERALIZED_DAMAGE_FLAG_*
+        <enum-item name='GENERALIZED_DEATH'/> bay12: SITE_ARCHITECTURE_CHANGE_GENERALIZED_DEATH_FLAG_*
     </enum-type>
 
     <struct-type type-name='site_architecture_changest'>
@@ -509,22 +482,20 @@
             <int32_t name='DOMINANT_ENTITY' ref-target='historical_entity'/>
             <int32_t name='SRB_RUINED'/>
             <int32_t name='SRP_RUINED'/>
-            <int32_t name='GENERALIZED_DAMAGE'/>
+            <int32_t name='GENERALIZED_DAMAGE' comment='percentage'/>
             <int32_t name='GENERALIZED_DEATH_ID'/>
         </compound>
         <int32_t name="year"/>
         <int32_t name="year_tick" init-value='-1' comment='bay12: season_count'/>
-        <int32_t name="flag" init-value='0'/>
-        <int32_t name="spec_flag" init-value='0' since="v0.44.07"/>
+        <bitfield name="flags" base-type='uint32_t'> bay12: SITE_ARCHITECTURE_CHANGE_FLAG_*
+            <flag-bit name='handled_once'/>
+        </bitfield>
+        <uint32_t name="spec_flag" init-value='0' since="v0.44.07"/> varies based on type
     </struct-type>
 
     <struct-type type-name='wg_site_culture_identity_religious_practicest'>
-        <enum name='type' type-name='religious_practice_type'/>
-        <compound is-union='true' name='data'>
-            <int32_t name='practice_id'/>
-            <int32_t name='hfid' ref-target='historical_figure'/>
-            <int32_t name='enid' ref-target='historical_entity'/>
-        </compound>
+        <enum name='type' type-name='religious_practice_type' base-type='int32_t'/>
+        <compound name='data' type-name='religious_practice_data'/>
         <int32_t name='points'/>
     </struct-type>
 
@@ -534,7 +505,7 @@
         <stl-vector pointer-type='wg_site_culture_identity_interactionst' name='interaction'/>
     </struct-type>
 
-    <enum-type type-name='cultural_interaction_type' base-type='int32_t'>
+    <enum-type type-name='cultural_interaction_type' base-type='int32_t'> bay12: CulturalInteractionType
         <enum-item name='NONE' value='-1'/>
         <enum-item name='ENTITY_1_PERSECUTES_ENTITY_2'/>
         <enum-item name='ENTITY_1_RIOTS_AGAINST_ENTITY_2'/>
@@ -632,132 +603,95 @@
 
         <stl-vector name="architecture_change" pointer-type='site_architecture_changest' since='v0.40.01'/>
 
-        -- TODO: progress marker --
+        <stl-vector name="active_site_conquest" since='v0.40.01'>
+            <pointer> bay12: active_site_conquestst
+                <int32_t name='conquest_eventcol' ref-target='history_event_collection'/>
+                <int32_t name='entity' ref-target='historical_entity'/>
+            </pointer>
+        </stl-vector>
+        <stl-vector name="active_insurrection" since='v0.40.01'>
+            <pointer> bay12: active_insurrectionst
+                <int32_t name='insurrection_eventcol' ref-target='history_event_collection'/>
+                <int32_t name='target_entity' ref-target='historical_entity'/>
+                <stl-vector name='involved_ci_id' type-name='int32_t'/>
+                <int32_t name='conflict_timer'/>
+                <int32_t name='conflict_cycle'/>
+            </pointer>
+        </stl-vector>
 
-        <stl-vector name="unk_v40_4b" since='v0.40.01'>
-            <pointer>
-                <int32_t name='unk_1'/>
-                <int32_t name='unk_2'/>
-            </pointer>
-        </stl-vector>
-        <stl-vector name="unk_v40_4c" since='v0.40.01'>
-            <pointer>
-                <int32_t name='unk_1'/>
-                <int32_t name='unk_2'/>
-                <stl-vector name='unk_3' type-name='int32_t'/>
-                <int32_t name='unk_4'/>
-                <int32_t name='unk_5'/>
-            </pointer>
-        </stl-vector>
-        <stl-vector name="unk_v40_4d" since='v0.40.01' comment="only seen once, 13 long, corresponding to 13 attacks from the same entity_id resulting in site taken over in 'might bey year'">
-            <pointer>
+        <stl-vector name="generalized_death" since='v0.40.01'>
+            <pointer> bay12: site_generalized_deathst
                 <int32_t name='id'/>
-                <stl-vector name='unk_1'>
-                    <pointer>
-                        <int32_t name='unk_1'/>
-                        <int32_t name='unk_2' comment="might be race"/>
-                        <int32_t name='unk_3'/>
-                        <int32_t name='unk_4'/>
-                        <int32_t name='unk_5' comment="might be year"/>
-                        <int32_t name='unk_6' comment="might be year"/>
-                        <int32_t name='unk_7'/>
-                        <int32_t name='unk_8'/>
-                    </pointer>
-                </stl-vector>
-                <stl-vector name='unk_2' type-name='int32_t'/>
-                <int32_t name='entity_id' ref-target='historical_entity' comment="single attacking site civ is only one seen"/>
+                <compound name='death' type-name='location_deathst'/>
+                <int32_t name='entity_id' ref-target='historical_entity'/>
             </pointer>
         </stl-vector>
+        <int32_t name='next_generalized_death_id' init-value='0' since='v0.43.01'/>
 
-        <int32_t name='unk_v40_4d_next_id' init-value='0' since='v0.43.01' comment="only single non zero entry, matching vector above. Might guess 'since' is scrambled"/>
-        <stl-vector name='unk_v43_2' since='v0.43.01'>
-            <pointer>
-                <int32_t name='unk_1'/>
-                <int32_t name='unk_2'/>
-                <int32_t name='unk_3'/>
-                <static-array name='unk_4' count='16'><static-array count='16' type-name='int32_t'/></static-array>
-                <static-array name='unk_5' count='16'><static-array count='16' type-name='int32_t'/></static-array>
-                <static-array name='unk_6' count='16'><static-array count='16' type-name='int32_t'/></static-array>
-                <static-array name='unk_7' count='16'><static-array count='16' type-name='int32_t'/></static-array>
-                <static-array name='unk_8' count='16'><static-array count='16' type-name='int32_t'/></static-array>
-                <static-array name='unk_9' count='16'><static-array count='16' type-name='int32_t'/></static-array>
-                <static-array name='unk_10' count='16'><static-array count='16' type-name='int32_t'/></static-array>
-                <static-array name='unk_11' count='16'><static-array count='16' type-name='int32_t'/></static-array>
-                <static-array name='unk_12' count='16'><static-array count='16' type-name='int32_t'/></static-array>
-                <static-array name='unk_13' count='16'><static-array count='16' type-name='int32_t'/></static-array>
-                <static-array name='unk_14' count='16'><static-array count='16' type-name='int32_t'/></static-array>
-                <static-array name='unk_15' count='16'><static-array count='16' type-name='int32_t'/></static-array>
-                <static-array name='unk_16' count='16'><static-array count='16' type-name='int32_t'/></static-array> not initialized OR saved
-                <static-array name='unk_17' count='16'><static-array count='16' type-name='int32_t'/></static-array>
+        <stl-vector name='construction_blueprint' since='v0.43.01'>
+            <pointer> bay12: site_construction_blueprintst
+                <int32_t name='x'/>
+                <int32_t name='y'/>
+                <int32_t name='z'/>
+                <static-array name='construction_type' count='16'><static-array count='16' type-name='int32_t'/></static-array>
+                <static-array name='construction_subtype' count='16'><static-array count='16' type-name='int32_t'/></static-array>
+                <static-array name='construction_subcat1' count='16'><static-array count='16' type-name='int32_t'/></static-array>
+                <static-array name='construction_subcat2' count='16'><static-array count='16' type-name='int32_t'/></static-array>
+                <static-array name='construction_jobitemflag' count='16'><static-array count='16' type-name='uint32_t'/></static-array>
+                <static-array name='construction_phase' count='16'><static-array count='16' type-name='int32_t'/></static-array>
+                <static-array name='building_type' count='16'><static-array count='16' type-name='int32_t'/></static-array>
+                <static-array name='building_subtype' count='16'><static-array count='16' type-name='int32_t'/></static-array>
+                <static-array name='building_subcat1' count='16'><static-array count='16' type-name='int32_t'/></static-array>
+                <static-array name='building_subcat2' count='16'><static-array count='16' type-name='int32_t'/></static-array>
+                <static-array name='building_jobitemflag' count='16'><static-array count='16' type-name='uint32_t'/></static-array>
+                <static-array name='building_phase' count='16'><static-array count='16' type-name='int32_t'/></static-array>
+                <static-array name='progress_flag' count='16'><static-array count='16' type-name='uint32_t'/></static-array> bay12: SCBP_PROGRESS_FLAG_*; not initialized OR saved
+                <static-array name='removal_flag' count='16'><static-array count='16' type-name='uint32_t'/></static-array> bay12: SCBP_REMOVAL_FLAG_*
             </pointer>
         </stl-vector>
-        <int32_t name='unk_v43_3' comment='constant 0?' since='v0.43.01'/>
+        <int32_t name='construction_work_finished_season_count' since='v0.43.01'/>
+        <int32_t name='construction_work_finished_race' since='v0.40.01'/>
 
-        <int32_t name='unk_v40_5' comment='constant -1?' since='v0.40.01'/>
-
-        <pointer name="unk_188" comment="Seen monster in lair, first settler in site, killed defender in site, artifact created in player fortress, (player) created artifact claimed by villain for unrelated cave/villain settled in cave">
-            <stl-vector>
-                <pointer>
-                    <int32_t name='unk_2' comment="looks random"/>
-                    <int32_t name='unk_3' init-value='0'/>
-                    <int32_t name='unk_4' init-value='0'/>
-                    <int32_t name='unk_5' comment="might be year"/>
-                    <compound name='unk1'>
-                        <int32_t name='unk_1'/>
-                        <int32_t name='unk_2' init-value='-1'/>
-                        <int32_t name='hfid' ref-target='historical_figure'/>
-                        <int32_t name='artifact_id' ref-target='artifact_record'/>
-                        <int32_t name='site_id' ref-target='world_site'/>
-                    </compound>
-                    <int32_t name='unk_6' init-value='-1' comment="1, 2, 3, 5, 11 seen"/>
-                    <int32_t name='unk_7' init-value='-1'/>
-                </pointer>
-            </stl-vector>
+        <pointer name="site_message_board"> bay12: site_message_boardst
+            <stl-vector name='message' pointer-type='messagest'/>
         </pointer>
 
-        <int32_t name='unk_3a8' since='v0.44.06'/>
-        <pointer name='unk_3b0' since='v0.44.01' type-name='resource_pilest'/>
+        <int32_t name='looted_perc' since='v0.44.06'/>
+        <pointer name='resource_pile' since='v0.44.01' type-name='resource_pilest'/>
 
-        <stl-vector name="unk_18c"/>
-        <stl-vector name="unk_19c"/>
+        <compound name='temp_path' type-name='coord2d_path'/>
         <stl-vector name="entity_links" pointer-type='entity_site_link' since='v0.40.01'/>
         <stl-vector name="cultural_identities" pointer-type='cultural_identity' since='v0.40.01'/>
-        <stl-vector name="unk_v42_1" since='v0.42.01' pointer-type='occupation'/> during worldgen only
+        <stl-vector name="wg_occupation" since='v0.42.01' pointer-type='occupation'/> during worldgen only
 
-        <int32_t name='unk_v43_4' since='v0.43.01' comment='uninitialized'/>
-        <stl-vector name='unk_3' since='v0.44.01'/>
+        <int32_t name='this_years_bloodsuck_murders' since='v0.43.01' comment='uninitialized'/>
+        <stl-vector name='wg_quest_posting' since='v0.44.01'>
+            <pointer> bay12: wg_quest_postingst
+                <enum name='type' base-type='int32_t'> bay12: WGQuestPostingType
+                    <enum-item name='RETURN_ARTIFACT_TO_THIS_SITE'/>
+                </enum>
+                <pointer name='origin_ent' type-name='historical_entity'/>
+                <pointer name='artifact' type-name='artifact_record'/>
+                <pointer name='dest_site' type-name='world_site'/>
+                <pointer name='dest_bld' type-name='abstract_building'/>
+                <bitfield name="flags" base-type='uint32_t'> bay12: WG_QUEST_POSTING_FLAG_*
+                    <flag-bit name='obsolete'/>
+                </bitfield>
+            </pointer>
+        </stl-vector>
 
-        <pointer name='unk_4' type-name='historical_figure' has-bad-pointers='true'/>
-        <pointer name='unk_5' type-name='historical_figure' has-bad-pointers='true'/>
-        <pointer name='unk_6' type-name='historical_figure' has-bad-pointers='true'/>
-        <pointer name='unk_7' type-name='historical_figure' has-bad-pointers='true'/>
-        <pointer name='unk_8' type-name='historical_figure' has-bad-pointers='true'/>
-        <pointer name='unk_9'/>
-        <pointer name='unk_10'/>
-        <pointer name='unk_11'/>
-        <pointer name='unk_12'/>
-        <pointer name='unk_13'/>
-        <pointer name='unk_14'/>
-        <pointer name='unk_15'/>
-        <pointer name='unk_16'/>
-        <pointer name='unk_17'/>
-        <pointer name='unk_18'/>
-        <pointer name='unk_19'/>
-        <pointer name='unk_20'/>
-        <pointer name='unk_21'/>
-        <pointer name='unk_22'/>
-        <pointer name='unk_23'/>
-        <int32_t name='unk_24'/>
-        <pointer name='unk_25' pointer-type='wg_site_culturest'/>
+        <static-array name='wg_queued_merchant' count='20'><pointer type-name='historical_figure' has-bad-pointers='true'/></static-array>
+        <int32_t name='wg_queued_merchant_num'/>
+        <pointer name='wg_site_culture' pointer-type='wg_site_culturest'/>
     </struct-type>
 
-    <struct-type type-name='cultural_identity' key-field='id'
+    <struct-type type-name='cultural_identity' original-name='cultural_identityst' key-field='id'
                  instance-vector='$global.world.cultural_identities.all'>
         <int32_t name="id"/>
         <int32_t name="site_id" ref-target='world_site'/>
         <int32_t name="civ_id" ref-target='historical_entity'/>
         <stl-vector name='group_log' comment='the circumstances of groups joining or leaving this culture'>
-            <pointer>
+            <pointer> bay12: cultural_identity_entityst
                 <int32_t name="group_id" ref-target='historical_entity'/>
                 <int32_t name='start_year' init-value='-1' comment='when the group joined the culture, or -1 if it founded the culture'/>
                 <int32_t name='start_tick' init-value='-1'/>
@@ -776,33 +710,31 @@
                 <int32_t name="unk_44" init-value='100'/>
             </pointer>
         </stl-vector>
-        <static-array name='ethic' count='22' index-enum='ethic_type'>
-            <enum base-type='int16_t' type-name='ethic_response'/>
-        </static-array>
+        <static-array name='ethic' count='22' type-name='ethic_response' index-enum='ethic_type'/>
         <static-array name='values' type-name='int32_t' count='64' index-enum='value_type'/>
         <stl-vector name='events' pointer-type='entity_event'/>
-        <int32_t name='unk_d8' init-value='-1'/>
-        <stl-vector name="unk_dc" type-name='int32_t'/>
-        <int32_t name='unk_ec' init-value='-1'/>
-        <int32_t name='unk_f0' init-value='-1'/>
-        <int32_t name='unk_f4' comment='0 or 800000'/>
-        <stl-vector name='unk_1'>
-            <pointer>
-                <int32_t name='unk_1'/>
-                <int32_t name='unk_2'/>
-                <int32_t name='unk_3'/>
+        <int32_t name='world_general_knowledge_year' init-value='-1'/>
+        <stl-vector name="known_heid" type-name='int32_t' ref-target='history_event'/>
+        <int32_t name='origin_ci_id' ref-target='cultural_identity'/>
+        <int32_t name='origin_split_ci_heid' ref-target='history_event'/>
+        <int32_t name='cave_adapt_counter' comment='0 or 800000'/>
+        <stl-vector name='religious_practice'>
+            <pointer> bay12: cultural_identity_religious_practicest
+                <enum name='type' type-name='religious_practice_type'/>
+                <compound name='data' type-name='religious_practice_data'/>
+                <int32_t name='points'/>
             </pointer>
         </stl-vector>
-        <stl-vector name='unk_2'>
-            <pointer>
-                <int32_t name='unk_1'/>
-                <int32_t name='unk_2'/>
-                <int32_t name='unk_3'/>
-                <int32_t name='unk_4'/>
-                <int32_t name='unk_5'/>
+        <stl-vector name='interaction'>
+            <pointer> bay12: cultural_identity_interactionst
+                <enum type-name='cultural_interaction_type' name='type'/>
+                <int32_t name='id1'/>
+                <int32_t name='id2'/>
+                <int32_t name='year'/>
+                <int32_t name='severity'/>
             </pointer>
         </stl-vector>
-        <int32_t name="unk_f8"/>
+        <int32_t name="mushy_minimum_population"/>
     </struct-type>
 
     <struct-type type-name='world_site_inhabitant' original-name='site_entity_populationst'>
@@ -810,14 +742,130 @@
         <compound name='pop_spec' type-name='entity_pop_specifierst'/>
     </struct-type>
 
+    <struct-type type-name='srb_entity_popst'>
+        <int32_t name="count"/>
+        <compound name='pop_spec' type-name='entity_pop_specifierst'/>
+    </struct-type>
+
+    <struct-type type-name='srb_itemst'>
+        <int32_t name='production_zone_index'/>
+        <enum name='allotment' type-name='resource_allotment_specifier_type'/>
+        <int32_t name='controlling_civ' ref-target='historical_entity'/>
+        <int32_t name='allotment_idx'/>
+        <int32_t name='amount'/>
+        <bitfield name='flag'> bay12: SRB_ITEM_FLAG_*
+            <flag-bit name='for_sale'/>
+            <flag-bit name='for_storage'/>
+        </bitfield>
+    </struct-type>
+
+    <enum-type type-name='feature_layer_type' base-type='int16_t'> bay12: FeatureLayerType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='SUBTERRANEAN'/>
+        <enum-item name='MAGMA_CORE'/>
+        <enum-item name='UNDERWORLD'/>
+    </enum-type>
+
+    <enum-type type-name='layer_connection_type' base-type='int16_t'> bay12: LayerConnectionType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='CAVE_TOP'/>
+        <enum-item name='CAVE_PASSAGE'/>
+        <enum-item name='CAVE_BOTTOM'/>
+        <enum-item name='PIT_TOP'/>
+        <enum-item name='PIT_BOTTOM'/>
+        <enum-item name='CAVE_TOP_DEAD_END'/>
+        <enum-item name='MAGMA_POOL_TOP'/>
+        <enum-item name='MAGMA_POOL_CLOSED_PIPE'/>
+        <enum-item name='MAGMA_POOL_BOTTOM'/>
+        <enum-item name='VOLCANO_TOP'/>
+        <enum-item name='VOLCANO_CLOSED_PIPE'/>
+        <enum-item name='VOLCANO_BOTTOM'/>
+        <enum-item name='DEEP_SPECIAL_EXPOSED_CAP'/>
+        <enum-item name='DEEP_SPECIAL_TUBE_TO_CAP'/>
+        <enum-item name='DEEP_SPECIAL_BURIED_CAP'/>
+        <enum-item name='DEEP_SURFACE_MOUNTAIN'/>
+        <enum-item name='DEEP_SURFACE_TUBE'/>
+        <enum-item name='DEEP_SURFACE_PORTAL'/>
+    </enum-type>
+
+    <enum-type type-name='site_underground_layer_type' base-type='int32_t'> bay12: SiteUndergroundLayerType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='CATACOMBS'/>
+        <enum-item name='DUNGEON'/>
+        <enum-item name='SEWERS'/>
+        <enum-item name='PITS'/>
+        <enum-item name='PITS_TOWER'/>
+        <enum-item name='PITS_INDUSTRIAL'/>
+        <enum-item name='PITS_LIVING'/>
+        <enum-item name='CIVILIZED'/>
+        <enum-item name='CIVILIZED_LIVING'/>
+        <enum-item name='CIVILIZED_INDUSTRIAL'/>
+        <enum-item name='CIVILIZED_CONNECTION_FARMING'/>
+        <enum-item name='CIVILIZED_CONNECTION_FORTRESS'/>
+        <enum-item name='HIVE'/>
+        <enum-item name='HIVE_NATURAL_CAVE_CONNECTION'/>
+        <enum-item name='HIVE_LIVING'/>
+        <enum-item name='HIVE_TROPHY'/>
+        <enum-item name='HIVE_TRAPS'/>
+        <enum-item name='HIVE_BROOD'/>
+        <enum-item name='HIVE_ANIMALS'/>
+        <enum-item name='HIVE_COMPOST'/>
+        <enum-item name='CIVILIZED_GUILD_QUARTER'/>
+        <enum-item name='CIVILIZED_MERCHANT_QUARTER'/>
+    </enum-type>
+
+    <struct-type type-name='site_underground_layerst'>
+        <enum name="type" type-name='site_underground_layer_type'/>
+        <enum name="subtype" type-name='site_underground_layer_type'/>
+        <int32_t name="top_el"/>
+        <int32_t name="bottom_el"/>
+        <int32_t name="local_id"/>
+        <int32_t name="sul_ab_id"/>
+        <int32_t name="n_x"/>
+        <int32_t name="s_x"/>
+        <int32_t name="w_y"/>
+        <int32_t name="e_y"/>
+        <int32_t name="n_el"/>
+        <int32_t name="s_el"/>
+        <int32_t name="w_el"/>
+        <int32_t name="e_el"/>
+        <int32_t name="n_id"/>
+        <int32_t name="s_id"/>
+        <int32_t name="w_id"/>
+        <int32_t name="e_id"/>
+        <int32_t name="down_x"/>
+        <int32_t name="down_y"/>
+        <int32_t name="down_id"/>
+        <int32_t name="up_x"/>
+        <int32_t name="up_y"/>
+        <int32_t name="up_id"/>
+        <stl-vector name='connected_srb_local_id' type-name='int32_t'/>
+        <stl-vector name='subord_ab_local_id' type-name='int32_t'/>
+        <stl-vector name='layer_ab_local_id' type-name='int32_t'/>
+        <compound name='location_death' type-name='location_deathst'/>
+        <stl-vector name='pop' pointer-type='srb_entity_popst'/>
+        <stl-vector name='item' pointer-type='srb_itemst'/>
+        <stl-vector name='artifact_id' type-name='int32_t' ref-target='artifact_record'/>
+        <static-array name='industry_allocation' count='50' type-name='civzone_type'/>
+        <int32_t name="industry_allocation_num"/>
+        <int32_t name="upper_left_abs_smm_x"/>
+        <int32_t name="upper_left_abs_smm_y"/>
+    </struct-type>
+
     <struct-type type-name='world_site_realization' original-name='site_realizationst'>
         <stl-vector name='buildings' pointer-type='site_realization_building'/>
         <int32_t name="num_buildings"/>
-        <int32_t name="unk_14"/>
+        <int32_t name="cur_sul_id"/>
         <int32_t name="num_areas"/>
-        <static-array name='mini_rivers' count='17'>
-            <static-array count='17' type-name='int8_t'
-                          comment='2 for river tiles'/>
+        <static-array name='mini_flags' count='17'>
+            <static-array count='17'>
+                <bitfield base-type='uint8_t'> bay12: SITE_REALIZATION_FEATURE_*
+                    <flag-bit name='road'/>
+                    <flag-bit name='water'/>
+                    <flag-bit name='marked'/>
+                    <flag-bit name='underground_nonlayer'/>
+                </bitfield>
+            </static-array>
         </static-array>
         <static-array name='mini_tiles' count='17'>
             <static-array count='17' type-name='uint8_t'/>
@@ -831,194 +879,184 @@
             <static-array count='51' pointer-type='site_realization_crossroads'/>
         </static-array>
         <static-array name='river_map' count='51'>
-            <static-array count='51'>
-                <pointer>
-                    <static-array name='start' type-name='int32_t' count='48'/>
-                    <static-array name='end'   type-name='int32_t' count='48'/>
-                    <int32_t name="unk_180"/>
-                    <int32_t name="unk_184"/>
-                    <int32_t name="start_array_limits"/>
-                    <int32_t name="end_array_limits"/>
-                    <int32_t name="unk_190"/>
-                    <static-array type-name='int32_t' name='unk_194' count='9'/> uncertain, might actually be 4 pointers
-                    <int8_t name='unk_1b8'/>
-                    <int8_t name='unk_1b9'/>
-                    <int8_t name='unk_1ba'/>
-                    <int8_t name='unk_1bb'/>
-                    <int8_t name='unk_1bc'/>
-                    <int16_t name='unk_1be'/>
-                </pointer>
-            </static-array>
+            <static-array count='51' pointer-type='river_infost'/>
         </static-array>
-        <static-array name='unk_55e8' count='17'>
-            <static-array count='17'>
-                <int32_t name="unk_55e8" init-value='-30000'/>
-                <int32_t name="unk_55ec" init-value='-30000'/>
-                <int32_t name='unk_v40_1a' init-value='-30000' since='v0.40.01'/>
-                <int32_t name='unk_v40_1b' init-value='-30000' since='v0.40.01'/>
-                <int32_t name='unk_v40_1c' init-value='-30000' since='v0.40.01'/>
-                <int32_t name='unk_v40_1d' init-value='-30000' since='v0.40.01'/>
-                <stl-vector name='unk_v40_2'>
-                    <pointer>
-                        <int32_t name="unk_0"/>
-                        <int32_t name="unk_4"/>
-                        <int16_t name="unk_8"/>
-                        <int16_t name="unk_a"/>
-                        <int32_t name="unk_c"/>
-                        <int32_t name="unk_10"/>
-                        <int16_t name="unk_14"/>
-                        <int16_t name="unk_16"/>
-                        <int32_t name="unk_18"/>
-                        <int32_t name="unk_1c"/>
+        <static-array name='underground_info' count='17'>
+            <static-array count='17'> bay12: underground_infost
+                <int32_t name="top_el" init-value='-30000'/>
+                <int32_t name="bot_el" init-value='-30000'/>
+                <int32_t name='layer_top_el' init-value='-30000' since='v0.40.01'/>
+                <int32_t name='layer_bot_el' init-value='-30000' since='v0.40.01'/>
+                <int32_t name='underworld_top_el' init-value='-30000' since='v0.40.01'/>
+                <int32_t name='underworld_bot_el' init-value='-30000' since='v0.40.01'/>
+                <stl-vector name='feature_layer'>
+                    <pointer> bay12: sul_feature_layerst
+                        <int32_t name="top_el"/>
+                        <int32_t name="bot_el"/>
+                        <enum name="type" type-name='feature_layer_type'/>
+                        <int16_t name="depth_level"/>
+                        <enum name="liquid_type" type-name='tile_liquid'/>
+                        <int32_t name="liquid_upper_filled_z"/>
+                        <static-array name='vertical_connection' count='2' type-name='layer_connection_type'/>
+                        <int32_t name="feature_layer"/>
+                        <int32_t name="feature_layer_sq"/>
                     </pointer>
                 </stl-vector>
-                <stl-vector name='unk_1' since='v0.44.01'/>
-                <int32_t name="unk_55f0" init-value='-30000'/>
-                <int32_t name="unk_55f4" init-value='-30000'/>
-                <int16_t name="unk_55f8"/>
-                <int16_t name="unk_55fa"/>
-                <int32_t name="unk_55fc"/>
-                <int32_t name="unk_5600"/>
-                <int32_t name="unk_5604"/>
-                <int32_t name="unk_5608"/>
-                <int32_t name="unk_560c"/>
-                <int32_t name="unk_5610"/>
-                <int32_t name="unk_5614"/>
-                <stl-vector name="unk_5618"/>
-                <int32_t name="unk_5628"/>
-                <int32_t name="unk_562c"/>
-                <int32_t name="unk_5630"/>
-                <int32_t name="unk_5634"/>
-                <int32_t name='unk_v40_3a' init-value='-1' since='v0.40.01'/>
-                <int32_t name='unk_v40_3b' init-value='-1' since='v0.40.01'/>
-                <int32_t name='unk_v40_3c' init-value='-1' since='v0.40.01'/>
-                <int32_t name='unk_v40_3d' init-value='-1' since='v0.40.01'/>
+                <stl-vector name='feature' since='v0.44.01'>
+                    <pointer> bay12: sul_featurest
+                        <int32_t name="feature_idx"/>
+                        <int32_t name="feature_x"/>
+                        <int32_t name="feature_y"/>
+                        <int32_t name="feature_depth"/>
+                    </pointer>
+                </stl-vector>
+                <int32_t name="sewer_wet_el" init-value='-30000'/>
+                <int32_t name="river_wet_el" init-value='-30000'/>
+                <bitfield name='flags' base-type='uint32_t'> bay12: UNDERGROUND_INFO_FLAG_*
+                    <flag-bit name='want_sewer'/>
+                    <flag-bit name='sewer'/>
+                    <flag-bit name='n_blocked'/>
+                    <flag-bit name='s_blocked'/>
+                    <flag-bit name='e_blocked'/>
+                    <flag-bit name='w_blocked'/>
+                    <flag-bit name='n_checked'/>
+                    <flag-bit name='s_checked'/>
+                    <flag-bit name='e_checked'/>
+                    <flag-bit name='w_checked'/>
+                    <flag-bit name='n_main_connection'/>
+                    <flag-bit name='s_main_connection'/>
+                    <flag-bit name='e_main_connection'/>
+                    <flag-bit name='w_main_connection'/>
+                    <flag-bit name='n_access_connection'/>
+                    <flag-bit name='s_access_connection'/>
+                    <flag-bit name='e_access_connection'/>
+                    <flag-bit name='w_access_connection'/>
+                    <flag-bit name='orig_river'/>
+                    <flag-bit name='have_access'/>
+                    <flag-bit name='access_point'/>
+                    <flag-bit name='invalid_sewer_start'/>
+                </bitfield>
+                <int32_t name="intersection_x"/>
+                <int32_t name="intersection_y"/>
+                <int32_t name="access_road_tx"/>
+                <int32_t name="access_road_ty"/>
+                <int32_t name="access_x"/>
+                <int32_t name="access_y"/>
+                <int32_t name="access_dir"/>
+                <stl-vector name="layer" pointer-type='site_underground_layerst'/>
+                <int32_t name="interlaced_w_y"/>
+                <int32_t name="interlaced_e_y"/>
+                <int32_t name="interlaced_n_x"/>
+                <int32_t name="interlaced_s_x"/>
+                <int32_t name='tunnel_w_y' init-value='-1' since='v0.40.01'/>
+                <int32_t name='tunnel_e_y' init-value='-1' since='v0.40.01'/>
+                <int32_t name='tunnel_n_x' init-value='-1' since='v0.40.01'/>
+                <int32_t name='tunnel_s_x' init-value='-1' since='v0.40.01'/>
             </static-array>
         </static-array>
+
         <static-array name='building_map' count='17'>
-            <static-array count='17'>
-                <int32_t name='unk0'/>
+            <static-array count='17'> bay12: site_realization_facest
+                <int32_t name='id'/>
                 <stl-vector name='buildings' pointer-type='site_realization_building'/>
-                <int32_t name='unk4'/>
-                <uint32_t name='unk5'/>
-                <stl-vector type-name='int32_t' name='unk6'/>
+                <bitfield name='flags' base-type='uint32_t'> bay12: SITE_REALIZATION_FACE_FLAG_*
+                    <flag-bit name='tagged_for_resources'/>
+                </bitfield>
+                <uint32_t name='flag'/>
+                <uint32_t name='seed'/>
+                <stl-vector type-name='int32_t' name='artifacts' ref-target='artifact_record'/>
             </static-array>
         </static-array>
 
         <static-array name='flags_map' count='51' since='v0.40.01'>
-            <static-array count='51' type-name='uint32_t'/>
+            <static-array count='51'>
+                <bitfield name='flags' base-type='uint32_t'> bay12: SITE_REALIZATION_SQUARE_FLAG_*
+                    <flag-bit name='basic_town'/>
+                    <flag-bit name='final_wall'/>
+                    <flag-bit name='water_block'/>
+                    <flag-bit name='roaded_town'/>
+                    <flag-bit name='has_river'/>
+                    <flag-bit name='inner_town'/>
+                    <flag-bit name='wall'/>
+                    <flag-bit name='large_water'/>
+                    <flag-bit name='aquifer'/>
+                    <flag-bit name='forbidden_adv_travel'/>
+                    <flag-bit name='special_building'/>
+                </bitfield>
+            </static-array>
         </static-array>
 
         <static-array name='zoom_tiles' count='51'>
             <static-array count='51' type-name='uint8_t'/>
         </static-array>
         <static-array name='zoom_colors' count='51'>
-            <static-array count='51' type-name='int16_t'/>
+            <static-array count='51' type-name='uint16_t'/>
         </static-array>
         <static-array name='zoom_movemask' count='51'>
-            <static-array count='51' type-name='int8_t'
+            <static-array count='51' type-name='uint8_t'
                           comment='8 left, 4 right, 2 down, 1 up; -1 any dir'/>
         </static-array>
         2704 = 52*52
         <static-array name='area_map' count='52'>
             <static-array count='52' type-name='int32_t' refers-to='$$._global.areas[$]'/>
         </static-array>
-        <stl-vector name='areas'>
-            <pointer>
-                <enum base-type="int32_t" name="type">
-                    <enum-item name="Crops1"/>
-                    <enum-item name="Crops2"/>
-                    <enum-item name="Crops3"/>
-                    <enum-item name="Meadow"/>
-                    <enum-item name="Pasture"/>
-                    <enum-item name="Orchard"/>
-                    <enum-item name="Woodland"/>
-                    <enum-item name="Waste"/>
-                    <enum-item name="Unknown1"/>
-                </enum>
-                <int32_t name="index"/>
-                <int32_t name="unk_8"/>
-                <int32_t name="min_x"/>
-                <int32_t name="max_x"/>
-                <int32_t name="min_y"/>
-                <int32_t name="max_y"/>
-                <int32_t name="unk_1c" init-value='-1' since='v0.40.01'/>
-                <int32_t name="unk_20" since='v0.40.01'/>
-            </pointer>
-        </stl-vector>
+        <stl-vector name='areas' pointer-type='site_realization_plotst'/>
 
-        <int32_t name='unk_1'/>
+        <bitfield name='flags' base-type='uint32_t'> bay12: SITE_REALIZATION_FLAG_*
+            <flag-bit name='renew_picture'/>
+        </bitfield>
         <int32_t name="army_controller_pos_x"/>
         <int32_t name="army_controller_pos_y"/>
-        <static-array name='unk_193bc' count='500'>
+        <static-array name='walker' count='500'> bay12: sr_walkerst
             <int32_t name='nemesis_id' ref-target='nemesis_record'/>
-            <int32_t name='unk_1'/>
-            <compound name='unk_8'>
-                <int32_t name='unk_1'/>
-                <int32_t name='unk_2'/>
-                <int32_t name='unk_3'/>
-                <int32_t name='unk_4'/>
-                <int32_t name='unk_5'/>
-                <int32_t name='unk_6'/>
-                <int32_t name='unk_7'/>
-                <int32_t name='unk_8'/>
-                <int32_t name='unk_9'/>
-            </compound>
-            <int32_t name='unk_2'/>
+            <int32_t name='num'/>
+            <compound name='pop_spec' type-name='entity_pop_specifierst'/>
             <int32_t name='building_id' ref-target='site_realization_building'/>
             <compound type-name='coord' name='pos'/>
-            <int16_t name='unk_3'/>
-            <int32_t name='unk_4'/>
-            <int32_t name='unk_5'/>
-            <int32_t name='unk_6'/>
-            <static-array name='unk_7' type-name='int32_t' count='20'/>
-            <static-array name='unk_9' type-name='int32_t' count='20'/>
-            <int16_t name='unk_10'/>
-            <int16_t name='unk_11'/>
-            <int32_t name='unk_12'/>
-            <int32_t name='unk_13'/>
+            <int16_t name='travel_count'/>
+            <enum name='goal' type-name='walker_goal_type'/>
+            <int32_t name='goal_srb_id' ref-target='site_realization_building'/>
+            <int32_t name='goal_x'/>
+            <int32_t name='goal_y'/>
+            <static-array name='path_x' type-name='int32_t' count='20'/>
+            <static-array name='path_y' type-name='int32_t' count='20'/>
+            <int16_t name='path_len'/>
+            <int16_t name='path_idx'/>
+            <int32_t name='group_id'/>
+            <bitfield name='flags' base-type='uint32_t'> bay12: SR_WALKER_FLAG_*
+                <flag-bit name='in_goal_srb'/>
+                <flag-bit name='returning_home'/>
+            </bitfield>
         </static-array>
-        <int32_t name='num_unk_193bc'/>
-        <int32_t name='unk_2'/>
-        <int32_t name='unk_3'/>
-        <static-array name='unk_4' count='2' since='v0.47.01'>
-            <static-array type-name='int32_t' count='300'/>
-        </static-array>
-        <int32_t name='unk_5' since='v0.47.01'/>
+        <int32_t name='cur_max_walker_num'/>
+        <int32_t name='next_walker_group_id'/>
+        <int32_t name='max_walker_guard'/>
 
-        <static-array name='unk_6' type-name='pointer' count='20'/>
-        <int32_t name='unk_7'/>
-        <static-array name='unk_8' type-name='pointer' count='20'/>
-        <int32_t name='unk_9'/>
-        <static-array name='unk_10' type-name='pointer' count='20'/>
-        <int32_t name='unk_11'/>
-        <static-array name='unk_12' type-name='pointer' count='20'/>
-        <int32_t name='unk_13'/>
-        <static-array name='unk_15' type-name='pointer' count='20'/>
-        <int32_t name='unk_16'/>
-        <static-array name='unk_17' type-name='pointer' count='20'/>
-        <int32_t name='unk_18'/>
-        <static-array name='unk_19' type-name='pointer' count='20'/>
-        <int32_t name='unk_20'/>
-        <static-array name='unk_21' type-name='pointer' count='20'/>
-        <int32_t name='unk_22'/>
+        <static-array name='special_shrine_practice_type' type-name='religious_practice_type' count='300'/>
+        <static-array name='special_shrine_practice_data' type-name='religious_practice_data' count='300'/>
+        <int32_t name='special_shrine_practice_num' since='v0.47.01'/>
 
         <static-array name='building_well' pointer-type='site_realization_building' count='20'/>
         <int32_t name='num_building_well'/>
         <static-array name='building_temple' pointer-type='site_realization_building' count='20'/>
         <int32_t name='num_building_temple'/>
-        <static-array name='building_type22' pointer-type='site_realization_building' count='20'/>
-        <int32_t name='num_building_type22'/>
-        <static-array name='building_type21' pointer-type='site_realization_building' count='20'/>
-        <int32_t name='num_building_type21'/>
+        <static-array name='building_tavern' pointer-type='site_realization_building' count='20'/>
+        <int32_t name='num_building_tavern'/>
+        <static-array name='building_library' pointer-type='site_realization_building' count='20'/>
+        <int32_t name='num_building_library'/>
+        <static-array name='building_counting_house' pointer-type='site_realization_building' count='20'/>
+        <int32_t name='num_building_counting_house'/>
+        <static-array name='building_tower' pointer-type='site_realization_building' count='20'/>
+        <int32_t name='num_building_tower'/>
+        <static-array name='building_default_artifact' pointer-type='site_realization_building' count='20'/>
+        <int32_t name='num_building_default_artifact'/>
+        <static-array name='building_shrine' pointer-type='site_realization_building' count='100'/>
+        <int32_t name='num_building_shrine'/>
 
-        <static-array name='unk_23' type-name='pointer' count='16'/>
-        <int32_t name='unk_24'/>
-
-        <stl-vector name="unk_wsr_vector"/>
+        <stl-vector name="site_underground_layer" pointer-type='site_underground_layerst'/>
     </struct-type>
 
-    <struct-type type-name='site_realization_crossroads'>
+    <struct-type type-name='site_realization_crossroads' original-name='road_infost'>
         <static-array name='road_min_y' count='48' type-name='int32_t'/>
         <static-array name='road_max_y' count='48' type-name='int32_t'/>
         <static-array name='road_min_x' count='48' type-name='int32_t'/>
@@ -1027,36 +1065,58 @@
         <int32_t name="idx_y"/>
         <int32_t name="tile_width"/>
         <int32_t name="tile_height"/>
-        <int32_t name="unk_310"/>
-        <int32_t name="unk_314"/>
-        <int32_t name="unk_318"/>
-        <int32_t name="unk_31c"/>
-        <int32_t name="unk_320"/>
-        <int32_t name="unk_324"/>
-        <int32_t name="unk_328"/>
-        <int32_t name="unk_32c"/>
+        <int32_t name="n_road_idx"/>
+        <int32_t name="s_road_idx"/>
+        <int32_t name="e_road_idx"/>
+        <int32_t name="w_road_idx"/>
+        <int32_t name="n_road_wcid" ref-target='world_construction'/>
+        <int32_t name="s_road_wcid" ref-target='world_construction'/>
+        <int32_t name="e_road_wcid" ref-target='world_construction'/>
+        <int32_t name="w_road_wcid" ref-target='world_construction'/>
         <int32_t name="center_x_tile"/>
         <int32_t name="center_y_tile"/>
         <pointer name="up" type-name="site_realization_crossroads"/>
         <pointer name="down" type-name="site_realization_crossroads"/>
         <pointer name="right" type-name="site_realization_crossroads"/>
         <pointer name="left" type-name="site_realization_crossroads"/>
-        <int8_t name="unk_348"/>
-        <int8_t name="unk_349"/>
-        <int32_t name='unk_34c'/>
-        <int8_t name='unk_1'/>
-        <int8_t name='unk_2'/>
-        <int8_t name='unk_3'/>
-        <int8_t name='unk_4'/>
-        <int8_t name='unk_5'/>
-        <int8_t name='unk_6'/>
-        <int32_t name='unk_7' since='v0.47.01'/>
-        <int32_t name='unk_8' since='v0.47.01'/>
-        <static-array name='unk_370' count='48' type-name='int16_t'/>
-        <static-array name='unk_3d0' count='48' type-name='int16_t'/>
+        <bool name="use_x_road_for_intersection"/>
+        <bool name="place_buildings"/>
+        <int32_t name='component'/>
+        <uint8_t name='nw_plot_type'/>
+        <uint8_t name='sw_plot_type'/>
+        <uint8_t name='ne_plot_type'/>
+        <uint8_t name='se_plot_type'/>
+        <bool name='plot_tagged'/>
+        <bool name='paved'/>
+        <enum name='shrine_practice_type' type-name='religious_practice_type'/>
+        <compound name='shrine_practice_data' type-name='religious_practice_data'/>
+
+        very temporary
+        <static-array name='x_least_z' count='48' type-name='int16_t'/>
+        <static-array name='y_least_z' count='48' type-name='int16_t'/>
     </struct-type>
 
-    <enum-type type-name='site_realization_building_type'>
+    <struct-type type-name='river_infost'>
+        <static-array name='river_min_x' count='48' type-name='int32_t'/>
+        <static-array name='river_max_x' count='48' type-name='int32_t'/>
+        <int32_t name="x"/>
+        <int32_t name="y"/>
+        <int32_t name="dim_x"/>
+        <int32_t name="dim_y"/>
+        <int32_t name="river_idx"/>
+        <pointer name="n_con" type-name="river_infost"/>
+        <pointer name="s_con" type-name="river_infost"/>
+        <pointer name="e_con" type-name="river_infost"/>
+        <pointer name="w_con" type-name="river_infost"/>
+        <bool name="brook"/>
+        <int8_t name="u_flow"/>
+        <int8_t name="d_flow"/>
+        <int8_t name="l_flor"/>
+        <int8_t name="r_flow"/>
+        <int16_t name="m_z"/>
+    </struct-type>
+
+    <enum-type type-name='site_realization_building_type' base-type='int32_t'> bay12: SiteRealizationBuildingType
         <enum-item name='cottage_plot'/>
         <enum-item name='castle_wall'/>
         <enum-item name='castle_tower'/>
@@ -1086,7 +1146,7 @@
         <enum-item name='guild_hall'/>
         <enum-item name='city_tower'/>
         <enum-item name='shrine'/>
-        <enum-item />
+        <enum-item name='meadow'/>
         <enum-item name='dormitory'/>
         <enum-item name='dininghall'/>
         30
@@ -1095,7 +1155,15 @@
 
     </enum-type>
 
-    <struct-type type-name='site_realization_building' key-field='id'>
+    <enum-type type-name='site_realization_building_facing_type' base-type='int32_t'> bay12: SiteRealizationBuildingFacingType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='UP'/>
+        <enum-item name='RIGHT'/>
+        <enum-item name='DOWN'/>
+        <enum-item name='LEFT'/>
+    </enum-type>
+
+    <struct-type type-name='site_realization_building' original-name='site_realization_buildingst' key-field='id'>
         <int32_t name="id"/>
 
         <code-helper name='find-instance'>
@@ -1109,26 +1177,45 @@
         <int32_t name="max_x"/>
         <int32_t name="max_y"/>
 
-        <int32_t name="unk_18"/>
-        <stl-vector name="inhabitants" pointer-type='world_site_inhabitant'/>
-        <int32_t name="unk_2c"/>
+        <enum name='facing' type-name='site_realization_building_facing_type'/>
+        <stl-vector name="inhabitants" pointer-type='srb_entity_popst'/>
+        <int32_t name="civzone_id" ref-target='building'/>
         <compound name='item' type-name='site_building_item'/>
         <int32_t name="abstract_building_id" comment='used for temple and mead hall'/>
-        <int32_t name="unk_44"/>
+        <int32_t name="plot_id"/>
         <pointer name="building_info" type-name='site_realization_building_infost'/>
-        <stl-vector name="unk_4c">
-            <pointer>
-                <int32_t name="unk_0"/>
-                <int32_t name="unk_4"/>
-                <int32_t name="owner" ref-target='historical_entity'/>
-                <int32_t name="unk_c"/>
-                <int32_t name="unk_10"/>
-                <int32_t name="unk_14"/>
-            </pointer>
-        </stl-vector>
-        <int32_t name="unk_5c" comment='bit 0x01 == abandoned'/>
-        <stl-vector name="unk_60"/>
-        <int32_t name='unk_v40_1' init-value='-1000000' since='v0.40.01'/>
+        <stl-vector name="items" pointer-type='srb_itemst'/>
+        <int32_t name="flags" comment='bit 0x01 == abandoned'/>
+        <stl-vector name="artifacts" type-name='int32_t' ref-target='artifact_record'/>
+        <int32_t name='added_abs_el_z' init-value='-1000000' since='v0.40.01'/>
+        <stl-vector name="sub_ab_id" type-name='int32_t' ref-target='abstract_building'/>
+        <enum name='shrine_practice_type' type-name='religious_practice_type'/>
+        <compound name='shrine_practice_data' type-name='religious_practice_data'/>
+        <int32_t name='sbp_id' since='v0.40.01'/>
+    </struct-type>
+
+    <struct-type type-name='site_realization_plotst'>
+        <enum base-type="int32_t" name="type"> bay12: SiteRealizationPlotType
+            <enum-item name="Crops1"/>
+            <enum-item name="Crops2"/>
+            <enum-item name="Crops3"/>
+            <enum-item name="Meadow"/>
+            <enum-item name="Pasture"/>
+            <enum-item name="Orchard"/>
+            <enum-item name="Woodland"/>
+            <enum-item name="Waste"/>
+            <enum-item name="Yard"/>
+        </enum>
+        <int32_t name="index"/>
+        <int32_t name="approx_area"/>
+        <int32_t name="min_x"/>
+        <int32_t name="max_x"/>
+        <int32_t name="min_y"/>
+        <int32_t name="max_y"/>
+        <int32_t name="site_crop_idx" init-value='-1' since='v0.40.01'/>
+        <bitfield name='flags' base-type='uint32_t'> bay12: SRP_FLAG_*
+            <flag-bit name='cz_ruined'/>
+        </bitfield>
     </struct-type>
 
     <class-type type-name='site_realization_building_infost'>
@@ -1143,25 +1230,30 @@
         </virtual-methods>
     </class-type>
 
-    <struct-type type-name='site_building_item'>
+    <struct-type type-name='site_building_item' comment='not a real structure'>
         <int32_t name="race" ref-target='creature_raw'/>
-        <enum base-type='int16_t' name='item_type' type-name='item_type'/>
+        <enum name='item_type' type-name='item_type'/>
         <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name='mat_index'/>
     </struct-type>
 
-    <bitfield-type type-name='tower_shape'>
+    <bitfield-type type-name='tower_shape' base-type='uint32_t'> bay12: SRB_INFO_FLAG_CASTLE_TOWER_*
         <flag-bit name='round'/>
         <flag-bit name='hollow' comment='no internal floors or fortifications'/>
         <flag-bit name='keep' comment='fill with rooms at the bottom'/>
-        <flag-bit name='goblin' comment='ignore set heights and generate automatically'/>
-        <flag-bit name='unk10' comment='set on goblin towers. doesnt seem to do anything'/>
+        <flag-bit name='use_relative_elevation' comment='ignore set heights and generate automatically'/>
+        <flag-bit name='relative_elevation_to_highest_land' comment='set on goblin towers. doesnt seem to do anything'/>
     </bitfield-type>
 
     <class-type type-name='site_realization_building_info_castle_wallst'
                 inherits-from='site_realization_building_infost'>
-        <int32_t name="length"/>
+        <bitfield name='flags' base-type='uint32_t'> bay12: SRB_INFO_FLAG_CASTLE_WALL_*
+            <flag-bit name='vertical'/>
+            <flag-bit name='nw_fortified'/>
+            <flag-bit name='se_fortified'/>
+            <flag-bit name='central_gate'/>
+        </bitfield>
         <int32_t name="door_pos"/>
         <int32_t name="start_x"/>
         <int32_t name="start_y"/>
@@ -1184,14 +1276,14 @@
         <compound name='door_item' type-name='site_building_item'/>
         <compound name='wall_item' type-name='site_building_item'/>
         <bitfield name='shape' type-name='tower_shape'/>
-        <int32_t name="unk_40"/>
-        <int32_t name="unk_44"/>
+        <int32_t name="relative_bot_el"/>
+        <int32_t name="relative_top_el"/>
     </class-type>
 
     <class-type type-name='site_realization_building_info_castle_courtyardst'
                 inherits-from='site_realization_building_infost'/>
 
-    <enum-type type-name='site_shop_type'>
+    <enum-type type-name='site_shop_type' base-type='int32_t'> bay12: SRBShopType
         <enum-item name='GeneralImports'/>
         <enum-item name='FoodImports'/>
         <enum-item name='ClothingImports'/>
@@ -1219,8 +1311,6 @@
         <enum-item name='FruitAndVegetableMarket'/>
         <enum-item name='CheeseMarket'/>
         <enum-item name='ProcessedGoodsMarket'/>
-
-        <enum-item name='Tavern'/>
     </enum-type>
 
     <enum-type type-name='town_labor_type' base-type='int32_t'> bay12: TownLaborType
@@ -1244,18 +1334,18 @@
 
     <class-type type-name='site_realization_building_info_shop_housest'
                 inherits-from='site_realization_building_infost'>
-        <enum base-type='int32_t' name="type" type-name='site_shop_type'/>
+        <enum name="type" type-name='site_shop_type'/>
         <compound name='name' type-name='language_name'/>
     </class-type>
 
     <class-type type-name='site_realization_building_info_market_squarest'
                 inherits-from='site_realization_building_infost'>
-        <enum base-type='int32_t' name="type" type-name='site_shop_type'/>
+        <enum name="type" type-name='site_shop_type'/>
     </class-type>
 
     <class-type type-name='site_realization_building_info_trenchesst'
                 inherits-from='site_realization_building_infost'>
-        <int32_t name='unk_4'/>
+        <uint32_t name='trench_flag'/>
         <static-array name='spokes' count='4' comment='N, S, E, W'>
             <int32_t name='mound_min' comment='-30000 = nothing here'/>
             <int32_t name='trench_min'/>
@@ -1264,24 +1354,27 @@
         </static-array>
     </class-type>
 
-    <enum-type type-name='tree_house_type'>
+    <enum-type type-name='tree_house_type' base-type='int32_t'> bay12: SRBTreeType
         <enum-item name='TreeHouse'/>
         <enum-item name='HomeTree'/>
         <enum-item name='ShapingTree'/>
         <enum-item name='MarketTree'/>
-        <enum-item name='Unknown1'/>
-        <enum-item name='Unknown2'/>
+        <enum-item name='Tavern'/>
+        <enum-item name='Library'/>
+        <enum-item name='CountingHouse'/>
+        <enum-item name='Guildhall'/>
+        <enum-item name='Tower'/>
     </enum-type>
 
     <class-type type-name='site_realization_building_info_tree_housest'
                 inherits-from='site_realization_building_infost'>
-        <enum base-type='int32_t' name="type" type-name='tree_house_type'/>
-        <int32_t name='unk_8'/>
+        <enum name="type" type-name='tree_house_type'/>
+        <enum name="shop_type" type-name='site_shop_type'/>
         <compound name='name' type-name='language_name'/>
     </class-type>
 
-    <enum-type type-name='hillock_house_type'>
-        <enum-item/>
+    <enum-type type-name='hillock_house_type' base-type='int32_t'> bay12: SRBHillockType
+        <enum-item name='Residence'/>
         <enum-item name='CivicMound'/>
         <enum-item name='CastleMound'/>
         <enum-item name='DrinkingMound'/>
@@ -1289,16 +1382,16 @@
 
     <class-type type-name='site_realization_building_info_hillock_housest'
                 inherits-from='site_realization_building_infost'>
-        <enum base-type='int32_t' name="type" type-name='hillock_house_type'/>
+        <enum name="type" type-name='hillock_house_type'/>
     </class-type>
 
     <class-type type-name='site_realization_building_info_shrinest'
                 inherits-from='site_realization_building_infost'>
-        <int32_t name='unk_1' init-value='-1'/>
-        <int32_t name='unk_2' init-value='-1'/>
+        <enum name='practice_type' type-name='religious_practice_type'/>
+        <compound name='practice_data' type-name='religious_practice_data'/>
     </class-type>
 
-    <enum-type type-name='creation_zone_pwg_alteration_type'>
+    <enum-type type-name='creation_zone_pwg_alteration_type' base-type='int16_t'> bay12: CreationZonePWGAlterationType
         <enum-item name='location_death'/>
         <enum-item name='camp'/>
         <enum-item name='srb_ruined'/>
@@ -1306,7 +1399,7 @@
     </enum-type>
 
     <class-type type-name='creation_zone_pwg_alterationst'>
-        <int32_t name='unk_0'/>
+        <int32_t name='id'/>
         <virtual-methods>
             <vmethod ret-type='creation_zone_pwg_alteration_type' name='getType'/>
             <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
@@ -1315,42 +1408,29 @@
                 <enum name='loadversion' type-name='save_version'/>
             </vmethod>
             <vmethod is-destructor='true'/>
-            <vmethod><pointer/></vmethod>
-            <vmethod ret-type='int32_t'/>
+            <vmethod name='apply_to_map'><pointer name='map' comment='map_generatorst'/></vmethod>
+            <vmethod name='get_location_death'><ret-type><pointer type-name='location_deathst'/></ret-type></vmethod>
         </virtual-methods>
     </class-type>
 
     <class-type type-name='creation_zone_pwg_alteration_location_deathst' inherits-from='creation_zone_pwg_alterationst'>
-        <compound name='unk_1'>
-            <stl-vector name='unk_1a'>
-                <pointer>
-                    <int32_t name='unk_1'/>
-                    <int32_t name='unk_2'/>
-                    <int32_t name='unk_3'/>
-                    <int32_t name='unk_4'/>
-                    <int32_t name='unk_5'/>
-                    <int32_t name='unk_6'/>
-                    <int32_t name='unk_7'/>
-                    <int32_t name='unk_8'/>
-                </pointer>
-            </stl-vector>
-            <stl-vector name='unk_2a' type-name='int32_t'/>
-        </compound>
-        <int32_t name='unk_2'/>
+        <compound name='death' type-name='location_deathst'/>
+        <int32_t name='killer_civ' ref-target='historical_entity'/>
     </class-type>
 
     <class-type type-name='creation_zone_pwg_alteration_campst' inherits-from='creation_zone_pwg_alterationst'>
-        <int32_t name='unk_1'/>
         <int32_t name='x1'/>
         <int32_t name='y1'/>
         <int32_t name='x2'/>
         <int32_t name='y2'/>
-        <int32_t name='unk_2'/>
-        <int16_t name='unk_3'/>
-        <int16_t name='unk_4'/>
-        <int16_t name='unk_5'/>
-        <int16_t name='unk_6'/>
-        <int32_t name='unk_7'/>
+        <int32_t name='army_total_pop'/>
+        <bitfield name='flags' base-type='uint32_t'> bay12: CREATION_ZONE_PWG_ALTERATION_CAMP_FLAG_*
+            <flag-bit name='commander'/>
+        </bitfield>
+        <enum name='tent_item' type-name='item_type'/>
+        <int16_t name='tent_subtype'/>
+        <int16_t name='tent_material'/>
+        <int32_t name='tent_matlgoss'/>
     </class-type>
 
     <class-type type-name='creation_zone_pwg_alteration_srb_ruinedst' inherits-from='creation_zone_pwg_alterationst'>
@@ -1359,8 +1439,8 @@
     </class-type>
 
     <class-type type-name='creation_zone_pwg_alteration_srp_ruinedst' inherits-from='creation_zone_pwg_alterationst'>
-        <int32_t name='unk_1'/>
-        <int32_t name='unk_2'/>
+        <int32_t name='site_id' ref-target='world_site'/>
+        <int32_t name='plot_id' ref-target='site_realization_plotst'/>
     </class-type>
 
 </data-definition>
