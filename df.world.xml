@@ -790,6 +790,11 @@
         <int32_t name='id'/>
     </struct-type>
 
+    <struct-type type-name='adv_announcementst'>
+        <stl-string name='str'/>
+        <pointer type-name='report' name='parent'/>
+    </struct-type>
+
     <struct-type type-name='world'>
         <compound name='event'> bay12: event_handlerst
             <stl-vector name='glowing_barriers' pointer-type='glowing_barrier' comment='bay12: underworld_building_monitor'/>
@@ -862,6 +867,7 @@
             <stl-vector name='active' pointer-type='unit' comment='not sorted, entry 0 is adventurer'/>
 
             <compound name='other' type-name='units_other'/>
+            <pointer name='adv_unit' type-name='unit'/>
 
             <stl-vector name='temp_save' has-bad-pointers='true' pointer-type='unit'/>
             <stl-vector name='unit_context_block' pointer-type='unit_context_block' since='v0.44.06'/>
@@ -1068,6 +1074,18 @@
                 <static-array name='slot_id_idx2' type-name='int16_t' count='38' index-enum='combat_report_event_type'/>
                 <int16_t name='slots_used'/>
             </compound>
+
+            <bitfield name='temp_flag'>
+                <flag-bit name='ADV_HANDLE_ANNOUNCEMENTS'/>
+                <flag-bit name='ADV_DOING_MORE'/>
+                <flag-bit name='ADV_PRESERVE_ANNOUNCEMENTS'/>
+                <flag-bit name='ADV_HAVE_MORE'/>
+                <flag-bit name='ADV_SHOWING_ANNOUNCEMENTS'/>
+            </bitfield>
+            <int32_t name='adv_scroll_position'/>
+            <bool name='adv_scrolling'/>
+            <int32_t name='adv_highest_scroll_position'/>
+            <stl-vector pointer-type='adv_announcementst' name='adv_announcement'/>
 
             <stl-mutex name='announcement_mutex' comment='bay12: mtx'/>
         </compound>
@@ -1575,14 +1593,20 @@
                 <enum-item name='Graphics'/>
                 <enum-item name='Done'/>
             </enum>
-            <int32_t name='progress' comment='0..19' since='v0.40.01'/>
+            <int32_t name='progress'/>
             <int32_t name='verify_load_order_index'/>
             <bool name='asking_about_update'/>
             <bool name='notifying_about_failure'/>
-            <int32_t name='notifying_about_failure_mod_install_err'/>
+            <enum base-type='int32_t' name='notifying_about_failure_mod_install_err'>
+                <enum-item name='GENERAL'/>
+                <enum-item name='NONE' value='2'/> yes, NONE is 2
+            </enum>
             <pointer type-name='mod_headerst' name='newest_mh'/>
             <pointer type-name='mod_headerst' name='current_mh'/>
-            <uint32_t name='flag'/> bay12: ROD_LOADER_FLAG_*
+            <bitfield name='flag' base-type='uint32_t'> bay12: ROD_LOADER_FLAG_*
+                <flag-bit name='UPDATE_ALL_OLD_MODS'/>
+                <flag-bit name='KEEP_ALL_OLD_MODS'/>
+            </bitfield>
         </compound>
 
         <compound name='object_loader'> bay12: object_loaderst

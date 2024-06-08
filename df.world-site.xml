@@ -854,10 +854,10 @@
 
     <struct-type type-name='world_site_realization' original-name='site_realizationst'>
         <stl-vector name='buildings' pointer-type='site_realization_building'/>
-        <int32_t name="num_buildings"/>
+        <int32_t name="cur_building_id"/>
         <int32_t name="cur_sul_id"/>
-        <int32_t name="num_areas"/>
-        <static-array name='mini_flags' count='17'>
+        <int32_t name="cur_plot_id"/>
+        <static-array name='feature' count='17'>
             <static-array count='17'>
                 <bitfield base-type='uint8_t'> bay12: SITE_REALIZATION_FEATURE_*
                     <flag-bit name='road'/>
@@ -867,18 +867,27 @@
                 </bitfield>
             </static-array>
         </static-array>
-        <static-array name='mini_tiles' count='17'>
+        <static-array name='map_tile' count='17'>
             <static-array count='17' type-name='uint8_t'/>
         </static-array>
-        <static-array name='mini_colors' count='17'>
-            <static-array count='17' type-name='int16_t'
+        <static-array name='map_color' count='17'>
+            <static-array count='17' type-name='uint16_t'
                           comment='bold shl 6|bg shl 3|fg'/>
         </static-array>
+        <static-array name='map_tile_g' count='17'>
+            <static-array count='17' type-name='int32_t'/>
+        </static-array>
+        <static-array name='map_tile_g_sc1' count='17'>
+            <static-array count='17' type-name='int32_t'/>
+        </static-array>
+        <static-array name='map_tile_g_sc2' count='17'>
+            <static-array count='17' type-name='int32_t'/>
+        </static-array>
         2601 = 51*51 = 17*3*17*3
-        <static-array name='road_map' count='51'>
+        <static-array name='road_info' count='51'>
             <static-array count='51' pointer-type='site_realization_crossroads'/>
         </static-array>
-        <static-array name='river_map' count='51'>
+        <static-array name='river_info' count='51'>
             <static-array count='51' pointer-type='river_infost'/>
         </static-array>
         <static-array name='underground_info' count='17'>
@@ -955,7 +964,7 @@
             </static-array>
         </static-array>
 
-        <static-array name='building_map' count='17'>
+        <static-array name='face' count='17'>
             <static-array count='17'> bay12: site_realization_facest
                 <int32_t name='id'/>
                 <stl-vector name='buildings' pointer-type='site_realization_building'/>
@@ -968,7 +977,7 @@
             </static-array>
         </static-array>
 
-        <static-array name='flags_map' count='51' since='v0.40.01'>
+        <static-array name='square_flag' count='51' since='v0.40.01'>
             <static-array count='51'>
                 <bitfield name='flags' base-type='uint32_t'> bay12: SITE_REALIZATION_SQUARE_FLAG_*
                     <flag-bit name='basic_town'/>
@@ -985,28 +994,41 @@
                 </bitfield>
             </static-array>
         </static-array>
+        <static-array name='square_id' count='51' since='v0.51.01' comment='srb bld id when special building flag is set, not ab_id'>
+            <static-array count='51' type-name='int32_t'/>
+        </static-array>
 
-        <static-array name='zoom_tiles' count='51'>
+        <static-array name='site_map_tile' count='51'>
             <static-array count='51' type-name='uint8_t'/>
         </static-array>
-        <static-array name='zoom_colors' count='51'>
+        <static-array name='site_map_color' count='51'>
             <static-array count='51' type-name='uint16_t'/>
         </static-array>
-        <static-array name='zoom_movemask' count='51'>
+        <static-array name='site_map_travel_dir' count='51'>
             <static-array count='51' type-name='uint8_t'
                           comment='8 left, 4 right, 2 down, 1 up; -1 any dir'/>
         </static-array>
+        <static-array name='site_map_tile_g' count='51'>
+            <static-array count='51' type-name='int32_t'/>
+        </static-array>
+        <static-array name='site_map_tile_g_sc1' count='51'>
+            <static-array count='51' type-name='int32_t'/>
+        </static-array>
+        <static-array name='site_map_tile_g_sc2' count='51'>
+            <static-array count='51' type-name='int32_t'/>
+        </static-array>
+
         2704 = 52*52
-        <static-array name='area_map' count='52'>
+        <static-array name='plot_id' count='52'>
             <static-array count='52' type-name='int32_t' refers-to='$$._global.areas[$]'/>
         </static-array>
-        <stl-vector name='areas' pointer-type='site_realization_plotst'/>
+        <stl-vector name='plot' pointer-type='site_realization_plotst'/>
 
         <bitfield name='flags' base-type='uint32_t'> bay12: SITE_REALIZATION_FLAG_*
             <flag-bit name='renew_picture'/>
         </bitfield>
-        <int32_t name="army_controller_pos_x"/>
-        <int32_t name="army_controller_pos_y"/>
+        <int32_t name="leader_abs_smm_x" comment='where invaders go to take the town'/>
+        <int32_t name="leader_abs_smm_y"/>
         <static-array name='walker' count='500'> bay12: sr_walkerst
             <int32_t name='nemesis_id' ref-target='nemesis_record'/>
             <int32_t name='num'/>
@@ -1033,27 +1055,33 @@
         <int32_t name='max_walker_guard'/>
 
         <static-array name='special_shrine_practice_type' type-name='religious_practice_type' count='300'/>
-        <static-array name='special_shrine_practice_data' type-name='religious_practice_data' count='300'/>
+        <static-array name='special_shrine_practice_id' type-name='religious_practice_data' count='300'/>
         <int32_t name='special_shrine_practice_num' since='v0.47.01'/>
 
-        <static-array name='building_well' pointer-type='site_realization_building' count='20'/>
-        <int32_t name='num_building_well'/>
-        <static-array name='building_temple' pointer-type='site_realization_building' count='20'/>
-        <int32_t name='num_building_temple'/>
-        <static-array name='building_tavern' pointer-type='site_realization_building' count='20'/>
-        <int32_t name='num_building_tavern'/>
-        <static-array name='building_library' pointer-type='site_realization_building' count='20'/>
-        <int32_t name='num_building_library'/>
-        <static-array name='building_counting_house' pointer-type='site_realization_building' count='20'/>
-        <int32_t name='num_building_counting_house'/>
-        <static-array name='building_tower' pointer-type='site_realization_building' count='20'/>
-        <int32_t name='num_building_tower'/>
-        <static-array name='building_default_artifact' pointer-type='site_realization_building' count='20'/>
-        <int32_t name='num_building_default_artifact'/>
-        <static-array name='building_shrine' pointer-type='site_realization_building' count='100'/>
-        <int32_t name='num_building_shrine'/>
+        <static-array name='special_shrine_practice_type' type-name='int32_t' count='300' comment='ReligiousPractice'/>
+        <static-array name='special_shrine_practice_id' type-name='int32_t' count='300'/>
+        <int32_t name='special_shrine_practice_num' since='v0.47.01'/>
 
-        <stl-vector name="site_underground_layer" pointer-type='site_underground_layerst'/>
+        <static-array name='well_srb' pointer-type='site_realization_building' count='20'/>
+        <int32_t name='well_num'/>
+        <static-array name='temple_srb' pointer-type='site_realization_building' count='20'/>
+        <int32_t name='temple_num'/>
+        <static-array name='tavern_srb' pointer-type='site_realization_building' count='20'/>
+        <int32_t name='tavern_num'/>
+        <static-array name='library_srb' pointer-type='site_realization_building' count='20'/>
+        <int32_t name='library_num'/>
+        <static-array name='counting_house_srb' pointer-type='site_realization_building' count='20'/>
+        <int32_t name='counting_house_num'/>
+        <static-array name='guildhall_srb' pointer-type='site_realization_building' count='20'/>
+        <int32_t name='guildhall_num'/>
+        <static-array name='tower_srb' pointer-type='site_realization_building' count='20'/>
+        <int32_t name='tower_num'/>
+        <static-array name='default_artifact_srb' pointer-type='site_realization_building' count='20'/>
+        <int32_t name='default_artifact_srb_num'/>
+        <static-array name='shrine_srb' pointer-type='site_realization_building' count='100'/>
+        <int32_t name='shrine_num'/>
+
+        <stl-vector name="site_underground_layer" type-name='pointer' comment='site_underground_layerst'/>
     </struct-type>
 
     <struct-type type-name='site_realization_crossroads' original-name='road_infost'>

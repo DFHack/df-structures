@@ -408,6 +408,12 @@
         <enum-item name='LOCATION_NAME'/>
         <enum-item name='SQUAD_NAME'/>
         <enum-item name='INFO_NOBLES_ELEVATING_POSITION_SYMBOL'/>
+        <enum-item name='ADVENTURER_INVENTORY_ITEM'/>
+        <enum-item name='ADVENTURER_PET'/>
+        <enum-item name='ADVENTURER_PERFORMANCE_TROUPE'/>
+        <enum-item name='ADVENTURER_SITE_ENTITY'/>
+        <enum-item name='CHARGEN_NAME'/>
+        <enum-item name='CHARGEN_PET_NAME'/>
     </enum-type>
 
     <enum-type type-name='image_creator_context_type' base-type='int32_t'>
@@ -630,6 +636,8 @@
         <enum-item name='SUCCUMB_TO_INVASION'/>
         <enum-item name='ABANDON_FORTRESS'/>
         <enum-item name='RETIRE_FORTRESS'/>
+        <enum-item name='ABANDON_ADVENTURER'/>
+        <enum-item name='RETIRE_ADVENTURER'/>
         <enum-item name='QUIT_WITHOUT_SAVING'/>
         <enum-item name='END_GAME'/>
         <enum-item name='SAVE_TO_EXISTING_FOLDER'/>
@@ -647,6 +655,11 @@
         <enum-item name='MAIN_DWARF_SAVE_AND_EXIT_CHOICES'/>
         <enum-item name='MAIN_DWARF_SAVE_AND_EXIT_CHOICES_ENDED'/>
         <enum-item name='ABORT_FROM_STARTING_GAME'/>
+        <enum-item name='MAIN_ADVENTURE'/>
+        <enum-item name='MAIN_ADVENTURE_SAVE_AND_EXIT_CHOICES'/>
+        <enum-item name='MAIN_ADVENTURE_SAVE_AND_EXIT_CHOICES_ENDED'/>
+        <enum-item name='MAIN_ADVENTURE_GAME_OVER_RETIRED'/>
+        <enum-item name='MAIN_ADVENTURE_GAME_OVER_ABANDONED'/>
     </enum-type>
 
     <enum-type type-name='help_context_type' base-type='int32_t'>
@@ -715,6 +728,7 @@
         <enum-item name='NONE' value='-1'/>
         <enum-item name='OUTSIDE_PLAY'/>
         <enum-item name='FORT_MODE'/>
+        <enum-item name='ADVENTURE_MODE'/>
     </enum-type>
 
     <enum-type type-name='arena_context_type' base-type='int32_t'>
@@ -826,7 +840,7 @@
         <bool name='scrolling'/>
     </class-type>
 
-    <class-type type-name='creature_interfacest' inherits-from='widget_container'>
+    <class-type type-name='creatures_interfacest' inherits-from='widget_container'>
         <enum name='current_mode' type-name='unit_list_mode_type'/>
         <compound type-name='markup_text_boxst' name='activity_details_text'/>
     </class-type>
@@ -975,7 +989,7 @@
 
         <enum name='current_mode' type-name='info_interface_mode_type'/>
 
-        <compound name='creatures' type-name='creature_interfacest'/>
+        <compound name='creatures' type-name='creatures_interfacest'/>
 
         <compound name='jobs'>
             <stl-vector pointer-type='cri_unitst' name='cri_job'/>
@@ -1107,7 +1121,486 @@
         <compound type-name='widget_stack' name='stack'/>
     </struct-type>
 
-    <struct-type type-name='main_interface'>
+    <struct-type type-name='curses_text_boxst'>
+        <stl-vector name='text' pointer-type='stl-string'/>
+    </struct-type>
+
+    <struct-type type-name='adventure_interface_announcementsst'>
+        <bool name='open'/>
+        <stl-vector name='adv_announcement' pointer-type='adv_announcementst'/>
+        <bool name='scrolling'/>
+        <int32_t name='scroll_position'/>
+    </struct-type>
+
+    <enum-type type-name='adventure_interface_options_list_context_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='GROUND'/>
+        <enum-item name='HOLD'/>
+        <enum-item name='MOVE'/>
+        <enum-item name='DIRECT_CLICK'/>
+        <enum-item name='AIM_PROJECTILE'/>
+    </enum-type>
+
+    <struct-type type-name='adventure_interface_option_listst'>
+        <bool name='open'/>
+        <enum name='context' type-name='adventure_interface_options_list_context_type'/>
+        <compound name='pos' type-name='coord'/>
+        <int32_t name='context_tmx'/>
+        <int32_t name='context_tmy'/>
+        <stl-vector name='option' pointer-type='adventure_optionst'/>
+        <bool name='scrolling'/>
+        <int32_t name='scroll_position'/>
+
+        <bool name='doing_pickup_amount'/>
+        <int32_t name='pickup_amount_index'/>
+        <int32_t name='pickup_amount_max'/>
+        <int32_t name='number_amount'/>
+        <bool name='entering_number'/>
+        <stl-string name='number_str'/>
+    </struct-type>
+
+    <enum-type type-name='adventure_inventory_option_list_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='MAIN'/>
+        <enum-item name='DETAILS'/>
+        <enum-item name='DROP'/>
+        <enum-item name='WEAR'/>
+        <enum-item name='REMOVE'/>
+        <enum-item name='PUT_IN'/>
+        <enum-item name='EAT_DRINK'/>
+        <enum-item name='INTERACT'/>
+        <enum-item name='THROW' comment='in interact, or from key press'/>
+    </enum-type>
+
+    <enum-type type-name='adventure_interface_inventory_context_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='MAIN'/>
+        <enum-item name='DROP'/>
+        <enum-item name='WEAR'/>
+        <enum-item name='REMOVE'/>
+        <enum-item name='PUT_IN'/>
+        <enum-item name='EAT_DRINK'/>
+        <enum-item name='INTERACT'/>
+        <enum-item name='PUT_IN_DESTINATION'/>
+        <enum-item name='INTERACT_LIST'/>
+        <enum-item name='ONE_ITEM_FULL_LIST'/>
+        <enum-item name='THROW'/>
+    </enum-type>
+
+    <struct-type type-name='adventure_interface_inventoryst'>
+        <bool name='open'/>
+        <enum name='context' type-name='adventure_interface_inventory_context_type'/>
+        <pointer name='context_item' type-name='item'/>
+        <bool name='started_from_main'/>
+        <stl-vector name='option_current' pointer-type='adventure_optionst'/>
+        <static-array name='option' index-enum='adventure_inventory_option_list_type' count='9'>
+            <stl-vector pointer-type='adventure_optionst'/>
+        </static-array>
+        <bool name='scrolling'/>
+        <int32_t name='scroll_position'/>
+    </struct-type>
+
+    <struct-type type-name='projectile_target_list_optionst'>
+        <int32_t name='unit_id' ref-target='unit'/>
+        <int32_t name='hfid' ref-target='historical_figure'/>
+    </struct-type>
+
+    <struct-type type-name='adventure_interface_aim_projectilest'>
+        <bool name='open'/>
+        <compound name='cursor' type-name='coord'/>
+        <bool name='shooting'/>
+        <pointer name='shooter_it' type-name='item'/>
+        <pointer name='ammo_it' type-name='item'/>
+        <pointer name='thrown_it' type-name='item'/>
+        <stl-vector name='projectile_target_list' pointer-type='projectile_target_list_optionst'/>
+    </struct-type>
+
+    <struct-type type-name='adventure_interface_jumpst'>
+        <bool name='open'/>
+        <compound name='cursor' type-name='coord'/>
+    </struct-type>
+
+    <struct-type type-name='adventure_conversation_choice_infost'>
+        <pointer name='cc' type-name='talk_choice'/>
+        <stl-vector name='key_word' pointer-type='stl-string'/>
+        <compound type-name='curses_text_boxst' name='print_string'/>
+        <int32_t name='basic_value' comment='original index'/>
+        <int32_t name='value'/>
+    </struct-type>
+
+    <enum-type type-name='activity_type' base-type='int16_t' comment='bay12: ActivityType'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='TRAINING_SESSION'/>
+        <enum-item name='PERSONAL_TRAINING'/>
+        <enum-item name='CONFLICT'/>
+        <enum-item name='HARASSMENT'/>
+        <enum-item name='GUARD'/>
+        <enum-item name='CONVERSATION'/>
+        <enum-item name='REUNION'/>
+        <enum-item name='WORSHIP'/>
+        <enum-item name='SOCIALIZE'/>
+        <enum-item name='RESEARCH'/>
+        <enum-item name='PERFORM_OCCUPATION'/>
+        <enum-item name='READ'/>
+        <enum-item name='PLAY'/>
+        <enum-item name='ENCOUNTER'/>
+        <enum-item name='STORE_OBJECT'/>
+    </enum-type>
+
+    <struct-type type-name='activityst'>
+        <int32_t name='id'/>
+        <enum name='type' type-name='activity_type'/>
+        <stl-vector name='event' pointer-type='activity_event'/>
+        <int32_t name='next_ae_local_id'/>
+        <int32_t name='source_army_controller_id'/>
+    </struct-type>
+
+    <struct-type type-name='adventure_interface_conversationst'>
+        <bool name='open'/>
+        <bool name='selecting_conversation'/>
+        <stl-vector name='select_option' pointer-type='adventure_optionst'/>
+        <bool name='select_scrolling'/>
+        <int32_t name='select_scroll_position'/>
+        <pointer name='conv_act' type-name='activityst'/>
+        <pointer name='conv_actce' type-name='activity_event_conversationst'/>
+        <stl-vector name='conv_choice_info' pointer-type='adventure_conversation_choice_infost'/>
+        <bool name='entering_conv_string_filter'/>
+        <stl-string name='conv_string_filter'/>
+        <enum name='conv_tact' type-name='conversation_tact_type'/>
+        <bool name='choice_scrolling'/>
+        <int32_t name='choice_scroll_position'/>
+        <bool name='selecting_tact'/>
+        <pointer name='tact_cci' type-name='adventure_conversation_choice_infost'/>
+        <stl-vector name='tact_list' type-name='conversation_tact_type'/>
+        <bool name='tact_scrolling'/>
+        <int32_t name='tact_scroll_position'/>
+        <stl-vector name='adv_announcement' pointer-type='adv_announcementst'/>
+    </struct-type>
+
+    <enum-type type-name='performance_menu_choice_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='TELL_STORY'/>
+        <enum-item name='RECITE_POEM'/>
+        <enum-item name='PERFORM_MUSIC'/>
+        <enum-item name='DANCE'/>
+        <enum-item name='STORY_SITES'/>
+        <enum-item name='STORY_PEOPLE'/>
+        <enum-item name='STORY_ENTITIES'/>
+        <enum-item name='STORY_SUBREGIONS'/>
+        <enum-item name='STORY_SITE'/>
+        <enum-item name='STORY_HF'/>
+        <enum-item name='STORY_ENTITY'/>
+        <enum-item name='STORY_SUBREGION'/>
+        <enum-item name='STORY_EVENT'/>
+        <enum-item name='POETRY_FORM'/>
+        <enum-item name='POETRY_COMPOSITION'/>
+        <enum-item name='MUSIC_FORM'/>
+        <enum-item name='MUSIC_COMPOSITION'/>
+        <enum-item name='MUSIC_ROLE'/>
+        <enum-item name='DANCE_FORM'/>
+        <enum-item name='DANCE_COMPOSITION'/>
+        <enum-item name='GIVE_SERMON'/>
+        <enum-item name='SERMON_HFIDS'/>
+        <enum-item name='SERMON_SPHERES'/>
+        <enum-item name='SERMON_PROMOTE_VALUES'/>
+        <enum-item name='SERMON_REFUSE_VALUES'/>
+        <enum-item name='SERMON_HFID'/>
+        <enum-item name='SERMON_SPHERE'/>
+        <enum-item name='SERMON_PROMOTE_VALUE'/>
+        <enum-item name='SERMON_REFUSE_VALUE'/>
+    </enum-type>
+
+    <struct-type type-name='performance_menu_choicest'>
+        <enum name='type' type-name='performance_menu_choice_type'/>
+        <stl-string name='print_name'/>
+        <stl-string name='list_name'/>
+        <stl-string name='simple_filter_name'/>
+        <int32_t name='id'/>
+        <pointer name='iden' comment='identityst'/>
+    </struct-type>
+
+    <enum-type type-name='performance_menu_mode_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='START'/>
+        <enum-item name='STORY_TYPES'/>
+        <enum-item name='STORY_SITES'/>
+        <enum-item name='STORY_PEOPLE'/>
+        <enum-item name='STORY_ENTITIES'/>
+        <enum-item name='STORY_SUBREGIONS'/>
+        <enum-item name='STORY_EVENTS'/>
+        <enum-item name='POETRY_FORMS_PIECES'/>
+        <enum-item name='MUSIC_FORMS_PIECES'/>
+        <enum-item name='MUSIC_ROLES'/>
+        <enum-item name='DANCE_FORMS_PIECES'/>
+        <enum-item name='SERMON_TYPES'/>
+        <enum-item name='SERMON_HFID'/>
+        <enum-item name='SERMON_SPHERE'/>
+        <enum-item name='SERMON_PROMOTE_VALUE'/>
+        <enum-item name='SERMON_REFUSE_VALUE'/>
+    </enum-type>
+
+    <struct-type type-name='adventure_interface_performst'>
+        <bool name='open'/>
+        <enum name='mode' type-name='performance_menu_mode_type'/>
+        <stl-vector name='base_choice' pointer-type='performance_menu_choicest'/>
+        <stl-vector name='choice' pointer-type='performance_menu_choicest'/>
+        <int32_t name='scroll_position_choice'/>
+        <bool name='scrolling_choice'/>
+        <stl-string name='filter_str'/>
+        <bool name='entering_filter'/>
+        <enum name='relevant_choice' type-name='performance_menu_choice_type'/>
+        <int32_t name='relevant_id'/>
+        <compound name='color_box' type-name='color_text_boxst'/>
+        <int32_t name='scroll_position_text'/>
+        <bool name='scrolling_text'/>
+        <int32_t name='color_box_choice_index'/>
+    </struct-type>
+
+    <struct-type type-name='adventure_interface_companionsst'>
+        <bool name='open'/>
+        <stl-vector name='companion_party_nem' pointer-type='nemesis_record' comment='only for party members'/>
+        <stl-vector name='companion' pointer-type='unit' comment='can be NULL'/>
+        <stl-bit-vector name='companion_visible'/>
+        <stl-vector name='companion_x' type-name='int16_t'/>
+        <stl-vector name='companion_y' type-name='int16_t'/>
+        <stl-vector name='companion_z' type-name='int16_t'/>
+        <int32_t name='scroll_position'/>
+        <bool name='scrolling'/>
+    </struct-type>
+
+    <enum-type type-name='attack_move_choice_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='STRIKE'/>
+        <enum-item name='WRESTLE'/>
+        <enum-item name='PARRY'/>
+        <enum-item name='BLOCK'/>
+        <enum-item name='DODGE_AWAY'/>
+    </enum-type>
+
+    <enum-type type-name='adventure_interface_attack_mode_type' base-type='int32_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='UNIT_CHOICE'/>
+        <enum-item name='CONFIRM'/>
+        <enum-item name='MOVE_CHOICE'/>
+        <enum-item name='AIM_TARGET'/>
+        <enum-item name='AIM_ATTACK'/>
+        <enum-item name='PARRY_CHOICE'/>
+        <enum-item name='BLOCK_CHOICE'/>
+        <enum-item name='DODGE_CHOICE'/>
+        <enum-item name='WRESTLE_GRASP'/>
+        <enum-item name='WRESTLE_MOVE'/>
+    </enum-type>
+
+    <struct-type type-name='special_combatst'>
+        <stl-vector name='parry_wld' pointer-type='item'/>
+        <stl-vector name='parry_move' pointer-type='unit_action'/>
+        <stl-vector name='block_wld' pointer-type='item'/>
+        <stl-vector name='block_move' pointer-type='unit_action'/>
+        <bool name='can_jump_dodge'/>
+        <stl-vector name='jumpsquarex' type-name='int16_t'/>
+        <stl-vector name='jumpsquarey' type-name='int16_t'/>
+    </struct-type>
+
+    <bitfield-type type-name='attack_chance_modifier_flag' base-type='uint32_t'>
+        <flag-bit name='HEAD'/>
+        <flag-bit name='BODY'/>
+        <flag-bit name='LIMB'/>
+        <flag-bit name='PRIORITY_WIELD'/>
+        <flag-bit name='MAIN_ATTACK' comment='used for edged attacks on weapons too'/>
+        <flag-bit name='ADJUSTED_UP_LOTS'/>
+        <flag-bit name='ADJUSTED_UP'/>
+        <flag-bit name='ADJUSTED_DOWN'/>
+        <flag-bit name='ADJUSTED_DOWN_LOTS'/>
+        <flag-bit name='RING_OF_SAVINGS'/>
+        <flag-bit name='GRASP'/>
+        <flag-bit name='STANCE'/>
+        <flag-bit name='ARMOR_3'/>
+        <flag-bit name='ARMOR_2'/>
+        <flag-bit name='ARMOR_1'/>
+        <flag-bit name='SMALL_AIM_MINUS'/>
+        <flag-bit name='COUNTS_AS_LETHAL'/>
+    </bitfield-type>
+
+    <struct-type type-name='attack_chance_modifierst'>
+        <pointer name='attack_item' type-name='item'/>
+        <int32_t name='attack_index' comment='both natural and item attacks -- natural attacks have attack_item==NULL'/>
+        <int32_t name='target_bp'/>
+        <int32_t name='hit_chance_adjustment'/>
+        <int32_t name='hit_squareness_adjustment'/>
+        <bitfield name='flag' type-name='attack_chance_modifier_flag'/>
+    </struct-type>
+
+    <struct-type type-name='adventure_custom_combatst'>
+        <stl-vector name='aim_mod' pointer-type='attack_chance_modifierst'/>
+    </struct-type>
+
+    <struct-type type-name='unit_wrestlest'>
+        <int32_t name='opp_id'/>
+        <int32_t name='bp'/>
+        <int32_t name='oppbp'/>
+        <int32_t name='subbp'/>
+        <int32_t name='oppsubbp'/>
+        <int32_t name='item_id' ref-target='item'/>
+        <int32_t name='oppitem_id' ref-target='item'/>
+        <enum name='state' type-name='wrestle_state_type'/>
+        <int8_t name='advantage'/>
+        <int32_t name='opp_active_wound_id'/>
+    </struct-type>
+
+    <enum-type type-name='inv_item_role_type' base-type='int16_t'>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='HAULED'/>
+        <enum-item name='GRASP'/>
+        <enum-item name='WORN_STANDARD'/>
+        <enum-item name='WORN_PIERCED'/>
+        <enum-item name='WORN_STUFFED'/>
+        <enum-item name='WORN_WRAPPED'/>
+        <enum-item name='STUCKIN'/>
+        <enum-item name='LATCH'/>
+        <enum-item name='PET'/>
+        <enum-item name='SEWN_IN'/>
+        <enum-item name='WORN_STRAPPED'/>
+    </enum-type>
+
+    <struct-type type-name='invitemst'>
+        <pointer name='it' type-name='item'/>
+        <enum name='role' type-name='inv_item_role_type'/>
+        <int16_t name='bp'/>
+        <int32_t name='seed'/>
+        <int32_t name='wound_id'/>
+    </struct-type>
+
+    <struct-type type-name='combat_listst'>
+        <pointer name='target' type-name='unit'/>
+        <int8_t name='strike'/>
+        <int8_t name='wrestle'/>
+        <stl-vector name='a_item_list' pointer-type='item'/>
+        <stl-vector name='a_bp_list' type-name='int16_t'/>
+        <stl-vector name='d_item_list' pointer-type='item'/>
+        <stl-vector name='d_bp_list' type-name='int16_t'/>
+        <stl-vector name='a_wrestle' pointer-type='unit_wrestlest'/>
+        <stl-vector name='d_wrestle' pointer-type='unit_wrestlest'/>
+        <stl-vector name='a_invitem' pointer-type='invitemst'/>
+        <stl-vector name='d_invitem' pointer-type='invitemst'/>
+        <stl-vector name='grapple_attack_a_bp' type-name='int16_t'/>
+        <stl-vector name='grapple_attack_a_item' type-name='int16_t'/>
+        <stl-vector name='grapple_attack_d_bp' type-name='int16_t'/>
+        <stl-vector name='grapple_attack_d_item' type-name='int16_t'/>
+        <stl-vector name='wrestle_attack_ind' type-name='int16_t'/>
+        <stl-vector name='wrestle_attack_type' type-name='int16_t'/>
+        <stl-vector name='wrestle_attack_bp' type-name='int16_t'/>
+    </struct-type>
+
+    <struct-type type-name='adventure_interface_attackst'>
+        <bool name='open'/>
+        <enum name='mode' type-name='adventure_interface_attack_mode_type'/>
+        <bool name='always_do_something'/>
+        <stl-vector name='unit_choice' pointer-type='unit'/>
+        <int32_t name='scroll_position_unit_choice'/>
+        <bool name='scrolling_unit_choice'/>
+        <pointer name='confirm_unit' type-name='unit'/>
+        <pointer name='attack_unit' type-name='unit'/>
+        <compound name='special_combat' type-name='special_combatst'/>
+        <stl-vector name='move_choice' type-name='attack_move_choice_type'/>
+        <int32_t name='scroll_position_move_choice'/>
+        <bool name='scrolling_move_choice'/>
+        <int32_t name='scroll_position_aim_target'/>
+        <bool name='scrolling_aim_target'/>
+        <compound name='custom_combat' type-name='adventure_custom_combatst'/>
+        <uint32_t name='aim_attack_flag'/>
+        <int32_t name='aim_attack_charge_restrict'/>
+        <int32_t name='scroll_position_aim_attack'/>
+        <bool name='scrolling_aim_attack'/>
+        <stl-vector name='wrestle' pointer-type='unit_wrestlest'/>
+        <int32_t name='scroll_position_wrestle'/>
+        <bool name='scrolling_wrestle'/>
+        <int32_t name='selected_bp'/>
+        <int32_t name='selected_item_id' ref-target='item'/>
+        <stl-vector name='cl_type' type-name='int32_t' comment='bay12 type: DungeonWrestle'/>
+        <stl-vector name='cl_index' type-name='int32_t'/>
+        <compound name='combat_list' type-name='combat_listst'/>
+        <int32_t name='scroll_position_cl'/>
+        <bool name='scrolling_cl'/>
+        <int32_t name='old_scroll_position_cl'/>
+    </struct-type>
+
+    <struct-type type-name='adventure_interface_movement_optionsst'>
+        <bool name='open'/>
+        <int32_t name='scroll_gait'/>
+        <bool name='scrolling_gait'/>
+        <pointer name='speed_sneak_un' type-name='unit'/>
+        <enum name='gait' type-name='gait_type'/>
+    </struct-type>
+
+    <struct-type type-name='adventure_interface_travelst'>
+        <int32_t name='hover_text_ax'/>
+        <int32_t name='hover_text_ay'/>
+        <compound type-name='markup_text_boxst' name='hover_text'/>
+    </struct-type>
+
+    <struct-type type-name='adventure_interface_combat_prefst'>
+        <bool name='open'/>
+    </struct-type>
+
+    <struct-type type-name='adventure_interface_sleepst'>
+        <bool name='open'/>
+        <bool name='no_sky'/>
+        <pointer name='dungeon_screen' type-name='viewscreen_dungeonmodest'/>
+    </struct-type>
+
+    <struct-type type-name='adventure_interface_barterst'>
+        <bool name='open'/>
+
+        <pointer name='merchant' type-name='unit'/>
+        <pointer name='your_trader' type-name='unit'/>
+        <pointer name='zone' type-name='building_civzonest'/>
+        <pointer name='conv' type-name='activity_event_conversationst'/>
+        <bool name='personal'/>
+        <bool name='demand_only'/>
+        <bool name='strong_affiliation_bonus'/>
+
+        <static-array name='good' count='2'><stl-vector pointer-type='item'/></static-array>
+        <static-array name='goodflag' count='2'><stl-vector type-name='uint8_t'/></static-array>
+        <static-array name='good_amount' count='2'><stl-vector type-name='int32_t'/></static-array>
+        <stl-vector name='your_currency' pointer-type='item'/>
+        <stl-vector name='merchant_currency' pointer-type='item'/>
+
+        <static-array name='i_height' count='2'><int32_t/></static-array>
+
+        <static-array name='master_type_a_type' count='2'><stl-vector type-name='int32_t'/></static-array>
+        <static-array name='master_type_a_subtype' count='2'><stl-vector type-name='int32_t'/></static-array>
+        <static-array name='master_type_a_expanded' count='2'><stl-bit-vector/></static-array>
+
+        <static-array name='current_type_a_type' count='2'><stl-vector type-name='int32_t'/></static-array>
+        <static-array name='current_type_a_subtype' count='2'><stl-vector type-name='int32_t'/></static-array>
+        <static-array name='current_type_a_expanded' count='2'><stl-bit-vector/></static-array>
+        <static-array name='current_type_a_on' count='2'><stl-bit-vector/></static-array>
+        <static-array name='current_type_a_flag' count='2'><stl-vector type-name='uint32_t'/></static-array>
+
+        <static-array name='scroll_position_item' count='2'><int32_t/></static-array>
+        <static-array name='scrolling_item' count='2'><bool/></static-array>
+        <static-array name='item_filter' count='2'><stl-string/></static-array>
+        <static-array name='entering_item_filter' count='2'><bool/></static-array>
+
+        <int16_t name='talkline' comment='trade reply'/>
+        <int8_t name='buildlists'/>
+
+        <static-array name='max_currency' count='2'><int32_t/></static-array>
+        <static-array name='currency_trade' count='2'><int32_t/></static-array>
+
+        <int8_t name='entering_amount'/>
+        <int8_t name='entering_ask_currency'/>
+        <int8_t name='entering_offer_currency'/>
+        <stl-string name='amount_str'/>
+        <int32_t name='amount_side'/>
+        <int32_t name='amount_index'/>
+
+        <compound type-name='curses_text_boxst' name='big_announce'/>
+        <int32_t name='scroll_position_big_announce'/>
+        <bool name='scrolling_big_announce'/>
+    </struct-type>
+
+    <struct-type type-name='main_interface' comment='bay12: main_interfacest'>
         <compound name='designation' since='v0.40.20'>
             <bool name='marker_only'/>
             <bool name='show_priorities' comment='set to one if using +/-'/>
@@ -1394,7 +1887,7 @@
             <int8_t name='entering_amount'/>
             <stl-string name='amount_str'/>
 
-            <stl-vector pointer-type='stl-string' name='big_announce'/>
+            <compound type-name='curses_text_boxst' name='big_announce'/>
             <int32_t name='scroll_position_big_announce'/>
             <bool name='scrolling_big_announce'/>
         </compound>
@@ -1555,8 +2048,14 @@
             <bool name='entering_first_name'/>
             <bool name='entering_cull_str'/>
             <stl-string name='cull_str'/>
-            <pointer type-name='activity_event_conversationst' name='adv_naming_pet_actev'/>
+            <pointer type-name='item' name='name_item_ptr'/>
+            <compound type-name='language_name' name='name_item_name'/>
+            <pointer name='adv_naming_act' type-name='activityst'/>
+            <pointer type-name='activity_event_conversationst' name='adv_naming_actev'/>
+            <pointer type-name='talk_choice' name='adv_naming_cc'/>;
+            <enum type-name='conversation_tact_type' name='adv_naming_conv_tact'/>
             <pointer type-name='unit' name='named_unit'/>
+            <pointer type-name='historical_entity' name='named_entity'/>
         </compound>
 
         <compound name='image_creator'>
@@ -2258,8 +2757,11 @@
             <stl-vector pointer-type='stl-string' name='text'/>
 
             <bool name='fort_retirement_confirm'/>
+            <bool name='adv_retirement_confirm'/>
             <bool name='fort_abandon_confirm'/>
+            <bool name='adv_abandon_confirm'/>
             <bool name='fort_quit_without_saving_confirm'/>
+            <bool name='adv_quit_without_saving_confirm'/>
             <stl-vector type-name='main_menu_option_type' name='option'/>
             <stl-vector type-name='int32_t' name='option_index'/>
             <bool name='entering_manual_folder'/>
@@ -2310,7 +2812,7 @@
 
         <compound name='settings' type-name='main_interface_settings'/>
 
-        <compound name='arena_unit'>
+        <compound name='arena_unit' comment='create_creature_interfacest create_creature'>
             <bool name='open'/>
             <enum name='context' type-name='arena_context_type'/>
             <int16_t name='race'/>
@@ -2324,48 +2826,68 @@
             <stl-vector name='castes_filtered' type-name='int16_t'/>
             <stl-vector name='races_all' type-name='int16_t'/>
             <stl-vector name='castes_all' type-name='int16_t'/>
-            <int32_t/>
-            <int8_t/>
-            <int32_t/>
-            <int8_t/>
+            <int32_t name='scroll_position_creature'/>
+            <bool name='scrolling_creature'/>
+            <int32_t name='scroll_position_skill'/>
+            <bool name='scrolling_skill'/>
             <stl-vector name='skills'>
                 <enum base-type='int16_t' type-name='job_skill'/>
             </stl-vector>
             <stl-vector name='skill_levels' type-name='int32_t'
                         index-refers-to='$$._parent.skills[$]'/>
-            <int32_t/>
-            <int8_t/>
-            <int32_t/>
-            <int8_t/>
-            <int32_t/>
-            <int8_t/>
-            <pointer/>
-            <stl-vector type-name='int32_t'/>
-            <pointer/>
+            <int32_t name='scroll_position_equipment'/>
+            <bool name='scrolling_equipment'/>
+            <int32_t name='scroll_position_equipment_available_cat'/>
+            <bool name='scrolling_equipment_available_cat'/>
+            <int32_t name='scroll_position_equipment_available'/>
+            <bool name='scrolling_equipment_available'/>
+            <pointer name='etl' type-name='embark_item_choice'/>
+            <stl-vector type-name='int32_t' name='equipment_category'/>
+            <int32_t name='current_category'/>
             <stl-vector name='equipment_item_type' type-name='int16_t'/>
             <stl-vector name='equipment_item_subtype' type-name='int16_t'/>
             <stl-vector name='equipment_mat_type' type-name='int16_t'/>
             <stl-vector name='equipment_mat_index' type-name='int32_t'/>
             <stl-vector name='equipment_quantity' type-name='int32_t'/>
             <stl-vector name='interactions' pointer-type='interaction_effect'/>
-            <int32_t/>
-            <int8_t/>
+            <int32_t name='scroll_position_condition'/>
+            <bool name='scrolling_condition'/>
         </compound>
 
-        <compound name='arena_tree'>
+        <compound name='arena_tree' comment='create_tree_interfacest'>
             <bool name='open'/>
             <int32_t name='age' comment='in years'/>
             <bool name='editing_age'/>
-            <int32_t/>
             <stl-string name='age_str' comment='string representation of age field'/>
+
             <bool name='editing_filter'/>
             <stl-string name='filter'/>
-            <stl-vector name='tree_types_filtered'/>
-            <stl-vector name='tree_types_all'/>
-            <int32_t/>
-            <int8_t/>
-            <pointer/>
-            <int8_t/>
+            <stl-vector name='tree_types_filtered' type-name='pointer' comment='plant_material_definitionst'/>
+            <stl-vector name='tree_types_all' type-name='pointer' comment='plant_material_definitionst'/>
+            <int32_t name='scroll_position_tree'/>
+            <bool name='scrolling_tree'/>
+            <pointer name='selected_tree' comment='plant_material_definitionst'/>
+        </compound>
+
+        <compound name='arena_weather' comment='arena_weather_interfacest'>
+            <bool name='open'/>
+        </compound>
+
+        <compound name='adventure' comment='bay12: adventure_interfacest'>
+            <compound type-name='adventure_interface_option_listst' name='option_list'/>
+            <compound type-name='adventure_interface_inventoryst' name='inventory'/>
+            <compound type-name='adventure_interface_jumpst' name='jump'/>
+            <compound type-name='adventure_interface_conversationst' name='conversation'/>
+            <compound type-name='adventure_interface_performst' name='perform'/>
+            <compound type-name='adventure_interface_attackst' name='attack'/>
+            <compound type-name='adventure_interface_combat_prefst' name='combat_pref'/>
+            <compound type-name='adventure_interface_aim_projectilest' name='aim_projectile'/>
+            <compound type-name='adventure_interface_companionsst' name='companions'/>
+            <compound type-name='adventure_interface_announcementsst' name='announcements'/>
+            <compound type-name='adventure_interface_sleepst' name='sleep'/>
+            <compound type-name='adventure_interface_movement_optionsst' name='movement_options'/>
+            <compound type-name='adventure_interface_travelst' name='travel'/>
+            <compound type-name='adventure_interface_barterst' name='barter'/>
         </compound>
 
         <stl-vector type-name='int32_t' name='viewunit_list'/>
@@ -2416,7 +2938,7 @@
         <int32_t name='current_hover_left_x'/>
         <int32_t name='current_hover_bot_y'/>
 
-        <static-array count='499' name='hover_instruction'><stl-vector pointer-type='stl-string'/></static-array>
+        <static-array count='569' name='hover_instruction'><stl-vector pointer-type='stl-string'/></static-array>
         <int32_t name='last_displayed_hover_inst'/>
         <int32_t name='last_displayed_hover_id1'/>
         <int32_t name='last_displayed_hover_id2'/>
@@ -2432,6 +2954,11 @@
         <stl-vector type-name='int8_t' name='hover_announcement_alert_button_color'/>
         <stl-vector type-name='int8_t' name='hover_announcement_alert_button_bright'/>
         <int32_t name='hover_announcement_alert_button_width'/>
+
+        <int32_t name='current_compass_stid'/>
+        <int32_t name='hover_compass_stid'/>
+        <compound type-name='curses_text_boxst' name='hover_compass_text'/>
+        <int32_t name='hover_compass_width'/>
 
         <uint32_t name='last_hover_click_update'/>
         <compound type-name='coord' name='last_hover_m'/>
@@ -2491,7 +3018,7 @@
             <int32_t name='texpos'/>
         </compound>
 
-        <compound name='mod_manager'>
+        <compound name='mod_manager' comment='bay12: mod_managerst'>
             <stl-vector pointer-type='mod_headerst' name='mod_header'/>
             -- Begin Steam-only stuff
             -- These fields exist in other versions but aren't actually used
@@ -2524,6 +3051,7 @@
             -- End Steam-only stuff
         </compound>
 
+        fields below here are not actually part of this compound
         <compound name='hash_rng' type-name='hash_rngst'/>
         <compound name='play_rng' type-name='hash_rngst'/>
         <uint32_t name='start_tick_count'/>
@@ -2532,7 +3060,7 @@
         <static-array count='11' name='flash_11_by_3'><static-array count='3'><static-array count='2' type-name='int32_t'/></static-array></static-array>
         <static-array count='7' name='flash_7_by_3'><static-array count='3'><static-array count='2' type-name='int32_t'/></static-array></static-array>
         <static-array count='4' name='flash_4_by_3'><static-array count='3'><static-array count='2' type-name='int32_t'/></static-array></static-array>
-        <int32_t name='external_flag'/>
+        <uint32_t name='external_flag'/>
     </struct-type>
 
     <struct-type type-name='main_interface_settings'>
@@ -2702,6 +3230,16 @@
         <int32_t name='current_width' init-value='-1'/>
         <int32_t name='max_y' init-value='0'/>
         <pointer type-name='script_environmentst' name='environment' comment='not saved'/>
+    </struct-type>
+
+    <struct-type type-name='color_text_linest'>
+        <static-array count='769' type-name='int8_t' name='text'/>
+        <static-array count='769' type-name='int8_t' name='color'/>
+    </struct-type>
+
+    <struct-type type-name='color_text_boxst'>
+        <stl-vector pointer-type='color_text_linest' name='line'/>
+        <int32_t name='width' init-value='76'/>
     </struct-type>
 
     <struct-type type-name='wqc_item_traitst'>
@@ -4476,6 +5014,223 @@
         </enum-item>
         <enum-item name='ArenaWeatherTemperatureTime'>
             <item-attr name='caption' value='Change the weather, temperature, and time.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Default attack is a strike without charging or wrestling.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Default attack is a charging strike.'/>
+        </enum-item>
+        500
+        <enum-item>
+            <item-attr name='caption' value='Default attack is a wrestling move.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Choose default attack according to opponent.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Freely move between tiles when dodging if necessary'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Do not move from current tile when dodging even if it means being struck.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Dodge away from charging opponents to avoid being knocked over.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Attempt to stop charging opponents, standing your ground.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Handle charging attacks according to the opponent.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='View all announcements.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Recenter on yourself.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Move upward.'/>
+        </enum-item>
+        510
+        <enum-item>
+            <item-attr name='caption' value='Move downward.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Travel.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Sleep or wait a while.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Build. (coming soon)'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='View your status.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='View your log. (coming soon)'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Open your inventory.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Set movement options.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Set combat options.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Interact with nearby objects.'/>
+        </enum-item>
+        520
+        <enum-item>
+            <item-attr name='caption' value='Search for bugs.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Climb or hold terrain.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Jump where.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Talk to somebody.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Start a performance. This can take several turns to complete.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Craft or butcher. (coming soon)'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Use ability. (coming soon)'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Strike or wrestle somebody adjacent with a melee attack.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Continue active wrestling. (coming soon - use regular combat to continue wrestling)'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Shoot. Requires a ranged weapon and ammunition.'/>
+        </enum-item>
+        530
+        <enum-item>
+            <item-attr name='caption' value='Tactical mode is on. You control everybody manually. Click to control only this character (others will follow you.)'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Tactical mode is off. Companions are following you. Click to control everybody.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='View your companions and tactical settings, or switch party members.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='You are currently yielded. Click to stop yielding.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='You are not yielded. Click to yield to opponents.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='You have a weapon drawn. Click to strap it.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='You have a weapon available to draw. Click to draw it.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='You do not have a weapon.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='You are a projectile.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='You are a rider.'/>
+        </enum-item>
+        540
+        <enum-item>
+            <item-attr name='caption' value='You are prone. Click to stand.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='You are not prone. Click to go prone.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Close the map.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Go upward.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Go downward.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='View your log. (coming soon)'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='End travel.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Toggle sneaking.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='View the map.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Sleep or wait a while.'/>
+        </enum-item>
+        550
+        <enum-item>
+            <item-attr name='caption' value='Toggle cloud view.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Toggle track view. (coming soon)'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Drop an item.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Wear an item.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Remove an item.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Put an item into a container.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Eat or drink an item.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Interact with an item in a different way.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='View this item.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Drop this item.'/>
+        </enum-item>
+        560
+        <enum-item>
+            <item-attr name='caption' value='Wear this item.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Remove this item.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Put this item into a container.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Eat or drink this item.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Interact with this item in a different way (opens menu.)'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='This party member is currently automated in tactical mode.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='This party member is manually controlled in tactical mode.'/>
+        </enum-item>
+        <enum-item>
+            <item-attr name='caption' value='Assume control of this party member.'/>
         </enum-item>
         <enum-item>
             <item-attr name='caption' value=''/>
