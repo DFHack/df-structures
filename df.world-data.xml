@@ -16,7 +16,7 @@
         <stl-vector name="allotment_crop" pointer-type='resource_allotmentst' comment='optional'/>
     </struct-type>
 
-    <enum-type base-type='int8_t' type-name="world_population_type" comment='WilderPopTypes'>
+    <enum-type type-name="world_population_type"> bay12: WilderPopTypes
         <enum-item name='Animal' comment='ROAMING'/>
         <enum-item name='Vermin'/>
         <enum-item name='Unused3'/>
@@ -81,7 +81,7 @@
         <int32_t name="quantity"/>
         <int32_t name="quantity_max" since='v0.40.01'/>
 
-        <bitfield name='flags' base-type='uint8_t'>
+        <bitfield name='flags' base-type='uint8_t'> bay12: WILDERPOPFLAG_*
             <flag-bit name='discovered'/>
             <flag-bit name='extinct'/>
             <flag-bit name='already_removed' comment='no longer in world.populations'/>
@@ -96,9 +96,8 @@
         <int32_t name='interaction_effect' init-value='-1'/>
     </struct-type>
 
-
     <struct-type type-name='world_population' original-name='regionpopst'>
-        <enum base-type='int8_t' name='type' type-name='world_population_type'/>
+        <enum base-type='int16_t' name='type' type-name='world_population_type'/>
 
         <compound is-union='true'>
             <int16_t name="race" ref-target='creature_raw'/>
@@ -136,17 +135,17 @@
         <stl-vector name='temp_y' type-name='int16_t'/>
     </struct-type>
 
-    <enum-type type-name='world_region_type' base-type='int16_t'>
+    <enum-type type-name='world_region_type' base-type='int16_t'> bay12: RegionType
         <enum-item name='Swamp'/>
         <enum-item name='Desert'/>
-        <enum-item name='Jungle'/>
+        <enum-item name='Forest'/>
         <enum-item name='Mountains'/>
         <enum-item name='Ocean'/>
         <enum-item name='Lake'/>
         <enum-item name='Glacier'/>
         <enum-item name='Tundra'/>
-        <enum-item name='Steppe'/>
-        <enum-item name='Hills' comment='Steppe and Hills share the same set of biomes, differing only in Drainage'/>
+        <enum-item name='Grassland'/>
+        <enum-item name='Hills' comment='Grassland and Hills share the same set of biomes, differing only in Drainage'/>
     </enum-type>
 
     <struct-type type-name='world_region' instance-vector='$global.world.world_data.regions' original-name='subregionst'>
@@ -167,9 +166,7 @@
 
         <stl-vector name="population" pointer-type='world_population'/>
 
-        <static-array name="biome_tile_counts" count="51" index-enum='biome_type'>
-            <int32_t/>
-        </static-array>
+        <static-array name="biome_tile_counts" count="51" type-name='int32_t' index-enum='biome_type'/>
         <stl-vector name="tree_biomes">
             <enum base-type='int16_t' type-name='biome_type'/>
         </stl-vector>
@@ -198,7 +195,7 @@
         <bool name='good'/>  -- At most one of 'evil' and 'good' is set at a time by DF.
         <int16_t name='lake_surface' init-value='-30000'/>
         <stl-vector name="forces" type-name='int32_t' ref-target='historical_figure' comment="historical figure IDs of force deities associated with the region. Number set increases during civ placement"/>
-        <int32_t name="civs_received" init-value='0' comment="Number set increases during civ placement"/>
+        <int16_t name="civs_received" init-value='0' comment="Number set increases during civ placement"/>
         <int32_t name="mid_x"/>
         <int32_t name="mid_y"/>
         <int32_t name="min_x"/>
@@ -210,11 +207,7 @@
     <struct-type type-name='world_underground_region'
                  instance-vector='$global.world.world_data.underground_regions'
                  original-name='feature_layerst'>
-        <enum base-type='int16_t' name="type">
-            <enum-item name='Cavern'/>
-            <enum-item name='MagmaSea'/>
-            <enum-item name='Underworld'/>
-        </enum>
+        <enum name="type" type-name='feature_layer_type'/>
 
         <compound name='name' type-name='language_name'/>
         <code-helper name='describe'>(describe-obj $.name)</code-helper>
@@ -239,7 +232,7 @@
         <pointer name="feature_init" type-name='feature_init'/>
     </struct-type>
 
-    <struct-type type-name='world_river'>
+    <struct-type type-name='world_river' original-name='riverst'>
         <compound name='name' type-name='language_name'/>
         <code-helper name='describe'>(describe-obj $.name)</code-helper>
 
@@ -249,7 +242,7 @@
         <stl-vector name="elevation" type-name='int16_t'/>
 
         <compound name='end_pos' type-name='coord2d'/>
-        <df-flagarray name='flags'/>
+        <df-flagarray name='flags' comment='RiverFlagType, none used yet'/>
         <comment>
             Additional river information:
             The flow element affects the width of the river and seems to follow the
@@ -279,7 +272,7 @@
         </comment>
     </struct-type>
 
-    <enum-type type-name='geo_layer_type' base-type='int16_t'>
+    <enum-type type-name='geo_layer_type'> bay12: GeologicalLayerType
         <enum-attr name='flag' type-name='inorganic_flags' use-key-name='true'/>
 
         <enum-item name='SOIL'/>
@@ -313,8 +306,19 @@
         <int16_t name="bottom_height"/>
     </struct-type>
 
+    <enum-type type-name='geo_biome_type'> bay12: GeologicalRegionType
+        <enum-item name='NORMAL_STANDARD'/>
+        <enum-item name='NORMAL_VOLCANIC'/>
+        <enum-item name='OCEAN_DEEP_STANDARD'/>
+        <enum-item name='OCEAN_DEEP_VOLCANIC'/>
+        <enum-item name='OCEAN_SHALLOW_STANDARD'/>
+        <enum-item name='OCEAN_SHALLOW_VOLCANIC'/>
+        <enum-item name='DESERT_SAND_STANDARD'/>
+        <enum-item name='DESERT_SAND_VOLCANIC'/>
+    </enum-type>
+
     <struct-type type-name='world_geo_biome' instance-vector='$global.world.world_data.geo_biomes' original-name='geological_regionst'>
-        <int16_t name='type'/>
+        <enum name='type' type-name='geo_biome_type' base-type='int16_t'/>
         <int16_t name='index'/>
 
         <code-helper name='describe'>(fmt "~A geo_layers" $.layers.count)</code-helper>
@@ -554,9 +558,9 @@
         <int16_t name='site_finder_y2'/>
     </struct-type>
 
-    <enum-type type-name='region_map_entry_flags'>
+    <enum-type type-name='region_map_entry_flags'> bay12: RegionSquareFlagType
         <enum-item name='has_river'/>
-        <enum-item name='tile_variant' comment='now unused?'/>
+        <enum-item comment='unused_02'/>
         <enum-item name='new_lake'/>
         <enum-item name='has_site'/>
         <enum-item name='temp_river'/>
@@ -575,47 +579,42 @@
 
         <enum-item name='has_road' comment='any construction'/>
         <enum-item name='orig_river_source'/>
-        <enum-item name='unused_19'/>
-        <enum-item name='unused_20'/>
-        <enum-item name='unused_21'/>
-        <enum-item name='unused_22'/>
-        <enum-item name='unused_23'/>
-        <enum-item name='unused_24'/>
     </enum-type>
 
-    <enum-type type-name='front_type' base-type='uint16_t'>
+    <enum-type type-name='front_type' base-type='uint16_t'> bay12: REGION_WEATHER_FRONT_*
         <enum-item name='front_none'/>
         <enum-item name='front_warm'/>
         <enum-item name='front_cold'/>
         <enum-item name='front_occluded'/>
     </enum-type>
 
-    <enum-type type-name='cumulus_type' base-type='uint16_t'>
+    <enum-type type-name='cumulus_type' base-type='uint16_t'> bay12: REGION_WEATHER_CUMULUS_*
         <enum-item name='cumulus_none'/>
         <enum-item name='cumulus_medium'/>
         <enum-item name='cumulus_multi'/>
         <enum-item name='cumulus_nimbus'/>
     </enum-type>
 
-    <enum-type type-name='stratus_type' base-type='uint16_t'>
+    <enum-type type-name='stratus_type' base-type='uint16_t'> bay12: REGION_WEATHER_STRATUS_*
         <enum-item name='stratus_none'/>
         <enum-item name='stratus_alto'/>
         <enum-item name='stratus_proper'/>
         <enum-item name='stratus_nimbus'/>
     </enum-type>
 
-    <enum-type type-name='fog_type' base-type='uint16_t'>
+    <enum-type type-name='fog_type' base-type='uint16_t'> bay12: REGION_WEATHER_FOG_*
         <enum-item name='fog_none'/>
         <enum-item name='fog_mist'/>
         <enum-item name='fog_normal'/>
         <enum-item name='fog_thick'/>
     </enum-type>
 
-    <struct-type type-name='region_map_entry'>
+    <struct-type type-name='region_map_entry' original-name='region_squarest'>
         <int32_t name="path_map" comment='unsaved'/>
         <int32_t name="finder_rank" init-value='-1'/>
         <stl-vector name="sites" pointer-type='world_site'/>
         <df-flagarray name='flags' index-enum='region_map_entry_flags'/>
+        bay12: actually an int16 array indexed by worldgen_range_type
         <int16_t name="elevation" comment='0-99=Ocean, 150+=Mountains, 100-149: all other biomes. Note that PSV elevation uses 100-299 for normal biomes, with range later cut to 1/4, and Mountains shifted down'/>
         <int16_t name="rainfall" comment='0-100'/>
         <int16_t name="vegetation" comment='0-100'/>
@@ -627,7 +626,7 @@
         <int16_t name="air_temp"/>
         <int16_t name="air_x" comment='Toady: a velocity component?  I dont remember'/>
         <int16_t name="air_y" />
-        <bitfield name='clouds' base-type='uint16_t'>
+        <bitfield name='clouds' base-type='uint16_t'> bay12: REGION_WEATHER_*
             <flag-bit name='front' count='2' type-name='front_type'/>
             <flag-bit name='cumulus' count='2' type-name='cumulus_type'/>
             <flag-bit name='cirrus' count='1'/>
@@ -635,7 +634,7 @@
             <flag-bit name='fog' count='2' type-name='fog_type'/>
             <flag-bit name='countdown' count='4' comment='A counter for stratus clouds that randomly decreases by 1 or 0 each timer weather is checked there. it does various stratus/fog effects based on the humidity/breezes/etc.'/>
         </bitfield>
-        <bitfield name='wind' base-type='uint16_t' comment='blows toward direction in morning'>
+        <bitfield name='wind' base-type='uint16_t' comment='blows toward direction in morning'> bay12: REGION_DAILY_WINDS_*
             <flag-bit name='north_1'/>
             <flag-bit name='south_1'/>
             <flag-bit name='east_1'/>
@@ -661,13 +660,31 @@
         <int16_t name='geo_index' ref-target='world_geo_biome'/>
     </struct-type>
 
-    <struct-type type-name='entity_claim_mask' comment='actually two completely different classes, entity_influencest and entity_territoryst'>
+    <struct-type type-name='entity_influencest'>
         <pointer name="map" is-array='true'>
-            <pointer is-array='true'>
+            <pointer is-array='true'> bay12: entity_influence_blockst
                 <stl-vector name='entities' type-name='int32_t' ref-target='historical_entity'/>
                 <stl-vector name='region_masks'>
-                    <pointer>
-                        <static-array count='16'>
+                    <pointer> bay12: entity_influence_sheetst
+                        <static-array count='16' name='influence'>
+                            <static-array count='16' type-name='uint8_t'
+                                            comment='1 bit per entity'/>
+                        </static-array>
+                    </pointer>
+                </stl-vector>
+            </pointer>
+        </pointer>
+        <int16_t name="width"/>
+        <int16_t name="height"/>
+    </struct-type>
+
+    <struct-type type-name='entity_territoryst'>
+        <pointer name="map" is-array='true'>
+            <pointer is-array='true'> bay12: entity_territory_blockst
+                <stl-vector name='entities' type-name='int32_t' ref-target='historical_entity'/>
+                <stl-vector name='region_masks'>
+                    <pointer> bay12: entity_territory_sheetst
+                        <static-array count='16' name='territory'>
                             <static-array count='16' type-name='uint8_t'
                                             comment='1 bit per entity'/>
                         </static-array>
@@ -684,14 +701,16 @@
         <int32_t name='id' comment="World MLT of the data according to: i + x * 16 + k * 16 * world_width + y * 256 * world_width, where (x, y) is the world tile and (i, k) the MLT within it"/>
         <stl-vector name="altered_items" type-name='int32_t' comment='world_data_subid'/>
         <stl-vector name="offloaded_items">
-            <pointer>
+            <pointer> bay12: creation_zone_itemst
                 <pointer name="item" type-name="item"/>
                 <int32_t name="global_x" comment='in tiles it seems'/>
                 <int32_t name="global_y"/>
                 <int32_t name="global_z"/>
                 <int32_t name="container" ref-target='item'/>
                 <int32_t name="building" ref-target='building'/>
-                <int32_t name="unk_18"/>
+                <bitfield name='flags' base-type='uint32_t'> bay12: CREATION_ZONE_ITEM_FLAG_*
+                    <flag-bit name='zone_assigned'/>
+                </bitfield>
             </pointer>
         </stl-vector>
         <stl-vector name="detail_abs_x" type-name='int32_t'/>
@@ -701,20 +720,20 @@
         <stl-vector name="detail_image_member" type-name='int16_t'/>
         <stl-vector name="altered_buildings" type-name='int32_t' comment='world_data_subid'/>
         <stl-vector name="offloaded_buildings">
-            <pointer>
+            <pointer> bay12: creation_zone_buildingst
                 <pointer name="building" type-name="building"/>
                 <int32_t name="global_x" comment='in tiles it seems'/>
                 <int32_t name="global_y"/>
                 <int32_t name="global_z"/>
-                <int32_t name="unk_10"/>
+                <uint32_t name="flags"/> none yet
             </pointer>
         </stl-vector>
         <stl-vector name="campfire">
-            <pointer>
+            <pointer> bay12: creation_zone_campfirest
                 <int32_t name="global_x" comment='in in-game tiles it seems'/>
                 <int32_t name="global_y"/>
                 <int32_t name="global_z"/>
-                <int32_t name="unk_c"/>
+                <int32_t name="stoked"/>
             </pointer>
         </stl-vector>
         <stl-vector name='creation_zone_alterations' pointer-type='creation_zone_pwg_alterationst' since='v0.40.01'/>
@@ -722,7 +741,7 @@
         <int32_t name="year"/>
         <int32_t name="year_tick"/>
 
-        <compound name='picked_growths' since='v0.40.14' comment="also includes 'automatically picked' i.e. fallen fruit that becomes item_spatter. Doesn not seem to be used by Adventurer mode">
+        <compound name='picked_growths' since='v0.40.14' comment="also includes 'automatically picked' i.e. fallen fruit that becomes item_spatter. Doesn not seem to be used by Adventurer mode"> not a compound
             <stl-vector name='x' type-name='int16_t' comment="0 - 47, within the MLT"/>
             <stl-vector name='y' type-name='int16_t' comment="0 - 47, within the MLT"/>
             <stl-vector name='z' type-name='int16_t' comment="z coordinate using the elevation coordinate system"/>
@@ -731,7 +750,7 @@
             <stl-vector name='year' type-name='int32_t' comment="presumably to know whether it's the current year's harvest or the previous one's"/>
         </compound>
 
-        <compound name='pulled_branches' since='v0.43.01' comment="probably used by Adventurer mode">
+        <compound name='pulled_branches' since='v0.43.01' comment="probably used by Adventurer mode"> not a compound
             <stl-vector name='x' type-name='int16_t' comment="probably MLT relative x coordinate"/>
             <stl-vector name='y' type-name='int16_t' comment="probably MLT relative y coordinate"/>
             <stl-vector name='z' type-name='int16_t' comment="probably z coordinate using the elevation coordinate system"/>
@@ -739,8 +758,9 @@
         </compound>
     </struct-type>
 
-    <enum-type type-name='mountain_peak_flags'>
+    <enum-type type-name='mountain_peak_flags'> bay12: PeakFlagType
         <enum-item name='is_volcano'/>
+        <enum-item name='climbed'/>
     </enum-type>
 
     <struct-type type-name='world_mountain_peak' original-name='peakst'
@@ -764,11 +784,9 @@
     <struct-type type-name='smm_pathing_datast'>
         <static-array count='4' name='mm'><static-array count='4' pointer-type='world_region_details'/></static-array>
 
-        <static-array count='12' name='spb'><static-array count='12'>
-            <!-- <compound comment='smm_pathing_blockst'/> -->
+        <static-array count='12' name='spb'><static-array count='12'> bay12: smm_pathing_blockst
             <static-array count='16' name='pmap'><static-array count='16' type-name='int32_t'/></static-array>
             <static-array count='16' name='dirmap'><static-array count='16' type-name='int32_t'/></static-array>
-            <!-- </compound> -->
         </static-array></static-array>
 
         <int32_t name='spb_pmap_start'/>
@@ -794,7 +812,7 @@
         <int32_t name='world_height'/>
         <int32_t name='moon_angle'/>
         <int32_t name='moon_phase'/>
-        <enum name='flip_latitude' base-type='int16_t' comment='bay12: pole'>
+        <enum name='flip_latitude' base-type='int16_t'> bay12: PoleType, base int32_t
             <enum-item name='None' value='-1'/>
             <enum-item name='North'/>
             <enum-item name='South'/>
@@ -806,32 +824,28 @@
 
         <compound name='edge_data' type-name='region_edge_datast'/>
 
-<!--
-        start region_midmap_datast
--->
-        <stl-vector name='region_details' pointer-type='world_region_details'/>
+        <compound name='midmap_data'> bay12: region_midmap_datast
+            <stl-vector name='region_details' pointer-type='world_region_details'/>
 
-        <int32_t name="adv_region_x"/>
-        <int32_t name="adv_region_y"/>
-        <int32_t name="adv_emb_x"/>
-        <int32_t name="adv_emb_y"/>
+            <int32_t name="adv_region_x"/>
+            <int32_t name="adv_region_y"/>
+            <int32_t name="adv_emb_x"/>
+            <int32_t name="adv_emb_y"/>
 
-        <int16_t name="loadarea_sx"/>
-        <int16_t name="loadarea_sy"/>
-        <int16_t name="loadarea_ex"/>
-        <int16_t name="loadarea_ey"/>
+            <int16_t name="loadarea_sx"/>
+            <int16_t name="loadarea_sy"/>
+            <int16_t name="loadarea_ex"/>
+            <int16_t name="loadarea_ey"/>
 
-        <stl-map name="midmap_place" comment="std::map&lt;std::pair&lt;int16_t,int16_t&gt;,VIndex&gt;; not saved"/>
-<!--
-        end region_midmap_datast
--->
+            <stl-map name="midmap_place" comment="std::map&lt;std::pair&lt;int16_t,int16_t&gt;,VIndex&gt;; not saved"/>
+        </compound>
 
-        <compound name='constructions' comment='bay12: world_construction_datast/'>
+        <compound name='constructions'> bay12: world_construction_datast
             <int16_t name="width"/>
             <int16_t name="height"/>
 
             <pointer name="map" is-array='true'>
-                <pointer is-array='true'>
+                <pointer is-array='true'> bay12: world_construction_data_blockst
                     <stl-vector pointer-type='world_construction_square'/>
                 </pointer>
             </pointer>
@@ -840,8 +854,8 @@
             <int32_t name="next_id"/>
         </compound>
 
-        <compound name="entity_claims1" type-name='entity_claim_mask' comment='bay12: entity_influence'/>
-        <compound name="entity_claims2" type-name='entity_claim_mask' comment='bay12: entity_territory'/>
+        <compound name="entity_influence" type-name='entity_influencest'/>
+        <compound name="entity_territory" type-name='entity_territoryst'/>
 
         <stl-vector name="sites" pointer-type='world_site'/>
 
@@ -875,7 +889,7 @@
 
         <static-array name='region_block' count='6'>
             <pointer is-array='true'>
-                <pointer is-array='true' comment='bay12 type: region_blockst'>
+                <pointer is-array='true'> bay12: region_blockst
                     <stl-vector name='event' pointer-type='region_block_eventst'/>
                     <stl-vector name='army' pointer-type='army'/>
                 </pointer>
@@ -886,11 +900,11 @@
 
         <stl-vector name="active_site" pointer-type='world_site'/>
 
-        <pointer name="feature_map" is-array='true' comment='feature_map_shellst'>
-            <pointer is-array='true'>
+        <pointer name="feature_map" is-array='true'>
+            <pointer is-array='true'> bay12: feature_map_shellst
                 <int16_t name='x'/>
                 <int16_t name='y'/>
-                <pointer name='features' comment='feature_mapst'>
+                <pointer name='features'> bay12: feature_mapst
                     <static-array name='feature_init' count='16'>
                         <static-array count='16'>
                             <stl-vector pointer-type='feature_init'/>
@@ -912,14 +926,14 @@
                         </static-array>
                     </static-array>
                 </pointer>
-                <pointer name='river_info' comment='feature_river_informationst'>
+                <pointer name='river_info'> bay12: feature_river_informationst
                     <static-array name='map' count='16'>
                         <static-array count='16'>
                             <static-array count='2' type-name='int16_t'/>
                         </static-array>
                     </static-array>
                 </pointer>
-                <pointer name='layer_info' comment='feature_layer_informationst'>
+                <pointer name='layer_info'> bay12: feature_layer_informationst
                     <static-array name='map' count='16'>
                         <static-array count='16'>
                             <static-array count='5'><static-array count='2' type-name='int32_t'/></static-array>
@@ -959,39 +973,9 @@
         <int32_t name="old_temp_value_advance"/>
 
         exists during worldgen only, before it finishes
-        some sort of wandering groups (entity types NomadicGroup, PerformanceTroupe)
-        unk_10, unk_24 and unk_region_name are either all initialised or all empty/uninitialised
-        <stl-vector name="world_gen_wandering_group">
-            <pointer comment='world_gen_wandering_groupst'>
-                <stl-vector name="members" pointer-type="historical_figure"/>
-                <stl-vector name="ent_pop">
-                    <pointer comment='world_gen_entity_populationst'>
-                        <int32_t name="num"/>
-                        <compound name='pop_spec' comment='entity_pop_specifierst'>
-                            <int32_t name='race' ref-target='creature_raw'/>
-                            <int32_t name="epid"/>
-                            <int32_t name="special_controlling_enid"/>
-                            <int32_t name="breed_id"/>
-                            <int32_t name="cultural_identity_id"/>
-                            <int32_t name="interaction_idx"/>
-                            <int32_t name="interaction_effect_idx"/>
-                            <int32_t name="squad_entity_id"/>
-                            <int32_t name="squad_entity_position_id"/>
-                            <int32_t name="worldgen_culture_reference_entity"/>
-                        </compound>
-                    </pointer>
-                </stl-vector>
-                <stl-vector name='region_pop' pointer-type='world_population'/>
-                <pointer name="entity" type-name="historical_entity"/>
-                <pointer name='cur_site' type-name='world_site'/>
-                <pointer name="cur_region" type-name="world_region"/>
-                <pointer name="cur_layer" type-name="world_underground_region"/>
-                <int32_t name="relocate_delay"/>
-                <pointer name="wg_site_culture" comment='wg_site_culturest'/>
-            </pointer>
-        </stl-vector>
+        <stl-vector name="world_gen_wandering_group" pointer-type='world_gen_wandering_groupst'/>
 
-        <compound name='open_list' since='v0.40.01' comment='type: open_list_binary_heap_2Dst'>
+        <compound name='open_list' since='v0.40.01'> bay12: open_list_binary_heap_2Dst
             <static-array name='node' count='80000'>
                 <int32_t name='fval'/>
                 <int32_t name='hval'/>
@@ -1010,21 +994,21 @@
 
     <struct-type type-name='gene_poolst'>
         <stl-vector name="body_modifier">
-            <pointer comment='bay12: gene_pool_body_modifierst'>
+            <pointer> bay12: gene_pool_body_modifierst
                 <int32_t name='id'/>
                 <int32_t name="roll_min"/>
                 <int32_t name="roll_max"/>
             </pointer>
         </stl-vector>
         <stl-vector name="bp_modifier">
-            <pointer comment='bay12: gene_pool_bp_modifierst'>
+            <pointer> bay12: gene_pool_bp_modifierst
                 <int32_t name='id'/>
                 <int32_t name="roll_min"/>
                 <int32_t name="roll_max"/>
             </pointer>
         </stl-vector>
         <stl-vector name="color_modifier">
-            <pointer comment='bay12: gene_pool_color_modifierst'>
+            <pointer> bay12: gene_pool_color_modifierst
                 <int32_t name="id"/>
                 <int32_t name="roll" comment='from creature frequency value, -1 = all colors used according to creature frequencies'/>
             </pointer>
@@ -1033,25 +1017,13 @@
 
     <struct-type type-name='breed' key-field='id' instance-vector='$global.world.world_data.breeds' original-name='breedst'>
         <int32_t name='id'/>
-        <int32_t name="race"/>
+        <int32_t name="race" ref-target='creature_raw'/>
         <compound name='gene_pool' type-name='gene_poolst'/>
     </struct-type>
 
-    <struct-type type-name='battlefield' key-field='id' instance-vector='$global.world.world_data.battlefields'>
+    <struct-type type-name='battlefield' key-field='id' instance-vector='$global.world.world_data.battlefields' original-name='battlefieldst'>
         <int32_t name='id'/>
-        <stl-vector name='sapient_deaths' comment="Seems to be by squad. Trolls/Blizzard Men not counted">
-            <pointer>
-                <int32_t name='deaths' comment="May not sum up, at least not for defenders"/>
-                <int32_t name='race'/>
-                <int32_t name='squad' init-value='-1' comment="A guess (Don't know how to find squads). Animal people seem to have -1"/>
-                <int32_t name="unk_c" init-value='-1'/>
-                <int32_t name='start_year'/>
-                <int32_t name='end_year'/>
-                <int32_t name="unk_18" comment="0, 1, 4, 5, 7 seen"/>
-                <int32_t name="unk_1c" since='v0.40.01' comment="2-5 seen. 4-5 probably attacker, 2-3 probably defender"/>
-            </pointer>
-        </stl-vector>
-        <stl-vector name='hfs_killed' type-name='int32_t' ref-target='historical_figure' comment="some victims are not listed, for some reason, and culled HFs can be present"/>
+        <stl-vector name='sapient_deaths' pointer-type='location_deathst' comment="Seems to be by squad. Trolls/Blizzard Men not counted"/>
         <int32_t name="x1"/>
         <int32_t name="y1"/>
         <int32_t name="x2"/>
@@ -1060,19 +1032,21 @@
         <stl-vector name='event_collections' type-name="int32_t" ref-target='history_event_collection' comment='bay12: hecid; sorted'/>
     </struct-type>
 
-    <enum-type type-name='region_weather_type' base-type='int32_t'>
+    <enum-type type-name='region_weather_type' base-type='int32_t'> bay12: RegionWeatherType
         <enum-item name='CreepingGas'/>
         <enum-item name='CreepingVapor' comment="doesn't seem to be generated by DF, but appears if hacked"/>
         <enum-item name='CreepingDust'/>
         <enum-item name='FallingMaterial' comment="a.k.a. rain, both blood and syndrome, but not regular"/>
     </enum-type>
 
-    <struct-type type-name='region_weather' key-field='id' instance-vector='$global.world.world_data.region_weather' comment="only evil weather, not the regular kind">
+    <struct-type type-name='region_weather' key-field='id' instance-vector='$global.world.world_data.region_weather' original-name='region_weatherst' comment="only evil weather, not the regular kind">
         <int32_t name='id'/>
-        <enum name='type' type-name='region_weather_type' base-type='int32_t' comment="Creeping Gas/Vapor/Dust='cloud' below, FallingMaterial='rain'"/>
+        <enum name='type' type-name='region_weather_type' comment="Creeping Gas/Vapor/Dust='cloud' below, FallingMaterial='rain'"/>
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name='mat_index'/>
-        <bool name='announcement' comment="Guess based on seeing it appear for an entry when hitting the embark, resulting in an announcement"/>
+        <bitfield name='flags' base-type='uint8_t'> bay12: REGION_WEATHER_FLAG_*
+            <flag-bit name='announced'/>
+        </bitfield>
         <int32_t name='region_x' comment="world tile, used with evil rain. Probably uninitialized with cloud"/>
         <int32_t name='region_y' comment="world tile, used with evil rain. Probably uninitialized with cloud"/>
         <int32_t name='world_in_game_x' init-value='-30000' comment="used with evil clouds, indicating global in-game coordinates"/>
