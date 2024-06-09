@@ -15,14 +15,14 @@
         <int32_t name='out_buffer_amount_written'/>
     </struct-type>
 
-    <enum-type type-name='interface_breakdown_types' base-type='int8_t'>
+    <enum-type type-name='interface_breakdown_types'> bay12: InterfaceBreakdownTypes, no base type
         <enum-item name='NONE'/>
         <enum-item name='QUIT'/>
         <enum-item name='STOPSCREEN'/>
         <enum-item name='TOFIRST'/>
     </enum-type>
 
-    <enum-type type-name='interface_push_types'>
+    <enum-type type-name='interface_push_types'> bay12: InterfacePushType, no base type
         <enum-item name='AS_PARENT'/>
         <enum-item name='AS_CHILD'/>
         <enum-item name='AT_BACK'/>
@@ -33,11 +33,7 @@
         <virtual-methods>
             <vmethod name='get_rect' ret-type='extentst'/>
             <vmethod name='feed'>
-                <pointer name='events'>
-                    <stl-set>
-                        <enum type-name='interface_key' base-type='long'/>
-                    </stl-set>
-                </pointer>
+                <pointer name='events'><stl-set type-name='interface_key'/></pointer>
             </vmethod>
             <vmethod name='logic'/>
             <vmethod name='render'> <uint32_t name='curtick'/> </vmethod>
@@ -77,7 +73,7 @@
         <pointer type-name='widget_textbox' name='cur_textbox'/>
     </struct-type>
 
-<!--
+    technically still here, though nothing uses it
     <class-type type-name='layer_object' original-name='layer_objectst'>
         <bool name='enabled'/>
         <bool name='active'/>
@@ -91,13 +87,11 @@
             <vmethod ret-type='int32_t' name='getX2'/>
 
             <vmethod ret-type='int32_t' name='getY2'/>
-            <vmethod ret-type='int32_t' comment='list 1; button,base -1'/>
+            <vmethod ret-type='int32_t' name='getPageSize'/>
             <vmethod ret-type='int32_t' name='getListCursor'/>
             <vmethod name='setListCursor'> <int32_t/> </vmethod>
             <vmethod name='feed'>
-                <pointer name='events'> <stl-set>
-                    <enum type-name='interface_key' base-type='int32_t'/>
-                </stl-set> </pointer>
+                <pointer name='events'><stl-set type-name='interface_key'/></pointer>
             </vmethod>
 
             <vmethod ret-type='bool' name='isSetMouseLRCur'/>
@@ -129,9 +123,9 @@
         <int32_t name='mouse_l_cur'/>
         <int32_t name='mouse_r_cur'/>
         <bool name='rclick_scrolls'/>
-        <int32_t name='flag' comment='for standardscrolling'/>
-        <enum name='key_lclick' base-type='int32_t' type-name='interface_key'/>
-        <enum name='key_rclick' base-type='int32_t' type-name='interface_key'/>
+        <uint32_t name='flag' comment='for standardscrolling'/>
+        <enum name='key_lclick' type-name='interface_key'/>
+        <enum name='key_rclick' type-name='interface_key'/>
     </class-type>
 
     <class-type type-name='layer_object_buttonst' inherits-from='layer_object'>
@@ -149,10 +143,9 @@
         <int32_t name='mouse_y'/>
         <int32_t name='mouse_x_old'/>
         <int32_t name='mouse_y_old'/>
-        <int8_t name='handle_mouselbtndown'/>
-        <int8_t name='handle_mouserbtndown'/>
+        <bool name='handle_mouselbtndown'/>
+        <bool name='handle_mouserbtndown'/>
     </class-type>
--->
 
     <struct-type type-name='scrollbarst'>
         <int32_t name='sel'/>
@@ -173,17 +166,17 @@
         <int32_t name='y2'/>
     </struct-type>
 
-    <class-type type-name='widget' original-name='widgets::widget'>
-        <pointer name='parent'/>
+    <class-type type-name='widget' original-name='widgets::widget' inherits-from='abstract_interfacest'>
+        <pointer name='parent' type-name='abstract_interfacest'/>
         <compound type-name='extentst' name='rect'/>
         <stl-vector name='custom_feed'> <stl-function/> </stl-vector>
         <stl-vector name='custom_logic'> <stl-function/> </stl-vector>
         <stl-vector name='custom_render'> <stl-function/> </stl-vector>
         <stl-vector name='custom_activated'> <stl-function/> </stl-vector>
         <stl-string name='name'/>
-        <bitfield name='visibility_flags' base-type='int8_t'>
+        <bitfield name='visibility_flags' base-type='int8_t'> bay12: VisibilityFlagType
             <flag-bit name='WIDGET_VISIBILITY_ACTIVE'/>
-            <flag-bit name='WIDGET_VISIBILITY_VISIBLE'/>
+            <flag-bit name='WIDGET_VISIBILITY_VISIBLE'/> plus ACTUALLY_VISIBLE for both of the above
             <flag-bit name='WIDGET_VISIBILITY_CAN_KEY_ACTIVATE'/>
         </bitfield>
         <int32_t name='offset_bottom'/>
@@ -197,7 +190,7 @@
         <int32_t name='min_w'/>
         <int32_t name='min_h'/>
         <stl-variant name='tooltip' raw-type='std::string, std::function&lt;void()&gt;'/>
-        <enum name='tooltip_type' base-type='int8_t'>
+        <enum name='tooltip_type' base-type='int8_t'> bay12: TooltipType
             <enum-item name='NONE' value='-1'/>
             <enum-item name='REPLACE_MINIMAP'/>
             <enum-item name='ABOVE'/>
@@ -205,24 +198,9 @@
         </enum>
         <bool name='displaying_tooltip'/>
         <stl-string name='search_string'/>
-        <stl-set name='activation_hotkeys'>
-            <enum type-name='interface_key' base-type='long'/>
-        </stl-set>
+        <stl-set name='activation_hotkeys' type-name='interface_key'/>
 
         <virtual-methods>
-            -- from abstract_interface
-            <vmethod name='get_rect' ret-type='extentst'/>
-            <vmethod name='feed'>
-                <pointer name='events'> <stl-set>
-                    <enum type-name='interface_key' base-type='int32_t'/>
-                </stl-set> </pointer>
-            </vmethod>
-            <vmethod name='logic'/>
-            <vmethod name='render'/>
-            <vmethod name='arrange'/>
-            <vmethod name='remove_child'> <pointer name='w'/> </vmethod>
-            <vmethod name='clear'/>
-            -- from widget itself
             <vmethod is-destructor='true'/>
         </virtual-methods>
     </class-type>
@@ -245,16 +223,17 @@
         <uint32_t name='flag'/>
     </class-type>
 
-    <class-type type-name='text_truncated' original-name='widgets::text_truncated' inherits-from='widget_text'>
+    <class-type type-name='widget_text_truncated' original-name='widgets::text_truncated' inherits-from='widget_text'>
         <stl-string name='original_str'/>
-        <int32_t name='truncate_mode_flags'/>
+        <bitfield name='truncate_mode_flags' base-type='int32_t'> bay12: TRUNCATE_MODE_*
+            <flag-bit name='abbreviate'/>
+            <flag-bit name='ellipses'/>
+        </bitfield>
     </class-type>
 
-    <class-type type-name='widget_text_multiline' original-name='widgets::text_multiline' inherits-from='widget_text'>
-        <stl-vector type-name='stl-string' name='strs'/>
-    </class-type>
+    <class-type type-name='widget_text_multiline' original-name='widgets::text_multiline' inherits-from='widget_text'/>
 
-    <bitfield-type type-name='override_tile_type' base-type='uint8_t'>
+    <bitfield-type type-name='override_tile_type' base-type='uint8_t'> bay12: OVERRIDE_*
         <flag-bit name='OVERRIDE_CHAR'/>
         <flag-bit name='OVERRIDE_TILE'/>
         <flag-bit name='OVERRIDE_TOP_TILE'/>
@@ -269,8 +248,7 @@
         <bitfield type-name='override_tile_type' name='flag' init-value='override_tile_type::mask_OVERRIDE_CHAR'/>
     </class-type>
 
-    <class-type type-name='widget_nineslice_horizontal' original-name='widgets::nineslize_horizontal' inherits-from='widget_nineslice'>
-    </class-type>
+    <class-type type-name='widget_nineslice_horizontal' original-name='widgets::nineslize_horizontal' inherits-from='widget_nineslice'/>
 
     <class-type type-name='widget_anchored_tile' original-name='widgets::anchored_tile' inherits-from='widget_nineslice'>
         <long name='texp'/>
@@ -288,15 +266,15 @@
         <stl-shared-ptr type-name='widget' name='ascii_widget'/>
     </class-type>
 
-    <class-type type-name='widget_menu' original-name='widgets::menu' inherits-from='widget'>
+    <struct-type type-name='widget_menu' original-name='widgets::menu'>
         <stl-map name='lines'/>
         <int32_t name='selection'/>
         <int32_t name='last_displayheight'/>
         <bool name='bleached'/>
         <stl-map name='colors'/>
-    </class-type>
+    </struct-type>
 
-    <enum-type type-name='textbox_type' base-type='int32_t' comment='bay12: TextboxType'>
+    <enum-type type-name='textbox_type'> bay12: TextboxType, no base type
         <enum-item name='FILTER'/>
         <enum-item name='NAME'/>
         <enum-item name='NONE'/>
@@ -304,7 +282,15 @@
 
     <class-type type-name='widget_textbox' original-name='widgets::textbox' inherits-from='widget'>
         <stl-string name='str'/>
-        <int32_t name='flags'/>
+        <bitfield name='flags' base-type='uint32_t'> bay12: STRINGENTRY_*
+            <flag-bit name='LETTERS'/>
+            <flag-bit name='SPACE'/>
+            <flag-bit name='NUMBERS'/>
+            <flag-bit name='CAPS'/>
+            <flag-bit name='SYMBOLS'/>
+            <flag-bit name='FILENAME'/>
+            <flag-bit name='REMOVEKEYS'/>
+        </bitfield>
         <stl-function name='callback' comment='arguments are textbox*'/>
         <int16_t name='fg'/>
         <int16_t name='bg'/>
@@ -324,6 +310,9 @@
         <compound type-name='widget' name='open'/>
         <bool name='last_visible'/>
         <stl-unordered-map name='controlled_set' comment='std::unordered_set&lt;std::shared_ptr&lt;widget&gt;&gt;'/>
+        <bool name='controlled_visible'/>
+        <compound type-name='widget_text' name='label'/>
+        <stl-weak-ptr type-name='widget_container'/>
     </class-type>
 
     <struct-type type-name='filter_entry'>
@@ -391,9 +380,9 @@
 
     <class-type type-name='widget_tabs' original-name='widgets::tabs' inherits-from='widget_container'>
         <size_t name='cur_idx'/>
-        <stl-vector name='tab_labels' pointer-type='stl-string'/>
+        <stl-vector name='tab_labels' type-name='stl-string'/>
         <stl-vector name='rows' comment='actually std::pair of size_t, size_t'/>
-        <enum name='tab_type'>
+        <enum name='tab_type'> bay12: TabType
             <enum-item name='DEFAULT'/>
             <enum-item name='SHORT'/>
             <enum-item name='SHORT_SUB'/>
@@ -406,6 +395,7 @@
         <int32_t name='num_visible'/>
         <bool name='scrolling'/>
         <compound type-name='scrollbarst' name='scrollbar'/>
+        <int8_t name='scrollbar_display_flags'/>
     </class-type>
 
     <class-type type-name='widget_radio_rows' original-name='widgets::radio_rows' inherits-from='widget'>
@@ -465,7 +455,7 @@
         <int32_t name='context'/>
     </class-type>
 
-    <enum-type type-name='unit_list_options' base-type='int32_t'>
+    <enum-type type-name='unit_list_options'> bay12: unit_list_options
         <enum-item name='NONE'/>
         <enum-item name='PORTRAIT'/>
         <enum-item name='NAME_PROF'/>
@@ -481,9 +471,10 @@
         <enum-item name='SHOW_GENDER'/>
         <enum-item name='CUSTOM_BUILD'/>
         <enum-item name='FORCE_JOB_WIDTH'/>
+        <enum-item name='ACTIVATE_ON_CURSOR'/>
     </enum-type>
 
-    <bitfield-type type-name='unit_list_flag'>
+    <bitfield-type type-name='unit_list_flag' base-type='uint8_t'> bay12: UNIT_LIST_FLAG_*
         <flag-bit name='show_gender'/>
         <flag-bit name='custom_build'/>
         <flag-bit name='force_job_width'/>
@@ -568,7 +559,7 @@
         <stl-function type-name='bool' name='sort_fun'/> std::function&lt;bool(const Entry &amp;, const Entry &amp;)&gt;
     </class-type>
 
-    <class-type type-name='widget_unit_sort_widget' inherits-from='widget_sort_widget' comment='original-name for this class is not yet known'/>
+    <class-type type-name='widget_unit_sort_widget' inherits-from='widget_sort_widget' comment='template specialization using unit_list + unit_list::item_or_unit'/>
 
     <class-type type-name='MacroScreenLoad' inherits-from='viewscreen'>
         <compound name='menu' type-name='widget_menu'/>
@@ -581,12 +572,12 @@
     </class-type>
 
     <struct-type type-name='shared_world_headerst'>
-        <int32_t name='id1' comment='based on tick at start of game'/>
-        <int32_t name='id2' comment='based on tick at creation time'/>
+        <uint32_t name='id1' comment='based on tick at start of game'/>
+        <uint32_t name='id2' comment='based on tick at creation time'/>
         <stl-string name='world_name'/>
         <stl-string name='timeline_name'/>
         <stl-string name='manual_name'/>
-        <enum base-type='int32_t' name='save_type'>
+        <enum base-type='int32_t' name='save_type'> bay12: SaveTypeType
             <enum-item name='NONE' value='-1'/>
             <enum-item name='ACTIVE'/>
             <enum-item name='INACTIVE'/>
@@ -599,11 +590,29 @@
         <int32_t name='advs_played'/>
     </struct-type>
 
+    <enum-type type-name='region_permission_type'> bay12: RegionPermission
+        <enum-item name='ADVENTURE_MAIN'/>
+        <enum-item name='UNUSED11'/> used as index-enum, so name all entries
+        <enum-item name='UNUSED12'/>
+        <enum-item name='DWARF_MAIN'/>
+        <enum-item name='UNUSED0'/>
+        <enum-item name='UNUSED1'/>
+        <enum-item name='UNUSED2'/>
+        <enum-item name='UNUSED3'/>
+        <enum-item name='UNUSED4'/>
+        <enum-item name='UNUSED5'/>
+        <enum-item name='UNUSED6'/>
+        <enum-item name='UNUSED7'/>
+        <enum-item name='UNUSED8'/>
+        <enum-item name='UNUSED9'/>
+        <enum-item name='UNUSED10'/>
+    </enum-type>
+
     <struct-type type-name='region_headerst'>
         <compound type-name='language_name' name='name'/>
         <stl-string name='display_name'/>
-        <static-array name='permission' count='15' type-name='int8_t' comment='same as the one at the top of world_data'/>
-        <compound name='last_id' comment='when loading, DF sets *_next_id to these fields plus 1'>
+        <static-array name='permission' count='15' type-name='int8_t' index-enum='region_permission_type'/>
+        <compound name='last_id' comment='when loading, DF sets *_next_id to these fields plus 1'> not a compound
             <int32_t name='unit'/>
             <int32_t name='soul'/>
             <int32_t name='item'/>
@@ -648,7 +657,7 @@
 
     <class-type type-name='viewscreen_adopt_regionst' inherits-from='viewscreen'>
         <compound type-name='file_compressorst' name='compressor'/>
-        <enum base-type='int32_t' name='cur_step'>
+        <enum base-type='int32_t' name='cur_step'> bay12: AdoptRegionStageType
             <enum-item name='OpeningFile'/>
             <enum-item name='ProcessingRawData'/>
             <enum-item name='AllocatingSpace'/>
@@ -692,7 +701,7 @@
         <int32_t name='progress' comment='0..35'/>
     </class-type>
 
-    <enum-type type-name='embark_finder_option'>
+    <enum-type type-name='embark_finder_option' base-type='int16_t'> bay12: FindSiteParamType
         <enum-item name='DimensionX'/>
         <enum-item name='DimensionY'/>
         <enum-item name='Savagery'/>
@@ -717,31 +726,33 @@
         <enum-item name='Sand'/>
     </enum-type>
 
-    <struct-type type-name='embark_location' comment='starter_infost?'>
+    <struct-type type-name='embark_location' original-name='starter_infost'>
         <compound name='region_pos' type-name='coord2d'/>
 
         <int16_t name="reclaim_site" ref-target='world_site'/>
         <int16_t name="reclaim_idx"/>
-<!--
-        <compound name='biome_rgn' type-name='coord2d_path'/>
--->
         <compound name='embark_pos_min' type-name='coord2d'/>
         <compound name='embark_pos_max' type-name='coord2d'/>
-<!--
-        <compound name='embark_biome_rgn' type-name='coord2d'
-                  comment='Valid only after e pressed.'/>
--->
     </struct-type>
 
+    <enum-type type-name='embark_neighbor_state_type' base-type='int32_t'> bay12: EmbarkNeighborStateType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='WAR'/>
+        <enum-item name='HOSTILE'/>
+        <enum-item name='NO_COMM'/>
+        <enum-item name='NO_TRADE'/>
+        <enum-item name='NORMAL'/>
+    </enum-type>
+
     <class-type type-name='viewscreen_choose_start_sitest' inherits-from='viewscreen'>
-        <enum base-type='int32_t' name='page'>
+        <enum name='page'> bay12: ChooseStartSiteViewMode, no base type!
             <enum-item name='Biome'/>
             <enum-item name='Neighbors'/>
             <enum-item name='Civilization'/>
             <enum-item name='Elevation'/>
             <enum-item name='Cliffs'/>
             <enum-item name='Reclaim'/>
-            <enum-item name='Reclaim2'/>
+            <enum-item name='ReclaimDetails'/>
             <enum-item name='Find'/>
             <enum-item name='Notes'/>
         </enum>
@@ -768,7 +779,7 @@
         <stl-vector pointer-type='historical_entity' name='def_candidate'/>
         <stl-vector pointer-type='world_site' name='def_candidate_nearst'/>
         <stl-vector type-name='int32_t' name='def_candidate_mindist'/>
-        <stl-vector type-name='int32_t' name='def_candidate_state'/>
+        <stl-vector type-name='embark_neighbor_state_type' name='def_candidate_state'/>
 
         <bool name='zoomed_in'/>
         <int32_t name='zoom_cent_x'/>
@@ -799,7 +810,7 @@
         <int32_t name="biome_idx"/>
         <bool name="biome_highlighted"/>
 
-        <bitfield name='warn_flags' base-type='uint16_t'>
+        <bitfield name='warn_flags' base-type='int16_t'> bay12: WARN_FLAG_*
             <flag-bit name='GENERIC'/>
             <flag-bit name='WATER_TABLE'/>
             <flag-bit name='HEAVY_WATER_TABLE'/>
@@ -818,8 +829,7 @@
         <stl-vector type-name='int32_t' name='start_civ_nem_num'/>
         <stl-vector type-name='int32_t' name='start_civ_entpop_num'/>
         <stl-vector type-name='int32_t' name='start_civ_site_num'/>
-
-        <stl-vector name='reclaim_detail_box' pointer-type='stl-string' since='v0.40.01'/>
+        <compound name='reclaim_detail_box' type-name='curses_text_boxst'/>
         <pointer name="reclaim_detail_he" type-name="history_event" has-bad-pointers='true' since='v0.40.01'/>
         <pointer name="reclaim_detail_she" type-name="history_event" has-bad-pointers='true' since='v0.40.01'/>
         <int32_t name="reclaim_detail_box_last_processing_dimx" since='v0.40.01'/>
@@ -840,7 +850,7 @@
         <stl-vector type-name='int16_t' name='find_metal_ore'/>
         <stl-vector type-name='int16_t' name='skip_metal_ore'/>
 
-        <enum name='find_results' base-type='int16_t'>
+        <enum name='find_results' base-type='int16_t'> not a real enum
             <enum-item name='None' value='-1'/>
             <enum-item name='NoResult'/>
             <enum-item name='Partial'/>
@@ -855,7 +865,7 @@
         <int16_t name='find_mm_ey'/>
 
         <stl-vector name="note_index" type-name='int32_t' refers-to='$global.world.world_data.embark_notes[$]'/>
-        <stl-vector name="text_box" pointer-type='stl-string'/>
+        <compound name="text_box" type-name='curses_text_boxst'/>
         <bool name='notes_entering_text'/>
         <int32_t name='notes_list_select'/>
         <int16_t name="notes_cur_sym"/>
@@ -864,122 +874,6 @@
         <int16_t name="notes_sym_select_3"/>
         <int32_t name="notes_selected_note"/>
     </class-type>
-
-    <struct-type type-name='mission'>
-        <int32_t name='army_controller' ref-target='army_controller'/>
-        <int32_t name='entity' ref-target='historical_entity'/>
-        <int32_t name='target_site' ref-target='world_site'/>
-        <int32_t name='unk_2'/> -1
-        <int32_t name='target_x'/>
-        <int32_t name='target_y'/>
-        <int32_t name='unk_3'/>
-        <int32_t name='unk_4'/>
-        <int32_t name='unk_5'/>
-        <int32_t name='unk_6'/>
-        <int32_t name='unk_7'/>
-        <int32_t name='unk_8'/>
-        <int32_t name='unk_9'/>
-        <int32_t name='unk_10'/>
-        <int32_t name='year'/>
-        <int32_t name='year_tick'/>
-        <int32_t name='unk_12'/> -1
-        <int32_t name='army_controller2' ref-target='army_controller'/>
-        <int32_t name='histfig' ref-target='historical_figure'/>
-        <int32_t name='unk_14'/> -1
-        <int32_t name='unk_16'/>
-        <int32_t name='unk_17'/>
-        <int32_t name='unk_18'/>
-        <int32_t name='unk_19'/>
-        <int32_t name='unk_20'/>
-        <int32_t name='unk_21'/>
-        <int32_t name='unk_15'/>
-        <int32_t name='unk_22'/>
-        <stl-vector name='squads' type-name='int32_t' ref-target='squad'/>
-        <stl-vector name='messengers' type-name='int32_t' ref-target='occupation'/>
-
-        <int32_t name='unk_23'/>
-        <int32_t name='unk_24'/>
-
-        <compound name='details' is-union='true'>
-            <pointer name='raid'>
-                <enum name='raid_type' base-type='int32_t'>
-                    <enum-item name='Raze' value='0'/>
-                    <enum-item name='TakeOver' value='1'/>
-                    <enum-item name='Occupy' value='2'/>
-                    <enum-item name='DemandTribute' value='3'/>
-                    <enum-item name='Raid' value='4'/>
-                    <enum-item name='Explore' value='5'/>
-                    <enum-item name='Pillage' value='6'/>
-                </enum>
-                <int32_t name='unk_2'/>
-
-                <int32_t name='unk_5'/>
-                <int32_t name='unk_6'/>
-                <int32_t name='unk_7'/>
-                <int32_t name='unk_8'/>
-                <int32_t name='unk_9'/>
-                <int32_t name='unk_10'/>
-                <int32_t name='unk_11'/>
-                <int32_t name='unk_12'/>
-                <int32_t name='unk_13'/>
-                <int32_t name='unk_14'/>
-                <int32_t name='unk_15'/>
-                <int32_t name='unk_16'/>
-                <int32_t name='unk_17'/>
-                <int32_t name='unk_18'/>
-                <int32_t name='unk_19'/>
-                <int32_t name='unk_20'/>
-                <int32_t name='unk_21'/>
-                <int32_t name='unk_22'/>
-                <int32_t name='unk_23'/>
-                <int32_t name='unk_24'/>
-                <bitfield base-type='uint32_t' name='raid_flags'>
-                    <flag-bit name='Unknown1'/>
-                    <flag-bit name='OneTimeTribute'/>
-                    <flag-bit name='OngoingTribute'/>
-                    <flag-bit name='FreeCaptives'/>
-                    <flag-bit name='ReleaseOtherPrisoners'/>
-                    <flag-bit name='TakeImportantTreasures'/>
-                    <flag-bit name='LootOtherItems'/>
-                    <flag-bit name='StealLivestock'/>
-                    <flag-bit name='Unknown256'/>
-                    <flag-bit name='DemandSurrender'/>
-                </bitfield>
-                <int32_t name='unk_3'/>
-                <int32_t name='unk_4'/>
-                <int32_t name='unk_25'/>
-                <int32_t name='unk_26'/>
-                <int32_t name='unk_27'/>
-                <int32_t name='unk_28'/>
-                <int32_t name='unk_29'/>
-                <int32_t name='unk_30'/>
-                <int32_t name='unk_31'/>
-            </pointer>
-            <pointer name='recovery'>
-                <int32_t name='artifact' ref-target='artifact_record'/>
-                <int32_t name='unk_2'/>
-            </pointer>
-            <pointer name='rescue'>
-                <int32_t name='histfig' ref-target='historical_figure'/>
-                <int32_t name='unk_2'/>
-            </pointer>
-            <pointer name='request'>
-                <stl-vector name='workers' type-name='int32_t' ref-target='historical_figure'/>
-                <int32_t name='unk_1'/>
-                <int32_t name='unk_2'/>
-                <int32_t name='unk_3'/>
-                <int32_t name='unk_4'/>
-            </pointer>
-        </compound>
-
-        <enum name='type' base-type='int32_t'>
-            <enum-item name='Raid' value='2'/>
-            <enum-item name='RecoverArtifact' value='17'/>
-            <enum-item name='RescuePerson' value='18'/>
-            <enum-item name='RequestWorkers' value='19'/>
-        </enum>
-        <int32_t name='unk_25'/>
-    </struct-type>
 
     <class-type type-name='viewscreen_dwarfmodest' inherits-from='viewscreen'>
         <int8_t name='shown_site_name'/> display site name next frame
@@ -1090,7 +984,7 @@
 
     <class-type type-name='viewscreen_export_regionst' inherits-from='viewscreen'>
         <bool name='play_now'/>
-        <enum base-type='int32_t' name='state'>
+        <enum base-type='int32_t' name='state'> bay12: ExportRegionStageType
             <enum-item name='Initializing'/>
             <enum-item name='PreliminaryCleaning'/>
             <enum-item name='OffloadingUnits'/>
@@ -1132,21 +1026,14 @@
             <enum-item name='SynchronizingFolders'/>
         </enum>
         <int32_t name='progress' comment='0..40'/>
-        <compound name='units_progress'>
-            <stl-vector type-name='int32_t' name='save_file_id'/>
-            <stl-vector type-name='int16_t' name='save_file_member_idx'/>
-            <stl-vector pointer-type='unit' name='units'/>
-            <pointer type-name='unit_chunk' name='current_chunk'/>
-            <int32_t name='current_save_file_id'/>
-            <int32_t name='offloaded_units'/>
-        </compound>
+        <compound name='units_progress' type-name='nemesis_offload'/>
         <compound type-name='file_compressorst' name='compressor'/>
         <stl-string name='folder_name'/>
         <stl-string name='timeline_name'/>
     </class-type>
 
     <class-type type-name='viewscreen_game_cleanerst' inherits-from='viewscreen'>
-        <enum base-type='int32_t' name='state'>
+        <enum name='state'> bay12: GameClean, no base type
             <enum-item name='CleaningGameObjects'/>
             <enum-item name='CleaningStrandedObjects'/>
             <enum-item name='CleaningPlayObjects'/>
@@ -1156,7 +1043,7 @@
     <class-type type-name='viewscreen_initial_prepst' inherits-from='viewscreen'>
         <int32_t name='render_count'/>
         <int32_t name='logic_step'/>
-        <stl-future name='unk_90'/>
+        <stl-future name='process'/>
     </class-type>
 
     <class-type type-name='world_gen_param_basest'>
@@ -1222,7 +1109,7 @@
 
     <struct-type type-name='legend_pagest'>
         <stl-string name='header'/>
-        <enum name='mode' base-type='int32_t'>
+        <enum name='mode' base-type='int32_t'> bay12: LegendsModeType
             <enum-item name='NONE' value='-1'/>
             <enum-item name='MAIN'/>
             <enum-item name='HFS'/>
@@ -1263,9 +1150,9 @@
         <stl-vector type-name='int32_t' name='histfigs' ref-target='historical_figure'/>
         <stl-vector type-name='int32_t' name='sites' ref-target='world_site'/>
         <stl-vector type-name='int32_t' name='artifacts' ref-target='artifact_record'/>
-        <stl-vector type-name='int32_t' name='codices'/>
-        <stl-vector type-name='int32_t' name='regions'/>
-        <stl-vector type-name='int32_t' name='layers'/>
+        <stl-vector type-name='int32_t' name='codices' ref-target='written_content'/>
+        <stl-vector type-name='int32_t' name='regions' ref-target='world_region'/>
+        <stl-vector type-name='int32_t' name='layers' ref-target='world_underground_region'/>
         <stl-vector type-name='int32_t' name='entities' ref-target='historical_entity'/>
         <stl-vector type-name='int32_t' name='structure_sites' ref-target='world_site'/>
         <stl-vector type-name='int32_t' name='structures_indices'/> index into world_site.buildings
@@ -1275,27 +1162,11 @@
         <stl-vector type-name='int32_t' name='era_choice_index'/>
         <stl-vector type-name='int32_t' name='era_choice_num'/>
         <stl-vector type-name='int32_t' name='era_choice_denom'/>
-        <stl-vector type-name='int32_t' name='hec_id'/>
+        <stl-vector type-name='int32_t' name='hec_id' ref-target='history_event_collection'/>
 
-        <int8_t name='showing_all_era_collections'/>
+        <bool name='showing_all_era_collections'/>
 
-        <stl-vector name='region_snapshot'>
-            <pointer>
-                <int32_t name='unk_1'/>
-                <int32_t name='unk_2'/>
-                <pointer name='unk_3'>
-                    <pointer name='unk_1'/>
-                    <pointer name='unk_2'/>
-                    <pointer name='unk_3'/>
-                    <pointer name='unk_4'/>
-                    <pointer name='unk_5'/>
-                </pointer>
-                <int16_t name='unk_4'/>
-                <int16_t name='unk_5'/>
-                <int32_t name='unk_6'/>
-                <stl-vector name='unk_7' type-name='int32_t'/>
-            </pointer>
-        </stl-vector>
+        <stl-vector name='region_snapshot' pointer-type='region_snapshotst'/>
         <int16_t name='region_view_x'/>
         <int16_t name='region_view_y'/>
         <int16_t name='region_view_mode'/>
@@ -1318,8 +1189,8 @@
         <stl-vector pointer-type='legend_pagest' name='page'/>
         <int32_t name='active_page_index'/>
         <int32_t name='page_scroll'/>
-        <stl-future name='unk_338'/>
-        <int8_t name='unk_348'/>
+        <stl-future name='xml_dump_future'/>
+        <bool name='dumping_xml'/>
     </class-type>
 
     <struct-type type-name='savegame_headerst'>
@@ -1366,7 +1237,7 @@
         <int32_t name='max_image_set_id'/>
         <int32_t name='max_divination_set_id'/>
 
-        <enum type-name='game_type' name='gametype' comment='only 0 (fort) 1 (adv) 3(reclaim) are valid'/>
+        <enum type-name='game_type' name='gametype' base-type='int16_t'/>
         <stl-string name='fort_name'/>
         <stl-string name='world_name'/>
         <int32_t name='year'/>
@@ -1469,7 +1340,7 @@
     </struct-type>
 
     <class-type type-name='viewscreen_loadgamest' inherits-from='viewscreen'>
-        <enum name='cur_step' comment='After the on-screen text shown while loading.'>
+        <enum name='cur_step' base-type='int32_t'> bay12: LoadGameStageType
             <enum-item name='OpeningFile'/>
             <enum-item name='ProcessingRawData'/>
             <enum-item name='AllocatingSpace'/>
@@ -1521,6 +1392,7 @@
             <enum-item name='PreparingGameScreen'/>
             <enum-item name='HandlingCompatibilityIssues'/>
             <enum-item name='Finishing'/>
+            <enum-item name='Failed'/>
         </enum>
         <int32_t name='progress' since='v0.40.01'/>
         <compound type-name='file_compressorst' name='compressor'/>
@@ -1529,7 +1401,7 @@
         <compound name='cur_save' type-name='savegame_headerst'/>
     </class-type>
 
-    <struct-type type-name='worldgen_parms'>
+    <struct-type type-name='worldgen_parms' original-name='world_gen_paramst'>
         <stl-string name='title'/>
         <stl-string name='seed' since='v0.34.01'/>
         <stl-string name='history_seed' since='v0.34.01'/>
@@ -1642,10 +1514,10 @@
         <int32_t name='all_caves_visible'/>
         <int32_t name='show_embark_tunnel'/>
         <int32_t name='pole'/>
-        <bool name='unk_1'/>
+        <bool name='immune_to_resize'/>
     </struct-type>
 
-    <struct-type type-name='worldgen_parms_ps'>
+    <struct-type type-name='worldgen_parms_ps' original-name='world_gen_param_presetst'>
         <int32_t name='width'/>
         <int32_t name='height'/>
         <static-array count='24' name='data' index-enum='worldgen_range_type'>
@@ -1695,8 +1567,8 @@
 
         <int8_t name='abort_world_gen_dialogue'/>
         <int8_t name='reject_dialogue'/>
-        <int16_t name='reject_dialogue_type'/>
-        <stl-vector pointer-type='stl-string' name='text_box'/>
+        <int16_t name='reject_dialogue_type'/> bay12: MapRejectType
+        <compound name='text_box' type-name='curses_text_boxst'/>
         <bool name='mouse_scrolling_map'/>
         <int32_t name='mouse_anchor_mx'/>
         <int32_t name='mouse_anchor_my'/>
@@ -1705,7 +1577,7 @@
 
         <bool name='raw_load'/>
         <int32_t name='stage_count'/>
-        <int32_t name='raw_load_stage'/>
+        <int32_t name='raw_load_stage'/> bay12: NewRegionRawLoadStageType
 
         <bool name='doing_mods'/>
         <int32_t name='scroll_position_available_mods'/>
@@ -1737,7 +1609,7 @@
         <stl-vector pointer-type='stl-string' name='available_displayed_version'/>
         <stl-vector pointer-type='mod_headerst' name='available_mod_header'/>
 
-        <stl-vector pointer-type='stl-string' name='hover_mod_description'/>
+        <compound name='hover_mod_description' type-name='curses_text_boxst'/>
         <stl-string name='last_hover_mod_id'/>
         <int32_t name='last_hover_mod_version'/>
         <int32_t name='last_hover_width'/>
@@ -1754,68 +1626,13 @@
     </struct-type>
 
     <class-type type-name='viewscreen_savegamest' inherits-from='viewscreen'>
-        <stl-string name='unk_1'/>
-        <enum name='cur_step' base-type='int32_t'>
-            <enum-item name='Initializing'/>
-            <enum-item name='CheckingDirectoryStructure'/>
-            <enum-item name='PreliminaryCleaning'/>
-            <enum-item name='OffloadingUnits'/>
-            <enum-item name='OffloadingArt'/>
-            <enum-item name='OpeningFile'/>
-            <enum-item name='CharacterizingRawData'/>
-            <enum-item name='AllocatingSpace'/>
-            <enum-item name='SavingItems'/>
-            <enum-item name='SavingUnits'/>
-            <enum-item name='SavingJobs'/>
-            <enum-item name='SavingSchedules'/>
-            <enum-item name='SavingProjectiles'/>
-            <enum-item name='SavingBuildings'/>
-            <enum-item name='SavingMachines'/>
-            <enum-item name='SavingFlowGuides'/>
-            <enum-item name='SavingEffects'/>
-            <enum-item name='SavingEntities'/>
-            <enum-item name='SavingLocalAnimalPopulations'/>
-            <enum-item name='SavingEvents'/>
-            <enum-item name='SavingMandates'/>
-            <enum-item name='SavingWorkQuotas'/>
-            <enum-item name='SavingWorldEvents'/>
-            <enum-item name='SavingCoinInformation'/>
-            <enum-item name='SavingSquads'/>
-            <enum-item name='SavingFormations'/>
-            <enum-item name='SavingActivities'/>
-            <enum-item name='SavingInteractions'/>
-            <enum-item name='SavingWrittenContent'/>
-            <enum-item name='SavingIdentities'/>
-            <enum-item name='SavingIncidents'/>
-            <enum-item name='SavingCrimes'/>
-            <enum-item name='SavingVehicles'/>
-            <enum-item name='SavingArmies'/>
-            <enum-item name='SavingArmyControllers'/>
-            <enum-item name='SavingTrackingInformation'/>
-            <enum-item name='SavingCulturalIdentities'/>
-            <enum-item name='SavingAgreement'/>
-            <enum-item name='SavingArtForms'/>
-            <enum-item name='SavingOccupations'/>
-            <enum-item name='SavingBeliefSystems'/>
-            <enum-item name='SavingImageSets'/>
-            <enum-item name='SavingDivinationSets'/>
-            <enum-item name='SavingAnnouncements'/>
-            <enum-item name='SavingFortressInformation'/>
-            <enum-item name='SavingWorldInformation'/>
-            <enum-item name='SavingArtifacts'/>
-            <enum-item name='SavingActiveHistoricalFigures'/>
-            <enum-item name='SavingAdventureData'/>
-            <enum-item name='SavingGeneralInformation'/>
-            <enum-item name='ClosingFile'/>
-            <enum-item name='Finishing'/>
-        </enum>
-        <int32_t name='progress' since='v0.40.01'/>
-        <compound type-name='nemesis_offload' name='offload'/>
+        <stl-string name='confirm_string'/>
+        <compound name='saver' type-name='saverst'/>
         <compound type-name='file_compressorst' name='compressor'/>
-        <stl-string/>
-        <stl-string/>
-        <stl-string/>
-        <int32_t/>
+        <stl-string name='folder_name'/>
+        <stl-string name='timeline_name'/>
+        <stl-string name='manual_name'/>
+        <int32_t name='save_type'/> bay12: SaveTypeType, also referenced above
     </class-type>
 
     <enum-type type-name='adventurer_attribute_level' base-type='int32_t'>
@@ -1868,18 +1685,18 @@
         </static-array>
         <int32_t name='quick_entity_id' ref-target='historical_entity'/>
         <int32_t name='entity_population_id'/>
-        <int32_t name='breed_id'/>
+        <int32_t name='breed_id' ref-target='breed'/>
         <int32_t name='cultural_identity_id' ref-target='cultural_identity'/>
         <int32_t name='nemesis_index' ref-target='nemesis_record'/>
-        <int32_t name='start_mil_type'/>
-        <int32_t name='start_civ_type'/>
+        <enum name='start_mil_type' type-name='profession' base-type='int32_t'/> Toady directly used the enum here
+        <enum name='start_civ_type' type-name='profession' base-type='int32_t'/> rather than the matching typedef
         <int16_t name='skill_picks_left'/>
 
         <static-array count='6' name='phys_att_range_val' index-enum='physical_attribute_type'>
-            <enum type-name='adventurer_attribute_level'/>
+            <enum type-name='adventurer_attribute_level' base-type='int32_t'/>
         </static-array>
         <static-array count='13' name='ment_att_range_val' index-enum='mental_attribute_type'>
-            <enum type-name='adventurer_attribute_level'/>
+            <enum type-name='adventurer_attribute_level' base-type='int32_t'/>
         </static-array>
 
         <enum base-type='int16_t' name='chosen_destiny'>
@@ -1890,7 +1707,7 @@
 
         <int32_t name='start_site_id' ref-target='world_site' since='v0.47.01'/>
         <int32_t name='background_start_squad_epp_id' since='v0.47.01'/>
-        <enum type-name='profession' base-type='int16_t' name='background_unit' since='v0.47.01'/>
+        <enum type-name='profession' name='background_unit' since='v0.47.01'/>
         <static-array name='background_skill_bonus' type-name='int32_t' count='149' index-enum='job_skill' since='v0.47.01'/>
 
         <int32_t name='worship_hfid' ref-target='historical_figure'/>
@@ -1905,9 +1722,25 @@
         <compound type-name='unit_personality' name='pers'/>
         <bool name='is_from_wilderpop_or_feature'/>
 
-        <uint32_t name='flag'/>
-        <enum type-name='setup_adventure_type' name='sub_mode'/>
-        <static-array name='visited_mode' type-name='bool' count='12'/>
+        <bitfield name='flag' base-type='uint32_t'> bay12: STARTUP_CHARACTERSHEET_FLAG_*
+            <flag-bit name='receiving_item'/>
+        </bitfield>
+        <enum base-type='int32_t' name='sub_mode'> bay12: SetupAdventureType
+            <enum-item name='NONE' value='-1'/>
+            <enum-item name='RACE'/>
+            <enum-item name='SUBRACE'/>
+            <enum-item name='NEMESIS'/>
+            <enum-item name='ENTITY'/>
+            <enum-item name='DOING_SUB'/>
+            <enum-item name='SUB_SKILLS'/>
+            <enum-item name='SUB_APPEARANCE'/>
+            <enum-item name='SUB_PERSONALITY'/>
+            <enum-item name='SUB_BACKGROUND'/>
+            <enum-item name='SUB_EQUIPMENT'/>
+            <enum-item name='SUB_MOUNTS_AND_PETS'/>
+            <enum-item name='FINAL_CONFIRMATION'/>
+        </enum>
+        <static-array name='visited_mode' type-name='bool' count='12' comment='indexed by the above enum'/>
 
         <int32_t name='selected_att'/>
         <bool name='scrolling_att'/>
@@ -1921,18 +1754,18 @@
 
         <bool name='entering_name'/>
         <stl-string name='old_name'/>
-        <stl-vector name='background_text' pointer-type='stl-string'/>
+        <compound name='background_text' type-name='curses_text_boxst'/>
         <stl-vector name='goodsite' pointer-type='world_site'/>
         <int32_t name='active_column'/>
         <stl-vector type-name='adv_background_option_type' name='background_option'/>
         <stl-vector name='background_option_squad_epp_id'>
             <int32_t init-value='-1'/>
         </stl-vector>
-        <stl-vector type-name='int32_t' name='background_option_unit' comment='type should be profession?'/>
-        <stl-vector type-name='int32_t' name='religious_practice_option'/>
-        <stl-vector type-name='int32_t' name='religious_practice_id'/>
+        <stl-vector type-name='profession' name='background_option_unit'/>
+        <stl-vector type-name='religious_practice_type' name='religious_practice_option'/>
+        <stl-vector type-name='religious_practice_data' name='religious_practice_id'/>
         <stl-vector type-name='int32_t' name='pos_caste'/>
-        <stl-vector name='background_desc' pointer-type='stl-string'/>
+        <compound name='background_desc' type-name='curses_text_boxst'/>
 
         <int32_t name='desc_st_index'/>
         <int32_t name='desc_bo_index'/>
@@ -1944,16 +1777,16 @@
         <int32_t name='scroll_rp'/>
         <bool name='scrolling_rp'/>
 
-        <stl-vector name='appearance_text' pointer-type='stl-string'/>
+        <compound name='appearance_text' type-name='curses_text_boxst'/>
         <bool name='appearance_offscreen_randomized'/>
         <bool name='appearance_was_fully_randomized'/>
         <int32_t name='portrait_texpos_selected'/>
         <int32_t name='portrait_texpos'/>
 
         <int32_t name='pers_scroll_y'/>
-        <stl-vector name='personal_values_text' pointer-type='stl-string'/>
-        <stl-vector name='personality_text' pointer-type='stl-string'/>
-        <stl-vector name='civ_values_text' pointer-type='stl-string'/>
+        <compound name='personal_values_text' type-name='curses_text_boxst'/>
+        <compound name='personality_text' type-name='curses_text_boxst'/>
+        <compound name='civ_values_text' type-name='curses_text_boxst'/>
 
         <bool name='doing_specific_personality'/>
         <int32_t name='selected_specific_pers_item'/>
@@ -2010,15 +1843,15 @@
         </stl-vector>
     </struct-type>
 
-    <struct-type type-name='embark_profile'>
+    <struct-type type-name='embark_profile' original-name='embark_profilest'>
         <stl-string name='name'/>
-        <stl-vector name='skill_type' type-name='int16_t'/>
+        <stl-vector name='skill_type' type-name='job_skill'/>
         <stl-vector name='skill_dwarf_idx' type-name='int16_t'/>
         <stl-vector name='skill_level' type-name='int16_t'/>
 
         <stl-vector name='reclaim_dwarf_idx' type-name='int16_t'/>
-        <stl-vector name='reclaim_prof1' type-name='profession'/>
-        <stl-vector name='reclaim_prof2' type-name='profession'/>
+        <stl-vector name='reclaim_prof_soldier' type-name='profession'/>
+        <stl-vector name='reclaim_prof_civilian' type-name='profession'/>
 
         <stl-vector name='item_type' type-name='int16_t'/>
         <stl-vector name='item_subtype' type-name='int16_t'/>
@@ -2032,28 +1865,21 @@
         <stl-vector name='pet_count' type-name='int32_t'/>
     </struct-type>
 
-    <struct-type type-name='embark_symbol'>
-        <stl-vector name='unk_v43_1'/>
-        <stl-vector name='unk_v43_2'/>
-        <int32_t name='unk_v43_3'/>
-        <compound name='unk_v43_4' type-name='language_name'/>
-        <compound name='unk_v43_sub9'>
-            <int32_t name='unk_s1'/>
-            <int16_t name='unk_s2'/>
-            <int32_t name='unk_s3'/>
-            <int16_t name='unk_s4'/>
-            <int32_t name='unk_s5'/>
-            <int32_t name='unk_s6'/>
-            <pointer name='unk_s7'/>
-        </compound>
-        <static-array type-name='int32_t' count='4' comment='uninitialized?' name='unk_v43_10'/>
-    </struct-type>
+    <enum-type type-name='embark_skill_tab_type' base-type='int32_t'> bay12: EmbarkSkillTabType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='CRUCIAL'/>
+        <enum-item name='LABOR'/>
+        <enum-item name='COMBAT'/>
+        <enum-item name='OTHER'/>
+    </enum-type>
 
     <class-type type-name='viewscreen_setupdwarfgamest' inherits-from='viewscreen'>
         <static-string size='768' name='title'/>
         <stl-vector name='dwarf_info' pointer-type='startup_charactersheetst'/>
-        <static-array count='4' name='embark_skills'><stl-vector type-name='job_skill'/></static-array>
-        <stl-vector name='reclaim_professions' type-name='profession'/>
+        <static-array count='4' name='embark_skills' index-enum='embark_skill_tab_type'>
+            <stl-vector><enum type-name='job_skill' base-type='int16_t'/></stl-vector>
+        </static-array>
+        <stl-vector name='reclaim_professions'><enum type-name='profession' base-type='int16_t'/></stl-vector>
 
         <int32_t name='preparing_map_timer'/>
         <bool name='preparing_map_timer_quick_start'/>
@@ -2072,7 +1898,7 @@
         <int32_t name='scroll'/>
         <int32_t name='selected_i'/>
 
-        <int32_t name='current_skill_tab'/>
+        <enum name='current_skill_tab' type-name='embark_skill_tab_type'/>
         <bool name='scrolling_skill_list'/>
 
         <int32_t name='selected_sk'/>
@@ -2104,7 +1930,7 @@
         <static-array name='s_item' index-enum='entity_sell_category' count='107'><stl-vector pointer-type='item_actual'/></static-array>
         <static-array name='item_expander_on' index-enum='entity_sell_category' count='107' type-name='bool'/>
         <int32_t name='scroll_position_item'/>
-        <enum name='current_category' type-name='entity_sell_category' base-type='int16_t'/>
+        <enum name='current_category' type-name='entity_sell_category'/>
         <int32_t name='scroll_position_category'/>
         <int32_t name='scroll_position_category_item'/>
         <bool name='scrolling_item'/>
@@ -2126,25 +1952,25 @@
         <int32_t name='points_remaining'/>
 
         Set remotely via pointers:
-        <enum base-type='int16_t' name='add_item_type' type-name='item_type'/>
+        <enum name='add_item_type' type-name='item_type'/>
         <int16_t name='add_item_subtype' refers-to='(item-subtype-target $$._parent.add_item_type $)'/>
         <int16_t name='add_mattype' ref-target='material' aux-value='$$.add_matindex'/>
         <int32_t name='add_matindex'/>
-        <int32_t name='adding_item'/>
+        <uint32_t name='adding_item_flag'/>
     </class-type>
 
     <class-type type-name='viewscreen_choose_game_typest' inherits-from='viewscreen'>
-        <stl-vector type-name="int32_t" name="gametypes"/>
+        <stl-vector type-name="game_type" name="gametypes"/>
     </class-type>
 
-    <enum-type type-name='save_game_sort_type' base-type='int8_t' comment='bay12: SaveGameSort'>
+    <enum-type type-name='save_game_sort_type' base-type='uint8_t'> bay12: SaveGameSort
         <enum-item name='Name'/>
         <enum-item name='Folder'/>
     </enum-type>
 
     <class-type type-name='viewscreen_titlest' inherits-from='viewscreen'>
         <static-string name='str_histories' size='768'/>
-        <static-string size='768'/>
+        <static-string name='str' size='768'/>
 
         <bool name='clean_first'/>
         <int16_t name='mode'/>
@@ -2152,7 +1978,7 @@
         <int32_t name='selected_r'/>
         <int8_t name='game_start_proceed'/>
         <stl-vector name="menu_line_id">
-            <enum base-type="int32_t" name="menu_line_id">
+            <enum name="menu_line_id"> bay12: MainChoice
                 <enum-item name="Continue"/>
                 <enum-item name="Start"/>
                 <enum-item name="NewWorld"/>
@@ -2197,16 +2023,15 @@
         <stl-vector pointer-type='mod_headerst' name='mod'/>
         <int32_t name='scroll_position_mods'/>
         <bool name='scrolling_mods'/>
-        <stl-vector pointer-type='stl-string' name='hover_mod_description'/>
+        <compound name='hover_mod_description' type-name='curses_text_boxst'/>
         <stl-string name='last_hover_mod_id'/>
         <int32_t name='last_hover_mod_version'/>
         <int32_t name='last_hover_width'/>
 
-        -- begin Steam Specific
         <bool name='uploading_mods'/>
         <int32_t name='scroll_position_upload_mods'/>
         <bool name='scrolling_upload_mods'/>
-        <stl-vector pointer-type='stl-string' name='hover_upload_mod_description'/>
+        <compound name='hover_upload_mod_description' type-name='curses_text_boxst'/>
         <stl-string name='last_hover_upload_mod_id'/>
         <int32_t name='last_hover_upload_mod_version'/>
         <int32_t name='last_hover_upload_width'/>
@@ -2228,7 +2053,7 @@
         <int32_t name='year_tick'/>
     </class-type>
 
-    <enum-type type-name='world_view_mode_type' base-type='int32_t'>
+    <enum-type type-name='world_view_mode_type' base-type='int32_t'> bay12: WorldViewModeType
         <enum-item name='NONE' value='-1'/>
         <enum-item name='NORMAL'/>
         <enum-item name='CIVILIZATIONS'/>
@@ -2240,6 +2065,62 @@
         <enum-item name='ARTIFACTS'/>
     </enum-type>
 
+    <struct-type type-name='region_snapshotst'>
+        <int32_t name='year'/>
+        <compound name='territory' type-name='entity_territoryst'/>
+        <stl-vector name='site_id' type-name='int32_t' ref-target='world_site'/>
+        <stl-vector name='site_population' type-name='int32_t'/>
+    </struct-type>
+
+    <struct-type type-name='region_print_datast'>
+        <pointer name='rss' type-name='region_snapshotst'/>
+        <bitfield name='flags' base-type='uint32_t'> bay12: REGION_PRINT_DATA_FLAG_*
+            <flag-bit name='use_territory'/>
+            <flag-bit name='use_territory_civs'/>
+            <flag-bit name='use_site_info'/>
+            <flag-bit name='use_notes'/>
+            <flag-bit name='use_find_results'/>
+            <flag-bit name='show_embark_restrictions'/>
+            <flag-bit name='show_cliffs'/>
+            <flag-bit name='show_elevation'/>
+        </bitfield>
+        <int32_t name='relevant_id'/>
+        <pointer name='highlight_civ_id'><stl-vector type-name='int32_t' ref-target='historical_entity'/></pointer>
+        <pointer name='mission_report' type-name='mission_report'/>
+        <int32_t name='mission_path_data_index'/>
+        <int32_t name='mission_path_data_path_index'/>
+        <pointer name='indicator_data' type-name='rpd_indicator_datast'/>
+        <static-array name='legend_entity_id' type-name='int32_t' count='50' ref-target='historical_entity'/>
+        <int32_t name='legend_entity_id_num'/>
+        <int32_t name='mm_cent_x'/>
+        <int32_t name='mm_cent_y'/>
+        <int32_t name='embark_rectangle_sx'/>
+        <int32_t name='embark_rectangle_ex'/>
+        <int32_t name='embark_rectangle_sy'/>
+        <int32_t name='embark_rectangle_ey'/>
+        <static-array type-name='int32_t' count='22' index-enum='embark_finder_option'/>
+        <pointer name='find_metal_ore'><stl-vector type-name='int16_t' ref-target='inorganic_raw'/></pointer>
+        <pointer name='skip_metal_ore'><stl-vector type-name='int16_t' ref-target='inorganic_raw'/></pointer>
+        <int32_t name='highlight_site_id' ref-target='world_site'/>
+    </struct-type>
+
+    <struct-type type-name='rpd_indicator_datast'>
+        <static-array name='line_s_xy' count='1000'><int32_t name='x'/><int32_t name='y'/></static-array>
+        <static-array name='line_e_xy' count='1000'><int32_t name='x'/><int32_t name='y'/></static-array>
+        <static-array name='line_char' type-name='uint8_t' count='1000'/>
+        <static-array name='line_f' type-name='uint8_t' count='1000'/>
+        <static-array name='line_b' type-name='uint8_t' count='1000'/>
+        <static-array name='line_br' type-name='uint8_t' count='1000'/>
+        <int32_t name='line_num'/>
+
+        <static-array name='marker_xy' count='1000'><int32_t name='x'/><int32_t name='y'/></static-array>
+        <static-array name='marker_char' type-name='int8_t' count='1000'/>
+        <static-array name='marker_f' type-name='int8_t' count='1000'/>
+        <static-array name='marker_b' type-name='int8_t' count='1000'/>
+        <static-array name='marker_br' type-name='int8_t' count='1000'/>
+        <int32_t name='marker_num'/>
+    </struct-type>
+
     <class-type type-name='viewscreen_worldst' inherits-from='viewscreen'>
         <int32_t name='region_cent_x'/>
         <int32_t name='region_cent_y'/>
@@ -2249,7 +2130,7 @@
         <int32_t name='mouse_anchor_pmx'/>
         <int32_t name='mouse_anchor_pmy'/>
 
-        <enum base-type='int32_t' name='view_mode' type-name='world_view_mode_type'/>
+        <enum name='view_mode' type-name='world_view_mode_type'/>
 
         <pointer type-name='historical_figure' name='military_goals_hf'/>
         <pointer type-name='historical_figure' name='meet_workers_hf'/>
@@ -2266,7 +2147,7 @@
         <pointer type-name='historical_entity' name='last_hover_ent'/>
         <stl-vector pointer-type='nemesis_record' name='relnem'/>
         <stl-vector type-name='int32_t' name='relnem_precedence'/>
-        <stl-vector name='relag' comment='civ_agreementst'/>
+        <stl-vector name='relag' pointer-type='meeting_event'/>
         <stl-vector type-name='int8_t' name='relag_pending'/>
         <int32_t name='scroll_position_civlist'/>
         <bool name='scrolling_civlist'/>
@@ -2290,61 +2171,13 @@
         <stl-vector pointer-type='nemesis_record' name='request_nem'/>
         <int32_t name='scroll_position_request_nem'/>
         <bool name='scrolling_request_nem'/>
-        <stl-vector name='rumor_master'/>
-        <compound name='rumor_rpd' comment='region_print_datast'>
-            <pointer name='rss' comment='region_snapshotst'/>
-            <bitfield name='flag' base-type='uint32_t'>
-                <flag-bit name='USE_TERRITORY'/>
-                <flag-bit name='USE_TERRITORY_CIVS'/>
-                <flag-bit name='USE_SITE_INFO'/>
-                <flag-bit name='USE_NOTES'/>
-                <flag-bit name='USE_FIND_RESULTS'/>
-                <flag-bit name='SHOW_EMBARK_RESTRICTIONS'/>
-                <flag-bit name='SHOW_CLIFFS'/>
-                <flag-bit name='SHOW_ELEVATION'/>
-                <flag-bit name='TRIPLE_ZOOMED'/>
-            </bitfield>
-            <int32_t name='relevant_id'/>
-            <pointer name='highlight_civ_id'><stl-vector type-name='int32_t'/></pointer>
-            <pointer name='mission_report' comment='mission_reportst'/>
-            <int32_t name='mission_path_data_index'/>
-            <int32_t name='mission_path_data_path_index'/>
-            <pointer name='indicator_data' comment='rpd_indicator_datast'/>
-            <static-array name='legend_entity_id' type-name='int32_t' count='50'/>
-            <int32_t name='legend_entity_id_num'/>
-            <int32_t name='mm_cent_x'/>
-            <int32_t name='mm_cent_y'/>
-            <int32_t name='smm_cent_x'/>
-            <int32_t name='smm_cent_y'/>
-            <int32_t name='cent_z'/>
-            <int32_t name='embark_rectangle_sx'/>
-            <int32_t name='embark_rectangle_ex'/>
-            <int32_t name='embark_rectangle_sy'/>
-            <int32_t name='embark_rectangle_ey'/>
-            <static-array name='find_param' type-name='int32_t' count='22'/>
-            <pointer name='find_metal_ore'><stl-vector type-name='int16_t'/></pointer>
-            <pointer name='skip_metal_ore'><stl-vector type-name='int16_t'/></pointer>
-            <int32_t name='highlight_site_id'/>
-        </compound>
-        <compound name='rumor_rpd_indicator_data' comment='rpd_indicator_datast'>
-            <static-array count='1000'><int32_t name='a'/><int32_t name='b'/></static-array>
-            <static-array count='1000'><int32_t name='a'/><int32_t name='b'/></static-array>
-            <static-array type-name='int8_t' count='1000'/>
-            <static-array type-name='int8_t' count='1000'/>
-            <static-array type-name='int8_t' count='1000'/>
-            <static-array type-name='int8_t' count='1000'/>
-            <int32_t/>
-            <static-array count='1000'><int32_t name='a'/><int32_t name='b'/></static-array>
-            <static-array type-name='int8_t' count='1000'/>
-            <static-array type-name='int8_t' count='1000'/>
-            <static-array type-name='int8_t' count='1000'/>
-            <static-array type-name='int8_t' count='1000'/>
-            <int32_t/>
-        </compound>
+        <stl-vector name='rumor_master' pointer-type='entity_event'/>
+        <compound name='rumor_rpd' type-name='region_print_datast'/>
+        <compound name='rumor_rpd_indicator_data' type-name='rpd_indicator_datast'/>
         <int32_t name='last_hover_rumor_x'/>
         <int32_t name='last_hover_rumor_y'/>
         <bool name='focused_on_last_hover_rumor'/>
-        <stl-vector pointer-type='stl-string' name='rumor_text'/>
+        <compound name='rumor_text' type-name='curses_text_boxst'/>
         <int32_t name='scroll_position_rumor'/>
         <bool name='scrolling_rumor'/>
 
@@ -2353,14 +2186,14 @@
         <int32_t name='croll_position_report'/>
         <bool name='scrolling_report'/>
 
-        <pointer name='active_mission_report' comment='mission_reportst'/>
+        <pointer name='active_mission_report' type-name='mission_report'/>
         <int32_t name='mission_cursor_x'/>
         <int32_t name='mission_cursor_y'/>
         <int32_t name='mission_path_data_index'/>
         <int32_t name='mission_path_data_path_index'/>
         <int32_t name='mission_heid_data_index'/>
         <int32_t name='mission_heid_data_heid_index'/>
-        <stl-vector pointer-type='stl-string' name='mission_text_box'/>
+        <compound name='mission_text_box' type-name='curses_text_boxst'/>
         <stl-vector type-name='int32_t' name='mission_text_box_color'/>
         <int32_t name='mission_timer_year'/>
         <int32_t name='mission_timer_season_count'/>
@@ -2371,7 +2204,7 @@
         <int32_t name='scroll_position_mission'/>
         <bool name='scrolling_mission'/>
 
-        <pointer name='active_tribute_report' comment='tribute_reportst'/>
+        <pointer name='active_tribute_report' type-name='spoils_report'/>
         <int32_t name='scroll_position_tribute'/>
         <bool name='scrolling_tribute'/>
 
@@ -2385,48 +2218,52 @@
         <int32_t name='scroll_position_artifacts'/>
         <bool name='scrolling_artifacts'/>
         <pointer type-name='artifact_record' name='last_hover_artifact'/>
-        <stl-vector pointer-type='stl-string' name='artifact_description'/>
-        <pointer comment='entity_artifact_claimst' name='artifact_eac'/>
+        <compound name='artifact_description' type-name='curses_text_boxst'/>
+        <pointer type-name='artifact_claim' name='artifact_eac'/>
         <pointer type-name='historical_figure' name='artifact_rpa_holder'/>
         <pointer type-name='historical_figure' name='artifact_fac_holder'/>
     </class-type>
 
     <class-type type-name='viewscreen_new_arenast' inherits-from='viewscreen'>
-        <int8_t name='unk_88'/>
+        <bool name='raw_load'/>
         <int32_t name='progress'/>
-        <int32_t name='cur_step'/>
-        <int32_t name='unk_94'/>
-        <int32_t name='unk_98'/>
-        <int32_t name='unk_9c'/>
-        <int32_t name='unk_a0'/>
-        <int32_t name='unk_a4'/>
-        <int32_t name='unk_a8'/>
-        <int32_t name='unk_ac'/>
-        <stl-vector pointer-type='stl-string' name='unk_b0'/>
-        <stl-vector type-name='int32_t' name='unk_c8'/>
-        <stl-vector type-name='int32_t' name='unk_e0'/>
-        <stl-vector pointer-type='stl-string' name='unk_f8'/>
-        <stl-vector pointer-type='stl-string' name='unk_110'/>
-        <stl-vector pointer-type='stl-string' name='unk_128'/>
-        <stl-vector pointer-type='mod_headerst' name='unk_mods'/>
-        <stl-vector pointer-type='stl-string' name='unk_158'/>
-        <stl-vector type-name='int32_t' name='unk_170'/>
-        <stl-vector type-name='int32_t' name='unk_188'/>
-        <stl-vector pointer-type='stl-string' name='unk_1a0'/>
-        <stl-vector pointer-type='stl-string' name='unk_1b8'/>
-        <stl-vector pointer-type='stl-string' name='unk_1d0'/>
-        <stl-vector pointer-type='mod_headerst' name='unk_mods2'/>
-        <stl-vector pointer-type='stl-string' name='unk_200'/>
-        <stl-vector type-name='int32_t' name='unk_218'/>
-        <stl-vector type-name='int32_t' name='unk_230'/>
-        <stl-vector pointer-type='stl-string' name='unk_248'/>
-        <stl-vector pointer-type='stl-string' name='unk_260'/>
-        <stl-vector name='unk_278'/>
-        <stl-vector name='unk_290'/>
-        <stl-vector pointer-type='stl-string' name='unk_2a8'/>
-        <stl-string name='unk_2c0'/>
-        <int32_t name='unk_2e0'/>
-        <int32_t name='unk_2e4'/>
+        <int32_t name='cur_step'/> bay12: NewRegionRawLoadStage
+        <int32_t name='scroll_position_arena_profile'/>
+        <bool name='scrolling_arena_profile'/>
+        <bool name='doing_mods'/>
+        <int32_t name='scroll_position_available_mods'/>
+        <bool name='scrolling_available_mods'/>
+        <int32_t name='scroll_position_selected_mods'/>
+        <bool name='scrolling_selected_mods'/>
+
+        <stl-vector pointer-type='stl-string' name='base_available_id'/>
+        <stl-vector type-name='int32_t' name='base_available_numeric_version'/>
+        <stl-vector type-name='int32_t' name='base_available_earliest_compat_numeric_version'/>
+        <stl-vector pointer-type='stl-string' name='base_available_src_dir'/>
+        <stl-vector pointer-type='stl-string' name='base_available_name'/>
+        <stl-vector pointer-type='stl-string' name='base_available_displayed_version'/>
+        <stl-vector pointer-type='mod_headerst' name='base_available_mod_header'/>
+
+        <stl-vector pointer-type='stl-string' name='object_load_order_id'/>
+        <stl-vector type-name='int32_t' name='object_load_order_numeric_version'/>
+        <stl-vector type-name='int32_t' name='object_load_order_earliest_compat_numeric_version'/>
+        <stl-vector pointer-type='stl-string' name='object_load_order_src_dir'/>
+        <stl-vector pointer-type='stl-string' name='object_load_order_name'/>
+        <stl-vector pointer-type='stl-string' name='object_load_order_displayed_version'/>
+        <stl-vector pointer-type='mod_headerst' name='object_load_order_mod_header'/>
+
+        <stl-vector pointer-type='stl-string' name='available_id'/>
+        <stl-vector type-name='int32_t' name='available_numeric_version'/>
+        <stl-vector type-name='int32_t' name='available_earliest_compat_numeric_version'/>
+        <stl-vector pointer-type='stl-string' name='available_src_dir'/>
+        <stl-vector pointer-type='stl-string' name='available_name'/>
+        <stl-vector pointer-type='stl-string' name='available_displayed_version'/>
+        <stl-vector pointer-type='mod_headerst' name='available_mod_header'/>
+
+        <compound name='hover_mod_description' type-name='curses_text_boxst'/>
+        <stl-string name='last_hover_mod_id'/>
+        <int32_t name='last_hover_mod_version'/>
+        <int32_t name='last_hover_width'/>
     </class-type>
 
 </data-definition>
