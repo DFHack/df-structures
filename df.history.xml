@@ -560,36 +560,42 @@
         <int32_t name='last_holder_hf' ref-target='historical_figure'/>
     </struct-type>
 
+    <struct-type type-name='relationship_profile_hf_visualst'>
+        <int32_t name='histfig_id' ref-target='historical_figure'/>
+        <bitfield name='flags'> bay12: RELATIONSHIP_PROFILE_HF_FLAG_*
+            <flag-bit name='basic_name_known'/>
+        </bitfield>
+        <stl-vector name='known_associated_identity_id' type-name='int32_t' ref-target='identity' comment="Involves adventurer knowing name?"/>
+        <stl-vector name="attitude" type-name='reputation_type' comment="Probably ordered"/>
+        <stl-vector name="counter" type-name='int32_t' comment="One element for each 'attitude' element. Guess 0 - 100"/>
+        <enum name='rank' type-name='vague_relationship_type' since='v0.47.01'/>
+        <compound name='core' type-name='core_hf_relationshipst'/>
+        <int32_t name='meet_count' since='v0.44.10'/>
+        <int32_t name='last_meet_year' comment="probably latest contact. Seen -1"/>
+        <int32_t name='last_meet_season_tick'/>
+        <int32_t name='abs_x' since='v0.47.01'/>
+        <int32_t name='abs_y' since='v0.47.01'/>
+        <int32_t name='abs_z' since='v0.47.01'/>
+        <int32_t name='transient_attitude' since='v0.47.01'/>
+        <int32_t name='transient_patience' since='v0.47.01'/>
+        <int32_t name='transient_confidence' since='v0.47.01'/>
+        <int32_t name='transient_agitation' since='v0.47.01'/>
+        <int32_t name='transient_failed_persuade_attempts' since='v0.47.01'/>
+        <int32_t name='transient_failed_intimidate_attempts' since='v0.47.01'/>
+        <int32_t name='first_year' comment="transient_last_reset" since='v0.47.01'/>
+        <int32_t name='first_year_tick' since='v0.47.01'/>
+    </struct-type>
+
+    <struct-type type-name='relationship_profile_hf_historicalst'>
+        <int32_t name='histfig_id' ref-target='historical_figure'/>
+        <stl-vector name='known_associated_identity_id' type-name='int32_t' ref-target='identity'/>
+        <stl-vector name="attitude" type-name='reputation_type'/>
+        <stl-vector name="counter" type-name='int32_t' comment="One element for each 'attitude' element"/>
+        <compound name='core' type-name='core_hf_relationshipst'/>
+    </struct-type>
+
     <struct-type type-name='historical_figure_relationships' original-name='relationship_profilest'>
-        <stl-vector name='hf_visual'>
-            <pointer> bay12: relationship_profile_hf_visualst
-                <int32_t name='histfig_id' ref-target='historical_figure'/>
-                <bitfield name='flags'> bay12: RELATIONSHIP_PROFILE_HF_FLAG_
-                    <flag-bit name='basic_name_known'/>
-                </bitfield>
-                <stl-vector name='known_associated_identity_id' type-name='int32_t' ref-target='identity' comment="Involves adventurer knowing name?"/>
-                <stl-vector name="attitude">
-                    <enum type-name='reputation_type' comment="Probably ordered"/>
-                </stl-vector>
-                <stl-vector name="counter" type-name='int32_t' comment="One element for each 'attitude' element. Guess 0 - 100"/>
-                <enum name='rank' type-name='vague_relationship_type' since='v0.47.01'/>
-                <compound name='core' type-name='core_hf_relationshipst'/>
-                <int32_t name='meet_count' since='v0.44.10'/>
-                <int32_t name='last_meet_year' comment="probably latest contact. Seen -1"/>
-                <int32_t name='last_meet_season_tick'/>
-                <int32_t name='abs_x' since='v0.47.01'/>
-                <int32_t name='abs_y' since='v0.47.01'/>
-                <int32_t name='abs_z' since='v0.47.01'/>
-                <int32_t name='transient_attitude' since='v0.47.01'/>
-                <int32_t name='transient_patience' since='v0.47.01'/>
-                <int32_t name='transient_confidence' since='v0.47.01'/>
-                <int32_t name='transient_agitation' since='v0.47.01'/>
-                <int32_t name='transient_failed_persuade_attempts' since='v0.47.01'/>
-                <int32_t name='transient_failed_intimidate_attempts' since='v0.47.01'/>
-                <int32_t name='first_year' comment="transient_last_reset" since='v0.47.01'/>
-                <int32_t name='first_year_tick' since='v0.47.01'/>
-            </pointer>
-        </stl-vector>
+        <stl-vector name='hf_visual' pointer-type='relationship_profile_hf_visualst'/>
         <!--
             Entries with a 'rank' value of zero are suppressed from display. Display order seems to depend on
             the value of the first 'attitude' entry.
@@ -604,15 +610,7 @@
             The role of 'counter' is unknown, but might somehow tick over into an increase in rank. It does not seem
             to play any part in the display sort order.
         -->
-        <stl-vector name='hf_historical' since='v0.44.01'>
-            <pointer> bay12: relationship_profile_hf_historicalst
-                <int32_t name='histfig_id' ref-target='historical_figure'/>
-                <stl-vector name='known_associated_identity_id' type-name='int32_t' ref-target='identity'/>
-                <stl-vector name="attitude" type-name='reputation_type'/>
-                <stl-vector name="counter" type-name='int32_t' comment="One element for each 'attitude' element"/>
-                <compound name='core' type-name='core_hf_relationshipst'/>
-            </pointer>
-        </stl-vector>
+        <stl-vector name='hf_historical' since='v0.44.01' pointer-type='relationship_profile_hf_historicalst'/>
         <stl-vector name='hf_identity' since='v0.44.01'>
             <pointer> bay12: relationship_profile_hf_identityst
                 <int32_t name='identity_id' ref-target='identity'/>
