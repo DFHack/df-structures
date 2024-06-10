@@ -863,6 +863,7 @@
 
             <compound name='other' type-name='units_other'/>
 
+            <pointer name='adv_unit' type-name='unit'/>
             <stl-vector name='temp_save' has-bad-pointers='true' pointer-type='unit'/>
             <stl-vector name='unit_context_block' pointer-type='unit_context_block' since='v0.44.06'/>
         </compound>
@@ -1068,6 +1069,18 @@
                 <static-array name='slot_id_idx2' type-name='int16_t' count='38' index-enum='combat_report_event_type'/>
                 <int16_t name='slots_used'/>
             </compound>
+
+            <bitfield name='temp_flag' base-type='uint32_t'> bay12: ANNOUNCEMENT_TEMP_FLAG_*
+                <flag-bit name='adv_handle_announcements'/>
+                <flag-bit name='adv_doing_more'/>
+                <flag-bit name='adv_preserve_announcements'/>
+                <flag-bit name='adv_have_more'/>
+                <flag-bit name='adv_showing_announcements'/>
+            </bitfield>
+            <int32_t name='adv_scroll_position'/>
+            <bool name='adv_scrolling'/>
+            <int32_t name='adv_highest_scroll_position'/>
+            <stl-vector name='adv_announcement' pointer-type='adv_announcementst'/>
 
             <stl-mutex name='announcement_mutex' comment='bay12: mtx'/>
         </compound>
@@ -1579,10 +1592,16 @@
             <int32_t name='verify_load_order_index'/>
             <bool name='asking_about_update'/>
             <bool name='notifying_about_failure'/>
-            <int32_t name='notifying_about_failure_mod_install_err'/>
+            <enum base-type='int32_t' name='notifying_about_failure_mod_install_err'> bay12: ModInstallErrorType
+                <enum-item name='GENERAL'/>
+                <enum-item name='NONE' value='2'/> Toady forgot to set this to -1
+            </enum>
             <pointer type-name='mod_headerst' name='newest_mh'/>
             <pointer type-name='mod_headerst' name='current_mh'/>
-            <uint32_t name='flag'/> bay12: ROD_LOADER_FLAG_*
+            <bitfield name='flag' base-type='uint32_t'> bay12: ROD_LOADER_FLAG_*
+                <flag-bit name='UPDATE_ALL_OLD_MODS'/>
+                <flag-bit name='KEEP_ALL_OLD_MODS'/>
+            </bitfield>
         </compound>
 
         <compound name='object_loader'> bay12: object_loaderst
@@ -1727,16 +1746,7 @@
         </compound>
 
         <compound name='attack_chance_info'> bay12: attack_chance_infost
-            <stl-vector name='modifier'>
-                <pointer> bay12: attack_chance_modifierst
-                    <pointer name='attack_item' type-name='item'/>
-                    <int32_t name='attack_index'/>
-                    <int16_t name='target_bp'/>
-                    <int32_t name='hit_chance_adjustment'/>
-                    <int32_t name='hit_squareness_adjustment'/>
-                    <bitfield name='flags' type-name='attack_chance_modifier_flags'/>
-                </pointer>
-            </stl-vector>
+            <stl-vector name='modifier' pointer-type='attack_chance_modifierst'/>
             <stl-vector name='attack'>
                 <pointer> bay12: attack_chance_attackst
                     <pointer name='attack_item' type-name='item'/>
