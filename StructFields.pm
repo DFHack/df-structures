@@ -677,7 +677,13 @@ sub emit_struct_fields($$;%) {
         } 'fields-' . $fields_group;
 
         # Needed for unions with fields with non-default ctors (e.g. bitfields)
-        emit "$name(){memset(this, 0, sizeof($name));}";
+        emit_block {
+            local $in_union = 1;
+            emit "memset(this, 0, sizeof(*this));";
+            # for unions with fields defined, initialize the first one
+            my $first_child = ($tag->findnodes('ld:field[1]'))[0];
+            render_field_init($first_child);
+        } "$name() ";
 
         return;
     }
