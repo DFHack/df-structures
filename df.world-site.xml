@@ -685,6 +685,22 @@
         <pointer name='wg_site_culture' pointer-type='wg_site_culturest'/>
     </struct-type>
 
+    <bitfield-type type-name='cultural_identity_entity_flags' base-type='uint32_t'> bay12: CULTURAL_IDENTITY_ENTITY_FLAG_*
+        <flag-bit name='hostile_occupation'/>
+        <flag-bit name='part_of_occupation'/>
+    </bitfield-type>
+
+    <enum-type type-name='opinion_collection_type' base-type='int32_t'> bay12: OpinionCollectionType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='PRO_OCCUPATION'/>
+        <enum-item name='NEUTRAL_TO_OCCUPATION'/>
+        <enum-item name='AGAINST_OCCUPATION'/>
+        <enum-item name='PART_OF_OCCUPATION'/>
+        <enum-item name='PRO_RULER'/>
+        <enum-item name='NEUTRAL_TO_RULER'/>
+        <enum-item name='AGASINT_RULER'/>
+    </enum-type>
+
     <struct-type type-name='cultural_identity' original-name='cultural_identityst' key-field='id'
                  instance-vector='$global.world.cultural_identities.all'>
         <int32_t name="id"/>
@@ -697,17 +713,13 @@
                 <int32_t name='start_tick' init-value='-1'/>
                 <int32_t name='end_year' init-value='-1' comment='when the group left the culture, or -1 if it has not left'/>
                 <int32_t name='end_tick' init-value='-1'/>
-                <int32_t name='unk_14' init-value='-1' comment='copy of start_year'/>
-                <int32_t name='unk_18' init-value='-1' comment='copy of start_tick'/>
-                <enum name='join_type'>
-                    <enum-item name='Peaceful'/>
-                    <enum-item name='CompleteTakeOver' comment='The previous group left the culture.'/>
-                    <enum-item name='TakeOver' comment="The previous group's end_year is still -1."/>
-                </enum>
-                <int32_t name="unk_20"/>
-                <stl-vector name="unk_24" type-name="int32_t"/>
-                <stl-vector name='unk_34' type-name='int32_t' comment='same length as unk_24; elements always sum to 10000'/>
-                <int32_t name="unk_44" init-value='100'/>
+                <int32_t name='contact_year' init-value='-1'/>
+                <int32_t name='contact_tick' init-value='-1'/>
+                <bitfield name='flag' type-name='cultural_identity_entity_flags'/>
+                <bitfield name='former_flag' type-name='cultural_identity_entity_flags'/>
+                <stl-vector name="opinion_collection" type-name="opinion_collection_type"/>
+                <stl-vector name='opinion_collection_weight' type-name='int32_t' comment='same length as unk_24; elements always sum to 10000'/>
+                <int32_t name="perceived_strength" init-value='100'/>
             </pointer>
         </stl-vector>
         <static-array name='ethic' count='22' type-name='ethic_response' index-enum='ethic_type'/>
