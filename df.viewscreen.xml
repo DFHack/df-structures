@@ -174,10 +174,11 @@
         <stl-vector name='custom_render'> <stl-function/> </stl-vector>
         <stl-vector name='custom_activated'> <stl-function/> </stl-vector>
         <stl-string name='name'/>
-        <bitfield name='visibility_flags' base-type='int8_t'> bay12: VisibilityFlagType
-            <flag-bit name='WIDGET_VISIBILITY_ACTIVE'/>
-            <flag-bit name='WIDGET_VISIBILITY_VISIBLE'/> plus ACTUALLY_VISIBLE for both of the above
-            <flag-bit name='WIDGET_VISIBILITY_CAN_KEY_ACTIVATE'/>
+        <bitfield name='visibility_flags' base-type='int8_t'> bay12: WidgetFlag
+            <flag-bit name='VISIBILITY_ACTIVE'/>
+            <flag-bit name='VISIBILITY_VISIBLE'/> plus ACTUALLY_VISIBLE for both of the above
+            <flag-bit name='CAN_KEY_ACTIVATE'/>
+            <flag-bit name='GLOBAL_POSITIONING'/>
         </bitfield>
         <int32_t name='offset_bottom'/>
         <int32_t name='offset_left'/>
@@ -875,6 +876,12 @@
         <int32_t name="notes_selected_note"/>
     </class-type>
 
+    <class-type type-name='viewscreen_dungeonmodest' inherits-from='viewscreen'>
+        <int32_t name="x"/>
+        <int32_t name="y"/>
+        <int32_t name="z"/>
+    </class-type>
+
     <class-type type-name='viewscreen_dwarfmodest' inherits-from='viewscreen'>
         <int8_t name='shown_site_name'/> display site name next frame
 
@@ -897,89 +904,6 @@
         <int32_t name='trained_animal_idx'/>
         <int32_t name='number_assigned_hunt'/> for current unit
         <int32_t name='number_assigned_war'/>
-    </class-type>
-
-    <class-type type-name='viewscreen_dungeonmodest' inherits-from='viewscreen'>
-        <int32_t name='uox'/>
-        <int32_t name='uoy'/>
-        <int32_t name='uoz'/>
-    </class-type>
-
-    <struct-type type-name='setup_race_selectionst'>
-        <int32_t name='race' ref-target='creature_raw'/>
-        <int32_t name='civ_id' ref-target='historical_entity'/>
-        <int32_t name='tier_count'/>
-        <bitfield base-type='uint32_t' name='flag'>
-            <flag-bit name='IS_REGIONPOP' comment='will be included in wild_creature_ids'/>
-        </bitfield>
-    </struct-type>
-
-    <struct-type type-name='dungeon_mode_start_sheetst'>
-        <stl-vector name='csheet' pointer-type='startup_charactersheetst'/>
-        <int32_t name='start_site_id'/>
-    </struct-type>
-
-    <class-type type-name='viewscreen_setupadventurest' inherits-from='viewscreen'>
-        <enum type-name='setup_adventure_type' name='mode'/>
-        <stl-vector pointer-type='setup_race_selectionst' name='race_selection'/>
-        <enum base-type='int32_t' name='chosen_destiny'>
-            <enum-item name='Chosen'/>
-            <enum-item name='Hero'/>
-            <enum-item name='Ordinary'/>
-        </enum>
-        <enum base-type='int32_t' name='chosen_difficulty'>
-            <enum-item name='Easy'/>
-            <enum-item name='Normal'/>
-            <enum-item name='Hard'/>
-        </enum>
-        <static-array type-name='curses_text_boxst' name='destiny_desc' count='3'/>
-        <compound type-name='curses_text_boxst' name='difficulty_desc'/>
-        <int32_t name='chosen_race' ref-target='creature_raw'/>
-        <bool name='chosen_is_from_wilderpop_or_feature'/>
-        <enum name='sheet_page' base-type='int32_t'>
-            <enum-item name='ChooseRace'/>
-            <enum-item name='ChooseAnimalRace'/>
-            <enum-item name='ChooseHistfig'/>
-            <enum-item name='ChooseCiv'/>
-            <enum-item name='Skills'/>
-            5
-            <enum-item name='Appearance'/>
-            <enum-item name='Personality'/>
-            <enum-item name='Background'/>
-            <enum-item name='Equipment'/>
-            <enum-item name='MountsAndPets'/>
-        </enum>
-
-        <stl-vector name='valid_race' type-name='int32_t' ref-target='creature_raw'/>
-        <stl-vector name='highlight_entity_id' type-name='int32_t' ref-target='historical_entity'/>
-        <int32_t name='selected_race'/>
-        <int32_t name='scroll_position_race'/>
-        <bool name='scrolling_race'/>
-
-        <stl-vector name='valid_subrace' type-name='int32_t' ref-target='creature_raw'/>
-        <int32_t name='selected_subrace'/>
-        <int32_t name='scroll_position_subrace'/>
-        <bool name='scrolling_subrace'/>
-
-        <stl-vector name='nemesis_index' type-name='int32_t' ref-target='nemesis_record' refers-to='$global.world.nemesis.all[$]'/>
-        <int32_t name='selected_nem'/>
-        <int32_t name='scroll_position_nem'/>
-        <bool name='scrolling_nem'/>
-
-        <stl-vector name='valid_civ_id' type-name='int32_t' ref-target='historical_entity'/>
-        <int32_t name='selected_civ_id'/>
-        <int32_t name='scroll_position_civ_id'/>
-        <bool name='scrolling_civ_id'/>
-
-        <stl-vector name='csheet' pointer-type='startup_charactersheetst'/>
-        <int32_t name='active_sheet_index'/>
-
-        <stl-vector type-name='int32_t' name='final_start_site_id_cand'/>
-        <int32_t name='selected_final_start_site_index'/>
-        <int32_t name='scroll_final'/>
-        <bool name='scrolling_final'/>
-
-        <compound type-name='dungeon_mode_start_sheetst' name='dungeon_mode_start_sheet'/>
     </class-type>
 
     <class-type type-name='viewscreen_export_regionst' inherits-from='viewscreen'>
@@ -1659,7 +1583,7 @@
         <enum-item name='REGULAR_UNIT'/>
     </enum-type>
 
-    <enum-type type-name='setup_adventure_type' base-type='int32_t'>
+    <enum-type type-name='setup_adventure_type' base-type='int32_t'> bay12: SetupAdventureType
         <enum-item name='NONE' value='-1'/>
         <enum-item name='DIFFICULTY'/>
         <enum-item name='RACE'/>
@@ -1676,7 +1600,7 @@
         <enum-item name='FINAL_CONFIRMATION'/>
     </enum-type>
 
-    <struct-type type-name='startup_charactersheetst'>
+    <struct-type type-name='setup_character_info' comment='startup_charactersheetst'>
         <compound type-name='language_name' name='name'/>
         <int16_t name='race' ref-target='creature_raw'/>
         <int16_t name='caste' ref-target='caste_raw' aux-value='$$.race'/>
@@ -1699,7 +1623,7 @@
             <enum type-name='adventurer_attribute_level' base-type='int32_t'/>
         </static-array>
 
-        <enum base-type='int16_t' name='chosen_destiny'>
+        <enum base-type='int16_t' name='difficulty' comment='chosen_destiny'>
             <enum-item name='Peasant'/>
             <enum-item name='Hero'/>
             <enum-item name='Demigod'/>
@@ -1722,25 +1646,9 @@
         <compound type-name='unit_personality' name='pers'/>
         <bool name='is_from_wilderpop_or_feature'/>
 
-        <bitfield name='flag' base-type='uint32_t'> bay12: STARTUP_CHARACTERSHEET_FLAG_*
-            <flag-bit name='receiving_item'/>
-        </bitfield>
-        <enum base-type='int32_t' name='sub_mode'> bay12: SetupAdventureType
-            <enum-item name='NONE' value='-1'/>
-            <enum-item name='RACE'/>
-            <enum-item name='SUBRACE'/>
-            <enum-item name='NEMESIS'/>
-            <enum-item name='ENTITY'/>
-            <enum-item name='DOING_SUB'/>
-            <enum-item name='SUB_SKILLS'/>
-            <enum-item name='SUB_APPEARANCE'/>
-            <enum-item name='SUB_PERSONALITY'/>
-            <enum-item name='SUB_BACKGROUND'/>
-            <enum-item name='SUB_EQUIPMENT'/>
-            <enum-item name='SUB_MOUNTS_AND_PETS'/>
-            <enum-item name='FINAL_CONFIRMATION'/>
-        </enum>
-        <static-array name='visited_mode' type-name='bool' count='12' comment='indexed by the above enum'/>
+        <uint32_t name='flag' comment='none used'/>
+        <enum type-name='setup_adventure_type' name='sub_mode'/>
+        <static-array name='visited_mode' type-name='bool' count='12' index-enum='setup_adventure_type'/>
 
         <int32_t name='selected_att'/>
         <bool name='scrolling_att'/>
@@ -1770,6 +1678,7 @@
         <int32_t name='desc_st_index'/>
         <int32_t name='desc_bo_index'/>
         <int32_t name='desc_rp_index'/>
+
         <int32_t name='scroll_st'/>
         <bool name='scrolling_st'/>
         <int32_t name='scroll_bo'/>
@@ -1803,9 +1712,9 @@
         <int32_t name='imat'/>
         <int32_t name='imatg'/>
 
-        <static-array name='item_expander_on' type-name='bool' index-enum='entity_sell_category' count='107'/>
+        <static-array name='item_expander_on' index-enum='entity_sell_category' count='107' type-name='bool'/>
         <int32_t name='scroll_position_item'/>
-        <enum type-name='entity_sell_category' name='current_category'/>
+        <enum name='current_category' type-name='entity_sell_category'/>
         <int32_t name='scroll_position_category'/>
         <int32_t name='scroll_position_category_item'/>
         <bool name='scrolling_item'/>
@@ -1873,9 +1782,66 @@
         <enum-item name='OTHER'/>
     </enum-type>
 
+    <struct-type type-name='setup_race_selectionst'>
+        <int32_t name='race' ref-target='creature_raw'/>
+        <int32_t name='civ_id' ref-target='historical_entity'/>
+        <int32_t name='tier_count'/>
+        <bitfield name='flags' base-type='uint32_t'> bay12: SETUP_RACE_SELECTION_FLAG_*
+            <flag-bit name='is_regionpop'/>
+        </bitfield>
+    </struct-type>
+
+    <class-type type-name='viewscreen_setupadventurest' inherits-from='viewscreen'>
+        <enum name='mode' type-name='setup_adventure_type'/>
+        <stl-vector pointer-type='setup_race_selectionst' name='race_selection'/>
+
+        <int32_t name='chosen_destiny'/>
+        <int32_t name='chosen_difficulty'/>
+        <static-array name='destiny_desc' count='3' type-name='curses_text_boxst'/>
+        <compound name='difficulty_desc' type-name='curses_text_boxst'/>
+
+        <int32_t name='chosen_race'/>
+        <bool name='chosen_is_from_wilderpop_or_feature'/>
+        <int32_t name='sheet_page'/>
+
+        <stl-vector type-name='int32_t' name='valid_race'/>
+        <stl-vector type-name='int32_t' name='highlight_entity_id'/>
+        <int32_t name='selected_race'/>
+        <int32_t name='scroll_position_race'/>
+        <bool name='scrolling_race'/>
+
+        <stl-vector type-name='int32_t' name='valid_subrace'/>
+        <int32_t name='selected_subrace'/>
+        <int32_t name='scroll_position_subrace'/>
+        <bool name='scrolling_subrace'/>
+
+        <stl-vector type-name='int32_t' name='nemesis_index'/>
+        <int32_t name='selected_nem'/>
+        <int32_t name='scroll_position_nem'/>
+        <bool name='scrolling_nem'/>
+
+        <stl-vector type-name='int32_t' name='valid_civ_id'/>
+        <int32_t name='selected_civ_id'/>
+        <int32_t name='scroll_position_civ_id'/>
+        <bool name='scrolling_civ_id'/>
+
+        <stl-vector pointer-type='setup_character_info' name='csheet'/>
+        <int32_t name='active_sheet_index'/>
+
+        <stl-vector type-name='int32_t' name='final_start_site_id_cand'/>
+        <int32_t name='selected_final_start_site_index'/>
+        <int32_t name='scroll_final'/>
+        <bool name='scrolling_final'/>
+
+        <compound name='dungeon_mode_start_sheet'> bay12: dungeon_mode_start_sheetst
+            <stl-vector pointer-type='setup_character_info' name='csheet'/>
+            <int32_t name='start_site_id'/>
+        </compound>
+    </class-type>
+
     <class-type type-name='viewscreen_setupdwarfgamest' inherits-from='viewscreen'>
         <static-string size='768' name='title'/>
-        <stl-vector name='dwarf_info' pointer-type='startup_charactersheetst'/>
+        <stl-vector name='dwarf_info' pointer-type='setup_character_info'/>
         <static-array count='4' name='embark_skills' index-enum='embark_skill_tab_type'>
             <stl-vector><enum type-name='job_skill' base-type='int16_t'/></stl-vector>
         </static-array>
@@ -2083,6 +2049,7 @@
             <flag-bit name='show_embark_restrictions'/>
             <flag-bit name='show_cliffs'/>
             <flag-bit name='show_elevation'/>
+            <flag-bit name='triple_zoomed'/>
         </bitfield>
         <int32_t name='relevant_id'/>
         <pointer name='highlight_civ_id'><stl-vector type-name='int32_t' ref-target='historical_entity'/></pointer>
@@ -2174,7 +2141,6 @@
         <stl-vector pointer-type='nemesis_record' name='request_nem'/>
         <int32_t name='scroll_position_request_nem'/>
         <bool name='scrolling_request_nem'/>
-
         <stl-vector name='rumor_master' pointer-type='entity_event'/>
         <compound name='rumor_rpd' type-name='region_print_datast'/>
         <compound name='rumor_rpd_indicator_data' type-name='rpd_indicator_datast'/>

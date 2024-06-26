@@ -1,7 +1,7 @@
 <data-definition>
     <enum-type type-name='ui_advmode_menu'> bay12: AdventureViewModes
         <enum-item name='None' value='-1'/>
-        <enum-item name='Default' value='0'/> MAIN
+        <enum-item name='Default'/> MAIN
         <enum-item name='Look'/>
         <enum-item name='ConversationAddress'/> CONVERSATION_START_NEW
         <enum-item name='ConversationSelect'/> CONVERSATION_LIST
@@ -47,18 +47,19 @@
         <enum-item name='AttackConfirm'/> ATTACKCREATURE_CONFIRM
         <enum-item name='AttackType'/> ATTACKCREATURE_MOVE_CHOICE
         <enum-item name='AttackBodypart'/> ATTACKCREATURE_AIM_TARGET
-        <enum-item name='AttackStrike'/> ATTACKCREATURE_AIM_ATTACK
         40
+        <enum-item name='AttackStrike'/> ATTACKCREATURE_AIM_ATTACK
         <enum-item name='DefendParry'/> ATTACKCREATURE_PARRY_CHOICE
         <enum-item name='DefendBlock'/> ATTACKCREATURE_BLOCK_CHOICE
         <enum-item name='DodgeDirection'/> ATTACKCREATURE_DODGE_CHOICE
         <enum-item name='PerformanceSelect'/> START_PERFORMANCE
-        <enum-item name='InterruptPerformanceConfirm'/> MOVE_CONFIRM
         45
+        <enum-item name='InterruptPerformanceConfirm'/> MOVE_CONFIRM
         <enum-item name='Build'/>
         <enum-item name='AssumeIdentity'/>
         <enum-item name='NameItem'/>
         <enum-item name='BecomePartyMember'/>
+        50
         <enum-item name='PartyTacticalSettings'/>
     </enum-type>
 
@@ -342,14 +343,14 @@
 
     <enum-type type-name='assume_identity_mode' base-type='int32_t'> bay12: AssumeIdentityMenuModeType
         <enum-item name='NONE' value='-1'/>
-        <enum-item name='CHOOSE_OR_NEW'/>
-        <enum-item name='NEW_ID'/>
-        <enum-item name='NEW_ID_UNIT'/>
-        <enum-item name='NEW_ID_WORSHIP'/>
-        <enum-item name='NEW_ID_ENTITY'/>
+        <enum-item name='SelectIdentity' comment='CHOOSE_OR_NEW'/>
+        <enum-item name='CreateIdentity' comment='NEW_ID'/>
+        <enum-item name='SelectProfession' comment='NEW_ID_UNIT'/>
+        <enum-item name='SelectWorship' comment='NEW_ID_WORSHIP'/>
+        <enum-item name='SelectOrigin' comment='NEW_ID_ENTITY'/>
     </enum-type>
 
-    <enum-type type-name='adventure_desire_state_type' base-type='int32_t' comment='bay12: AdventureDesireState'>
+    <enum-type type-name='adventure_desire_state_type' base-type='int32_t'> bay12: AdventureDesireStateType
         <enum-item name='NONE' value='-1'/>
         <enum-item name='DRUNK'/>
         <enum-item name='EXCITED'/>
@@ -492,17 +493,6 @@
         <enum-item name='ZONE_LOCATION'/>
     </enum-type>
 
-    <bitfield-type type-name='tracking_flag_type' base-type='uint32_t'>
-        <flag-bit name='DISPLAY_LATEST'/>
-        <flag-bit name='DISPLAY_TRAVEL'/>
-        <flag-bit name='DISPLAY_ODOR'/>
-    </bitfield-type>
-
-    <bitfield-type type-name='adventure_flag_type' base-type='uint32_t'>
-        <flag-bit name='BUILDING_ACTION_LIST'/>
-        <flag-bit name='ALWAYS_PROMPT'/>
-    </bitfield-type>
-
     <struct-type type-name='adventurest'>
         <enum base-type='int16_t' name='menu' type-name='ui_advmode_menu'/>
 
@@ -565,7 +555,11 @@
         <static-array name='tracks_y' type-name='int32_t' count='1000' comment='bay12: latest_tract_abs_y; Y coordinates of spoors encountered by the player. The coordinate system used counts local tiles from the upper left most tile of the world map, so df.global.world.map.region_y*48 is added to the local y coordinate.'/>
         <static-array name='tracks_z' type-name='int32_t' count='1000' comment='bay12: latest_tract_abs_z; Z coordinates of spoors encountered by the player. The local z coordinate is corrected by adding df.global.world.map.region_z to it.'/>
         <int32_t name='tracks_next_idx' comment='bay12: latest_track_pos; Index of the next entry in tracks_x, tracks_y, tracks_z'/>
-        <bitfield type-name='tracking_flag_type' name='view_tracks_odors' comment='bay12: tracking_flag; The value of view_tracks_odors determines the combination of local/travel mode track/odor screens currently displayed. Opening the local tracks screen increments this value by 1, opening travel mode tracks+odors increments by 2, opening local odors increments by 4. Closing the screens decrements respectively.'/>
+        <bitfield name='tracks_flags' base-type='uint32_t'> bay12: TRACKING_FLAG_*
+            <flag-bit name='display_latest'/>
+            <flag-bit name='display_travel'/>
+            <flag-bit name='display_odor'/>
+        </bitfield>
         <int32_t name='tracks_visible' comment='bay12: lit_latest_track_count; The quantity of spoors currently visible to the player.'/>
 
         <static-array name='travel_exemplar_x' type-name='int16_t' count='9'/>
@@ -592,7 +586,10 @@
         <int32_t name='travel_odor_caste' ref-target='caste_raw' aux-value='$$.travel_odor_race' comment='bay12: travel_smell_caste; caste ID of strongest odor creature in fast travel mode'/>
         <bool name='travel_odor_death'/>
 
-        <bitfield type-name='adventure_flag_type' name='flag' comment='was multiattack in dfhack before 51.01; Set when the player is preparing to carry out a multi-attack; resetting this to 0 makes the multi-attack window disappear.'/>
+        <bitfield name='flags' base-type='uint32_t'> bay12: ADVENTURE_FLAG_*
+            <flag-bit name='building_action_list'/>
+            <flag-bit name='always_prompt'/>
+        </bitfield>
 
         <compound name='rumor_info'> bay12: adventure_rumor_infost
             <stl-vector name='base_data' pointer-type='adventure_rumor_datast' since='v0.44.10'/>
@@ -711,9 +708,9 @@
         <compound name='viewing_spoor' type-name='coord'/>
         <pointer name='viewing_spoor_bse' type-name='block_square_event_spoorst'/>
 
-        <stl-vector name='commands' pointer-type='adventure_optionst' comment='bay12: dunginv_option'/>
-        <stl-vector name='movements' pointer-type='adventure_movement_optionst' comment='bay12: movement_option'/>
-        <stl-vector name='mo_item_interact' pointer-type='adventure_movement_optionst' since='v0.34.08'/>
+        <stl-vector name='commands' pointer-type='adventure_optionst'/>
+        <stl-vector name='movements' pointer-type='adventure_movement_optionst'/>
+        <stl-vector name='movement_item_interact' pointer-type='adventure_movement_optionst'/>
 
         <int32_t name='sleep_hours'/>
         <bool name='sleep_until_dawn'/>
@@ -721,7 +718,7 @@
         <bool name='sleep_sleep'/>
         <bool name='sleeping_indoors'/>
         <bool name='sleeping_underground'/>
-        <enum name='handlegameloop' base-type='int32_t'> bay12: AdventureGameLoop
+        <enum name='player_control_state' base-type='int32_t'> bay12: AdventureGameLoopType
             <enum-item name='NONE' value='-1'/>
             <enum-item name='TAKING_INPUT'/>
             <enum-item name='ENTER'/>
@@ -730,31 +727,32 @@
             <enum-item name='MOVE_UNIT_PROCESSING'/>
             <enum-item name='FINAL_PROCESSING'/>
         </enum>
-        <int8_t name='player_control_state' comment='bay12: projsubloop; Set to 2 when adventurer is unconscious, etc to prevent player from controlling the unit'/>
+        <int8_t name='item_projectiles_state' comment='Observed to be set to 1 when an item is thrown or fired, or a limb is sent flying after being severed off. Over a number of frames (dependent on the distance travelled by the projectile) this eventually changes to 2 and then finally back to 0 (a number of frames after the projectile has reached its final destination). Sometimes (seemingly when the distance travelled is long) it changes from 1 to 2 and back to 1 immediately midway into this process. The player_control_state is set to 2 until this is complete. Forcing a constant item_projectiles_state of 0 causes item projectiles to hang in the air.'/>
         <uint32_t name='projsubloop_last_visible_animation_tick'/>
-        <bool name='item_projectiles_state' comment='Observed to be set to 1 when an item is thrown or fired, or a limb is sent flying after being severed off. Over a number of frames (dependent on the distance travelled by the projectile) this eventually changes to 2 and then finally back to 0 (a number of frames after the projectile has reached its final destination). Sometimes (seemingly when the distance travelled is long) it changes from 1 to 2 and back to 1 immediately midway into this process. The player_control_state is set to 2 until this is complete. Forcing a constant item_projectiles_state of 0 causes item projectiles to hang in the air.'/>
+        <bool name='projsubloop_visible_projectile'/>
         <int32_t name='game_loop_move_unit'/>
-        <static-array name='game_loop_animation_type' type-name='combat_animation_swish_type' count='10'/>
-        <static-array name='game_loop_animation_dir' type-name='combat_animation_swish_direction' count='10'/>
-        <static-array name='game_loop_animation_color' type-name='int32_t' count='10'/>
-        <static-array name='game_loop_animation_mx' type-name='int16_t' count='10'/>
-        <static-array name='game_loop_animation_my' type-name='int16_t' count='10'/>
-        <static-array name='game_loop_animation_mz' type-name='int16_t' count='10'/>
+        <static-array count='10' name='game_loop_animation_type' type-name='combat_animation_swish_type'/>
+        <static-array count='10' name='game_loop_animation_dir' type-name='combat_animation_swish_direction_type'/>
+        <static-array count='10' name='game_loop_animation_color' type-name='int32_t'/>
+        <static-array count='10' name='game_loop_animation_mx' type-name='int16_t'/>
+        <static-array count='10' name='game_loop_animation_my' type-name='int16_t'/>
+        <static-array count='10' name='game_loop_animation_mz' type-name='int16_t'/>
         <uint32_t name='game_loop_animation_timer_start'/>
         <int32_t name='game_loop_animation_num'/>
 
         <int32_t name='old_target_page'/>
 
-        <compound name='interactions'> not actually a compound
-            <stl-vector name='party_core_members' type-name='int32_t' ref-target='historical_figure' since='v0.47.01' comment='bay12: companion_party_hfid; Contains IDs of the non-pet historical figures that the player party started off with. Figures in this list are eligible for control via tactical mode.'/>
-            <stl-vector name='party_pets' type-name='int32_t' ref-target='historical_figure' since='v0.47.01' comment='bay12: companion_pet_hfid; Contains historical figure IDs of pets owned by the party, both those that the player started off with as well as others claimed later on.'/>
-            <stl-vector name='party_extra_members' type-name='int32_t' ref-target='historical_figure' comment='bay12: companion_hire_hfid; Contains IDs of non-pet historical figures who joined the player party later on.'/>
+        <compound name='interactions'> not a compound
+            <stl-vector name='party_core_members' type-name='int32_t' ref-target='historical_figure' since='v0.47.01' comment='Contains IDs of the non-pet historical figures that the player party started off with. Figures in this list are eligible for control via tactical mode.'/>
+            <stl-vector name='party_pets' type-name='int32_t' ref-target='historical_figure' since='v0.47.01' comment='Contains historical figure IDs of pets owned by the party, both those that the player started off with as well as others claimed later on.'/>
+            <stl-vector name='party_extra_members' type-name='int32_t' ref-target='historical_figure' comment='Contains IDs of non-pet historical figures who joined the player party later on.'/>
 
             <stl-vector name='it_list' pointer-type='interaction_target_instance_listst'/>
+
             <stl-vector name='it_list_target_choice' pointer-type='general_ref' since='v0.47.01'/>
             <pointer name='current_interaction_info_ptr' type-name='creature_interaction'/>
-            <int32_t name='current_interaction_body_action_interaction'/>
-            <int32_t name='current_interaction_usable_interaction_mat_effect_index'/>
+            <int32_t name='selected_ability' init-value='-1' comment='natural ability'/>
+            <int32_t name='selected_power' init-value='-1' comment='acquired power'/>
             <pointer name='current_it_list_itt' type-name='interaction_target'/>
             <int32_t name='max_target_number' init-value='-1'/>
             <int32_t name='target_range'/>
@@ -766,18 +764,18 @@
         <int32_t name="pickup_amount_max"/>
         <int32_t name="pickup_amount_i"/>
 
-        <compound name='reaction_moment' comment='bay12: reaction_moment_interfacest'>
+        <compound name='reaction_moment'> bay12: reaction_moment_interfacest
             <bool name='open'/>
             <stl-vector name='no_attacker_move' pointer-type='unit_action'/>
             <int32_t name='scroll_no_attacker_move'/>
             <bool name='scrolling_no_attacker_move'/>
-            <int32_t name='abs_last_proj_tile_x' comment='Set when the player is travelling as a unit projectile after falling or jumping.'/>
-            <int32_t name='abs_last_proj_tile_y'/>
-            <int32_t name='abs_last_proj_tile_z' comment='Corrected Z-coordinate of the player when travelling as a unit projectile after falling or jumping. This value is obtained by adding df.global.world.map.region_z to the local z coordinate.'/>
+            <int32_t name='player_unit_projectile_x'/>
+            <int32_t name='player_unit_projectile_y'/>
+            <int32_t name='player_unit_projectile_z' comment='Corrected Z-coordinate of the player when travelling as a unit projectile after falling or jumping. This value is obtained by adding df.global.world.map.region_z to the local z coordinate.'/>
         </compound>
 
         <compound name='sound_indicator'> bay12: sound_indicator_handlerst
-            <static-array count='100' name='sound_indicators' comment='bay12: sound_indicatorst'>
+            <static-array count='100' name='indicators'>
                 <enum name='type' base-type='int32_t'> bay12: SoundIndicatorType
                     <enum-item name='NONE' value='-1'/>
                     <enum-item name='MOVEMENT'/>
@@ -794,22 +792,22 @@
                 <compound name='disp_pos' type-name='coord'/>
                 <int16_t name='size'/>
                 <int32_t name='timer'/>
-                <bitfield name='flag' since='v0.40.01' base-type='uint32_t'>
-                    <flag-bit name='ADV_HEARD'/>
-                    <flag-bit name='ADV_VISIBLE'/>
+                <bitfield name='flags' base-type='uint32_t'> bay12: SOUND_INDICATOR_FLAG_*
+                    <flag-bit name='adv_heard'/>
+                    <flag-bit name='adv_visible'/>
                 </bitfield>
             </static-array>
             <int32_t name='place_sound_num'/>
         </compound>
 
-        <compound name='assume_identity' comment='bay12: assume_identity_menust; Manages the Assume Identity UI when the AssumeIdentity menu is open'>
+        <compound name='assume_identity' comment='Manages the Assume Identity UI when the AssumeIdentity menu is open'> bay12: assume_identity_menust
             <enum name='mode' type-name='assume_identity_mode'/>
-            <compound name='new_id_name' type-name='language_name'/>
-            <int32_t name='new_id_fake_worship_hfid' ref-target='historical_figure'/>
-            <int16_t name='new_id_fake_unit' ref-target='unit'/>
-            <int32_t name='new_id_fake_entity_id' ref-target='historical_entity'/>
-            <stl-vector name='base_choice' type-name='pointer' comment='assume_identity_menu_choicest'/>
-            <stl-vector name='choice' type-name='pointer' comment='assume_identity_menu_choicest'/>
+            <compound name='name' type-name='language_name'/>
+            <int32_t name='worship_object' ref-target='historical_figure'/>
+            <enum name='profession' type-name='profession'/>
+            <int32_t name='origin' ref-target='historical_entity'/>
+            <stl-vector pointer-type='assume_identity_menu_choicest' name='base_choice'/>
+            <stl-vector pointer-type='assume_identity_menu_choicest' name='choice'/>
             <stl-string name='filter'/>
             <bool name='entering_filter'/>
             <int32_t name='selected'/>
@@ -818,11 +816,74 @@
         <int16_t name='move_direction_x' comment='x-axis direction for the last attempted player unit movement: -1 = west, 0 = none, 1 = east'/>
         <int16_t name='move_direction_y' comment='y-axis direction for the last attempted player unit movement: -1 = north, 0 = none, 1 = south'/>
         <int16_t name='move_direction_z' comment='z-axis direction for the last attempted player unit movement: -1 = down, 0 = none, 1 = up'/>
+
         <bool name='move_do_mid_move'/>
         <bool name='move_carefully' comment='Is set when the player prepares to move carefully (via the Alt + movement key combo)'/>
         <int16_t name='careful_direction_x' comment='x-axis direction for the last attempted careful player unit movement: -1 = west, 0 = none, 1 = east'/>
         <int16_t name='careful_direction_y' comment='y-axis direction for the last attempted careful player unit movement: -1 = north, 0 = none, 1 = south'/>
-        <stl-string name='interrupt_performance_warning' comment='bay12: move_confirm_str; the message displayed when the player attempts to move while their unit is performing'/>
+        <stl-string name='interrupt_performance_warning' comment='the message displayed when the player attempts to move while their unit is performing'/>
+    </struct-type>
+
+    <enum-type type-name='combat_animation_swish_type' base-type='int32_t'> bay12: CombatAnimationSwishType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='HIT'/>
+        <enum-item name='MISS'/>
+        <enum-item name='BLOCK'/>
+        <enum-item name='PARRY'/>
+    </enum-type>
+
+    <enum-type type-name='combat_animation_swish_direction_type' base-type='int32_t'> bay12: CombatAnimationSwishDirectionType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='N'/>
+        <enum-item name='S'/>
+        <enum-item name='W'/>
+        <enum-item name='E'/>
+        <enum-item name='NW'/>
+        <enum-item name='NE'/>
+        <enum-item name='SW'/>
+        <enum-item name='SE'/>
+    </enum-type>
+
+    <enum-type type-name='performance_menu_choice_type' base-type='int32_t'> bay12: PerformanceMenuChoiceType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='TELL_STORY'/>
+        <enum-item name='RECITE_POEM'/>
+        <enum-item name='PERFORM_MUSIC'/>
+        <enum-item name='DANCE'/>
+        <enum-item name='STORY_SITES'/>
+        <enum-item name='STORY_PEOPLE'/>
+        <enum-item name='STORY_ENTITIES'/>
+        <enum-item name='STORY_SUBREGIONS'/>
+        <enum-item name='STORY_SITE'/>
+        <enum-item name='STORY_HF'/>
+        <enum-item name='STORY_ENTITY'/>
+        <enum-item name='STORY_SUBREGION'/>
+        <enum-item name='STORY_EVENT'/>
+        <enum-item name='POETRY_FORM'/>
+        <enum-item name='POETRY_COMPOSITION'/>
+        <enum-item name='MUSIC_FORM'/>
+        <enum-item name='MUSIC_COMPOSITION'/>
+        <enum-item name='MUSIC_ROLE'/>
+        <enum-item name='DANCE_FORM'/>
+        <enum-item name='DANCE_COMPOSITION'/>
+        <enum-item name='GIVE_SERMON'/>
+        <enum-item name='SERMON_HFIDS'/>
+        <enum-item name='SERMON_SPHERES'/>
+        <enum-item name='SERMON_PROMOTE_VALUES'/>
+        <enum-item name='SERMON_REFUSE_VALUES'/>
+        <enum-item name='SERMON_HFID'/>
+        <enum-item name='SERMON_SPHERE'/>
+        <enum-item name='SERMON_PROMOTE_VALUE'/>
+        <enum-item name='SERMON_REFUSE_VALUE'/>
+    </enum-type>
+
+    <struct-type type-name='performance_menu_choicest'>
+        <enum name='type' type-name='performance_menu_choice_type'/>
+        <stl-string name='print_name'/>
+        <stl-string name='list_name'/>
+        <stl-string name='simple_filter_name'/>
+        <int32_t name='id'/>
+        <pointer name='iden' type-name='identity'/>
     </struct-type>
 
     <struct-type type-name='assume_identity_menu_choicest'>
@@ -835,12 +896,50 @@
         <pointer name='entity' type-name='historical_entity'/>
     </struct-type>
 
+    <enum-type type-name='adventure_option_type' base-type='int32_t'> bay12: AdventureOptionType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='EAT_UNIT_CONTAMINANT'/>
+        <enum-item name='EAT_ITEM_CONTAMINANT'/>
+        <enum-item name='VIEW_CONTAMINANT'/>
+        <enum-item name='ENVIRONMENT_UNIT_SUCK_BLOOD'/>
+        <enum-item name='ENVIRONMENT_INGEST_FROM_CONTAINER'/>
+        <enum-item name='ENVIRONMENT_PLACE_ON_PACK_ANIMAL'/>
+        <enum-item name='ENVIRONMENT_PLACE_IN_BLD_CONTAINER'/>
+        <enum-item name='ENVIRONMENT_PLACE_IN_IT_CONTAINER'/>
+        <enum-item name='ENVIRONMENT_TAKE_FROM_PACK_ANIMAL'/>
+        <enum-item name='ENVIRONMENT_PICK_UP_GROUND_ITEM'/>
+        <enum-item name='ENVIRONMENT_PICK_UP_BUILDING_ITEM'/>
+        <enum-item name='ENVIRONMENT_PICK_UP_BUILDING_ITEM_CONTENTS'/>
+        <enum-item name='ENVIRONMENT_TAKE_ITEM_FROM_CONTAINER'/>
+        <enum-item name='ENVIRONMENT_PICK_VEGETATION'/>
+        <enum-item name='ENVIRONMENT_PICK_UP_ENVIRONMENT'/>
+        <enum-item name='INVENTORY_ITEM'/>
+        <enum-item name='VIEW_ITEM'/>
+        <enum-item name='DROP_ITEM'/>
+        <enum-item name='WEAR_ITEM'/>
+        <enum-item name='REMOVE_ITEM'/>
+        <enum-item name='PUT_ITEM'/>
+        <enum-item name='EAT_DRINK_ITEM'/>
+        <enum-item name='INTERACT_WITH_ITEM'/>
+        <enum-item name='SHOOT_CREATURE'/>
+        <enum-item name='SHOOT_TILE'/>
+        <enum-item name='THROW_ITEM_AT_CREATURE'/>
+        <enum-item name='THROW_ITEM_AT_TILE'/>
+        <enum-item name='THROW_ITEM'/>
+        <enum-item name='JUMP'/>
+        <enum-item name='VIEW_EVENT_DETAIL'/>
+    </enum-type>
+
     <class-type type-name='adventure_optionst'>
+        <int32_t name='depth'/>
+
         <virtual-methods>
-            <vmethod name='getDescription'><pointer type-name='stl-string'/></vmethod>
+            <vmethod name='getType' ret-type='adventure_option_type'/>
+            <vmethod name='getName'><pointer type-name='stl-string'/></vmethod>
+            <vmethod name='getFullListName'><pointer type-name='stl-string'/></vmethod>
             <vmethod is-destructor='true'/>
             <vmethod name='getIngestedItem'><ret-type><pointer type-name='item'/></ret-type></vmethod>
-            <vmethod name='performAction'>
+            <vmethod name='performPickupAction'>
                 <comment>
                     for "pick up vermin":
 
@@ -856,7 +955,7 @@
                     argument 3 is set to true if a fire was started
                     returns nullptr
                 </comment>
-                <pointer name='kilvev' type-name='int32_t'/>
+                <pointer name='vermin_idx' type-name='int32_t'/>
                 <pointer name='blast' type-name='bool'/>
                 <pointer name='ret_positive' type-name='bool'/>
                 <ret-type><pointer type-name='item'/></ret-type>
@@ -870,13 +969,160 @@
             <vmethod ret-type='int16_t' name='getTargetPosY'/>
             <vmethod ret-type='int16_t' name='getTargetPosZ'/>
 
-            <vmethod name='deleteSpatter'/>
+            <vmethod name='SuccessRepercussions'/>
             <vmethod name='getSuckBloodUnitID'><ret-type><int32_t ref-target='unit'/></ret-type></vmethod>
-            <vmethod name='isIngestFromContainer' ret-type='bool'/>
-            <vmethod name='getBuildingContainer'><ret-type><pointer type-name='building'/></ret-type></vmethod>
-            <vmethod name='getItemContainer'><ret-type><pointer type-name='item'/></ret-type></vmethod>
-            <vmethod name='getUnitContainer'><ret-type><pointer type-name='unit'/></ret-type></vmethod>
+            <vmethod name='isFoodExistingItem' ret-type='bool'/>
+            <vmethod name='getContainerBuilding'><ret-type><pointer type-name='building'/></ret-type></vmethod>
+            <vmethod name='getContainerItem'><ret-type><pointer type-name='item'/></ret-type></vmethod>
+            <vmethod name='getUnit'><ret-type><pointer type-name='unit'/></ret-type></vmethod>
+            <vmethod name='getItem'><ret-type><pointer type-name='item'/></ret-type></vmethod>
+            <vmethod name='getBuilding'><ret-type><pointer type-name='building'/></ret-type></vmethod>
+
+            <vmethod name='getItemType' ret-type='item_type'/>
+            <vmethod name='getItemSubtype' ret-type='int16_t'/>
+            <vmethod name='getItemMaterial' ret-type='int16_t'/>
+            <vmethod name='getItemMatgloss' ret-type='int32_t'/>
+            <vmethod name='getItemGrowthPrint' ret-type='int32_t' comment='for plant growths'/>
+
+            <vmethod name='getTexpos' ret-type='int32_t'><uint32_t name='curtick'/></vmethod>
+            <vmethod name='getPickupItem'><ret-type><pointer type-name='item'/></ret-type></vmethod>
+            <vmethod name='getInvItem'><ret-type><pointer type-name='unit_inventory_item'/></ret-type></vmethod>
+
+            <vmethod name='hasRealize' ret-type='bool'/>
+            <vmethod name='doRealize'/>
+
+            <vmethod name='addOptionFlag'><uint32_t name='flag'/></vmethod>
+            <vmethod name='getOptionFlag' ret-type='uint32_t'/>
+
+            <vmethod name='hasInventoryAction' ret-type='bool'/>
+            <vmethod name='doInventoryAction'/>
+
+            <vmethod name='getOptionList'><ret-type><pointer><stl-vector pointer-type='adventure_optionst'/></pointer></ret-type></vmethod>
+            <vmethod name='printConflictStatus'/>
         </virtual-methods>
+    </class-type>
+
+    <class-type type-name='adventure_option_talk_existing_conversationst' inherits-from='adventure_optionst'>
+        <pointer name='conv_act' type-name='activity_entry'/>
+        <pointer name='conv_actev' type-name='activity_event'/>
+    </class-type>
+
+    <class-type type-name='adventure_option_talk_new_conversationst' inherits-from='adventure_optionst'>
+        <int32_t name='unit_id' ref-target='unit'/>
+        <int32_t name='hfid' ref-target='historical_figure'/>
+    </class-type>
+
+    <class-type type-name='adventure_option_start_shoutingst' inherits-from='adventure_optionst'/>
+    <class-type type-name='adventure_option_assume_identityst' inherits-from='adventure_optionst'/>
+
+    <class-type type-name='adventure_option_view_unitst' inherits-from='adventure_optionst'>
+        <int32_t name='unit_id' ref-target='unit'/>
+        <int32_t name='hfid' ref-target='historical_figure'/>
+    </class-type>
+
+    <class-type type-name='adventure_item_interact_strugglest' inherits-from='adventure_optionst'>
+        <pointer name='item' type-name='item'/>
+    </class-type>
+
+    <class-type type-name='adventure_item_interact_pull_outst' inherits-from='adventure_optionst'>
+        <pointer name='item' type-name='item'/>
+        <pointer name='invitem' type-name='unit_inventory_item'/>
+    </class-type>
+
+    <class-type type-name='adventure_item_interact_give_namest' inherits-from='adventure_optionst'>
+        <pointer name='item' type-name='item'/>
+    </class-type>
+
+    <class-type type-name='adventure_item_interact_heat_from_tilest' inherits-from='adventure_optionst'>
+        <pointer name='item' type-name='item'/>
+        <compound name='pos1' type-name='coord'/>
+        <compound name='pos2' type-name='coord'/>
+    </class-type>
+
+    <class-type type-name='adventure_item_interact_fill_with_materialst' inherits-from='adventure_optionst'>
+        <pointer name='container' type-name='item'/>
+        <compound name='pos1' type-name='coord'/>
+        <compound name='pos2' type-name='coord'/>
+        <int16_t name='material'/>
+        <int32_t name='matgloss'/>
+        <enum name='state' type-name='matter_state'/>
+    </class-type>
+
+    <class-type type-name='adventure_item_interact_fill_from_containerst' inherits-from='adventure_optionst'>
+        <pointer name='container' type-name='item'/>
+        <pointer name='take_from' type-name='item'/>
+        <compound name='pos1' type-name='coord'/>
+        <compound name='pos2' type-name='coord'/>
+    </class-type>
+
+    <class-type type-name='adventure_item_interact_readst' inherits-from='adventure_optionst'>
+        <pointer name='item' type-name='item'/>
+    </class-type>
+
+    <class-type type-name='adventure_item_interact_rollst' inherits-from='adventure_optionst'>
+        <pointer name='item' type-name='item'/>
+    </class-type>
+
+    <class-type type-name='adventure_item_interact_roll_allst' inherits-from='adventure_optionst'/>
+
+    <class-type type-name='adventure_option_inventory_itemst' inherits-from='adventure_optionst'>
+        <pointer name='item' type-name='item'/>
+        <pointer name='invitem' type-name='unit_inventory_item'/>
+        <bitfield name='option_flag' base-type='uint32_t'> bay12: ADVENTURE_OPTION_INVENTORY_ITEM_OPTION_FLAG_*
+            <flag-bit name='details'/>
+            <flag-bit name='drop'/>
+            <flag-bit name='wear'/>
+            <flag-bit name='remove'/>
+            <flag-bit name='put_in'/>
+            <flag-bit name='eat_drink'/>
+            <flag-bit name='interact'/>
+        </bitfield>
+    </class-type>
+
+    <class-type type-name='adventure_option_view_event_detailst' inherits-from='adventure_optionst'>
+        <pointer name='event_detail' type-name='engraving'/>
+    </class-type>
+
+    <class-type type-name='adventure_option_view_itemst' inherits-from='adventure_optionst'>
+        <pointer name='item' type-name='item'/>
+        <pointer name='invitem' type-name='unit_inventory_item'/>
+    </class-type>
+
+    <class-type type-name='adventure_option_drop_itemst' inherits-from='adventure_optionst'>
+        <pointer name='item' type-name='item'/>
+        <pointer name='invitem' type-name='unit_inventory_item'/>
+    </class-type>
+
+    <class-type type-name='adventure_option_wear_itemst' inherits-from='adventure_optionst'>
+        <pointer name='item' type-name='item'/>
+        <pointer name='invitem' type-name='unit_inventory_item'/>
+    </class-type>
+
+    <class-type type-name='adventure_option_throw_itemst' inherits-from='adventure_optionst'>
+        <pointer name='item' type-name='item'/>
+        <pointer name='invitem' type-name='unit_inventory_item'/>
+    </class-type>
+
+    <class-type type-name='adventure_option_remove_itemst' inherits-from='adventure_optionst'>
+        <pointer name='item' type-name='item'/>
+        <pointer name='invitem' type-name='unit_inventory_item'/>
+    </class-type>
+
+    <class-type type-name='adventure_option_put_itemst' inherits-from='adventure_optionst'>
+        <pointer name='item' type-name='item'/>
+        <pointer name='invitem' type-name='unit_inventory_item'/>
+        <stl-vector name='put_option' pointer-type='adventure_optionst'/>
+    </class-type>
+
+    <class-type type-name='adventure_option_eat_drink_itemst' inherits-from='adventure_optionst'>
+        <pointer name='item' type-name='item'/>
+        <pointer name='invitem' type-name='unit_inventory_item'/>
+    </class-type>
+
+    <class-type type-name='adventure_option_interact_with_itemst' inherits-from='adventure_optionst'>
+        <pointer name='item' type-name='item'/>
+        <pointer name='invitem' type-name='unit_inventory_item'/>
+        <stl-vector name='interact_option' pointer-type='adventure_optionst'/>
     </class-type>
 
     <class-type type-name='adventure_option_eat_unit_contaminantst' inherits-from='adventure_optionst'>
@@ -910,15 +1156,51 @@
     </class-type>
 
     <class-type type-name='adventure_environment_place_on_pack_animalst' inherits-from='adventure_environment_optionst'>
+        <pointer name='item' type-name='item'/>
         <pointer name='pack_animal' type-name='unit'/>
     </class-type>
 
     <class-type type-name='adventure_environment_place_in_bld_containerst' inherits-from='adventure_environment_optionst'>
+        <pointer name='item' type-name='item'/>
         <pointer name='building' type-name='building'/>
     </class-type>
 
     <class-type type-name='adventure_environment_place_in_it_containerst' inherits-from='adventure_environment_optionst'>
+        <pointer type-name='item' name='item'/>
         <pointer type-name='item' name='container'/>
+    </class-type>
+
+    <class-type type-name='adventure_environment_take_from_pack_animalst' inherits-from='adventure_environment_optionst'>
+        <pointer type-name='unit' name='pack_animal'/>
+        <pointer type-name='item' name='item'/>
+    </class-type>
+
+    <class-type type-name='adventure_environment_pick_up_ground_itemst' inherits-from='adventure_environment_optionst'>
+        <pointer type-name='item' name='item'/>
+    </class-type>
+
+    <class-type type-name='adventure_environment_pick_up_building_itemst' inherits-from='adventure_environment_optionst'>
+        <pointer type-name='item' name='item'/>
+        <pointer type-name='building' name='building'/>
+    </class-type>
+
+    <class-type type-name='adventure_environment_pick_up_building_item_contentsst' inherits-from='adventure_environment_optionst'>
+        <pointer type-name='item' name='item'/>
+        <pointer type-name='item' name='container'/>
+        <pointer type-name='building' name='building'/>
+    </class-type>
+
+    <class-type type-name='adventure_environment_take_item_from_containerst' inherits-from='adventure_environment_optionst'>
+        <pointer type-name='item' name='item'/>
+        <pointer type-name='item' name='container'/>
+    </class-type>
+
+    <class-type type-name='adventure_environment_pick_vegetationst' inherits-from='adventure_environment_optionst'>
+        <pointer type-name='item' name='item'/>
+    </class-type>
+
+    <class-type type-name='adventure_environment_pick_up_environmentst' inherits-from='adventure_environment_optionst'>
+        <pointer type-name='item' name='item'/>
     </class-type>
 
     <class-type type-name='adventure_environment_ingest_materialst' inherits-from='adventure_environment_optionst'>
@@ -939,26 +1221,46 @@
 
     <class-type type-name='adventure_environment_pickup_chop_treest' inherits-from='adventure_environment_optionst'/>
 
-
-    <class-type type-name='adventure_movement_optionst'>
+    <class-type type-name='adventure_movement_optionst' inherits-from='adventure_optionst'>
         <compound name='dest' type-name='coord'/>
         <compound name='source' type-name='coord'/>
-        <virtual-methods>
-            <vmethod name='get_name'><pointer name='str' type-name='stl-string'/></vmethod>
-            <vmethod name='realize'/>
-        </virtual-methods>
     </class-type>
 
-    <class-type type-name='adventure_movement_pathst' inherits-from='adventure_movement_optionst'>
-        <int16_t name='vpz'/>
-        <bool name='is_acrobatic'/>
+    <class-type type-name='adventure_movement_shoot_creaturest' inherits-from='adventure_movement_optionst'>
+        <bool name='from_direct_click'/>
+        <int32_t name='target' ref-target='unit'/>
+        <pointer type-name='item' name='weapon'/>
+        <pointer type-name='item' name='ammo'/>
     </class-type>
 
-    <class-type type-name='adventure_movement_release_hold_itemst' inherits-from='adventure_movement_optionst'/>
-    <class-type type-name='adventure_movement_release_hold_tilest' inherits-from='adventure_movement_optionst'/>
+    <class-type type-name='adventure_movement_shoot_tilest' inherits-from='adventure_movement_optionst'>
+        <bool name='from_direct_click'/>
+        <pointer type-name='item' name='weapon'/>
+        <pointer type-name='item' name='ammo'/>
+    </class-type>
+
+    <class-type type-name='adventure_movement_throw_item_at_creaturest' inherits-from='adventure_movement_optionst'>
+        <bool name='from_direct_click'/>
+        <int32_t name='target' ref-target='unit'/>
+        <pointer type-name='item' name='item'/>
+    </class-type>
+
+    <class-type type-name='adventure_movement_throw_item_at_tilest' inherits-from='adventure_movement_optionst'>
+        <bool name='from_direct_click'/>
+        <pointer type-name='item' name='item'/>
+    </class-type>
 
     <class-type type-name='adventure_movement_attack_creaturest' inherits-from='adventure_movement_optionst'>
         <stl-vector name='targets' type-name='int32_t' ref-target='unit'/>
+        <bool name='always_do_something'/>
+    </class-type>
+
+    <class-type type-name='adventure_movement_combat_menu_creaturest' inherits-from='adventure_movement_optionst'>
+        <int32_t name='target' ref-target='unit'/>
+    </class-type>
+
+    <class-type type-name='adventure_movement_jumpst' inherits-from='adventure_movement_optionst'>
+        <bool name='from_direct_click'/>
     </class-type>
 
     <class-type type-name='adventure_movement_building_interactst' inherits-from='adventure_movement_optionst'>
@@ -982,9 +1284,13 @@
         <compound name='grab' type-name='coord'/>
     </class-type>
 
+    <class-type type-name='adventure_movement_release_hold_tilest' inherits-from='adventure_movement_optionst'/>
+
     <class-type type-name='adventure_movement_hold_itemst' inherits-from='adventure_movement_optionst'>
         <int32_t name='item_id' ref-target='item'/>
     </class-type>
+
+    <class-type type-name='adventure_movement_release_hold_itemst' inherits-from='adventure_movement_optionst'/>
 
     <class-type type-name='adventure_movement_claim_petst' inherits-from='adventure_movement_optionst'>
         <pointer name='animal' type-name='unit'/>
@@ -992,6 +1298,11 @@
 
     <class-type type-name='adventure_movement_lead_animalst' inherits-from='adventure_movement_optionst'>
         <pointer name='animal' type-name='unit'/>
+    </class-type>
+
+    <class-type type-name='adventure_movement_pathst' inherits-from='adventure_movement_optionst'>
+        <int16_t name='vpz'/>
+        <bool name='is_acrobatic'/>
     </class-type>
 
     <class-type type-name='adventure_movement_stop_lead_animalst' inherits-from='adventure_movement_optionst'>
@@ -1008,69 +1319,6 @@
         <compound name='grab' type-name='coord'/>
     </class-type>
 
-    <class-type type-name='adventure_item_interact_choicest'>
-        <virtual-methods>
-            <vmethod name='getDescription'><pointer type-name='stl-string'/></vmethod>
-            <vmethod name='performAction'/>
-            <vmethod is-destructor='true'/>
-        </virtual-methods>
-    </class-type>
-
-    <class-type type-name='adventure_item_interact_strugglest' inherits-from='adventure_item_interact_choicest'/>
-
-    <class-type type-name='adventure_item_interact_pull_outst' inherits-from='adventure_item_interact_choicest'/>
-
-    <class-type type-name='adventure_item_interact_give_namest' inherits-from='adventure_item_interact_choicest'>
-        <pointer name='item' type-name='item'/>
-    </class-type>
-
-    <enum-type type-name='combat_animation_swish_type' base-type='int32_t'>
-        <enum-item name='NONE' value='-1'/>
-        <enum-item name='HIT'/>
-        <enum-item name='MISS'/>
-        <enum-item name='BLOCK'/>
-        <enum-item name='PARRY'/>
-    </enum-type>
-
-    <enum-type type-name='combat_animation_swish_direction' base-type='int32_t'>
-        <enum-item name='NONE' value='-1'/>
-        <enum-item name='N'/>
-        <enum-item name='S'/>
-        <enum-item name='W'/>
-        <enum-item name='E'/>
-        <enum-item name='NW'/>
-        <enum-item name='NE'/>
-        <enum-item name='SW'/>
-        <enum-item name='SE'/>
-    </enum-type>
-
-    <class-type type-name='adventure_item_interact_heat_from_tilest' inherits-from='adventure_item_interact_choicest'>
-        <pointer name='item' type-name='item'/>
-        <compound name='pos1' type-name='coord'/>
-        <compound name='pos2' type-name='coord'/>
-    </class-type>
-
-    <class-type type-name='adventure_item_interact_fill_with_materialst' inherits-from='adventure_item_interact_choicest'>
-        <pointer name='container' type-name='item'/>
-        <compound name='pos1' type-name='coord'/>
-        <compound name='pos2' type-name='coord'/>
-        <int16_t name='material'/>
-        <int32_t name='matgloss'/>
-        <enum name='state' type-name='matter_state'/>
-    </class-type>
-
-    <class-type type-name='adventure_item_interact_fill_from_containerst' inherits-from='adventure_item_interact_choicest'>
-        <pointer name='container' type-name='item'/>
-        <pointer name='take_from' type-name='item'/>
-        <compound name='pos1' type-name='coord'/>
-        <compound name='pos2' type-name='coord'/>
-    </class-type>
-
-    <class-type type-name='adventure_item_interact_readst' inherits-from='adventure_item_interact_choicest'/>
-
-    <class-type type-name='adventure_item_interact_rollst' inherits-from='adventure_item_interact_choicest'/>
-
-    <class-type type-name='adventure_item_interact_roll_allst' inherits-from='adventure_item_interact_choicest'/>
 
 </data-definition>
 

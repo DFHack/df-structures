@@ -653,28 +653,31 @@
     </enum-type>
 
     <struct-type type-name='service_order_templatest'>
-        <int32_t name='local_id'/>
-        <enum name="type" type-name='service_order_type'/>
-        <int16_t name='item_type'/>
+        <enum name='type' type-name='service_order_type'/>
+        <enum name='item_type' type-name='item_type'/>
         <int16_t name='item_subtype'/>
-        <int16_t name='item_mat'/>
-        <int32_t name='item_matg'/>
+        <int16_t name='mat_type'/>
+        <int32_t name='mat_index'/>
         <int32_t name='cost'/>
         <int32_t name='full_cost'/>
-        <int32_t name='room_ab_local_id' comment='not zone or ab id -- something local to ab'/>
+        <int32_t name='room_ab_local_id' comment='not zone or abstract building id'/>
     </struct-type>
 
     <struct-type type-name='utterancest'>
-        <int32_t name='speaker_unid' ref-target='unit'/>
+        <int32_t name='speaker' ref-target='unit'/>
         <int32_t name='speaker_hfid' ref-target='historical_figure'/>
-        <enum name='choice' type-name='talk_choice_type'/>
+        <enum name='type' type-name='talk_choice_type'/>
+
         <compound name='rumor' type-name='entity_event'/>
         <int32_t name='incident_id'/>
-        <int16_t name='curf' comment='foreground'/>
-        <int16_t name='curb' comment='background'/>
-        <int16_t name='curbr' comment='bright'/>
+
+        <int16_t name='foreground'/>
+        <int16_t name='background'/>
+        <int16_t name='bright'/>
         <int32_t name='year'/>
-        <int32_t name='precise_phase' comment='ticks'/>
+        <int32_t name='ticks'/>
+
+        depends on conversation choice
         <compound is-union='true'>
             <int32_t name='variable1'/>
             <enum name="adventure_desire" type-name='adventure_desire_state_type'/>
@@ -733,40 +736,6 @@
         </compound>
     </struct-type>
 
-    <struct-type type-name='conflict_reportst'>
-        <stl-vector name='incident' pointer-type='incident'/>
-        <int32_t name='earliest_year'/>
-        <int32_t name='earliest_season_count'/>
-        <stl-vector name='personal_kill_hfid' type-name='int32_t' ref-target='historical_figure'/>
-        <stl-vector name='personal_kill_batch_race' type-name='int32_t'/>
-        <stl-vector name='personal_kill_batch_caste' type-name='int32_t'/>
-        <stl-vector name='personal_kill_batch_entity_id' type-name='int32_t' ref-target='historical_entity'/>
-        <stl-vector name='personal_kill_batch_number' type-name='int32_t'/>
-        <stl-vector name='died_hfid' type-name='int32_t' ref-target='historical_figure'/>
-        <stl-vector name='slayer_hfid' type-name='int32_t' ref-target='historical_figure'/>
-        <stl-vector name='slayer_race' type-name='int32_t'/>
-        <stl-vector name='slayer_caste' type-name='int32_t'/>
-        <stl-vector name='slayer_entity_id' type-name='int32_t' ref-target='historical_entity'/>
-        <stl-vector name='died_batch_race' type-name='int32_t'/>
-        <stl-vector name='died_batch_caste' type-name='int32_t'/>
-        <stl-vector name='died_batch_entity_id' type-name='int32_t' ref-target='historical_entity'/>
-        <stl-vector name='died_batch_number' type-name='int32_t'/>
-        <int32_t name='starter_actor_hfid' ref-target='historical_figure'/>
-        <int32_t name='starter_actor_race'/>
-        <int32_t name='starter_actor_caste'/>
-        <int32_t name='starter_actor_entity_id' ref-target='historical_entity'/>
-        <int32_t name='starter_target_hfid' ref-target='historical_figure'/>
-        <int32_t name='starter_target_race'/>
-        <int32_t name='starter_target_caste'/>
-        <int32_t name='starter_target_entity_id' ref-target='historical_entity'/>
-        <bitfield name='spec_flag' base-type='uint32_t'>
-            <flag-bit name='personally_involved'/>
-        </bitfield>
-        <int32_t name='location_srid'/>
-        <int32_t name='location_flid'/>
-        <int32_t name='location_stid' ref-target='world_site'/>
-    </struct-type>
-
     <class-type type-name='activity_event_conversationst' inherits-from='activity_event'>
         <stl-vector name='participants'>
             <pointer> bay12: conversation_participantst
@@ -774,9 +743,9 @@
                 <int32_t name='histfig_id' ref-target='historical_figure'/>
             </pointer>
         </stl-vector>
-        <enum name='state' type-name='conversation_state_type'/>
+        <enum name='menu' type-name='conversation_state_type'/>
         <compound name='state_rumor' type-name='entity_event'/>
-        <int32_t name='state_incident_id'/>
+        <int32_t name='state_incident_id' since='v0.42.01'/>
         <compound is-union='true'>
             <int32_t name='state_relevant_id'/>
             <int32_t name='state_value_type'/>
@@ -797,24 +766,57 @@
             <int32_t name='state_relevant_id_4'/>
             <int32_t name='state_defense_roll'/>
         </compound>
-        <stl-vector type-name='conversation_trouble_type' name='state_trouble_type'/>
+        <stl-vector type-name='conversation_trouble_type' name='state_trouble_type' since='v0.42.01'/>
         <stl-vector name='state_trouble_amount' type-name='int32_t'/>
         <stl-vector name='state_service_order_template' pointer-type='service_order_templatest'/>
-        <stl-vector name='state_mentioned_stid' type-name='int32_t' ref-target='world_site' comment='binary'/>
-        <stl-vector name='state_mentioned_hfid' type-name='int32_t' ref-target='historical_figure' comment='binary'/>
+        <stl-vector name='state_mentioned_stid' type-name='int32_t' ref-target='world_site'/>
+        <stl-vector name='state_mentioned_hfid' type-name='int32_t' ref-target='historical_figure'/>
         <compound name='state_incident_hf' type-name='incident_hfid'/>
-        <enum name='state_tact' type-name='conversation_tact_type'/>
-        <stl-vector name='utterance' pointer-type='utterancest'/>
-        <int32_t name='anticipated_speaker_unid' ref-target='unit' comment="-1 = no one's turn"/>
-        <int32_t name='anticipated_speaker_hfid' ref-target='historical_figure' comment="-1 = no one's turn"/>
-        <int32_t name='inactivity_timer' comment='ticks since the last turn'/>
-        <bitfield name='spec_flag' base-type='uint32_t'>
+        <enum name='state_tact' type-name='conversation_tact_type' since='v0.47.01'/>
+        <stl-vector name='turns' pointer-type='utterancest'/>
+        <int32_t name='floor_holder' ref-target='unit' comment="-1 = no one's turn"/>
+        <int32_t name='floor_holder_hfid' ref-target='historical_figure' comment="-1 = no one's turn"/>
+        <int32_t name='pause' comment='ticks since the last turn'/>
+        <bitfield name='spec_flag' base-type='uint32_t'> bay12: ACTIVITY_EVENT_CONVERSATION_FLAG_*
             <flag-bit name='monologue'/>
             <flag-bit name='shouting'/>
         </bitfield>
-        <compound name='conflict_report' type-name='conflict_reportst'/>
-        <stl-vector name='choice' pointer-type='talk_choice'/>
+        <compound name='conflict_report'> bay12: conflict_reportst
+            <stl-vector name='incident' pointer-type='incident'/>
+            <int32_t name='earliest_year'/>
+            <int32_t name='earliest_season_tick'/>
+            <stl-vector name='personal_kill_hf' type-name='int32_t' ref-target='historical_figure'/>
+            <stl-vector name='personal_kill_batch_race' type-name='int32_t' ref-target='creature_raw'/>
+            <stl-vector name='personal_kill_batch_caste' type-name='int32_t'/>
+            <stl-vector name='personal_kill_batch_civ' type-name='int32_t' ref-target='historical_entity'/>
+            <stl-vector name='personal_kill_batch_number' type-name='int32_t'/>
+            <stl-vector name='died_hf' type-name='int32_t' ref-target='historical_figure'/>
+            <stl-vector name='slayer_hf' type-name='int32_t' ref-target='historical_figure'/>
+            <stl-vector name='slayer_race' type-name='int32_t' ref-target='creature_raw'/>
+            <stl-vector name='slayer_caste' type-name='int32_t'/>
+            <stl-vector name='slayer_civ' type-name='int32_t' ref-target='historical_entity'/>
+            <stl-vector name='died_batch_race' type-name='int32_t' ref-target='creature_raw'/>
+            <stl-vector name='died_batch_caste' type-name='int32_t'/>
+            <stl-vector name='died_batch_civ' type-name='int32_t' ref-target='historical_entity'/>
+            <stl-vector name='died_batch_number' type-name='int32_t'/>
+            <int32_t name='starter_actor_hf' ref-target='historical_figure'/>
+            <int32_t name='starter_actor_race'/>
+            <int32_t name='starter_actor_caste'/>
+            <int32_t name='starter_actor_civ' ref-target='historical_entity'/>
+            <int32_t name='starter_target_hf' ref-target='historical_figure'/>
+            <int32_t name='starter_target_race'/>
+            <int32_t name='starter_target_caste'/>
+            <int32_t name='starter_target_civ' ref-target='historical_entity'/>
+            <bitfield name='flags' base-type='uint32_t'> bay12: CONFLICT_REPORT_FLAG_*
+                <flag-bit name='personally_involved'/>
+            </bitfield>
+            <int32_t name='location_sr' ref-target='world_region'/>
+            <int32_t name='location_fl' ref-target='world_underground_region'/>
+            <int32_t name='location_st' ref-target='world_site'/>
+        </compound>
+        <stl-vector name='choices' pointer-type='talk_choice'/>
         <enum name='return_topic_state' type-name='conversation_state_type' init-value='None'/>
+
         <compound name='return_topic_rumor' type-name='entity_event'/>
         <int32_t name='return_topic_incident_id'/>
     </class-type>

@@ -691,12 +691,6 @@
         <flag-bit name='CORPSE'/>
     </bitfield-type>
 
-    <enum-type type-name='dungeon_control_state' base-type='int8_t'>
-        <enum-item name='PROMPT'/>
-        <enum-item name='CONTINUE'/>
-        <enum-item name='CONTINUE_IGNORE_DISTRACTIONS'/>
-    </enum-type>
-
     <bitfield-type type-name='attack_awareness_flags' base-type='uint32_t'> bay12: ATTACK_AWARENESS_FLAG_*
         <flag-bit name='ATTACKING_PART_KNOWN'/>
         <flag-bit name='ATTACK_TARGET_PART_KNOWN'/>
@@ -720,38 +714,6 @@
         <stl-vector name="entity_id" type-name="int32_t" ref-target='historical_entity'/>
         <stl-vector name="entity_opinion" type-name="opinion_type"/>
     </struct-type>
-
-    <bitfield-type type-name='attack_style' base-type='uint32_t'> bay12: AIM_ATTACK_FLAG_*
-        <flag-bit name='charge'/>
-        <flag-bit name='multi'/>
-        <flag-bit name='quick'/>
-        <flag-bit name='heavy'/>
-        <flag-bit name='wild'/>
-        <flag-bit name='precise'/>
-        <flag-bit name='automatic_hit'/>
-        <flag-bit name='sparring_hit'/>
-    </bitfield-type>
-
-    <enum-type type-name='charge_restrict_type' base-type='int32_t'> bay12: ChargeRestrictType
-        <enum-item name='None' value='-1'/>
-        <enum-item name='NoTarget'/>
-        <enum-item name='SelfProne'/>
-        <enum-item name='SelfMounted'/>
-        <enum-item name='SelfChained'/>
-        <enum-item name='SelfUncontrolledFlight'/>
-        <enum-item name='SelfVehicle'/>
-        <enum-item name='SelfProjectile'/>
-        <enum-item name='SelfClimbing'/>
-        <enum-item name='TargetProne'/>
-        <enum-item name='TargetMounted'/>
-        <enum-item name='TargetChained'/>
-        <enum-item name='TargetUncontrolledFlight'/>
-        <enum-item name='TargetVehicle'/>
-        <enum-item name='TargetProjectile'/>
-        <enum-item name='TargetClimbing'/>
-        <enum-item name='TargetSharesLocation'/>
-        <enum-item name='TargetLocationInaccessible'/>
-    </enum-type>
 
     <class-type type-name='unit' key-field='id' instance-vector='$global.world.units.all'
             original-name='unitst'>
@@ -1389,7 +1351,11 @@
             <enum-item name='EYES'/>
         </enum>
 
-        <enum type-name='dungeon_control_state' name='dungeon_control' since='v0.51.01'/>
+        <enum name='dungeon_control' base-type='int8_t'> bay12: DungeonControlState
+            <enum-item name='PROMPT'/>
+            <enum-item name='CONTINUE'/>
+            <enum-item name='CONTINUE_IGNORE_DISTRACTIONS'/>
+        </enum>
 
         protected:
         <size_t name='pool_index'/>
@@ -2472,15 +2438,16 @@
             <flag-bit name='from_sparring'/>
         </bitfield>
     </struct-type>
+    <enum-type type-name='dungeon_wrestle_type' base-type='int32_t'> bay12: DungeonWrestleType
+        <enum-item name='Wrestle'/>
+        <enum-item name='Grab'/>
+        <enum-item name='WrestleGeneric'/>
+        <enum-item name='GrabGeneric'/>
+    </enum-type>
     <struct-type type-name='unit_action_data_attack' original-name='unit_move_attackst'>
         <int32_t name='target_unit_id' ref-target='unit'/>
         <compound name='wrestle_info'> bay12: wrestle_infost
-            <enum name='wrestle_type' base-type='int32_t'> bay12: DungeonWrestleType
-                <enum-item name='Wrestle'/>
-                <enum-item name='Grab'/>
-                <enum-item name='WrestleGeneric'/>
-                <enum-item name='GrabGeneric'/>
-            </enum>
+            <enum name='wrestle_type' type-name='dungeon_wrestle_type'/>
             <int16_t name='grapple_a_bp'/>
             <int16_t name='grapple_d_bp'/>
             <int32_t name='grapple_a_item_id'/>
