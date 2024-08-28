@@ -665,7 +665,7 @@ library. That is, the filename without any path components. The ``value`` will
 then be interpreted as an offset from the load address of that library.
 
 It is allowed to specify addresses for objects and vtables that are otherwise
-not defined. Obviously, such values can only be used by directly quering the
+not defined. Obviously, such values can only be used by directly querying the
 VersionInfo object in dfhack.
 
 ================
@@ -708,7 +708,7 @@ The reader macro understands the following syntactic patterns:
 
 * ``$foo``
 
-  A case-sensitive identifier preceeded by the ``$`` character
+  A case-sensitive identifier preceded by the ``$`` character
   is interned in the ``cl-linux-debug.field-names`` package as-is,
   and returned as the parsing result. The identifier may consist
   of letters, numbers, and ``-`` or ``_`` characters.
