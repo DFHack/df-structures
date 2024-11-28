@@ -223,6 +223,23 @@
         <enum-item name='ARMOR'/>
     </enum-type>
 
+    <struct-type type-name='creature_knowledgest'>
+        <int32_t name='combined_caste_id'/>
+        <bitfield name='flags' base-type='uint32_t'> bay12: CREATURE_KNOWLEDGE_FLAG_*
+            <flag-bit name='heard_of'/>
+            <flag-bit name='old_local'/>
+            <flag-bit name='recent_encounter'/>
+        </bitfield>
+
+        <stl-vector name='site' type-name='int32_t' ref-target='world_site'/>
+        <stl-vector name='region' type-name='int32_t' ref-target='world_region'/>
+        <stl-vector name='layer' type-name='int32_t' ref-target='world_underground_region'/>
+
+        <bitfield name='scholar_flags' base-type='uint32_t'> bay12: CREATURE_KNOWLEDGE_SCHOLAR_FLAG_*
+            <flag-bit name='foraging_behavior'/>
+        </bitfield>
+    </struct-type>
+
     <struct-type type-name='knowledge_profilest'>
         <stl-vector name='known_secrets' pointer-type='interaction' comment="bay12: interation_ptr; Interactions inflicted upon the figure through an I_SOURCE:SECRET means are recorded here; this appears to prevent the interaction from affecting the figure again on subsequent exposure (when rereading a necromancy slab, for example). For interactions with both I_SOURCE:SECRET and another source (I_SOURCE:INGESTION, for example), exposure to the interaction through the non-secret route does not result in the interaction being listed here."/>
         <int32_t name='next_intervention_resistance_year' init-value='-1' comment="All are gods with the DEATH sphere having created slabs, but the value isn't the id of the slab"/>
@@ -234,24 +251,7 @@
         <stl-vector name='heard_of_guide_hfid' type-name='int32_t'/>
         <stl-vector name='heard_of_stid' type-name='int32_t'/>
         <compound name='opinion_info' type-name='opinion_infost'/>
-        <stl-vector name='creature_knowledge'>
-            <pointer> bay12: creature_knowledgest
-                <int32_t name='combined_caste_id'/>
-                <bitfield name='flags' base-type='uint32_t'> bay12: CREATURE_KNOWLEDGE_FLAG_*
-                    <flag-bit name='heard_of'/>
-                    <flag-bit name='old_local'/>
-                    <flag-bit name='recent_encounter'/>
-                </bitfield>
-
-                <stl-vector name='site' type-name='int32_t' ref-target='world_site'/>
-                <stl-vector name='region' type-name='int32_t' ref-target='world_region'/>
-                <stl-vector name='layer' type-name='int32_t' ref-target='world_underground_region'/>
-
-                <bitfield name='scholar_flags' base-type='uint32_t'> bay12: CREATURE_KNOWLEDGE_SCHOLAR_FLAG_*
-                    <flag-bit name='foraging_behavior'/>
-                </bitfield>
-            </pointer>
-        </stl-vector>
+        <stl-vector name='creature_knowledge' pointer-type='creature_knowledgest'/>
         <stl-vector name="known_poetic_forms" type-name='int32_t' ref-target='poetic_form' since='v0.42.01' comment='bay12: poetic_form_known_id'/>
         <stl-vector name="known_musical_forms" type-name='int32_t' ref-target='musical_form' since='v0.42.01' comment='bay12: musical_form_known_id'/>
         <stl-vector name="known_dance_forms" type-name='int32_t' ref-target='dance_form' since='v0.42.01' comment='bay12: dance_form_known_id'/>
@@ -300,11 +300,20 @@
     </struct-type>
 
     <struct-type type-name='historical_figure_info' original-name='hf_profilest'>
-        <pointer name="spheres"> bay12: metaphysical_profilest
+        <pointer name="metaphysical"> bay12: metaphysical_profilest
             <stl-vector name="spheres">
                 <enum base-type='int16_t' type-name='sphere_type'/>
             </stl-vector>
             <stl-vector name='associated_divination_set_id' type-name='int32_t' ref-target='divination_set' since='v0.47.01'/>
+            <pointer name='appearance_pform' type-name='unit_appearance'/>
+            <int32_t name='physical_form_strength'/>
+            <int32_t name='physical_form_recuperation'/>
+            <int32_t name='physical_form_age_days'/>
+            <int32_t name='physical_form_seed'/>
+            <int32_t name='related_civ_enid' ref-target='historical_entity'/>
+
+            <int32_t name='physical_form_portrait_texpos' comment='not saved'/>
+            <bool name='need_to_update_physical_form_portrait'/>
         </pointer>
 
         <pointer name="skills"> bay12: skill_profilest
@@ -432,6 +441,7 @@
             <bitfield name='flags' base-type='uint32_t' since='v0.44.06'> bay12: INVENTORY_PROFILE_FLAG_*
                 <flag-bit name='specific_items'/>
                 <flag-bit name='use_average_equipment_quality'/>
+                <flag-bit name='use_mythical_substances'/>
             </bitfield>
             <enum name='using_weapon_skill' type-name='job_skill' since='v0.44.06' comment='not saved'/>
             <pointer name='building_usage_profile' since='v0.47.01'> bay12: hf_building_usage_profilest
@@ -1662,6 +1672,7 @@
         <enum-item name='priest_cry'>
             <item-attr name='caption' value='to cry on a priest'/>
         </enum-item>
+        <enum-item name='success'/>
     </enum-type>
 
     <struct-type type-name='history_event_reason_info'> not an actual structure

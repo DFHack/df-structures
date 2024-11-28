@@ -52,29 +52,14 @@
         <flag-bit name='might_contain_artifact'/>
     </bitfield-type>
 
-    <enum-type type-name='item_magicness_type'> bay12: ItemPowers, no base type
-        <enum-item name='Sparkle' comment='Speed'/>
-        <enum-item name='AirWarped' comment='Storage'/>
-        <enum-item name='Whistle' comment='Add Damage'/>
-        <enum-item name='OddlySquare' comment='Add DamBlock'/>
-        <enum-item name='SmallBumps' comment='Resist Pierce'/>
-        <enum-item name='EarthSmell' comment='Resist Bludgeon'/>
-        <enum-item name='Lightning' comment='Resist Slash'/>
-        <enum-item name='GrayHairs' comment='Resist Gore; with value of 10 or higher, creatures that look at the item cannot think negative thoughts'/>
-        <enum-item name='RustlingLeaves' comment='Thorn Burst'/>
-    </enum-type>
-
-    <struct-type type-name='item_magicness' original-name='item_powerst'>
-        <enum base-type='int16_t' name="type" type-name='item_magicness_type'/>
-        <int16_t name='value' comment='boosts item value by 50*this'/>
-        <int16_t name='gloss'/>
-        <bitfield name='flags' base-type='uint32_t'> bay12: MAGICALPOWERFLAG_
-            <flag-bit name='inactive'/>
-        </bitfield>
+    <struct-type type-name='item_powerst'>
+        <int32_t name='interaction_index' init-value='-1'/>
+        <int32_t name='interaction_source_index' init-value='-1'/>
+        <int32_t name='delay' init-value='0'/>
     </struct-type>
 
     <struct-type type-name='item_magicalst'>
-        <stl-vector name='power' pointer-type='item_magicness'/>
+        <stl-vector name='power' pointer-type='item_powerst'/>
     </struct-type>
 
     <struct-type type-name='temperaturest'> seems like a convenient name
@@ -440,12 +425,6 @@
             <vmethod name='notifyLostMasterwork'/>
 
             -- 110
-
-            <vmethod name='addpower'><enum name='ptype' type-name='item_magicness_type' base-type='int32_t'/><int16_t name='availpower'/><int16_t name='donorpower'/></vmethod>
-            <vmethod name='additempower'><pointer name='item' type-name='item'/><bool name='dwarfmake'/></vmethod>
-            <vmethod name='addimppower'><pointer name='imp' type-name='itemimprovement'/><bool name='dwarfmake'/></vmethod>
-            <vmethod name='addnamepower'><bool name='dwarfmake'/></vmethod>
-            <vmethod name='getavailpower'><static-array name='availpower' count='9' type-name='int16_t' index-enum='item_magicness_type'/><bool name='dwarfmake'/><bool name='subtract_current'/></vmethod>
 
             <vmethod name='setDisplayColor'><int16_t name='bg'/></vmethod>
             <vmethod ret-type='bool' name='isDamagedByHeat'/>

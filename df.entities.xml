@@ -382,18 +382,7 @@
         <int32_t name='claim_year_tick' init-value='-1' comment="usually init"/>
         <int32_t name='renounce_event' ref-target='history_event'/>
 
-        <!-- <compound name='temp_arl'> --> bay12: artifact_rumor_locationst
-        <pointer name='artifact' type-name='artifact_record'/>
-        <int32_t name='site' ref-target='world_site'/>
-        <int32_t name='structure_local' init-value='-1'/>
-        <int32_t name='holder_hf' ref-target='historical_figure' comment="might be owner_hf. all cases encountered have had both field the same when claimed by entity"/>
-        <int32_t name='subregion' ref-target='world_region'/>
-        <int32_t name='feature_layer_id' ref-target='world_underground_region'/>
-        <int32_t name='latest_year' init-value='-1'/>
-        <int32_t name='latest_season_tick' init-value='-1'/>
-        <uint32_t name='flags'/>
-        <pointer name='witness' type-name='witness_incidentst'/>
-        <!-- </compound> -->
+        <compound name='temp_arl' type-name='artifact_rumor_locationst'/>
 
         <pointer name='temp_site_ent' type-name='historical_entity' has-bad-pointers='true'/>
         <pointer name='temp_civ_ent' type-name='historical_entity' has-bad-pointers='true'/>
@@ -1486,22 +1475,24 @@
     </enum-type>
 
     <enum-type type-name='agreement_details_type' base-type='int32_t'> bay12: AgreementSubjectType
-        <enum-item name='JoinParty'/>
-        <enum-item name='DemonicBinding'/>
-        <enum-item name='Residency'/>
-        <enum-item name='Citizenship'/>
-        <enum-item name='Parley'/>
+        <enum-item name='JoinParty' comment='JOIN_AS_COMPANION'/>
+        <enum-item name='DemonicBinding' comment='ATTACH_TO_WORLD'/>
+        <enum-item name='Residency' comment='BECOME_RESIDENT'/>
+        <enum-item name='Citizenship' comment='BECOME_CITIZEN'/>
+        <enum-item name='Parley' comment='ARRANGE_PARLEY'/>
         <enum-item name='PositionCorruption' comment="Embezzlement and accepting bribes seen. For own gain and for 'sponsor'"/>
         <enum-item name='PlotStealArtifact'/>
         <enum-item name='PromisePosition'/>
         <enum-item name='PlotAssassination'/>
         <enum-item name='PlotAbduct'/>
         <enum-item name='PlotSabotage'/>
-        <enum-item name='PlotConviction'/>
-        <enum-item name='Location'/>
-        <enum-item name='PlotInfiltrationCoup'/>
-        <enum-item name='PlotFrameTreason'/>
-        <enum-item name='PlotInduceWar'/>
+        <enum-item name='PlotConviction' comment='FOILED_CONSPIRACY'/>
+        <enum-item name='Location' comment='BUILD_LOCATION'/>
+        <enum-item name='PlotInfiltrationCoup' comment='INFILTRATE_SOCIETY'/>
+        <enum-item name='PlotFrameTreason' comment='FRAME_FOR_CRIME'/>
+        <enum-item name='PlotInduceWar' comment='START_WAR_WITH_ENTITY'/>
+        <enum-item name='OfferService'/>
+        <enum-item name='RetrieveArtifact'/>
     </enum-type>
 
     <struct-type type-name='agreement_details' original-name='agreement_subjectst' key-field='id'>
@@ -1525,6 +1516,8 @@
             <pointer name='PlotInfiltrationCoup' type-name='agreement_details_data_plot_infiltration_coup'/>
             <pointer name='PlotFrameTreason' type-name='agreement_details_data_plot_frame_treason'/>
             <pointer name='PlotInduceWar' type-name='agreement_details_data_plot_induce_war'/>
+            <pointer name='OfferService' type-name='agreement_details_data_offer_service'/>
+            <pointer name='RetrieveArtifact' type-name='agreement_details_data_retrieve_artifact'/>
         </compound>
         <enum name='type' base-type='int32_t' type-name='agreement_details_type'/>
     </struct-type>
@@ -1664,6 +1657,19 @@
         <int32_t name='defender' ref-target='historical_entity'/>
     </struct-type>
 
+    <struct-type type-name='agreement_details_data_offer_service' original-name='agreement_subject_offer_servicest'>
+        <int32_t name='requesting_party' ref-target='agreement_party'/>
+        <int32_t name='serving_party' ref-target='agreement_party'/>
+        <int32_t name='served_entity' ref-target='historical_entity'/>
+    </struct-type>
+
+    <struct-type type-name='agreement_details_data_retrieve_artifact' original-name='agreement_subject_retrieve_artifactst'>
+        <int32_t name='retrieving_party' ref-target='agreement_party'/>
+        <int32_t name='requesting_party' ref-target='agreement_party'/>
+        <int32_t name='artifact' ref-target='artifact_record'/>
+        <int32_t name='artifact_site' ref-target='world_site'/>
+        <int32_t name='receiving_entity' ref-target='historical_entity'/>
+    </struct-type>
 </data-definition>
 
 <!--
