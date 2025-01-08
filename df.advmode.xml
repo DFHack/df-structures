@@ -488,6 +488,43 @@
         <enum-item name='ZONE_LOCATION'/>
     </enum-type>
 
+    <enum-type type-name='adventure_travel_exception_type' base-type='int32_t'> bay12: AdventureTravelException
+        <enum-item name='GENERIC'/>
+        <enum-item name='UNDERGROUND_NO_TUNNEL'/>
+        <enum-item name='NO_LEGAL_SITE_REALIZATION_DIRECTION'/>
+        <enum-item name='NEAR_RIVER'/>
+        <enum-item name='BOGEYMEN'/>
+        <enum-item name='ENCOUNTER'/>
+        <enum-item name='STOLEN_GOODS'/>
+        <enum-item name='BLEEDING'/>
+        <enum-item name='CANT_BREATHE'/>
+        <enum-item name='THIRST'/>
+        <enum-item name='HUNGER'/>
+        <enum-item name='DROWNING'/>
+        <enum-item name='SWIMMING'/>
+        <enum-item name='IN_AIR'/>
+        <enum-item name='WATER_BIOME'/>
+        <enum-item name='MOUNTAIN_BIOME'/>
+        <enum-item name='ON_VEHICLE'/>
+        <enum-item name='ON_PROJECTILE'/>
+        <enum-item name='MUST_LEAVE_SITE'/>
+        <enum-item name='NUM'/>
+        <enum-item name='NONE'/> NOT -1
+    </enum-type>
+
+    <enum-type type-name='sound_indicator_type' base-type='int32_t'> bay12: SoundIndicatorType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='MOVEMENT'/>
+        <enum-item name='COMBAT'/>
+        <enum-item name='VOCALIZATION'/>
+        <enum-item name='GRINDING_MECHANISM'/>
+        <enum-item name='STORYTELLING'/>
+        <enum-item name='POEM_RECITATION'/>
+        <enum-item name='MUSICAL_VOICE'/>
+        <enum-item name='DANCING'/>
+        <enum-item name='PREACHING'/>
+    </enum-type>
+
     <struct-type type-name='adventurest'>
         <enum base-type='int16_t' name='menu' type-name='ui_advmode_menu'/>
 
@@ -506,6 +543,8 @@
         <stl-string name='message' comment='bay12: travel_exception; you must move from surrounding obstacles'/>
         <int16_t name='message_color' comment='bay12: travel_exception_color'/>
         <int8_t name='message_brightness' comment='bay12: travel_exception_bright'/>
+        <enum name='travel_exception_type' type-name='adventure_travel_exception_type'/>
+        <int32_t name='travel_exception_id'/>
 
         <int8_t name='travel_not_moved' comment='bay12: still_local'/>
         <int8_t name='local_sleep_origination'/>
@@ -590,11 +629,32 @@
 
         <bitfield name='chosen_flags' base-type='uint32_t'> bay12: ADVENTURE_CHOSEN_FLAG_*
             <flag-bit name='did_deity_start_talk'/>
+            <flag-bit name='did_exit_castle_advice'/>
+            <flag-bit name='initial_temple_follow_compass_advice'/>
+            <flag-bit name='temple_talk_have_talked_to_priest'/>
+            <flag-bit name='temple_talk_have_taught_how_to_talk'/>
+            <flag-bit name='get_to_quest_first_log_advice'/>
+            <flag-bit name='get_to_quest_highlight_start_travel'/>
+            <flag-bit name='get_to_quest_highlight_end_travel'/>
+            <flag-bit name='on_quest_follow_compass_advice'/>
+            <flag-bit name='on_quest_combat_warning_advice'/>
+            <flag-bit name='on_quest_have_item_congratulations'/>
+            <flag-bit name='finish_quest_find_return_location_advice'/>
+            <flag-bit name='finish_quest_at_temple_with_item_advice'/>
+            <flag-bit name='finish_quest_success'/>
+            <flag-bit name='finish_quest_wrong_religion'/>
+            <flag-bit name='finish_quest_wrong_deity'/>
+            <flag-bit name='did_popup_check'/>
+            <flag-bit name='finish_quest_announced_success'/>
+            <flag-bit name='finish_quest_announced_wrong_religion'/>
+            <flag-bit name='finish_quest_announced_wrong_deity'/>
+            <flag-bit name='chosen_quest_completed'/>
         </bitfield>
         <int32_t name='chosen_deity_hfid' ref-target='historical_figure'/>
         <int32_t name='chosen_religion_enid' ref-target='historical_entity'/>
         <int32_t name='chosen_temple_stid' ref-target='world_site'/>
         <int32_t name='chosen_temple_abid' ref-target='abstract_building'/>
+        <int32_t name='chosen_priest_hfid' ref-target='historical_figure'/>
 
         <compound name='rumor_info'> bay12: adventure_rumor_infost
             <stl-vector name='base_data' pointer-type='adventure_rumor_datast' since='v0.44.10'/>
@@ -783,18 +843,7 @@
 
         <compound name='sound_indicator'> bay12: sound_indicator_handlerst
             <static-array count='100' name='indicators'>
-                <enum name='type' base-type='int32_t'> bay12: SoundIndicatorType
-                    <enum-item name='NONE' value='-1'/>
-                    <enum-item name='MOVEMENT'/>
-                    <enum-item name='COMBAT'/>
-                    <enum-item name='VOCALIZATION'/>
-                    <enum-item name='GRINDING_MECHANISM'/>
-                    <enum-item name='STORYTELLING'/>
-                    <enum-item name='POEM_RECITATION'/>
-                    <enum-item name='MUSICAL_VOICE'/>
-                    <enum-item name='DANCING'/>
-                    <enum-item name='PREACHING'/>
-                </enum>
+                <enum name='type' type-name='sound_indicator_type'/>
                 <compound name='true_pos' type-name='coord'/>
                 <compound name='disp_pos' type-name='coord'/>
                 <int16_t name='size'/>
@@ -1321,6 +1370,7 @@
     <class-type type-name='adventure_movement_pathst' inherits-from='adventure_movement_optionst'>
         <int16_t name='vpz'/>
         <bool name='is_acrobatic'/>
+        <bool name='is_down_through_hatch'/>
     </class-type>
 
     <class-type type-name='adventure_movement_stop_lead_animalst' inherits-from='adventure_movement_optionst'>
