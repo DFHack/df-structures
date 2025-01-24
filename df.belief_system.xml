@@ -1,0 +1,38 @@
+<data-definition>
+    <enum-type type-name='story_frame_relation_type' base-type='int32_t'> bay12: StoryFrameRelationType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='CAUSE'/>
+        <enum-item name='SEQUENCE'/>
+        <enum-item name='CONCURRENT'/>
+    </enum-type>
+
+    <struct-type type-name='story_framest'>
+        <compound name='mental_picture' type-name='mental_picturest'/>
+        <int32_t name='related_frame_index'/>
+        <enum name='relation' type-name='story_frame_relation_type'/>
+    </struct-type>
+
+    <struct-type type-name='storyst'>
+        <stl-vector name='story_frame' pointer-type='story_framest'/>
+    </struct-type>
+
+    <struct-type type-name='belief_system' original-name='belief_systemst' key-field='id' instance-vector='$global.world.belief_systems.all'>
+        <int32_t name='id'/>
+        <stl-vector name='story' pointer-type='storyst'/>
+        <stl-vector name='deities' type-name='int32_t' ref-target="historical_figure" comment="historical figure ID of gods the belief system is concerned with"/>
+        <stl-vector name='worship_levels' type-name='int32_t' comment="worship level for each god referenced in the deities field"/>
+        <static-array name='value' type-name='int32_t' count='64' index-enum='value_type'/>
+    </struct-type>
+
+    <struct-type type-name='belief_system_handlerst'>
+        <stl-vector name='all' pointer-type='belief_system'/>
+        <stl-vector name='order_load' pointer-type='belief_system' has-bad-pointers='true'/>
+    </struct-type>
+</data-definition>
+
+<!--
+Local Variables:
+indent-tabs-mode: nil
+nxml-child-indent: 4
+End:
+-->
