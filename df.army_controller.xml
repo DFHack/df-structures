@@ -1,0 +1,460 @@
+<data-definition>
+    <struct-type type-name='mission_campaign_report' original-name='mission_report_datast'>
+        <static-array name='travel_x' type-name='int32_t' count='64'/>
+        <static-array name='travel_y' type-name='int32_t' count='64'/>
+        <static-array name='travel_year' type-name='int32_t' count='64'/>
+        <static-array name='travel_year_tick' type-name='int32_t' count='64'/>
+        <int32_t name='travel_count'/>
+
+        <static-array name='event_id' type-name='int32_t' count='64' ref-target='history_event'/>
+        <static-array name='event_year' type-name='int32_t' count='64'/>
+        <static-array name='event_year_tick' type-name='int32_t' count='64'/>
+        <int32_t name='events_count'/>
+    </struct-type>
+
+    <bitfield-type type-name='tribute_report_flag' base-type='uint32_t'> bay12: TRIBUTE_REPORT_FLAG_*
+        <flag-bit name='viewed'/>
+        <flag-bit name='spoils'/>
+    </bitfield-type>
+
+    <struct-type type-name='spoils_report' original-name='tribute_reportst'>
+        <stl-string name="title"/>
+        <bitfield name='flags' base-type='uint32_t' type-name='tribute_report_flag'/>
+        <int32_t name='year'/>
+        <int32_t name='year_tick'/>
+
+        <stl-vector name='item_types' type-name='item_type'/>
+        <stl-vector name='item_subtypes'>
+            <int16_t refers-to='(item-subtype-target $$._parent._parent.item_types[$$._key] $)'/>
+        </stl-vector>
+        <stl-vector name='mat_types' type-name='int16_t' ref-target='material'/>
+        <stl-vector name='mat_indices' type-name='int32_t'/>
+        <stl-vector name='item_counts' type-name='int32_t'/>
+
+        <stl-vector name='creature_races' type-name='int32_t' ref-target='creature_raw'/>
+        <stl-vector name='creature_castes' type-name='int32_t' ref-target='caste_raw' aux-value='$$._parent.creature_races[$._key]'/>
+        <stl-vector name='creature_counts' type-name='int32_t'/>
+    </struct-type>
+
+    <bitfield-type type-name='mission_report_flag' base-type='uint32_t'> bay12: MISSION_REPORT_FLAG_*
+        <flag-bit name='viewed'/>
+    </bitfield-type>
+
+    <struct-type type-name='mission_report' original-name='mission_reportst'>
+        <stl-vector name='campaigns' pointer-type='mission_campaign_report' />
+        <int32_t name='current_travel'/>
+        <int32_t name='origin_x'/>
+        <int32_t name='origin_y'/>
+        <int32_t name='current_event'/>
+
+        <stl-string name="title"/>
+        <bitfield name='flags' base-type='uint32_t' type-name='mission_report_flag'/>
+        <int32_t name='year'/>
+        <int32_t name='year_tick'/>
+        <stl-vector name='searched_site' type-name='int32_t' ref-target='world_site'/>
+        <int32_t name='delay_end_year'/>
+        <int32_t name='delay_end_year_tick'/>
+    </struct-type>
+
+    <enum-type type-name='army_controller_goal_type' base-type='int32_t'> bay12: ArmyControllerGoalType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='HOLD_TERRITORY'/>
+        <enum-item name='HARASS'/>
+        <enum-item name='SITE_INVASION'/>
+        <enum-item name='RAMPAGE'/>
+        <enum-item name='CAMP'/>
+        <enum-item name='GUARD'/>
+        <enum-item name='HUNTING'/>
+        <enum-item name='PATROL'/>
+        <enum-item name='PACIFY_SITE'/>
+        <enum-item name='PACIFY_CONNECTED_HAMLET'/>
+        <enum-item name='WAIT'/>
+        <enum-item name='ESCAPE'/>
+        <enum-item name='MOVE_TO_SITE'/>
+        <enum-item name='RECLAIM_SITE'/>
+        <enum-item name='CREATE_NEW_SITE'/>
+        <enum-item name='POSSE'/>
+        <enum-item name='SITE_WORK'/>
+        <enum-item name='RECOVER_ARTIFACT'/>
+        <enum-item name='RESCUE_HF'/>
+        <enum-item name='MAKE_REQUEST'/>
+        <enum-item name='PERFORM_TASK'/>
+        <enum-item name='ASSASSINATE_HF'/>
+        <enum-item name='ABDUCT_HF'/>
+        <enum-item name='SABOTAGE_ENTITY'/>
+        <enum-item name='INFILTRATE_SOCIETY'/>
+    </enum-type>
+
+    <enum-type type-name='invasion_intent_type' base-type='int32_t'> bay12: InvasionIntentType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='OBLITERATION'/>
+        <enum-item name='TAKE_OVER_SITE'/>
+        <enum-item name='INSTALL_PUPPET_GOVERNMENT'/>
+        <enum-item name='DEMAND_TRIBUTE'/>
+        <enum-item name='RAID'/>
+        <enum-item name='EXPLORE'/>
+        <enum-item name='PILLAGE'/>
+    </enum-type>
+
+    <enum-type type-name='invasion_stage_type' base-type='int32_t'> bay12: InvasionStageType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='ORGANIZE'/>
+        <enum-item name='TRAVEL'/>
+        <enum-item name='RAMPAGE'/>
+        <enum-item name='PACIFY_SITE'/>
+        <enum-item name='OCCUPY'/>
+        <enum-item name='SITE_TAKEN'/>
+    </enum-type>
+
+    <struct-type type-name='army_camp_profilest'>
+        <int32_t name='army_id' ref-target='army' comment="no longer available when an attack has started, unioned to another field named 'global_id'"/>
+        <int32_t name='abs_smm_sx' comment="In map_blocks, i.e. in 3 * 16 * world tiles"/>
+        <int32_t name='abs_smm_sy'/>
+        <int32_t name='abs_smm_ex' comment="One is probably start and one is probably end of some movement"/>
+        <int32_t name='abs_smm_ey'/>
+        <int32_t name='army_total_pop' comment="size of the army, including leaders"/>
+    </struct-type>
+
+    <struct-type type-name='army_controller_goal_guardst' original-name='ac_goal_guardst'>
+        <int32_t name='guard_point_abs_smm_x'/>
+        <int32_t name='guard_point_abs_smm_y'/>
+        <int32_t name='smm_guard_range'/>
+        <int32_t name='year_arrived'/>
+        <int32_t name='season_count_arrived'/>
+    </struct-type>
+
+    <bitfield-type type-name='ac_goal_camp_flag' base-type='uint32_t'> bay12: AC_GOAL_CAMP_FLAG_*
+        <flag-bit name='ALARM_INTRUDER' comment='set to 1 to make army wake up'/>
+        <flag-bit name='ONE_NIGHT_ONLY' comment='seen set on gobbo/necro attack controller'/>
+        <flag-bit name='DONE'/>
+        <flag-bit name='PUT_OUT_GUARDS' comment='sen set on gobbo/necro attack controller'/>
+    </bitfield-type>
+
+    <struct-type type-name='army_controller_goal_campst' original-name='ac_goal_campst'>
+        <int32_t name='camp_cz_alt_id' init-value='-1'/>
+        <bitfield name='camp_flag' base-type='uint32_t' type-name='ac_goal_camp_flag'/>
+    </struct-type>
+
+    <struct-type type-name='army_controller_goal_site_workst' original-name='ac_goal_site_workst'>
+        <int32_t name='work_count'/>
+    </struct-type>
+
+    <struct-type type-name='army_controller_goal_infiltrate_societyst' original-name='ac_goal_infiltrate_societyst'>
+        <int32_t name='target_stid' ref-target='world_site'/>
+        <int32_t name='target_enid' ref-target='historical_entity'/>
+
+        <int32_t name='agoal_ab_id' ref-target='abstract_building' comment="abstract building ID, -1 before arrival"/>
+        <enum name='reason' type-name='history_event_reason' comment="none before arrival"/>
+    </struct-type>
+
+    <bitfield-type type-name="ac_goal_recover_artifact_flag" base-type='uint32_t'> bay12: AC_GOAL_RECOVER_ARTIFACT_FLAG_*
+        <flag-bit name='RETURNING'/>
+        <flag-bit name='REMAIN_ANONYMOUS'/>
+    </bitfield-type>
+
+    <struct-type type-name='army_controller_goal_recover_artifactst' original-name='ac_goal_recover_artifactst'>
+        <int32_t name='artifact_id' ref-target="artifact_record"/>
+        <int32_t name='return_site_id' ref-target='world_site'/>
+        <int32_t name='return_to_hfid' ref-target='historical_figure'/>
+        <bitfield name="flag" base-type='uint32_t' type-name='ac_goal_recover_artifact_flag'/>
+    </struct-type>
+
+    <bitfield-type type-name="ac_goal_perform_task_flag" base-type='uint32_t'> bay12: AC_GOAL_PERFORM_TASK_FLAG_*
+        <flag-bit name='RETURNING'/>
+    </bitfield-type>
+
+    <struct-type type-name='army_controller_goal_perform_taskst' original-name='ac_goal_perform_taskst'>
+        <int32_t name='task_id' init-value='-1'/>
+        <int32_t name='task_holder_nem_id' ref-target='nemesis_record'/>
+        <bitfield name="flag" base-type='uint32_t' type-name='ac_goal_perform_task_flag'/>
+    </struct-type>
+
+    <bitfield-type type-name="ac_goal_assassinate_hf_flag" base-type='uint32_t'> bay12: AC_GOAL_ASSASSINATE_HF_FLAG_*
+        <flag-bit name='RETURNING'/>
+    </bitfield-type>
+
+    <struct-type type-name='army_controller_goal_assassinate_hfst' original-name='ac_goal_assassinate_hfst'>
+        <int32_t name='hfid' ref-target='historical_figure'/>
+        <bitfield name="flag" base-type='uint32_t' type-name='ac_goal_assassinate_hf_flag'/>
+    </struct-type>
+
+    <bitfield-type type-name="ac_goal_abduct_hf_flag" base-type='uint32_t'> bay12: AC_GOAL_ABDUCT_HF_FLAG_*
+        <flag-bit name='RETURNING'/>
+    </bitfield-type>
+
+    <struct-type type-name='army_controller_goal_abduct_hfst' original-name='ac_goal_abduct_hfst'>
+        <int32_t name='target_hfid' ref-target='historical_figure'/>
+        <bitfield name="flag" base-type='uint32_t' type-name='ac_goal_abduct_hf_flag'/>
+    </struct-type>
+
+    <bitfield-type type-name="ac_goal_sabotage_entity_flag" base-type='uint32_t'> bay12: AC_GOAL_SABOTAGE_ENTITY_FLAG_*
+        <flag-bit name='RETURNING'/>
+    </bitfield-type>
+
+    <struct-type type-name='army_controller_goal_sabotage_entityst' original-name='ac_goal_sabotage_entityst'>
+        <int32_t name='target_hfid' ref-target='historical_figure'/>
+        <int32_t name='target_enid' ref-target='historical_entity'/>
+        <int32_t name='target_stid' ref-target='world_site'/>
+        <bitfield name="flag" base-type='uint32_t' type-name='ac_goal_sabotage_entity_flag'/>
+    </struct-type>
+
+    <bitfield-type type-name="ac_goal_rescue_hf_flag" base-type='uint32_t'> bay12: AC_GOAL_RESCUE_HF_FLAG_*
+        <flag-bit name='RETURNING'/>
+    </bitfield-type>
+
+    <struct-type type-name='army_controller_goal_rescue_hfst' original-name='ac_goal_rescue_hfst'>
+        <int32_t name='hfid' ref-target='historical_figure'/>
+        <bitfield name="flag" base-type='uint32_t' type-name='ac_goal_rescue_hf_flag'/>
+    </struct-type>
+
+    <bitfield-type type-name="ac_goal_make_request_flag" base-type='uint32_t'> bay12: AC_GOAL_MAKE_REQUEST_FLAG_*
+        <flag-bit name='RETURNING_HOME'/>
+    </bitfield-type>
+
+    <struct-type type-name='army_controller_goal_make_requestst' original-name='ac_goal_make_requestst'>
+        <stl-vector name='requested_hfid' type-name='int32_t' ref-target='historical_figure' comment='sorted'/>
+        <bitfield name="flag" base-type='uint32_t' type-name='ac_goal_make_request_flag'/>
+        <int32_t name='source_abs_smm_x' init-value='-1'/>
+        <int32_t name='source_abs_smm_y' init-value='-1'/>
+    </struct-type>
+
+    <bitfield-type type-name='ac_goal_hunting_flag' base-type='uint32_t'> bay12: AC_GOAL_HUNTING_FLAG_*
+        <flag-bit name='RETURNING_HOME'/>
+        <flag-bit name='DAWN_PERMITTED'/>
+        <flag-bit name='DAY_PERMITTED'/>
+        <flag-bit name='DUSK_PERMITTED'/>
+        <flag-bit name='NIGHT_PERMITTED'/>
+    </bitfield-type>
+
+    <struct-type type-name='army_controller_goal_huntingst' original-name='ac_goal_huntingst'>
+        <int32_t name='arrive_year' init-value='-1'/>
+        <int32_t name='arrive_season_count' init-value='-1'/>
+        <bitfield name='flag' base-type='uint32_t' type-name='ac_goal_hunting_flag'/>
+        <int32_t name='source_abs_smm_x'/>
+        <int32_t name='source_abs_smm_y'/>
+
+        <int32_t name='latest_track_base_year' init-value='-1'/>
+        <int32_t name='latest_track_rel_sec' init-value='-1'/>
+        <int32_t name='latest_track_abs_smm_x' init-value='-1'/>
+        <int32_t name='latest_track_abs_smm_y' init-value='-1'/>
+    </struct-type>
+
+    <bitfield-type type-name="ac_goal_harass_flag" base-type='uint32_t'> bay12: AC_GOAL_HARASS_FLAG_*
+        <flag-bit name='RETURNING_HOME'/>
+    </bitfield-type>
+
+    <struct-type type-name='army_controller_goal_harassst' original-name='ac_goal_harassst'>
+        <bitfield name="flag" base-type='uint32_t' type-name='ac_goal_harass_flag'/>
+        <int32_t name='source_abs_smm_x'/>
+        <int32_t name='source_abs_smm_y'/>
+    </struct-type>
+
+    <bitfield-type type-name="ac_goal_patrol_flag" base-type='uint32_t'> bay12: AC_GOAL_PATROL_FLAG_*
+        <flag-bit name='RETURNING_HOME'/>
+        <flag-bit name='HARASS_ONLY'/>
+    </bitfield-type>
+
+    <struct-type type-name='army_controller_goal_patrolst' original-name='ac_goal_patrolst'>
+        <int32_t name='arrive_year' init-value='-1'/>
+        <int32_t name='arrive_season_count' init-value='-1'/>
+        <stl-vector name='camp_profile' pointer-type='army_camp_profilest'/>
+        <bitfield name="flag" base-type='uint32_t' type-name='ac_goal_patrol_flag'/>
+        <int32_t name='source_abs_smm_x'/>
+        <int32_t name='source_abs_smm_y'/>
+
+        <int32_t name='latest_track_base_year' init-value='-1'/>
+        <int32_t name='latest_track_rel_sec' init-value='-1'/>
+        <int32_t name='latest_track_abs_smm_x' init-value='-1'/>
+        <int32_t name='latest_track_abs_smm_y' init-value='-1'/>
+    </struct-type>
+
+    <bitfield-type type-name='ac_goal_posse_flag' base-type='uint32_t'> bay12: AC_GOAL_POSSE_FLAG_*
+        <flag-bit name='RETURNING_HOME'/>
+    </bitfield-type>
+
+    <struct-type type-name='army_controller_goal_possest' original-name='ac_goal_possest'>
+        <int32_t name='arrive_year' init-value='-1'/>
+        <int32_t name='arrive_season_count' init-value='-1'/>
+        <stl-vector name='camp_profile' pointer-type='army_camp_profilest'/>
+        <bitfield name='flag' base-type='uint32_t' type-name='ac_goal_posse_flag'/>
+        <int32_t name='source_abs_smm_x'/>
+        <int32_t name='source_abs_smm_y'/>
+
+        <int32_t name='latest_track_base_year' init-value='-1'/>
+        <int32_t name='latest_track_rel_sec' init-value='-1'/>
+        <int32_t name='latest_track_abs_smm_x' init-value='-1'/>
+        <int32_t name='latest_track_abs_smm_y' init-value='-1'/>
+
+        <int32_t name='target_race' ref-target='creature_raw'/>
+        <int32_t name='target_caste' init-value='-1'/>
+        <int32_t name='target_hfid' ref-target='historical_figure'/>
+    </struct-type>
+
+    <bitfield-type type-name="connected_hamlet_site_flag" base-type='uint32_t'> bay12: CONNECTED_HAMLET_SITE_FLAG_*
+        <flag-bit name='SENT_INITIAL_GROUP'/>
+    </bitfield-type>
+
+    <bitfield-type type-name="ac_goal_site_invasion_flag" base-type='uint32_t'> bay12: AC_GOAL_SITE_INVASION_FLAG_*
+        <flag-bit name='RETURNING_HOME'/>
+        <flag-bit name='DEMAND_TRIBUTE_ONE_TIME'/>
+        <flag-bit name='DEMAND_TRIBUTE_ONGOING'/>
+        <flag-bit name='FREE_OWN_CAPTIVES'/>
+        <flag-bit name='FREE_OTHER_CAPTIVES'/>
+        <flag-bit name='TAKE_ARTIFACTS'/>
+        <flag-bit name='TAKE_ITEMS'/>
+        <flag-bit name='STEAL_LIVESTOCK'/>
+        <flag-bit name='ANNOUNCED_RAMPAGE'/>
+        <flag-bit name='DEMAND_SURRENDER_AND_MAYBE_LEAVE'/>
+    </bitfield-type>
+
+    <struct-type type-name='army_controller_goal_site_invasionst' original-name='ac_goal_site_invasionst'>
+        <enum name='invasion_intent' type-name='invasion_intent_type' init-value='NONE'/>
+        <enum name='invasion_stage' type-name='invasion_stage_type' init-value='ORGANIZE'/>
+        <int32_t name='arrive_year' init-value='-1'/>
+        <int32_t name='arrive_season_count' init-value='-1'/>
+        <stl-vector name='camp_profile' pointer-type='army_camp_profilest'/>
+        <stl-vector name='connected_hamlet_site_id' type-name='int32_t' ref-target='world_site'/>
+        <stl-vector name='connected_hamlet_site_flag'><bitfield base-type='uint32_t' type-name='connected_hamlet_site_flag'/></stl-vector>
+        <bitfield name="flag" base-type='uint32_t' type-name='ac_goal_site_invasion_flag'/>
+        <int32_t name='source_abs_smm_x' init-value='-1'/>
+        <int32_t name='source_abs_smm_y' init-value='-1'/>
+        <stl-vector name='rampaged_ac' type-name='int32_t' ref-target='army_controller' since='v0.44.06'/>
+    </struct-type>
+
+    <struct-type type-name='army_controller_goal_escapest' original-name='ac_goal_escapest'>
+        <int32_t name='arrive_year' init-value='-1'/>
+        <int32_t name='arrive_season_count' init-value='-1'/>
+        <stl-vector name='camp_profile' pointer-type='army_camp_profilest'/>
+    </struct-type>
+
+    <bitfield-type type-name="ac_goal_move_to_site_flag" base-type='uint32_t'> bay12: AC_GOAL_MOVE_TO_SITE_FLAG_*
+        <flag-bit name='PERMANENT_MOVE'/>
+        <flag-bit name='RETURNING_TO_CURRENT_HOME'/>
+    </bitfield-type>
+
+    <struct-type type-name='army_controller_goal_move_to_sitest' original-name='ac_goal_move_to_sitest'>
+        <int32_t name='goal_hfid' ref-target='historical_figure'/>
+        <int32_t name='goal_srbid' init-value='-1'/>
+        <bitfield name="flag" base-type='uint32_t' type-name='ac_goal_move_to_site_flag'/>
+        <stl-vector name='camp_profile' pointer-type='army_camp_profilest'/>
+        <int32_t name='goal_ent_id' ref-target='historical_entity'/>
+        <int32_t name='goal_epp_id' ref-target='entity_position_assignment'/>
+
+        <int32_t name='goal_ab_id' ref-target='abstract_building' comment="monster slayers have -1"/>
+        <enum name='reason' type-name='history_event_reason'/>
+    </struct-type>
+
+    <bitfield-type type-name='ac_goal_reclaim_site_flag' base-type='uint32_t'> bay12: AC_GOAL_RECLAIM_SITE_FLAG_*
+        <flag-bit name='RETURNING_HOME'/>
+    </bitfield-type>
+
+    <struct-type type-name='army_controller_goal_reclaim_sitest' original-name='ac_goal_reclaim_sitest'>
+        <bitfield name='flag' base-type='uint32_t' type-name='ac_goal_reclaim_site_flag'/>
+        <int32_t name='source_abs_smm_x'/>
+        <int32_t name='source_abs_smm_y'/>
+        <stl-vector name='camp_profile' pointer-type='army_camp_profilest'/>
+    </struct-type>
+
+    <bitfield-type type-name='ac_goal_create_new_site_flag' base-type='uint32_t'> bay12: AC_GOAL_CREATE_NEW_SITE_FLAG_*
+        <flag-bit name='RETURNING_HOME'/>
+    </bitfield-type>
+
+    <struct-type type-name='army_controller_goal_create_new_sitest' original-name='ac_goal_create_new_sitest'>
+        <bitfield name='flag' base-type='uint32_t' type-name='ac_goal_create_new_site_flag'/>
+        <int32_t name='source_abs_smm_x'/>
+        <int32_t name='source_abs_smm_y'/>
+        <stl-vector name='camp_profile' pointer-type='army_camp_profilest'/>
+        <int32_t name='desired_parent_stid' ref-target='world_site' since='v0.44.11'/>
+    </struct-type>
+
+    <bitfield-type type-name="army_controller_flag" base-type='uint32_t'> bay12: ARMY_CONTROLLER_FLAG_*
+        <flag-bit name='do_not_clear_army_dependencies'/>
+        <flag-bit name='delete_me'/>
+        <flag-bit name='site_realized_over_goal'/>
+        <flag-bit name='civ_rep'/>
+        <flag-bit name='done_for_dwarf_mode'/>
+    </bitfield-type>
+
+    Some army_controller research notes:
+      t1: All seen NomadicGroup. master = group boss, general = leader of army (with troops) referencing controller. Purpose and action unknown.
+
+      An InvasionOrder (2) is generated at the start of the season, shortly followed by an army that references an Invasion controller. The army disappears from the armies.all
+      vector once it enters the embark.
+
+      Invasion (4) has been seen via InvasionOrder army_controllers' armies, but only player fortress attacks have been studied. Prior to the army appears in the armies.all vector this controller
+      seems to be available via the army_controllers.all vector referencing the the InvasionOrder via unk_34.
+
+      t5: unk_34 seen referencing Invasion (4) and unk_38 referencing t5 (player fortress) or t7, disappearing when an army is generated (at least for player fortress).
+
+      Visit (12) appears in the army_controller vector only very briefly before legitimate visitors arrive, and is also used for exiled residents.
+
+      Quest (17) doesn't seem to contain any useful info except the site_id, time, and the artifact_id, in particular not anything that looks like
+      references to the questers themselves or their employer. However, prior to arriving at the site, armies in armies.all can reference the controller, and the army members
+      seem to match the questers that show up shortly thereafter, looking for the indicated artifact. As with InvasionOrder armies, quester armies disappear on embark arrival.
+
+      VillainousVisit (24): Villainous visitors. Legitimate ones use Visit army controllers, but only until they arrive, while villainous ones linger.
+
+    <struct-type type-name='army_controller' key-field='id' original-name='army_controllerst'
+                 instance-vector='$global.world.army_controllers.all'>
+        <int32_t name='id' comment="all army.controllers seen and reached via InvasionOrder controllers' armies have been of type = Invasion and absent from the 'all' vector"/>
+        <int32_t name="entity_id" ref-target='historical_entity'/>
+        <int32_t name='site_id' ref-target="world_site" comment="Invasion/Order: site to invade. Visit/Quest/VillainousVisit: site to 'visit'"/>
+        <int32_t name='subregion_id' ref-target='world_region' init-value='-1'/>
+        <int32_t name='pos_x' comment="Look like the unit is map_block, i.e. 3 * 16 * world tile. Position of target, which is the starting point for defeated invasions"/>
+        <int32_t name='pos_y'/>
+        <int32_t name='percentage_pop'/>
+        <int32_t name='number_pop'/>
+        <stl-vector name='activity_id' type-name='int32_t' ref-target='activity_entry'/>
+        <int32_t name="year"/>
+        <int32_t name="year_tick"/>
+        <int32_t name='parent_id' ref-target='army_controller' comment="id of other army controller (Invasion) from same entity seen here"/>
+        <int32_t name='master_id' ref-target='army_controller' comment="copy of the id seen here, as well as a t7 for a t5 controller"/>
+        <int32_t name='master_hf' ref-target='historical_figure' comment="InvasionOrder: Civ/sitegov master. Invasion: leader of the attack, can be in army nemesis vector"/>
+        <int32_t name='commander_hf' ref-target='historical_figure' comment="InvasionOrder:leader of the attack. Invasion: subordinate squad leader(?) in army nemesis vector. Can be same as master"/>
+        <int32_t name="origin_task_holder_nemesis_id" ref-target='nemesis_record'/>
+        <int32_t name="origin_task_id"/>
+        <int32_t name='origin_plot_holder_nemesis_id' ref-target='nemesis_record'/>
+        <int32_t name='origin_plot_id'/>
+        <stl-vector name="ignore_track_entity_id" type-name='int32_t' ref-target='historical_entity'/>
+        <bitfield name="flag" base-type='uint32_t' type-name='army_controller_flag'/>
+        <stl-vector name="assigned_squads" type-name='int32_t' ref-target='squad'/>
+        <stl-vector name='assigned_epp_entity_id' type-name='int32_t' ref-target='historical_entity' since='v0.44.11'/>
+        <stl-vector name='assigned_epp_epp_id' type-name='int32_t' ref-target='entity_position_assignment' since='v0.50.01'/>
+        <pointer name='mission_report' type-name='mission_report'/>
+        <compound name='data' is-union='true'>
+            <pointer type-name='army_controller_goal_site_invasionst' name='goal_site_invasion'/>
+            <pointer type-name='army_controller_goal_campst' name='goal_camp'/>
+            <pointer type-name='army_controller_goal_guardst' name='goal_guard'/>
+            <pointer type-name='army_controller_goal_harassst' name='goal_harass'/>
+            <pointer type-name='army_controller_goal_huntingst' name='goal_hunting'/>
+            <pointer type-name='army_controller_goal_patrolst' name='goal_patrol'/>
+            <pointer type-name='army_controller_goal_escapest' name='goal_escape'/>
+            <pointer type-name='army_controller_goal_move_to_sitest' name='goal_move_to_site'/>
+            <pointer type-name='army_controller_goal_reclaim_sitest' name='goal_reclaim_site'/>
+            <pointer type-name='army_controller_goal_create_new_sitest' name='goal_create_new_site'/>
+            <pointer type-name='army_controller_goal_possest' name='goal_posse'/>
+            <pointer type-name='army_controller_goal_site_workst' name='goal_site_work'/>
+            <pointer type-name='army_controller_goal_recover_artifactst' name='goal_recover_artifact'/>
+            <pointer type-name='army_controller_goal_rescue_hfst' name='goal_rescue_hf'/>
+            <pointer type-name='army_controller_goal_make_requestst' name='goal_make_request'/>
+            <pointer type-name='army_controller_goal_perform_taskst' name='goal_perform_task'/>
+            <pointer type-name='army_controller_goal_assassinate_hfst' name='goal_assassinate_hf'/>
+            <pointer type-name='army_controller_goal_abduct_hfst' name='goal_abduct_hf'/>
+            <pointer type-name='army_controller_goal_sabotage_entityst' name='goal_sabotage_entity'/>
+            <pointer type-name='army_controller_goal_infiltrate_societyst' name='goal_infiltrate_society'/>
+        </compound>
+        <enum name='goal' type-name='army_controller_goal_type'/>
+    </struct-type>
+
+    <struct-type type-name='army_controller_handlerst'>
+        <stl-vector name='all' pointer-type='army_controller'/>
+        <stl-vector name='order_load' pointer-type='army_controller' has-bad-pointers='true'/>
+    </struct-type>
+</data-definition>
+
+<!--
+Local Variables:
+indent-tabs-mode: nil
+nxml-child-indent: 4
+End:
+-->
