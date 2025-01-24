@@ -492,47 +492,6 @@
         <int16_t name='z_max'/>
     </struct-type>
 
-    <enum-type type-name='combat_report_event_type' base-type='int16_t'> bay12: CombatEventType
-        <enum-item name='StruckItem'/>
-        <enum-item name='Deflected'/>
-        <enum-item name='ThroughTissue'/>
-        <enum-item name='CompoundFracture'/>
-        <enum-item name='BrokenAway'/>
-        <enum-item name='BasicWound'/>
-        <enum-item name='Unconscious'/>
-        <enum-item name='Stunned'/>
-        <enum-item name='MoreStunned'/>
-        <enum-item name='Winded'/>
-        <enum-item name='MoreWinded'/>
-        <enum-item name='Nausea'/>
-        <enum-item name='MoreNausea'/>
-        <enum-item name='SeveredPart'/>
-        <enum-item name='PopOut'/>
-        <enum-item name='ExtractInjected'/>
-        <enum-item name='ExtractSprayed'/>
-        <enum-item name='BloodSucked'/>
-        <enum-item name='StrikeInto'/>
-        <enum-item name='GrabGlances'/>
-        <enum-item name='KnockedBack'/>
-        <enum-item name='StuckIn'/>
-        <enum-item name='LatchOnPart'/>
-        <enum-item name='LatchOn'/>
-        <enum-item name='Enraged'/>
-        <enum-item name='PassThrough'/>
-        <enum-item name='GlancesAway'/>
-        <enum-item name='TendonDamaged'/>
-        <enum-item name='LigamentDamaged'/>
-        <enum-item name='MajorArtery'/>
-        <enum-item name='Artery'/>
-        <enum-item name='MotorNerve'/>
-        <enum-item name='SensoryNerve'/>
-        <enum-item name='NoForce'/>
-        <enum-item name='Interrupted'/>
-        <enum-item name='Pulped'/>
-        <enum-item name='Gelded'/>
-        <enum-item name='ItemBroke'/>
-    </enum-type>
-
     <struct-type type-name='glowing_barrier' original-name='event_underworld_building_monitorst'>
         <uint8_t name='triggered' comment='set when the glowing barrier vanishes, preventing later HFS events'/>
         <int32_t name='age' comment='divide by 100800, add 1, then multiply by 20 to get number of demons to summon (min 10, max 100)'/>
@@ -1020,68 +979,7 @@
 
         -- Reports and announcements
 
-        <compound name='status'> bay12: announcement_handlerst
-            <stl-vector name='reports' pointer-type='report'/>
-            <stl-vector name='announcements' pointer-type='report'/>
-            <stl-vector name='popups' pointer-type='popup_message'/>
-            <compound name='mega_text' type-name='markup_text_boxst'/>
-            <int32_t name='mega_portrait_hfid' ref-target='historical_figure'/>
-
-            <int32_t name='next_report_id'/>
-            <bitfield name='flags' base-type='uint32_t'> bay12: REPORT_FLAG_*
-                <flag-bit name='combat'/>
-                <flag-bit name='hunting'/>
-                <flag-bit name='sparring'/>
-                <flag-bit name='mission'/>
-                <flag-bit name='spoils'/>
-                <flag-bit name='tribute'/>
-                <flag-bit name='interrogation'/>
-            </bitfield>
-
-            <static-array name='current_numeric_unid' type-name='int32_t' count='9' ref-target='unit' since='v0.40.01'/>
-            <stl-vector name='mission_reports' pointer-type='mission_report'/>
-            <stl-vector name='spoils_reports' pointer-type='spoils_report' since='v0.44.06'/>
-            <stl-vector name='interrogation_reports' pointer-type='interrogation_report' since='v0.47.01'/>
-            <stl-vector name='announcement_alert' pointer-type='announcement_alertst'/>
-            <stl-vector name='alert_button_announcement_id' type-name='int32_t' comment='entries are report ids'/>
-            <int32_t name='display_timer' comment='bay12: announcetime'/>
-
-            <compound name='slots'> bay12: combat_event_listst
-                <static-array name='slotdata' count='100'> bay12: combat_eventst
-                    <enum type-name='combat_report_event_type' name='type'/>
-                    <static-array name='field1' type-name='int32_t' count='4' comment='varies by event type'/>
-                    <static-array name='field2' type-name='int16_t' count='4' comment='varies by event type'/>
-                    <static-array name='str' type-name='stl-string' count='4'/>
-                    <bitfield name='flags' base-type='uint32_t'> bay12: COMBAT_EVENT_STRIKE_INTRO_FLAG_*
-                        <flag-bit name='behind'/>
-                        <flag-bit name='side'/>
-                        <flag-bit name='grapple'/>
-                        <flag-bit name='item'/>
-                        <flag-bit name='tap'/>
-                        <flag-bit name='passive'/>
-                        <flag-bit name='liquipowder'/>
-                    </bitfield>
-                </static-array>
-                <static-array name='slot_id_used' type-name='int16_t' count='38' index-enum='combat_report_event_type'/>
-                <static-array name='slot_id_idx1' type-name='int16_t' count='38' index-enum='combat_report_event_type'/>
-                <static-array name='slot_id_idx2' type-name='int16_t' count='38' index-enum='combat_report_event_type'/>
-                <int16_t name='slots_used'/>
-            </compound>
-
-            <bitfield name='temp_flag' base-type='uint32_t'> bay12: ANNOUNCEMENT_TEMP_FLAG_*
-                <flag-bit name='adv_handle_announcements'/>
-                <flag-bit name='adv_doing_more'/>
-                <flag-bit name='adv_preserve_announcements'/>
-                <flag-bit name='adv_have_more'/>
-                <flag-bit name='adv_showing_announcements'/>
-            </bitfield>
-            <int32_t name='adv_scroll_position'/>
-            <bool name='adv_scrolling'/>
-            <int32_t name='adv_highest_scroll_position'/>
-            <stl-vector name='adv_announcement' pointer-type='adv_announcementst'/>
-
-            <stl-mutex name='announcement_mutex' comment='bay12: mtx'/>
-        </compound>
+        <compound name='status' type-name='announcement_handlerst'/>
 
         <compound name='interaction_instances'> bay12: interaction_instance_handlerst
             <stl-vector name='all' pointer-type='interaction_instance'/>
