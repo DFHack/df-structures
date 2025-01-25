@@ -1,0 +1,127 @@
+<data-definition>
+    <enum-type type-name='creation_zone_pwg_alteration_type' base-type='int16_t'> bay12: CreationZonePWGAlterationType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='location_death'/>
+        <enum-item name='camp'/>
+        <enum-item name='srb_ruined'/>
+        <enum-item name='srp_ruined'/>
+    </enum-type>
+
+    <class-type type-name='creation_zone_pwg_alterationst'>
+        <int32_t name='id'/>
+        <virtual-methods>
+            <vmethod ret-type='creation_zone_pwg_alteration_type' name='getType'/>
+            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
+            <vmethod name='read_file'>
+                <pointer name='file' type-name='file_compressorst'/>
+                <enum name='loadversion' type-name='save_version'/>
+            </vmethod>
+            <vmethod is-destructor='true'/>
+            <vmethod name='apply_to_map'><pointer name='map' comment='map_generatorst'/></vmethod>
+            <vmethod name='get_location_death'><ret-type><pointer type-name='location_deathst'/></ret-type></vmethod>
+        </virtual-methods>
+    </class-type>
+
+    <class-type type-name='creation_zone_pwg_alteration_location_deathst' inherits-from='creation_zone_pwg_alterationst'>
+        <compound name='death' type-name='location_deathst'/>
+        <int32_t name='killer_civ' ref-target='historical_entity'/>
+    </class-type>
+
+    <bitfield-type type-name='creation_zone_pwg_alteration_camp_flag' base-type='uint32_t'> bay12: CREATION_ZONE_PWG_ALTERATION_CAMP_FLAG_*
+        <flag-bit name='commander'/>
+    </bitfield-type>
+
+    <class-type type-name='creation_zone_pwg_alteration_campst' inherits-from='creation_zone_pwg_alterationst'>
+        <int32_t name='x1'/>
+        <int32_t name='y1'/>
+        <int32_t name='x2'/>
+        <int32_t name='y2'/>
+        <int32_t name='army_total_pop'/>
+        <bitfield name='flags' base-type='uint32_t' type-name='creation_zone_pwg_alteration_camp_flag'/>
+        <enum name='tent_item' type-name='item_type'/>
+        <int16_t name='tent_subtype'/>
+        <int16_t name='tent_material'/>
+        <int32_t name='tent_matgloss'/>
+    </class-type>
+
+    <class-type type-name='creation_zone_pwg_alteration_srb_ruinedst' inherits-from='creation_zone_pwg_alterationst'>
+        <int32_t name='site_id' ref-target='world_site'/>
+        <int32_t name='building_id' ref-target='site_realization_building'/>
+    </class-type>
+
+    <class-type type-name='creation_zone_pwg_alteration_srp_ruinedst' inherits-from='creation_zone_pwg_alterationst'>
+        <int32_t name='site_id' ref-target='world_site'/>
+        <int32_t name='plot_id' ref-target='site_realization_plotst'/>
+    </class-type>
+
+    <bitfield-type type-name='creation_zone_item_flag' base-type='uint32_t'> bay12: CREATION_ZONE_ITEM_FLAG_*
+        <flag-bit name='zone_assigned'/>
+    </bitfield-type>
+
+    <struct-type type-name='creation_zone_itemst'>
+        <pointer name="item" type-name="item"/>
+        <int32_t name="global_x" comment='in tiles it seems'/>
+        <int32_t name="global_y"/>
+        <int32_t name="global_z"/>
+        <int32_t name="container" ref-target='item'/>
+        <int32_t name="building" ref-target='building'/>
+        <bitfield name='flags' base-type='uint32_t' type-name='creation_zone_item_flag'/>
+    </struct-type>
+
+    <struct-type type-name='creation_zone_buildingst'>
+        <pointer name="building" type-name="building"/>
+        <int32_t name="global_x" comment='in tiles it seems'/>
+        <int32_t name="global_y"/>
+        <int32_t name="global_z"/>
+        <uint32_t name="flags"/> none yet
+    </struct-type>
+
+    <struct-type type-name='creation_zone_campfirest'>
+        <int32_t name="global_x" comment='in in-game tiles it seems'/>
+        <int32_t name="global_y"/>
+        <int32_t name="global_z"/>
+        <int32_t name="stoked"/>
+    </struct-type>
+
+    <struct-type type-name='world_object_data' original-name='creation_zonest'
+                 instance-vector='$global.world.world_data.object_data' key-field='id'>
+        <int32_t name='id' comment="World MLT of the data according to: i + x * 16 + k * 16 * world_width + y * 256 * world_width, where (x, y) is the world tile and (i, k) the MLT within it"/>
+        <stl-vector name="altered_items" type-name='int32_t' comment='world_data_subid'/>
+        <stl-vector name="offloaded_items" pointer-type='creation_zone_itemst'/>
+        <stl-vector name="detail_abs_x" type-name='int32_t'/>
+        <stl-vector name="detail_abs_y" type-name='int32_t'/>
+        <stl-vector name="detail_abs_z" type-name='int32_t'/>
+        <stl-vector name="detail_image_id" type-name='int32_t'/>
+        <stl-vector name="detail_image_member" type-name='int16_t'/>
+        <stl-vector name="altered_buildings" type-name='int32_t' comment='world_data_subid'/>
+        <stl-vector name="offloaded_buildings" pointer-type='creation_zone_buildingst'/>
+        <stl-vector name="campfire" pointer-type='creation_zone_campfirest'/>
+        <stl-vector name='creation_zone_alterations' pointer-type='creation_zone_pwg_alterationst' since='v0.40.01'/>
+        <int32_t name='next_pwg_alteration_local_id' since='v0.40.01'/>
+        <int32_t name="year"/>
+        <int32_t name="year_tick"/>
+
+        <compound name='picked_growths' since='v0.40.14' comment="also includes 'automatically picked' i.e. fallen fruit that becomes item_spatter. Doesn not seem to be used by Adventurer mode"> not a compound
+            <stl-vector name='x' type-name='int16_t' comment="0 - 47, within the MLT"/>
+            <stl-vector name='y' type-name='int16_t' comment="0 - 47, within the MLT"/>
+            <stl-vector name='z' type-name='int16_t' comment="z coordinate using the elevation coordinate system"/>
+            <stl-vector name='subtype' type-name='int32_t' comment="subtype of the growth picked within the raws of the implicit plant"/>
+            <stl-vector name='density' type-name='int32_t' comment="copy of the density field of the growth raws"/>
+            <stl-vector name='year' type-name='int32_t' comment="presumably to know whether it's the current year's harvest or the previous one's"/>
+        </compound>
+
+        <compound name='pulled_branches' since='v0.43.01' comment="probably used by Adventurer mode"> not a compound
+            <stl-vector name='x' type-name='int16_t' comment="probably MLT relative x coordinate"/>
+            <stl-vector name='y' type-name='int16_t' comment="probably MLT relative y coordinate"/>
+            <stl-vector name='z' type-name='int16_t' comment="probably z coordinate using the elevation coordinate system"/>
+            <stl-vector name='year' type-name='int32_t' comment="233/234 seen"/>
+        </compound>
+    </struct-type>
+</data-definition>
+
+<!--
+Local Variables:
+indent-tabs-mode: nil
+nxml-child-indent: 4
+End:
+-->
