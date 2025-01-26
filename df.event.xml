@@ -1,0 +1,251 @@
+<data-definition>
+    <bitfield-type type-name='engraving_flags' base-type='uint32_t'> bay12: EVENTDETAILFLAG_*
+        <flag-bit name='floor'/>
+        <flag-bit name='west'/>
+        <flag-bit name='east'/>
+        <flag-bit name='north'/>
+        <flag-bit name='south'/>
+        <flag-bit name='hidden'/>
+        <flag-bit name='northwest'/>
+        <flag-bit name='northeast'/>
+        <flag-bit name='southwest'/>
+        <flag-bit name='southeast'/>
+    </bitfield-type>
+
+    <struct-type type-name='engraving' original-name='event_detailst' instance-vector='$global.world.event.engravings'>
+        <int32_t name='artist' ref-target='historical_figure'/>
+        <int32_t name='masterpiece_event' ref-target='history_event'/>
+        <enum base-type='int32_t' name="skill_rating" type-name='skill_rating'
+              comment='at the moment of creation'/>
+        <compound name='pos' type-name='coord'/>
+        <bitfield name='flags' type-name='engraving_flags'/>
+        <uint8_t name='tile'/>
+        <int32_t name='art_id' ref-target='art_image_chunk'/>
+        <int16_t name='art_subid' ref-target='art_image' aux-value='$$.art_id'/>
+        <enum base-type='int16_t' name='quality' type-name='item_quality'/>
+        <int32_t name='art_civ' ref-target='historical_entity' since='v0.34.06'/>
+        <int32_t name='art_site' ref-target='world_site' since='v0.34.06'/>
+    </struct-type>
+
+    <struct-type type-name='glowing_barrier' original-name='event_underworld_building_monitorst'>
+        <uint8_t name='triggered' comment='set when the glowing barrier vanishes, preventing later HFS events'/>
+        <int32_t name='age' comment='divide by 100800, add 1, then multiply by 20 to get number of demons to summon (min 10, max 100)'/>
+        <stl-vector name='buildings' type-name='int32_t' ref-target='building' comment='when building is deconstructed, causes glowing barrier at pos to vanish and (in fort mode) spawns HFS one z-level below if it has not been set off already'/>
+        <compound name='pos' type-name='coord' comment='coordinates of a GlowingBarrier or GlowingFloor tiletype'/>
+    </struct-type>
+
+    <struct-type type-name='deep_vein_hollow' original-name='event_underworld_tube_breach_monitorst'>
+        <uint8_t name='triggered' comment='set when the underworld spire is breached, preventing subsequent HFS events'/>
+        <int32_t name='age' comment='divide by 100800, add 1, then multiply by 20 to get number of demons to summon (min 10, max 100)'/>
+        <compound name='tiles' type-name='coord_path' comment='tile coordinates correspond to open spaces within an underworld spire; revealing one of these tiles triggers the HFS demon wave'/>
+        <compound name='pos' type-name='coord' comment='announcement zoom location'/>
+    </struct-type>
+
+    <struct-type type-name='divine_treasure' original-name='event_tube_treasure_monitorst'>
+        <int32_t name='histfig_id' ref-target='historical_figure'/>
+        <enum type-name='item_type' name='item_type'/>
+        <int16_t name='item_subtype'/>
+        <int16_t name='mat_type'/>
+        <int32_t name='mat_index'/>
+        <uint8_t name='triggered'/>
+        <compound type-name='coord_path' name='tiles'/>
+        <compound type-name='coord' name='pos' comment='announcement zoom location'/>
+    </struct-type>
+
+    <enum-type type-name='tube_hazard_type' base-type='int32_t'> bay12: TubeHazardType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='ENEMY'/>
+        <enum-item name='FLOW'/>
+    </enum-type>
+
+    <struct-type type-name='encased_horror' original-name='event_tube_hazard_monitorst'>
+        <enum name='type' type-name='tube_hazard_type'/>
+        <int32_t name='race'/>
+        <int32_t name='caste'/>
+        <int32_t name='source_hf' ref-target='historical_figure'/>
+        <int32_t name='flow'/>
+        <int32_t name='flow_st'/>
+        <int32_t name='flow_sst'/>
+        <uint8_t name='triggered'/>
+        <compound type-name='coord_path' name='tiles'/>
+        <compound type-name='coord' name='pos' comment='announcement zoom location'/>
+    </struct-type>
+
+    <struct-type type-name='edm_rectst'>
+        <int32_t name='x_min'/>
+        <int32_t name='y_min'/>
+        <int32_t name='z_min'/>
+        <int32_t name='x_max'/>
+        <int32_t name='y_max'/>
+        <int32_t name='z_max'/>
+    </struct-type>
+
+    <struct-type type-name='cursed_tomb' original-name='event_disturbance_monitorst'>
+        <uint8_t name='triggered'/>
+        <stl-vector type-name='int32_t' name='coffin_skeletons' ref-target='item'/>
+        <int32_t name='disturbance' ref-target='interaction'/>
+        <stl-vector type-name='int32_t' name='treasures' ref-target='item'/>
+        <int32_t name='site_id' ref-target='world_site'/>
+        <int32_t name='structure_id' ref-target='abstract_building'/>
+        <stl-vector name='trigger_regions' pointer-type='edm_rectst' comment='normally just one, 3x3 around the coffin'/>
+        <compound type-name='coord' name='coffin_pos'/>
+    </struct-type>
+
+    <bitfield-type type-name='vermin_flags' base-type='uint32_t'> bay12: VERMINEVENTFLAG_*
+        <flag-bit name='already_deleting'/>
+        <flag-bit name='is_colony' comment='A vermin colony. For example an anthill or bee hive.'/>
+        <flag-bit name='triggerable'/>
+        <flag-bit name='is_roaming_colony' comment="bay12: NOT_LIMITING; colony building vermin away from colony"/>
+    </bitfield-type>
+
+    <enum-type type-name='vermin_category'> bay12: VerminCreationType
+        <enum-item name='None' value='-1'/>
+        <enum-item name='Eater'/>
+        <enum-item name='Grounder'/>
+        <enum-item name='Rotter'/>
+        <enum-item name='Swamper'/>
+        <enum-item name='Colony'/>
+        <enum-item name='Triggered'/>
+        <enum-item name='Item'/>
+        <enum-item name='Sphere'/>
+        <enum-item name='FromColony'/>
+    </enum-type>
+
+    <struct-type type-name='vermin' instance-vector='$global.world.event.vermin'>
+        <int16_t name='race' ref-target='creature_raw'/>
+        <int16_t name='caste' ref-target='caste_raw' aux-value='$$.race'/>
+        <compound name='pos' type-name='coord'/>
+        <bool name="visible" comment="1 = visible vermin" />
+
+        <int16_t name="countdown" />
+
+        <pointer name="item" type-name='item'/>
+
+        <bitfield name='flags' type-name='vermin_flags'/>
+        <int32_t name="amount" comment="The total number of vermin in this object. Decimal constant 10000001 means infinity (probably)." />
+
+        <compound name='population' type-name='world_population_ref'/>
+
+        <enum type-name='vermin_category' base-type='int16_t' name='category'/>
+        <int32_t name='id' comment='assigned during Save'/>
+    </struct-type>
+
+    <struct-type type-name='event_waterst'>
+        <compound type-name='coord' name='pos'/>
+    </struct-type>
+
+    <struct-type type-name='web_cluster' original-name='event_webst'>
+        <stl-vector type-name='int16_t' name='x'/>
+        <stl-vector type-name='int16_t' name='y'/>
+        <int16_t name='z'/>
+        <int16_t name='race' ref-target='creature_raw'/>
+        <int16_t name='caste' ref-target='caste_raw' aux-value='$$.race' />
+        <compound type-name='coord2d' name='pos_min'/>
+        <compound type-name='coord2d' name='pos_max'/>
+        <stl-vector type-name='int32_t' name='ambushers' ref-target='unit'/>
+    </struct-type>
+
+    <struct-type type-name='campfire' original-name='event_campfirest'>
+        <compound type-name='coord' name='pos'/>
+        <int32_t name='timer'/>
+    </struct-type>
+
+    <struct-type type-name='fire' original-name='event_firest'>
+        <compound type-name='coord' name='pos'/>
+        <int16_t name='timer'/>
+        <uint16_t name='inner_temp_cur' init-value='10508' comment='applied to own tile'/>
+        <uint16_t name='outer_temp_cur' init-value='10000' comment='applied to neighboring tiles'/>
+        <uint16_t name='inner_temp_max' init-value='10708'/>
+        <uint16_t name='outer_temp_max' init-value='10708'/>
+    </struct-type>
+
+    <struct-type type-name='coord_rect' original-name='event_swampst'>
+        <int16_t name='x1'/>
+        <int16_t name='y1'/>
+        <int16_t name='x2'/>
+        <int16_t name='y2'/>
+        <int16_t name='z'/>
+    </struct-type>
+
+    <struct-type type-name='ocean_wave_maker' original-name='event_ocean_wave_generatorst'>
+        <compound type-name='coord' name='pos'/>
+        <int8_t name='interval'/>
+        <compound name='coastline' type-name='coord2d_path'/>
+        <compound name='wave_origin' type-name='coord2d_path'/>
+    </struct-type>
+
+    <struct-type type-name='ocean_wave' original-name='event_ocean_wave_frontst'>
+        <compound type-name='coord2d' name='dest'/>
+        <compound type-name='coord2d' name='cur'/>
+        <int16_t name='z'/>
+        <int8_t name='spawn_flows' comment='set once the wave reaches the coast'/>
+        <int8_t name='move_timer'/>
+        <int8_t name='vis_duration' comment='starts at 120 and randomly decrements'/>
+    </struct-type>
+
+    <bitfield-type type-name='construction_flags' base-type='uint8_t'> bay12: EVENT_CONSTRUCTION_FLAG_*
+        <flag-bit name='no_build_item' comment='bay12: MUST_GENERATE_ITEMS; build item is created from scratch upon removing construction, does not exist beforehand'/>
+        <flag-bit name='top_of_wall' comment='bay12: ITEMLESS_CEILING; used on the floors above constructed walls so you cannot remove them'/>
+    </bitfield-type>
+
+    <struct-type type-name='construction' instance-vector='$global.world.event.constructions' key-field='pos' original-name='event_constructionst' custom-methods='true'>
+        <compound name='pos' type-name='coord'/>
+        <enum type-name='item_type' name='item_type'/>
+        <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+        <bitfield type-name='construction_flags' name='flags'/>
+        <enum base-type='uint16_t' type-name='tiletype' name='original_tile'/>
+    </struct-type>
+
+    <struct-type type-name='embark_feature' original-name='event_populationst' comment="layers plus river seen">
+        <compound type-name='coord2d' name='world_tile'/>
+        <compound type-name='coord2d' name='mid_level_tile' comment="the MLT the feature resides in"/>
+        <int16_t name='local_feature_idx'/>
+        <int32_t name='global_feature_idx' ref-target='world_underground_region'/>
+        <int32_t name='global_feature_sq'/>
+        <enum name='layer' type-name='layer_type' base-type='int16_t'/>
+        <compound type-name='coord2d' name='local' comment="the top left corner of the MLT, in embark relative coordinates"/>
+        <int16_t name='z_min'/>
+        <int16_t name='z_max'/>
+    </struct-type>
+
+    <struct-type type-name='event_handlerst'>
+        <stl-vector name='glowing_barriers' pointer-type='glowing_barrier' comment='bay12: underworld_building_monitor'/>
+        <stl-vector name='deep_vein_hollows' pointer-type='deep_vein_hollow' comment='bay12: underworld_tube_breach_monitor'/>
+        <stl-vector name='divine_treasures' pointer-type='divine_treasure'  comment='bay12: tube_treasure_monitor'/>
+        <stl-vector name='encased_horrors' pointer-type='encased_horror'  comment='bay12: tube_hazard_monitor'/>
+        <stl-vector name='cursed_tombs' pointer-type='cursed_tomb'  comment='bay12: disturbance_monitor'/>
+        <stl-vector name='engravings' pointer-type='engraving' comment='bay12: detail'/>
+        <stl-vector name='vermin' pointer-type='vermin' comment='bay12: vermin'/>
+        <stl-vector name='vermin_colonies' pointer-type='vermin' comment='bay12: vermin_colony'/>
+        <stl-vector name='dirty_waters' pointer-type='event_waterst' comment="bay12: water; for making blood flow downstream in rivers, but also includes mud in artificial water channels"/>
+        <stl-vector name='campfires' pointer-type='campfire' comment='bay12: campfire'/>
+        <stl-vector name='web_clusters' pointer-type='web_cluster' comment='bay12: web'/>
+        <stl-vector name='fires' pointer-type='fire' comment='bay12: fire'/>
+        <stl-vector name='ocean_wave_makers' pointer-type='ocean_wave_maker' comment='bay12: ocean_wave_generator'/>
+        <stl-vector name='ocean_waves' pointer-type='ocean_wave' comment='bay12: ocean_wave_front'/>
+        <stl-vector name='constructions' pointer-type='construction' comment='bay12: construction'/>
+        <stl-vector name='murky_pools' pointer-type='coord_rect' comment='bay12: swamp'/>
+        <stl-vector name='embark_features' pointer-type='embark_feature' comment="bay12: population; populated at embark"/>
+
+        <!-- bay12: "THESE ARE USED DURING SITE SAVE/LOAD" -->
+        <stl-vector name='temp_save_glowing_barriers' pointer-type='glowing_barrier' comment='bay12: temp_save_underworld_building_monitor'/>
+        <stl-vector name='temp_save_deep_vein_hollows' pointer-type='deep_vein_hollow' comment='bay12: temp_save_underworld_tube_breach_monitor'/>
+        <stl-vector name='temp_save_divine_treasures' pointer-type='divine_treasure' comment='bay12: temp_save_tube_treasure_monitor'/>
+        <stl-vector name='temp_save_encased_horrors' pointer-type='encased_horror' comment='bay12: temp_save_tube_hazard_monitor'/>
+        <stl-vector name='temp_save_cursed_tombs' pointer-type='cursed_tomb' comment='bay12: temp_save_disturbance_monitor'/>
+        <stl-vector name='temp_save_engravings' pointer-type='engraving' comment='bay12: temp_save_detail'/>
+        <stl-vector name='temp_save_constructions' pointer-type='construction' comment='bay12: temp_save_construction'/>
+        <stl-vector name='temp_save_embark_features' pointer-type='embark_feature' comment='bay12: temp_save_population'/>
+        <stl-vector name='temp_save_ocean_wave_makers' pointer-type='ocean_wave_maker' comment='bay12: temp_save_ocean_wave_generator'/>
+        <stl-vector name='temp_save_murky_pools' pointer-type='coord_rect' comment='bay12: temp_save_swamp'/>
+    </struct-type>
+</data-definition>
+
+<!--
+Local Variables:
+indent-tabs-mode: nil
+nxml-child-indent: 4
+End:
+-->
