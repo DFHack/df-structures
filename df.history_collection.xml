@@ -1,0 +1,290 @@
+<data-definition>
+    <enum-type type-name='history_event_collection_type' base-type='int16_t'> bay12: HistoryEventCollectionType
+        <enum-item name='WAR'/>
+        <enum-item name='BATTLE'/>
+        <enum-item name='DUEL'/>
+        <enum-item name='SITE_CONQUERED'/>
+        <enum-item name='ABDUCTION'/>
+        <enum-item name='THEFT'/>
+        <enum-item name='BEAST_ATTACK'/>
+        <enum-item name='JOURNEY'/>
+        <enum-item name='INSURRECTION'/>
+        <enum-item name='OCCASION'/>
+        <enum-item name='PERFORMANCE'/>
+        <enum-item name='COMPETITION'/>
+        <enum-item name='PROCESSION'/>
+        <enum-item name='CEREMONY'/>
+        <enum-item name='PURGE'/>
+        <enum-item name='RAID'/>
+        <enum-item name='PERSECUTION'/>
+        <enum-item name='ENTITY_OVERTHROWN'/>
+    </enum-type>
+
+    <enum-type type-name='history_event_collection_flag_type'> bay12: HistoryEventCollectionFlagType
+        <enum-item name='UNUSED_1'/>
+    </enum-type>
+
+    <class-type type-name='history_event_collection' original-name='history_event_collectionst'
+                instance-vector='$global.world.history.event_collections.all' key-field='id'>
+        <stl-vector name='events' type-name='int32_t' ref-target='history_event'/>
+        <stl-vector name='collections' type-name='int32_t' ref-target='history_event_collection'/>
+        <int32_t name='start_year'/>
+        <int32_t name='end_year'/>
+        <int32_t name='start_seconds'/>
+        <int32_t name='end_seconds'/>
+        <df-flagarray name='flags' index-enum='history_event_collection_flag_type'/>
+        <int32_t name='id'/>
+
+        <virtual-methods>
+            <vmethod ret-type='history_event_collection_type' name='getType'/>
+            <vmethod name='generate_xml'>
+                <pointer type-name='stl-fstream'/>
+                <int32_t name='indent'/>
+            </vmethod>
+            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
+            <vmethod name='read_file'>
+                <pointer name='file' type-name='file_compressorst'/>
+                <enum name='loadversion' type-name='save_version'/>
+            </vmethod>
+            <vmethod name='categorize'/>
+
+            <vmethod name='uncategorize'/>
+            <vmethod name='getName'><pointer name='string' type-name='stl-string'/></vmethod>
+            <vmethod name='getRegionCoords'><pointer name='x' type-name='int16_t'/><pointer name='y' type-name='int16_t'/></vmethod>
+            <vmethod name='getParent' ret-type='int32_t'/>
+            <vmethod name='getEraImportance' ret-type='int32_t'/>
+
+            -- 10
+
+            <vmethod name='getDiplomacyValue' ret-type='int32_t'><int32_t name='civ'/><int32_t name='target'/></vmethod>
+            <vmethod name='updateEndTime'/>
+            <vmethod is-destructor='true'/>
+        </virtual-methods>
+    </class-type>
+
+    <class-type type-name='history_event_collection_warst' inherits-from='history_event_collection'>
+        <compound type-name='language_name' name='name'/>
+        <stl-vector name='attacker_civ' type-name='int32_t' ref-target='historical_entity'/>
+        <stl-vector name='defender_civ' type-name='int32_t' ref-target='historical_entity'/>
+        <stl-vector name='involved_civ' type-name='int32_t' ref-target='historical_entity'/>
+        <compound name='dipeval' type-name='diplomatic_evaluationst'/>
+    </class-type>
+
+    <bitfield-type type-name='hec_battle_pop_flag' base-type='uint32_t'> bay12: HEC_BATTLE_POP_FLAG_*
+        <flag-bit name='animated'/>
+    </bitfield-type>
+
+    <bitfield-type type-name='hec_battle_hf_flag' base-type='uint32_t'> bay12: HEC_BATTLE_HF_FLAG_*
+        <flag-bit name='individual_merc'/>
+        <flag-bit name='company_merc'/>
+    </bitfield-type>
+
+    <bitfield-type type-name='hec_battle_flag' base-type='uint32_t'> bay12: HEC_BATTLE_FLAG_*
+        <flag-bit name='attacker_scout'/>
+        <flag-bit name='defender_scout'/>
+    </bitfield-type>
+
+    <class-type type-name='history_event_collection_battlest' inherits-from='history_event_collection'>
+        <compound type-name='language_name' name='name'/>
+        <int32_t name='parent_collection' ref-target='history_event_collection'/>
+        <int32_t name='region' ref-target='world_region'/>
+        <int32_t name='layer' ref-target='world_underground_region'/>
+        <int32_t name='site' ref-target='world_site'/>
+        <compound name='region_pos' type-name='coord2d'/>
+
+        <stl-vector name='attacker_civ' type-name='int32_t' ref-target='historical_entity'/>
+        <stl-vector name='defender_civ' type-name='int32_t' ref-target='historical_entity'/>
+        <stl-vector name='attacker_hf' type-name='int32_t' ref-target='historical_figure'/>
+        <stl-vector name='attacker_role' type-name='hec_battle_hf_flag'/>
+        <stl-vector name='defender_hf' type-name='int32_t' ref-target='historical_figure'/>
+        <stl-vector name='defender_role' type-name='hec_battle_hf_flag'/>
+        <stl-vector name='noncombat_hf' type-name='int32_t' ref-target='historical_figure' comment="saw being beheaded, but that's only one checked"/>
+        <bitfield name='merc_roles' base-type='uint32_t' type-name='hec_battle_flag'/>
+        <int32_t name='attacker_mercs' ref-target='historical_entity'/>
+        <int32_t name='defender_mercs' ref-target='historical_entity'/>
+        <stl-vector name='attacker_merc_hfs' ref-target='historical_figure' type-name='int32_t'/>
+        <stl-vector name='defender_merc_hfs' ref-target='historical_figure' type-name='int32_t'/>
+
+        <stl-vector name='attacker_squad_entity_pop' type-name='int32_t' ref-target='entity_population'/>
+        <stl-vector name='attacker_squad_counts' type-name='int32_t'/>
+        <stl-vector name='attacker_squad_deaths' type-name='int32_t'/>
+        <stl-vector name='attacker_squad_races' type-name='int32_t' ref-target='creature_raw'/>
+        <stl-vector name='attacker_squad_sites' type-name='int32_t' ref-target='world_site'/>
+        <stl-vector name='attacker_squad_flag' type-name='hec_battle_pop_flag'/>
+
+        <stl-vector name='defender_squad_entity_pops' type-name='int32_t' ref-target='entity_population'/>
+        <stl-vector name='defender_squad_counts' type-name='int32_t'/>
+        <stl-vector name='defender_squad_deaths' type-name='int32_t'/>
+        <stl-vector name='defender_squad_races' type-name='int32_t' ref-target='creature_raw'/>
+        <stl-vector name='defender_squad_sites' type-name='int32_t' ref-target='world_site'/>
+        <stl-vector name='defender_squad_flag' type-name='hec_battle_pop_flag'/>
+
+        <enum name='outcome' type-name='battle_outcome_type'/>
+    </class-type>
+
+    <class-type type-name='history_event_collection_duelst' inherits-from='history_event_collection'>
+        <int32_t name='parent_collection' ref-target='history_event_collection'/>
+        <int32_t name='region' ref-target='world_region'/>
+        <int32_t name='layer' ref-target='world_underground_region'/>
+        <int32_t name='site' ref-target='world_site'/>
+        <compound name='region_pos' type-name='coord2d'/>
+
+        <int32_t name='attacker_hf' ref-target='historical_figure'/>
+        <int32_t name='defender_hf' ref-target='historical_figure'/>
+        <int32_t name='ordinal'/>
+        <int8_t name='attacker_won'/>
+    </class-type>
+
+    <class-type type-name='history_event_collection_site_conqueredst' inherits-from='history_event_collection'>
+        <int32_t name='parent_collection' ref-target='history_event_collection'/>
+        <int32_t name='site' ref-target='world_site'/>
+
+        <stl-vector name='attacker_civ' type-name='int32_t' ref-target='historical_entity'/>
+        <stl-vector name='defender_civ' type-name='int32_t' ref-target='historical_entity'/>
+        <enum name='main_event_type' type-name='history_event_type'/>
+        <int32_t name='ordinal'/>
+    </class-type>
+
+    <class-type type-name='history_event_collection_insurrectionst' inherits-from='history_event_collection'>
+        <int32_t name='site' ref-target='world_site'/>
+        <int32_t name='target_civ' ref-target='historical_entity'/>
+        <int32_t name='ordinal'/>
+    </class-type>
+
+    <class-type type-name='history_event_collection_entity_overthrownst' inherits-from='history_event_collection' since='v0.47.01'>
+        <int32_t name='site' ref-target='world_site'/>
+        <int32_t name='entity' ref-target='historical_entity'/>
+        <int32_t name='ordinal'/>
+    </class-type>
+
+    <class-type type-name='history_event_collection_persecutionst' inherits-from='history_event_collection' since='v0.47.01'>
+        <int32_t name='site' ref-target='world_site'/>
+        <int32_t name='entity' ref-target='historical_entity'/>
+        <int32_t name='ordinal'/>
+    </class-type>
+
+    <class-type type-name='history_event_collection_purgest' inherits-from='history_event_collection' since='v0.42.04'>
+        <int32_t name='site' ref-target='world_site'/>
+        <stl-string name='adjective'/>
+        <int32_t name='ordinal'/>
+    </class-type>
+
+    <class-type type-name='history_event_collection_abductionst' inherits-from='history_event_collection'>
+        <int32_t name='parent_collection' ref-target='history_event_collection'/>
+        <int32_t name='region' ref-target='world_region'/>
+        <int32_t name='layer' ref-target='world_underground_region'/>
+        <int32_t name='site' ref-target='world_site'/>
+        <compound name='region_pos' type-name='coord2d'/>
+
+        <int32_t name='attacker_civ' ref-target='historical_entity'/>
+        <int32_t name='defender_civ' ref-target='historical_entity'/>
+
+        <stl-vector name='snatcher_hf' type-name='int32_t' ref-target='historical_figure'/>
+        <stl-vector name='victim_hf' type-name='int32_t' ref-target='historical_figure'/>
+        <stl-vector name='attempted_victim_hf' type-name='int32_t' ref-target='historical_figure'/>
+        <int32_t name='ordinal'/>
+    </class-type>
+
+    <class-type type-name='history_event_collection_theftst' inherits-from='history_event_collection'>
+        <int32_t name='parent_collection' ref-target='history_event_collection'/>
+        <int32_t name='region' ref-target='world_region'/>
+        <int32_t name='layer' ref-target='world_underground_region'/>
+        <int32_t name='site' ref-target='world_site'/>
+        <compound name='region_pos' type-name='coord2d'/>
+
+        <int32_t name='thief_civ' ref-target='historical_entity'/>
+        <int32_t name='victim_civ' ref-target='historical_entity'/>
+
+        <stl-vector name='thief_hf' type-name='int32_t' ref-target='historical_figure'/>
+
+        <stl-vector name='stolen_item_types'><enum base-type='int16_t' type-name='item_type'/></stl-vector>
+        <stl-vector name='stolen_item_subtypes'><int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent._parent.stolen_item_types[$$._key] $)'/></stl-vector>
+        <stl-vector name='stolen_mat_types'><int16_t ref-target='material' aux-value='$$._parent.stolen_mat_indices[$._key]'/></stl-vector>
+        <stl-vector name='stolen_mat_indices' type-name='int32_t'/>
+        <stl-vector name='stolen_item_ids' type-name='int32_t' ref-target='item'/>
+        <stl-vector name='stolen_item_civ' type-name='int32_t' ref-target='historical_entity'/>
+
+        <stl-vector name='attempted_stolen_item_types'><enum base-type='int16_t' type-name='item_type'/></stl-vector>
+        <stl-vector name='attempted_stolen_item_subtypes'><int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent._parent.stolen_item_types[$$._key] $)'/></stl-vector>
+        <stl-vector name='attempted_stolen_mat_types'><int16_t ref-target='material' aux-value='$$._parent.stolen_mat_indices[$._key]'/></stl-vector>
+        <stl-vector name='attempted_stolen_mat_indices' type-name='int32_t'/>
+        <stl-vector name='attempted_stolen_item_ids' type-name='int32_t' ref-target='item'/>
+        <stl-vector name='attempted_stolen_item_civ' type-name='int32_t' ref-target='historical_entity'/>
+
+        <int32_t name='ordinal'/>
+    </class-type>
+
+    <class-type type-name='history_event_collection_raidst' inherits-from='history_event_collection' since='v0.42.04'>
+        <int32_t name='parent_collection' ref-target='history_event_collection'/>
+        <int32_t name='region' ref-target='world_region'/>
+        <int32_t name='layer' ref-target='world_underground_region'/>
+        <int32_t name='site' ref-target='world_site'/>
+        <compound name='region_pos' type-name='coord2d'/>
+        <int32_t name='attacker_civ' ref-target='historical_entity'/>
+        <int32_t name='defender_civ' ref-target='historical_entity'/>
+        <stl-vector name='thieves' type-name='int32_t' ref-target='historical_figure' comment="all of the ones examined were mentioned stealing things during the same raid on the site"/>
+        <int32_t name='ordinal'/>
+    </class-type>
+
+    <class-type type-name='history_event_collection_beast_attackst' inherits-from='history_event_collection'>
+        <int32_t name='parent_collection' ref-target='history_event_collection'/>
+        <int32_t name='region' ref-target='world_region'/>
+        <int32_t name='layer' ref-target='world_underground_region'/>
+        <int32_t name='site' ref-target='world_site'/>
+        <compound name='region_pos' type-name='coord2d'/>
+
+        <int32_t name='defender_civ' ref-target='historical_entity'/>
+        <stl-vector name='attacker_hf' type-name='int32_t' ref-target='historical_figure'/>
+        <int32_t name='ordinal'/>
+    </class-type>
+
+    <class-type type-name='history_event_collection_journeyst' inherits-from='history_event_collection'>
+        <stl-vector name='traveler_hf' type-name='int32_t' ref-target='historical_figure'/>
+        <int32_t name='ordinal'/>
+    </class-type>
+
+    <class-type type-name='history_event_collection_occasionst' inherits-from='history_event_collection'>
+        <int32_t name='civ' ref-target='historical_entity'/>
+        <int32_t name='occasion'/>
+        <int32_t name='ordinal'/>
+    </class-type>
+
+    <class-type type-name='history_event_collection_performancest' inherits-from='history_event_collection'>
+        <int32_t name='parent_collection' ref-target='history_event_collection' comment="all seen were occasions"/>
+        <int32_t name='civ' ref-target='historical_entity'/>
+        <int32_t name='occasion' comment="0-11 seen"/>
+        <int32_t name='schedule' comment="0-9 seen"/>
+        <int32_t name='ordinal'/>
+    </class-type>
+
+    <class-type type-name='history_event_collection_competitionst' inherits-from='history_event_collection'>
+        <int32_t name='parent_collection' ref-target='history_event_collection' comment="all seen were occasions"/>
+        <int32_t name='civ' ref-target='historical_entity'/>
+        <int32_t name='occasion' comment="0-13 seen"/>
+        <int32_t name='schedule' comment="0-9 seen"/>
+        <int32_t name='ordinal'/>
+    </class-type>
+
+    <class-type type-name='history_event_collection_processionst' inherits-from='history_event_collection'>
+        <int32_t name='parent_collection' ref-target='history_event_collection' comment="all seen were occasions"/>
+        <int32_t name='civ' ref-target='historical_entity'/>
+        <int32_t name='occasion' comment="0-14 seen"/>
+        <int32_t name='schedule' comment="0-9 seen"/>
+        <int32_t name='ordinal'/>
+    </class-type>
+
+    <class-type type-name='history_event_collection_ceremonyst' inherits-from='history_event_collection'>
+        <int32_t name='parent_collection' ref-target='history_event_collection' comment="all seen were occasions"/>
+        <int32_t name='civ' ref-target='historical_entity'/>
+        <int32_t name='occasion' comment="0-14 seen"/>
+        <int32_t name='schedule' comment="0-10 seen"/>
+        <int32_t name='ordinal'/>
+    </class-type>
+</data-definition>
+
+<!--
+Local Variables:
+indent-tabs-mode: nil
+nxml-child-indent: 4
+End:
+-->
