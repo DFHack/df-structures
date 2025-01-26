@@ -1,0 +1,1056 @@
+<data-definition>
+    <enum-type type-name='vague_relationship_type' base-type='int16_t'> bay12: WGRelationshipType
+        <enum-item name='none' value='-1'/>
+        <enum-item name='childhood_friend'/>
+        <enum-item name='war_buddy'/>
+        <enum-item name='jealous_obsession'/>
+        <enum-item name='jealous_relationship_grudge'/>
+        <enum-item name='lover'/>
+        <enum-item name='former_lover' comment="bay12: BREAKUP; broke up"/>
+        <enum-item name='scholar_buddy' comment='bay12: SCHOLARLY_INTEREST'/>
+        <enum-item name='artistic_buddy' comment='bay12: ARTISTIC_INTEREST'/>
+        <enum-item name='athlete_buddy' comment='bay12: ATHLETES'/>
+        <enum-item name='athletic_rival' comment='bay12: ATHLETES_RIVALS'/>
+        <enum-item name='business_rival' comment='bay12: BUSINESS_RIVALS'/>
+        <enum-item name='religious_persecution_grudge'/>
+        <enum-item name='grudge'/>
+        <enum-item name='persecution_grudge'/>
+        <enum-item name='supernatural_grudge' comment='bay12: SUPERNATURAL_VENGEANCE'/>
+        <enum-item name='lieutenant' comment='bay12: INTRIGUE_LIEUTENANT'/>
+        <enum-item name='worshipped_deity' comment='bay12: DEITY'/>
+        <enum-item name='spouse'/>
+        <enum-item name='mother'/>
+        <enum-item name='father'/>
+        <enum-item name='master'/>
+        <enum-item name='apprentice'/>
+        <enum-item name='companion'/>
+        <enum-item name='ex_spouse' comment='bay12: FORMER_SPOUSE'/>
+        <enum-item name='neighbor'/>
+        <enum-item name='shared_entity' comment="Religion/PerformanceTroupe/MerchantCompany/Guild"/>
+    </enum-type>
+
+    <struct-type type-name='wg_relationship_quick_infost'>
+        <static-array name='hfid' pointer-type='historical_figure' count='6'/>
+        <static-array name='relationship' type-name='vague_relationship_type' count='6' comment="unused elements are uninitialized"/>
+        <int32_t name='count' comment="number of hf/relationship pairs above"/>
+        <pointer name='current_spouse' type-name='historical_figure'/>
+        <static-array name='current_lover' pointer-type='historical_figure' count='2'/>
+    </struct-type>
+
+    <struct-type type-name='historical_kills' original-name='kill_profilest'>
+        -- Important
+
+        <stl-vector name="events" type-name='int32_t' ref-target='history_event'/>
+
+        -- Misc
+
+        <stl-vector name="killed_race" type-name='int16_t' ref-target='creature_raw'/>
+        <stl-vector name="killed_caste" type-name='int16_t' ref-target='caste_raw' aux-value='$$._parent.killed_race[$._key]'/>
+        <stl-vector name="killed_underground_region" type-name='int32_t' ref-target='world_underground_region'/>
+        <stl-vector name="killed_region" type-name='int32_t' ref-target='world_region'/>
+        <stl-vector name="killed_site" type-name='int32_t' ref-target='world_site'/>
+        <stl-vector name='killed_undead'>
+            <bitfield type-name='undead_flags'/>
+        </stl-vector>
+        <stl-vector name="killed_count" type-name='int32_t'/>
+    </struct-type>
+
+    <enum-type type-name='histfig_body_state' base-type='int8_t'> bay12: HistFigBodyStateType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='Active'/>
+        <enum-item name='BuriedAtSite'/>
+        <enum-item name='UnburiedAtBattlefield'/>
+        <enum-item name='UnburiedAtSubregion'/>
+        <enum-item name='UnburiedAtFeatureLayer'/>
+        <enum-item name='EntombedAtSite'/>
+        <enum-item name='UnburiedAtSite'/>
+    </enum-type>
+
+    <bitfield-type type-name='state_profile_flag' base-type='uint32_t'> bay12: STATE_PROFILE_FLAG_*
+        <flag-bit name='XY_LOCATION_SMM_LEVEL'/>
+        <flag-bit name='XY_LOCATION_IN_SUL'/>
+    </bitfield-type>
+
+    <struct-type type-name='state_profilest'>
+        <enum name='state' type-name='whereabouts_type' base-type='int16_t'/>
+        <int32_t name="site_id" ref-target='world_site'/>
+        <int32_t name="subregion_id" ref-target='world_region'/>
+        <int32_t name="feature_layer_id" ref-target='world_underground_region'/>
+        <int32_t name="army_id" ref-target='army'/>
+        <int32_t name='cz_id' ref-target='world_object_data'/>
+        <int32_t name='cz_bld_num' init-value='-1'/>
+        <int32_t init-value='-1' name='abs_smm_x' comment='same coordinate system as army'/>
+        <int32_t init-value='-1' name='abs_smm_y'/>
+        <bitfield name='flags' base-type='uint32_t' type-name='state_profile_flag'/>
+        <enum name='body_state' type-name='histfig_body_state' init-value='NONE'/>
+        <int32_t name='body_state_id' init-value='-1' comment="-1/site     /?/region_id/?/site     /site"/>
+        <int32_t name='body_state_sub_id' init-value='-1' comment="-1/structure/?/-1       /?/structure/structure"/>
+        <int32_t name='year' since='v0.42.01' init-value='-1' comment="time of arrival at site/region_id, not time of death"/>
+        <int32_t name='year_tick' since='v0.42.01' init-value='-1'/>
+    </struct-type>
+
+    <struct-type type-name="artistic_profilest">
+        <stl-vector name="events" type-name='int32_t' ref-target='history_event'/>
+        <stl-vector name="lost_events" type-name='int32_t' ref-target='history_event' comment='refers to the creation events, not the destruction events'/>
+        <stl-vector name='personal_art_image_chunk' type-name='int32_t' since='v0.42.06'/>
+        <stl-vector name='personal_art_image_chunk_member' type-name='int16_t' since='v0.42.06'/>
+        <static-array name='top_related_heid' count='100' type-name='int32_t' ref-target='history_event'/>
+        <int32_t name='top_related_heid_num' comment='amount used in above list'/>
+        <int32_t name='top_related_heid_last_check_index'/>
+    </struct-type>
+
+    <bitfield-type type-name='body_profile_flag' base-type='uint32_t'> bay12: BODY_PROFILE_FLAG_*
+        <flag-bit name='gelded'/>
+    </bitfield-type>
+
+    <struct-type type-name="body_profilest"> bay12: body_profilest
+        <stl-vector name="events" type-name='int32_t' ref-target='history_event'/>
+        <stl-bit-vector name="status" comment='missing body parts'>
+            <code-helper name='index-refers-to'>
+                (let* ((info $$._parent._parent._parent)
+                       (figure $info._parent._parent)
+                       (caste (find-instance $caste_raw $figure.caste $figure.race)))
+                  $caste.body_parts[$])
+            </code-helper>
+        </stl-bit-vector>
+        <int32_t name='childbirth_year'/>
+        <int32_t name='childbirth_tick'/>
+        <bitfield name='flag' base-type='uint32_t' since='v0.40.19' type-name='body_profile_flag'/>
+    </struct-type>
+
+    <struct-type type-name='personality_profilest'>
+        <compound name='personality' type-name='unit_personality'/>
+        <enum name='wg_mood' type-name='mood_type' since='v0.44.01'/>
+    </struct-type>
+
+    <struct-type type-name='honor_profile_entityst'>
+        <int32_t name='employer' ref-target='historical_entity'/>
+        <stl-vector type-name='int32_t' ref-target='honors_type' name='held_honors'/>
+        <int32_t name='battle_count'/>
+        <int32_t name='kill_count'/>
+        <int32_t name='employment_year'/>
+        <int32_t name='employment_year_tick'/>
+    </struct-type>
+
+    <struct-type type-name='honor_profilest'>
+        <stl-vector name='employment' pointer-type='honor_profile_entityst'/>
+        <int32_t name='resignment_year'/>
+        <int32_t name='resignment_year_tick'/>
+    </struct-type>
+
+    <bitfield-type type-name='skill_profile_flag' base-type='uint32_t'> bay12: SKILL_PROFILE_FLAG_*
+        <flag-bit name='mood_spent'/>
+        <flag-bit name='ran_replace_nemesis'/>
+        <flag-bit name='mood_succeeded'/>
+    </bitfield-type>
+
+    <struct-type type-name="skill_profilest">
+        <stl-vector name="skills">
+            <enum base-type='int16_t' type-name='job_skill'/>
+        </stl-vector>
+        <stl-vector name="points" type-name='int32_t' index-refers-to='$$._parent.skills[$]'/>
+        <stl-vector name="professions_held">
+            <enum base-type='int16_t' type-name='profession'/>
+        </stl-vector>
+        <stl-vector name="profession_years" type-name='int32_t' comment="Number of years on each profession above. Need not be consecutive, so non registered periods can happen"/>
+
+        <enum base-type='int16_t' name='profession' type-name='profession'/>
+        <bitfield name='flags' base-type='uint32_t' type-name='skill_profile_flag'/>
+        <int32_t name="account_balance" comment = "Abstract tracker of this individual's wealth" since='v0.47.01'/>
+        <pointer name='employment_held' since='v0.47.01' type-name='honor_profilest'/>
+    </struct-type>
+
+    <struct-type type-name="pet_profilest">
+        <stl-vector type-name='int16_t' ref-target='creature_raw'/>
+    </struct-type>
+
+    <struct-type type-name="metaphysical_profilest">
+        <stl-vector name="spheres">
+            <enum base-type='int16_t' type-name='sphere_type'/>
+        </stl-vector>
+        <stl-vector name='associated_divination_set_id' type-name='int32_t' ref-target='divination_set' since='v0.47.01'/>
+        <pointer name='appearance_pform' type-name='unit_appearance'/>
+        <int32_t name='physical_form_strength'/>
+        <int32_t name='physical_form_recuperation'/>
+        <int32_t name='physical_form_age_days'/>
+        <int32_t name='physical_form_seed'/>
+        <int32_t name='related_civ_enid' ref-target='historical_entity'/>
+
+        <int32_t name='physical_form_portrait_texpos' comment='not saved'/>
+        <bool name='need_to_update_physical_form_portrait'/>
+    </struct-type>
+
+    <struct-type type-name='personal_reputationst'>
+        <stl-vector name='types' type-name='reputation_type'/>
+        <stl-vector name='levels' type-name='int32_t' comment='1 to 100: rumored to legendary'/>
+        <int32_t name="discovered_year"/>
+        <int32_t name="discovered_time"/>
+        <int32_t name="unsolved_murders"/>
+    </struct-type>
+
+    <bitfield-type type-name='entity_personal_reputation_flag' base-type='uint32_t'> bay12: ENTITY_PERSONAL_REPUTATION_FLAG_*
+        <flag-bit name='exiled'/>
+    </bitfield-type>
+
+    <struct-type type-name='entity_personal_reputation_profilest'>
+        <int32_t name='entity_id' ref-target='historical_entity'/>
+        <compound name='reputation' type-name='personal_reputationst'/>
+        <bitfield name='flags' base-type='uint32_t' since='v0.47.01' type-name='entity_personal_reputation_flag'/>
+        <int32_t name='end_custody_sentence_year' init-value='-1' since='v0.47.01'/>
+        <int32_t name='end_custody_sentence_season_tick' since='v0.47.01'/>
+    </struct-type>
+
+    <struct-type type-name='ci_personal_reputation_profilest'>
+        <int32_t name='entity_id' ref-target='historical_entity'/>
+        <compound name='reputation' type-name='personal_reputationst'/>
+    </struct-type>
+
+    <enum-type type-name='journey_milestone_type' base-type='int32_t'> bay12: JourneyMilestoneType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='STARTED_PILGRIMAGE'/>
+        <enum-item name='VIEWED_HOLY_RELIC'/>
+        <enum-item name='VISITED_HOLY_SITE'/>
+    </enum-type>
+
+    <struct-type type-name='journey_milestonest'>
+        <enum name='type' type-name='journey_milestone_type'/>
+        <int32_t name='main_relevant_id'/>
+        <int32_t name='site_id' ref-target='world_site'/>
+        <int32_t name='structure_id' ref-target='abstract_building'/>
+        <int32_t name='year'/>
+        <int32_t name='season_tick'/>
+    </struct-type>
+
+    <enum-type type-name='journey_type' base-type='int32_t'> bay12: JourneyType
+        <enum-item name='REST_AND_RECOVER'/>
+        <enum-item name='RECOVER_ARTIFACT'/>
+        <enum-item name='PILGRIMAGE_TO_HOLY_SITE'/>
+        <enum-item name='GATHER_INFORMATION'/>
+    </enum-type>
+
+    <bitfield-type type-name='journey_profile_flag' base-type='uint32_t'> bay12: JOURNEY_PROFILE_FLAG_*
+        <flag-bit name='preparing'/>
+    </bitfield-type>
+
+    <struct-type type-name='journey_profilest'>
+        <enum name='type' type-name='journey_type'/>
+        <int32_t name='year' comment="Seen in visitors during fort mode, logs the time that they arrived"/>
+        <int32_t name='year_ticks'/>
+        <int32_t name='artifact_id' ref-target='artifact_record'/>
+        <int32_t name='dest_site' ref-target='world_site'/>
+        <int32_t name='dest_structure' ref-target='abstract_building'/>
+        <int32_t name='giver_hf' ref-target='historical_figure'/>
+        <int32_t name='giver_en' ref-target='historical_entity'/>
+        <int32_t name='return_site' ref-target='world_site'/>
+        <int32_t name='return_structure' ref-target='abstract_building'/>
+        <bitfield name='flags' base-type='uint32_t' type-name='journey_profile_flag' since='v0.47.01'/>
+        <stl-vector name='milestone' pointer-type='journey_milestonest'/>
+        <stl-vector name='searched_sites' type-name='int32_t' since='v0.44.01' ref-target='world_site'/>
+    </struct-type>
+
+    <bitfield-type type-name='reputation_profile_flag' base-type='uint32_t'> bay12: REPUTATION_PROFILE_FLAG_*
+        <flag-bit name='have_true_name'/>
+        <flag-bit name='have_villainous_identity'/>
+        <flag-bit name='did_villainous_id_check'/>
+        <flag-bit name='did_major_networks_pass'/>
+    </bitfield-type>
+
+    <struct-type type-name='reputation_profilest'>
+        <stl-vector name="wanted" comment='entity_profile' pointer-type='entity_personal_reputation_profilest'/>
+        <stl-vector name='cultural_identity_profile' pointer-type='ci_personal_reputation_profilest'/>
+        <int32_t name="cur_identity" ref-target='identity'/>
+        <stl-vector name="all_identities" type-name='int32_t' ref-target='identity'/>
+        <bitfield name='flags' base-type='uint32_t' type-name='reputation_profile_flag' since='v0.47.01'/>
+        <pointer name='journey_profile' since='v0.44.01' type-name='journey_profilest'/>
+    </struct-type>
+
+    <bitfield-type type-name='creature_knowledge_flag' base-type='uint32_t'> bay12: CREATURE_KNOWLEDGE_FLAG_*
+        <flag-bit name='heard_of'/>
+        <flag-bit name='old_local'/>
+        <flag-bit name='recent_encounter'/>
+    </bitfield-type>
+
+    <bitfield-type type-name='creature_knowledge_scholar_flag' base-type='uint32_t'> bay12: CREATURE_KNOWLEDGE_SCHOLAR_FLAG_*
+        <flag-bit name='foraging_behavior'/>
+    </bitfield-type>
+
+    <struct-type type-name='creature_knowledgest'>
+        <int32_t name='combined_caste_id'/>
+        <bitfield name='flags' base-type='uint32_t' type-name='creature_knowledge_flag'/>
+
+        <stl-vector name='site' type-name='int32_t' ref-target='world_site'/>
+        <stl-vector name='region' type-name='int32_t' ref-target='world_region'/>
+        <stl-vector name='layer' type-name='int32_t' ref-target='world_underground_region'/>
+
+        <bitfield name='scholar_flags' base-type='uint32_t' type-name='creature_knowledge_scholar_flag'/>
+    </struct-type>
+
+    <struct-type type-name="scholar_knowledgest">
+        <bitfield type-name='knowledge_scholar_flags_0' name='philosophy'/>
+        <bitfield type-name='knowledge_scholar_flags_1' name='philosophy2'/>
+        <bitfield type-name='knowledge_scholar_flags_2' name='math'/>
+        <bitfield type-name='knowledge_scholar_flags_3' name='math2'/>
+        <bitfield type-name='knowledge_scholar_flags_4' name='history'/>
+        <bitfield type-name='knowledge_scholar_flags_5' name='astronomy'/>
+        <bitfield type-name='knowledge_scholar_flags_6' name='naturalist'/>
+        <bitfield type-name='knowledge_scholar_flags_7' name='chemistry'/>
+        <bitfield type-name='knowledge_scholar_flags_8' name='geography'/>
+        <bitfield type-name='knowledge_scholar_flags_9' name='medicine'/>
+        <bitfield type-name='knowledge_scholar_flags_10' name='medicine2'/>
+        <bitfield type-name='knowledge_scholar_flags_11' name='medicine3'/>
+        <bitfield type-name='knowledge_scholar_flags_12' name='engineering'/>
+        <bitfield type-name='knowledge_scholar_flags_13' name='engineering2'/>
+
+        <enum name='knowledge_goal_category' type-name='research_project_type'/>
+        <int32_t name='research_project_id'/>
+        <int32_t name='research_project_id2'/>
+        <int32_t name='research_project_id3'/>
+        <bitfield name='knowledge_goal' base-type='uint32_t'> bay12: unknown
+            <flag-bit name='unk0'/>
+        </bitfield>
+        <uint32_t name='research_points' comment='research is finished at 100k? amount gained depends on skills, attributes'/>
+        <uint32_t name='times_pondered' comment='one per ponder no matter what. turns into research_points somewhere around 40-60.'/>
+    </struct-type>
+
+    <struct-type type-name='site_reputation_report' original-name='abstract_building_reviewst'>
+        <int32_t name='site_id' ref-target='world_site'/>
+        <int32_t name='location_id' ref-target='abstract_building'/>
+        <int32_t name='x'/>
+        <int32_t name='y'/>
+        <int32_t name='year'/>
+        <int32_t name='season_tick'/>
+        <static-array name='reputation' type-name='int32_t' count='8' index-enum='abstract_building_reputation_type'/>
+    </struct-type>
+
+    <struct-type type-name='site_reputation_info' original-name='ab_review_infost'>
+        <stl-vector name='reports' pointer-type='site_reputation_report'/>
+    </struct-type>
+
+    <struct-type type-name='hf_religious_datast'>
+        <stl-vector type-name='int32_t' ref-target='belief_system'/>
+    </struct-type>
+
+    <struct-type type-name='knowledge_profilest'>
+        <stl-vector name='known_secrets' pointer-type='interaction' comment="bay12: interation_ptr; Interactions inflicted upon the figure through an I_SOURCE:SECRET means are recorded here; this appears to prevent the interaction from affecting the figure again on subsequent exposure (when rereading a necromancy slab, for example). For interactions with both I_SOURCE:SECRET and another source (I_SOURCE:INGESTION, for example), exposure to the interaction through the non-secret route does not result in the interaction being listed here."/>
+        <int32_t name='next_intervention_resistance_year' init-value='-1' comment="All are gods with the DEATH sphere having created slabs, but the value isn't the id of the slab"/>
+        <stl-vector name='known_written_contents' type-name='int32_t' ref-target='written_content' comment="bay12: read_written_content_id; ID of written_contents known to the historical figure. Aside from the contents of read books, these so-called written contents also include known derivations of poetic forms, dance forms and musical forms" since='v0.42.01'/>
+        <stl-vector name="known_identities" type-name='int32_t' ref-target='identity' comment="bay12: identity_known_id; identity ID of identities known to the historical figure, such as demon true names"/>
+        <stl-vector name='known_witness_reports' pointer-type='witness_incidentst' comment='bay12: witness_incident'/>
+        <!-- <compound name='rumor_info' type-name='rumor_infost'/> instead of the following line -->
+        <stl-vector name='known_events' pointer-type='entity_event'/>
+        <stl-vector name='heard_of_guide_hfid' type-name='int32_t'/>
+        <stl-vector name='heard_of_stid' type-name='int32_t'/>
+        <compound name='opinion_info' type-name='opinion_infost'/>
+        <stl-vector name='creature_knowledge' pointer-type='creature_knowledgest'/>
+        <stl-vector name="known_poetic_forms" type-name='int32_t' ref-target='poetic_form' since='v0.42.01' comment='bay12: poetic_form_known_id'/>
+        <stl-vector name="known_musical_forms" type-name='int32_t' ref-target='musical_form' since='v0.42.01' comment='bay12: musical_form_known_id'/>
+        <stl-vector name="known_dance_forms" type-name='int32_t' ref-target='dance_form' since='v0.42.01' comment='bay12: dance_form_known_id'/>
+        <pointer name="knowledge" type-name='scholar_knowledgest' since='v0.42.01'/>
+        <pointer name='belief_systems' type-name='hf_religious_datast'/>
+        <pointer name='known_locations' type-name='site_reputation_info'/>
+        <stl-vector name='known_agreement_id' type-name='int32_t' since='v0.47.01'/>
+    </struct-type>
+
+    <bitfield-type type-name='divination_profile_flag' base-type='uint32_t'> bay12: DIVINATION_PROFILE_FLAG_*
+        <flag-bit name='fate_sealed'/>
+    </bitfield-type>
+
+    <struct-type type-name='divination_profilest'>
+        <stl-vector name='deities' type-name='int32_t' ref-target='historical_figure' comment='When a divination die is rolled, the historical figure ID of the associated god is inserted here.'/>
+        <stl-vector name='divination_sets' type-name='int32_t' ref-target='divination_set' comment='When a divination die is rolled, the ID of the associated divination_set is inserted here.'/>
+        <stl-vector name='roll_results' type-name='int32_t' comment='When a divination die is rolled, the numerical roll result is inserted here.'/>
+        <stl-vector name='year_rolled' type-name='int32_t' comment='When a divination die is rolled, the cur_year value at the time of rolling is inserted here.'/>
+        <stl-vector name='year_tick_rolled' type-name='int32_t' comment='When a divination die is rolled, the cur_year_tick at the time of rolling is inserted here.'/>
+        <bitfield name='flags' base-type='uint32_t' type-name='divination_profile_flag'/>
+    </struct-type>
+
+    <struct-type type-name='experiment_profilest'>
+        <stl-vector name='experiment' type-name='night_creature_experiment_type'/>
+        <stl-vector name='races' type-name='int32_t' comment='contains IDs of races created by the historical figure through experimentation'/>
+    </struct-type>
+
+    <struct-type type-name='interaction_profilest'>
+        <stl-vector name="active_interactions" pointer-type='interaction'/>
+        <stl-vector name="active_effects" pointer-type='interaction_effect'/>
+        <stl-vector name="active_interaction_year" type-name='int32_t'/>
+        <stl-vector name="active_interaction_season_tick" type-name='int32_t'/>
+        <stl-vector name="can_do" pointer-type='interaction'/>
+        <bitfield name="add_caste_flag" type-name='cie_add_tag_mask1'/>
+        <bitfield name="remove_caste_flag" type-name='cie_add_tag_mask1'/>
+        <bitfield name="add_property" type-name='cie_add_tag_mask2'/>
+        <bitfield name="remove_property" type-name='cie_add_tag_mask2'/>
+        <int8_t name="use_display_name"/>
+        <stl-string name="name"/>
+        <stl-string name="name_plural"/>
+        <stl-string name="name_adjective"/>
+        <int32_t name='race' ref-target='creature_raw'/>
+        <int16_t name='caste' ref-target='caste_raw' aux-value='$$.race'/>
+        <stl-vector name='body_transformation_effects' type-name='int32_t' ref-target='creature_interaction_effect' comment='forced periodic transformations'/>
+        <stl-vector name='voluntary_body_transformation_effects' type-name='int32_t' ref-target='creature_interaction_effect'/>
+        <stl-vector name='body_mat_interaction_effects' type-name='int32_t' ref-target='creature_interaction_effect'/>
+        <int32_t name="original_histfig_id" ref-target='historical_figure' comment='ID of the historical figure who was reanimated to produce undead historical figure'/>
+        <int32_t name="original_race" ref-target='creature_raw' comment='race of the historical figure who was reanimated to produce undead historical figure'/>
+        <int32_t name="original_caste" ref-target='caste_raw' aux-value='$$.original_race' comment='caste of the historical figure who was reanimated to produce undead historical figure'/>
+        <int32_t name="root_body_part_id" comment='ID of the root body part in the corpse or corpse piece which was reanimated to produce undead historical figure'/>
+        <stl-string name="undead_name" comment='display name of reanimated creatures in legends mode'/>
+        <int32_t name="disturbed_heid" ref-target='history_event'/>
+        <pointer name='divination' type-name='divination_profilest' since='v0.47.01'/>
+        <pointer name='experiments' type-name='experiment_profilest' since='v0.47.01'/>
+    </struct-type>
+
+    <struct-type type-name='hf_building_usagest'>
+        <int32_t name='site_id' ref-target='world_site'/>
+        <int32_t name='site_property_id'/>
+    </struct-type>
+
+    <struct-type type-name='hf_building_usage_profilest'>
+        <stl-vector name='usage' pointer-type='hf_building_usagest'/>
+        <int32_t  name='last_checked_year'/>
+    </struct-type>
+
+    <enum-type type-name='inventory_profile_skill_type' base-type='int32_t'> bay12: InvPSkillType
+        <enum-item name='AXE'/>
+        <enum-item name='SWORD'/>
+        <enum-item name='DAGGER'/>
+        <enum-item name='MACE'/>
+        <enum-item name='HAMMER'/>
+        <enum-item name='SPEAR'/>
+        <enum-item name='CROSSBOW'/>
+        <enum-item name='PIKE'/>
+        <enum-item name='WHIP'/>
+        <enum-item name='BOW'/>
+        <enum-item name='BLOWGUN'/>
+        <enum-item name='SHIELD'/>
+        <enum-item name='ARMOR'/>
+    </enum-type>
+
+    <bitfield-type type-name='inventory_profile_flag' base-type='uint32_t'> bay12: INVENTORY_PROFILE_FLAG_*
+        <flag-bit name='specific_items'/>
+        <flag-bit name='use_average_equipment_quality'/>
+        <flag-bit name='use_mythical_substances'/>
+    </bitfield-type>
+
+    <struct-type type-name='inventory_profilest'>
+        <stl-vector name='artifacts_held' pointer-type='artifact_record' comment="held as in possession, doesn't include stored"/>
+        <int32_t name='army_strength_material_bonus' since='v0.44.01'/>
+        <int32_t name='average_equipment_quality' since='v0.47.01'/>
+        <static-array name='invp_skill_ip' type-name='int32_t' count='13' index-enum='inventory_profile_skill_type' since='v0.44.06' comment="only when specific_items flag set"/>
+        <static-array name='invp_mat_strength' type-name='int32_t' count='13' index-enum='inventory_profile_skill_type' since='v0.44.06' comment="only when specific_items flag set"/>
+        <bitfield name='flags' base-type='uint32_t' since='v0.44.06' type-name='inventory_profile_flag'/>
+        <enum name='using_weapon_skill' type-name='job_skill' since='v0.44.06' comment='not saved'/>
+        <pointer name='building_usage_profile' type-name='hf_building_usage_profilest' since='v0.47.01'/>
+    </struct-type>
+
+    <struct-type type-name='core_hf_relationshipst'>
+        <int32_t name='loyalty' comment="0 - 100. Loyalty, Respect, Fear, and Trust values do not seem to affect the relationship screen description, only Love and Familiarity"/>
+        <int32_t name='respect' comment="-100 - 100"/>
+        <int32_t name='fear' comment="-100 - 100"/>
+        <int32_t name='love' comment="-100 - 100. Affects relation description: -100: Pure Hate, LE -75: Hated, LE -50: Disliked, LE 49: Acquaintance, LE 74: Friend, LE 99: Close Friend, 100: Kindred Spirit. Lower histfig_id is sorted above higher, except Acquaintance which is sorted on Familiarity"/>
+        <int32_t name='trust' comment="-100 - 100"/>
+    </struct-type>
+
+    <bitfield-type type-name='relationship_profile_hf_flag' base-type='uint32_t'> bay12: RELATIONSHIP_PROFILE_HF_FLAG_*
+        <flag-bit name='basic_name_known'/>
+    </bitfield-type>
+
+    <struct-type type-name='relationship_profile_hf_visualst'>
+        <int32_t name='histfig_id' ref-target='historical_figure'/>
+        <bitfield name='flags' base-type='uint32_t' type-name='relationship_profile_hf_flag'/>
+        <stl-vector name='known_associated_identity_id' type-name='int32_t' ref-target='identity' comment="Involves adventurer knowing name?"/>
+        <stl-vector name="attitude" type-name='reputation_type' comment="Probably ordered"/>
+        <stl-vector name="counter" type-name='int32_t' comment="One element for each 'attitude' element. Guess 0 - 100"/>
+        <enum name='rank' type-name='vague_relationship_type' since='v0.47.01'/>
+        <compound name='core' type-name='core_hf_relationshipst'/>
+        <int32_t name='meet_count' since='v0.44.10'/>
+        <int32_t name='last_meet_year' comment="probably latest contact. Seen -1"/>
+        <int32_t name='last_meet_season_tick'/>
+        <int32_t name='abs_x' since='v0.47.01'/>
+        <int32_t name='abs_y' since='v0.47.01'/>
+        <int32_t name='abs_z' since='v0.47.01'/>
+        <int32_t name='transient_attitude' since='v0.47.01'/>
+        <int32_t name='transient_patience' since='v0.47.01'/>
+        <int32_t name='transient_confidence' since='v0.47.01'/>
+        <int32_t name='transient_agitation' since='v0.47.01'/>
+        <int32_t name='transient_failed_persuade_attempts' since='v0.47.01'/>
+        <int32_t name='transient_failed_intimidate_attempts' since='v0.47.01'/>
+        <int32_t name='first_year' comment="transient_last_reset" since='v0.47.01'/>
+        <int32_t name='first_year_tick' since='v0.47.01'/>
+    </struct-type>
+
+    <struct-type type-name='relationship_profile_hf_historicalst'>
+        <int32_t name='histfig_id' ref-target='historical_figure'/>
+        <stl-vector name='known_associated_identity_id' type-name='int32_t' ref-target='identity'/>
+        <stl-vector name="attitude" type-name='reputation_type'/>
+        <stl-vector name="counter" type-name='int32_t' comment="One element for each 'attitude' element"/>
+        <compound name='core' type-name='core_hf_relationshipst'/>
+    </struct-type>
+
+    <struct-type type-name='relationship_profile_hf_identityst'>
+        <int32_t name='identity_id' ref-target='identity'/>
+        <stl-vector name="attitude" type-name='reputation_type'/>
+        <stl-vector name="counter" type-name='int32_t' comment="One element for each 'attitude' element"/>
+        <compound name='core' type-name='core_hf_relationshipst'/>
+    </struct-type>
+
+    <struct-type type-name='relationship_profile_artifactst'>
+        <int32_t name='artifact_id' ref-target='artifact_record'/>
+        <enum name='type' type-name='artifact_claim_type'/>
+        <int32_t name='year'/>
+        <int32_t name='year_tick'/>
+        <int32_t name='renounce_event' ref-target='history_event'/>
+    </struct-type>
+
+    <enum-type type-name='plot_role_type' base-type='int32_t'> bay12: IntrigueRoleType
+        <enum-item name='None' value='-1'/>
+        <enum-item name='Possible_Threat'/>
+        <enum-item name='Rebuffed'/>
+        <enum-item name='Source_Of_Funds'/>
+        <enum-item name='Source_Of_Funds_For_Master'/>
+        <enum-item name='Master'/>
+        <enum-item name='Suspected_Criminal'/>
+        <enum-item name='Asset'/>
+        <enum-item name='Lieutenant'/>
+        <enum-item name='Usable_Thief'/>
+        <enum-item name='Potential_Employer'/>
+
+        <enum-item name='Indirect_Director' comment="Plot Thief"/>
+        <enum-item name='Corrupt_Position_Holder'/>
+        <enum-item name='Delivery_Target'/>
+        <enum-item name='Handler'/>
+        <enum-item name='Usable_Assassin'/>
+        <enum-item name='Director' comment="Plot Assassin"/>
+        <enum-item name='Enemy'/>
+        <enum-item name='Usable_Snatcher'/>
+        <enum-item name='Plot_Snatcher'/>
+        <enum-item name='Plot_Saboteur'/>
+        <enum-item name='Underworld_Contact'/>
+        <enum-item name='Possibly_Unknown_Director'/>
+    </enum-type>
+
+    <enum-type type-name='plot_strategy_type' base-type='int32_t'> bay12: IntrigueStrategyType
+        <enum-item name='None' value='-1'/>
+        <enum-item name='Corrupt_And_Pacify'/>
+        <enum-item name='Obey'/>
+        <enum-item name='Avoid'/>
+        <enum-item name='Use'/>
+        <enum-item name='Tax'/>
+        <enum-item name='Neutralize'/>
+        <enum-item name='Monitor'/>
+        <enum-item name='Work_If_Suited'/>
+        <enum-item name='Torment'/>
+    </enum-type>
+
+    <bitfield-type type-name='intrigue_plot_actor_flag' base-type='uint32_t'> bay12: INTRIGUE_PLOT_ACTOR_FLAG_*
+        <flag-bit name='agreement_has_messenger'/>
+    </bitfield-type>
+
+    <struct-type type-name='plot_agreement' original-name='intrigue_plot_actorst'>
+        <int32_t name='actor_id' ref-target='historical_figure'/>
+        <enum name='plot_role' type-name='plot_role_type'/>
+        <int32_t name='agreement_id' ref-target='agreement'/>
+        <bitfield name='flags' base-type='uint32_t' type-name='intrigue_plot_actor_flag'/>
+    </struct-type>
+
+    <struct-type type-name='intrigue_plot_sabotage_actorst'>
+        <int32_t name='target_civ' ref-target='historical_entity'/>
+        <int32_t name='target_site' ref-target='world_site'/>
+    </struct-type>
+
+    <struct-type type-name='intrigue_plot_undead_animator_world_conquestst'>
+        <stl-vector name='searched_battlefield_id' type-name='int32_t'/>
+    </struct-type>
+
+    <bitfield-type type-name='intrigue_plot_infiltrate_society_flag' base-type='uint32_t'> bay12: INTRIGUE_PLOT_INFILTRATE_SOCIETY_FLAG_*
+        <flag-bit name='steal'/>
+        <flag-bit name='initiate_sabotage_among_agents'/>
+        <flag-bit name='instill_terror'/>
+        <flag-bit name='prepare_coup'/>
+    </bitfield-type>
+
+    <struct-type type-name='intrigue_plot_infiltrate_societyst'>
+        <bitfield name='flags' base-type='uint32_t' type-name='intrigue_plot_infiltrate_society_flag'/>
+        <int32_t name='last_entered_year' init-value='-1'/>
+        <int32_t name='last_entered_season_count' init-value='0'/>
+    </struct-type>
+
+    <enum-type type-name='intrigue_plot_type' base-type='int32_t'> bay12: IntriguePlotType
+        <enum-item name='None' value='-1'/>
+        <enum-item name='Grow_Funding_Network'/>
+        <enum-item name='Grow_Asset_Network'/>
+        <enum-item name='Acquire_Artifact'/> artifact id
+        <enum-item name='Grow_Corruption_Network'/>
+        <enum-item name='Attain_Rank'/>
+        <enum-item name='Assassinate_Actor'/> actor id
+        <enum-item name='Corruptly_Punish_Actor'/> actor id
+        <enum-item name='Frame_Actor'/> actor id
+        <enum-item name='Kidnap_Actor'/> actor id
+        <enum-item name='Sabotage_Actor'/> actor id
+        <enum-item name='Direct_War_To_Actor'/> actor id
+        <enum-item name='Corrupt_Actors_Government'/> actor id
+        <enum-item name='Counterintelligence'/> civ id
+        <enum-item name='Become_Immortal'/>
+        <enum-item name='Undead_World_Conquest'/>
+        <enum-item name='Infiltrate_Society'/> civ id
+    </enum-type>
+
+    <bitfield-type type-name='intrigue_plot_flag' base-type='uint32_t'> bay12: INTRIGUE_PLOT_FLAG_*
+        <flag-bit name='on_hold'/>
+    </bitfield-type>
+
+    <struct-type type-name='intrigue_plotst'>
+        <int32_t name='id' comment="starts as index in parent vector"/>
+        <enum name='plot_type' type-name='intrigue_plot_type'/>
+        <int32_t name='parameter' init-value='-1' comment="2:artifact_id, 5-11:actor_id, 12/15:entity_id"/>
+
+        <bitfield name='flags' base-type='uint32_t' type-name='intrigue_plot_flag'/>
+
+        <stl-vector name='plot_agreements' pointer-type='plot_agreement'/>
+
+        <compound name='plot_data' is-union='true'>
+            <pointer name='Undead_World_Conquest' type-name='intrigue_plot_undead_animator_world_conquestst'/>
+            <pointer name='Sabotage_Actor' type-name='intrigue_plot_sabotage_actorst'/>
+            <pointer name='Infiltrate_Society' type-name='intrigue_plot_infiltrate_societyst'/>
+        </compound>
+
+        <int32_t name='delegated_plot_id' init-value='-1'/>
+        <int32_t name='delegated_plot_hfid' ref-target='historical_figure'/>
+        <int32_t name='parent_plot' init-value='-1'/>
+        <int32_t name='parent_plot_hfid' ref-target='historical_figure'/>
+
+        <int32_t name='agreement' ref-target='agreement'/>
+
+        <int32_t name='actor_nemesis_id' ref-target='nemesis_record'/>
+        <int32_t name='task_id' init-value='-1' comment="0-8 seen"/>
+        <int32_t name='plotter_nemesis_id' ref-target='nemesis_record'/>
+        <int32_t name='message_id' init-value='-1' comment="0-5 seen"/>
+    </struct-type>
+
+    <bitfield-type type-name='intrigue_actor_flag' base-type='uint32_t'> bay12: INTRIGUE_ACTOR_FLAG_*
+        <flag-bit name='using_handler_for_contact'/>
+        <flag-bit name='i_promised_ia_immortality'/>
+        <flag-bit name='ia_promised_me_immortality'/>
+    </bitfield-type>
+
+    <struct-type type-name='intrigue_actorst'>
+        <int32_t name='id' comment="index into the parent vector (at least initially)"/>
+
+        <bitfield name='flags' base-type='uint32_t' type-name='intrigue_actor_flag'/>
+
+        <int32_t name='hf_1' ref-target='historical_figure' comment="visual relation seen"/>
+        <int32_t name='hf_2' ref-target='historical_figure' comment="visual relation seen"/>
+        <int32_t name='identity_id' ref-target='identity'/>
+        <int32_t name='entity' ref-target='historical_entity' comment="site government seen. Target? Possible threat?"/>
+
+        <int32_t name='handle_actor_id' init-value='-1' comment="based on exported XML instances"/>
+
+        <enum name='role' type-name='plot_role_type' base-type='int32_t'/>
+        <enum name='strategy' type-name='plot_strategy_type' base-type='int32_t'/>
+        <int32_t name='strategy_enid' ref-target='historical_entity' comment="site government seen. Target? Member of/possible threat?"/>
+        <int32_t name='strategy_eppid' init-value='-1' comment='entity position assignment'/>
+
+        <stl-vector name='active_plot_id' type-name='int32_t'/>
+    </struct-type>
+
+    <enum-type type-name='task_type' base-type='int32_t'> bay12: TaskType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='hire_plot_actor'/>
+        <enum-item name='satisfy_agreement'/>
+        <enum-item name='send_message'/>
+        <enum-item name='delegate_plot'/>
+    </enum-type>
+
+    <struct-type type-name='task_hire_plot_actorst'>
+        <int32_t name='plot_origin_hfid' ref-target='historical_figure'/>
+        <int32_t name='plot_id'/>
+        <int32_t name='hire_hfid' ref-target='historical_figure'/>
+        <int32_t name='rate'/>
+    </struct-type>
+
+    <struct-type type-name='task_satisfy_agreementst'>
+        <int32_t name='agreement_id'/>
+        <int32_t name='plot_origin_hfid' ref-target='historical_figure'/>
+        <int32_t name='plot_id'/>
+    </struct-type>
+
+    <struct-type type-name='task_send_messagest'>
+        <compound name='msg' type-name='messagest'/>
+        <int32_t name='recipient_hfid' ref-target='historical_figure'/>
+        <int32_t name='plot_origin_hfid' ref-target='historical_figure'/>
+        <int32_t name='plot_id'/>
+    </struct-type>
+
+    <struct-type type-name='task_delegate_plotst'>
+        <int32_t name='plot_origin_hfid' ref-target='historical_figure'/>
+        <int32_t name='plot_id'/>
+        <int32_t name='delegate_hfid' ref-target='historical_figure'/>
+        <int32_t name='rate'/>
+    </struct-type>
+
+    <struct-type type-name='taskst'>
+        <int32_t name='id'/>
+        <enum name='type' type-name='task_type'/>
+        <bitfield name='flags' base-type='uint32_t'> bay12: unknown flags
+            <flag-bit name='unk0'/>
+        </bitfield>
+        <compound name='data' is-union='true'>
+            <pointer name='hire_plot_actor' type-name='task_hire_plot_actorst'/>
+            <pointer name='satisfy_agreement' type-name='task_satisfy_agreementst'/>
+            <pointer name='send_message' type-name='task_send_messagest'/>
+            <pointer name='delegate_plot' type-name='task_delegate_plotst' />
+        </compound>
+    </struct-type>
+
+    <struct-type type-name='intrigue_perspectivest'>
+        <stl-vector name='potential_corrupt_reason' type-name='history_event_reason'/>
+        <stl-vector name='potential_corrupt_target' type-name='int32_t'/>
+        <stl-vector name='potential_corrupt_circumstance'>
+            <enum type-name='unit_thought_type' base-type='int32_t'/>
+        </stl-vector>
+        <stl-vector name='potential_corrupt_circumstance_target' type-name='int32_t' init-value='-1'/>
+
+        <stl-vector name='plots' pointer-type='intrigue_plotst'/>
+        <int32_t name='next_plot_id'/>
+
+        <stl-vector name='revealed_agreements' pointer-type='agreement'/>
+        <stl-vector name='agreemeents' pointer-type='agreement'/>
+        <stl-vector name='intrigue' pointer-type='intrigue_actorst'/>
+        <int32_t name='next_intrigue_id'/>
+
+        <stl-vector name='coup_check_enid' type-name='int32_t' comment="4 bytes allocated observed, which cant' host a pointer"/>
+        <stl-vector name='task' pointer-type='taskst'/>
+        <int32_t name='next_task_id'/>
+
+        <stl-vector name='message' pointer-type='messagest'/>
+        <int32_t name='next_message_id'/>
+        <int32_t name='next_message_year' init-value='-1'/>
+        <int32_t name='next_message_season_count' init-value='-1'/>
+    </struct-type>
+
+    <struct-type type-name='relationship_quick_infost'>
+        <static-array name='hfid' ref-target='historical_figure' type-name='int32_t' init-value='0' count='6'/>
+        <static-array name='relationship' type-name='vague_relationship_type' count='6' comment="unused elements are uninitialized"/>
+        <int32_t name='count' comment="number of hf/relationship pairs above"/>
+    </struct-type>
+
+    <struct-type type-name='historical_figure_relationships' original-name='relationship_profilest'>
+        <stl-vector name='hf_visual' pointer-type='relationship_profile_hf_visualst'/>
+        <!--
+            Entries with a 'rank' value of zero are suppressed from display. Display order seems to depend on
+            the value of the first 'attitude' entry.
+            Buddy/Grudge/AnimalPartner entries forms the primary group, sorted in ascending histfig id order.
+            The secondary group consists of Friendly, where the internal sort order is based on higher 'rank'.
+            If the 'rank' is equal the histfig id determines the order.
+            The tertiary group consists of zero length 'attitude' entries. Those are again sorted based on higher
+            'rank', with histfig id breaking ties.
+            Note that only the entries listed above have been observed as the first 'attitude' element, with others
+            optionally added as well. This does not mean they may not exist, but that the sort order described above
+            may be incomplete.
+            The role of 'counter' is unknown, but might somehow tick over into an increase in rank. It does not seem
+            to play any part in the display sort order.
+        -->
+        <stl-vector name='hf_historical' since='v0.44.01' pointer-type='relationship_profile_hf_historicalst'/>
+        <stl-vector name='hf_identity' since='v0.44.01' pointer-type='relationship_profile_hf_identityst'/>
+        <stl-vector name='identities' type-name='int32_t' ref-target='cultural_identity'/>
+        <stl-vector name='artifact_claims' pointer-type='relationship_profile_artifactst' since='v0.44.01'/>
+        <uint32_t name='flag'/> bay12: unknown flags
+        <pointer name='intrigues' type-name='intrigue_perspectivest'/>
+    </struct-type>
+
+    <struct-type type-name='historical_figure_info' original-name='hf_profilest'>
+        <pointer name="metaphysical" type-name='metaphysical_profilest'/>
+        <pointer name="skills" type-name='skill_profilest'/>
+        <pointer name="pets" type-name='pet_profilest'/>
+        <pointer name='personality' type-name='personality_profilest'/>
+        <pointer name="masterpieces" type-name='artistic_profilest'/>
+        <pointer name='whereabouts' type-name='state_profilest'/>
+        <pointer name="kills" type-name='historical_kills'/>
+        <pointer name="wounds" type-name='body_profilest'/>
+        <pointer name='known_info' type-name='knowledge_profilest' since='v0.34.01' comment='knowledge_profile'/>
+        <pointer name='curse' type-name='interaction_profilest' since='v0.34.01'/>
+        <pointer name='books' type-name='inventory_profilest' since='v0.34.01'/>
+        <pointer name='reputation' type-name='reputation_profilest' since='v0.34.01'/>
+        <pointer name='relationships' type-name='historical_figure_relationships'/>
+    </struct-type>
+
+    <class-type type-name='histfig_entity_link' original-name='histfig_entity_linkst'>
+        <int32_t name='entity_id' ref-target='historical_entity'/>
+        <int32_t name='entity_vector_idx' init-value='-1' refers-to='$global.world.entities.all[$]'/>
+        <int16_t name='link_strength'/>
+
+        <virtual-methods>
+            <vmethod ret-type='histfig_entity_link_type' name='getType'/>
+            <vmethod is-destructor='true'/>
+            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
+            <vmethod name='read_file'>
+                <pointer name='file' type-name='file_compressorst'/>
+                <enum name='loadversion' type-name='save_version'/>
+            </vmethod>
+            <vmethod ret-type='int32_t' name='getSquadId'/>
+            <vmethod ret-type='int32_t' name='getSquadPosition'/>
+            <vmethod ret-type='int32_t' name='getPosition'/>
+            <vmethod ret-type='int32_t' name='getOccupation'/>
+            <vmethod ret-type='int32_t' name='getPositionStartYear'/>
+            <vmethod ret-type='int32_t' name='getPositionEndYear'/>
+            <vmethod name='generate_xml'>
+                <pointer type-name='stl-fstream'/>
+                <int32_t name='indent'/>
+            </vmethod>
+        </virtual-methods>
+    </class-type>
+
+    <class-type type-name='histfig_entity_link_memberst' inherits-from='histfig_entity_link'/>
+
+    <class-type type-name='histfig_entity_link_former_memberst' inherits-from='histfig_entity_link'/>
+
+    <class-type type-name='histfig_entity_link_mercenaryst' inherits-from='histfig_entity_link'/>
+
+    <class-type type-name='histfig_entity_link_former_mercenaryst' inherits-from='histfig_entity_link'/>
+
+    <class-type type-name='histfig_entity_link_slavest' inherits-from='histfig_entity_link'/>
+
+    <class-type type-name='histfig_entity_link_former_slavest' inherits-from='histfig_entity_link'/>
+
+    <class-type type-name='histfig_entity_link_prisonerst' inherits-from='histfig_entity_link'/>
+
+    <class-type type-name='histfig_entity_link_former_prisonerst' inherits-from='histfig_entity_link'/>
+
+    <class-type type-name='histfig_entity_link_enemyst' inherits-from='histfig_entity_link'/>
+
+    <class-type type-name='histfig_entity_link_criminalst' inherits-from='histfig_entity_link'/>
+
+    <class-type type-name='histfig_entity_link_positionst' inherits-from='histfig_entity_link'>
+        <int32_t name='assignment_id'
+                 refers-to='(find-by-id $$._global.entity_id.ref-target.positions.assignments $id $)'/>
+        <int32_t name='assignment_vector_idx' init-value='-1'/>?
+        <int32_t name='start_year'/>
+    </class-type>
+
+    <class-type type-name='histfig_entity_link_former_positionst' inherits-from='histfig_entity_link'>
+        <int32_t name='assignment_id'
+                 refers-to='(find-by-id $$._global.entity_id.ref-target.positions.assignments $id $)'/>
+        <int32_t name='start_year'/>
+        <int32_t name='end_year'/>
+    </class-type>
+
+    <class-type type-name='histfig_entity_link_position_claimst' inherits-from='histfig_entity_link'>
+        <int32_t name='assignment_id'
+                 refers-to='(find-by-id $$._global.entity_id.ref-target.positions.assignments $id $)'/>
+        <int32_t name='start_year'/>
+    </class-type>
+
+    <class-type type-name='histfig_entity_link_occupationst' inherits-from='histfig_entity_link'>
+        <int32_t name='occupation_id' ref-target='occupation'/>
+        <int32_t name='start_year'/>
+    </class-type>
+
+    <class-type type-name='histfig_entity_link_former_occupationst' inherits-from='histfig_entity_link'>
+        <int32_t name='occupation_id' ref-target='occupation'/>
+        <int32_t name='start_year'/>
+        <int32_t name='end_year'/>
+    </class-type>
+
+    <class-type type-name='histfig_entity_link_squadst' inherits-from='histfig_entity_link'>
+        <int32_t name='squad_id' ref-target='squad'/>
+        <int32_t name='squad_position'/>
+        <int32_t name='start_year'/>
+    </class-type>
+
+    <class-type type-name='histfig_entity_link_former_squadst' inherits-from='histfig_entity_link'>
+        <int32_t name='squad_id' ref-target='squad'/>
+        <int32_t name='start_year'/>
+        <int32_t name='end_year'/>
+    </class-type>
+
+    <class-type type-name='histfig_site_link' original-name='histfig_site_linkst'>
+        <int32_t name='site' ref-target='world_site'/>
+        <int32_t name='sub_id' comment='from XML'/>
+        <int32_t name='entity' ref-target='historical_entity'/>
+        <virtual-methods>
+            <vmethod ret-type='histfig_site_link_type' name='getType'/>
+            <vmethod is-destructor='true'/>
+            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
+            <vmethod name='read_file'>
+                <pointer name='file' type-name='file_compressorst'/>
+                <enum name='loadversion' type-name='save_version'/>
+            </vmethod>
+            <vmethod name='generate_xml'>
+                <pointer type-name='stl-fstream'/>
+                <int32_t name='indent'/>
+            </vmethod>
+        </virtual-methods>
+    </class-type>
+
+    <class-type type-name='histfig_site_link_lairst' inherits-from='histfig_site_link'/>
+
+    <class-type type-name='histfig_site_link_home_site_saved_civzonest' inherits-from='histfig_site_link'/>
+
+    <class-type type-name='histfig_site_link_seat_of_powerst' inherits-from='histfig_site_link'/>
+
+    <class-type type-name='histfig_site_link_hangoutst' inherits-from='histfig_site_link'/>
+
+    <class-type type-name='histfig_site_link_home_site_abstract_buildingst' inherits-from='histfig_site_link'/>
+
+    <class-type type-name='histfig_site_link_home_site_realization_buildingst' inherits-from='histfig_site_link'/>
+
+    <class-type type-name='histfig_site_link_home_site_realization_sulst' inherits-from='histfig_site_link'/>
+
+    <class-type type-name='histfig_site_link_occupationst' inherits-from='histfig_site_link'>
+        <int32_t name='occupation_id' ref-target='occupation'/>
+    </class-type>
+
+    <class-type type-name='histfig_site_link_prison_abstract_buildingst' inherits-from='histfig_site_link'/>
+
+    <class-type type-name='histfig_site_link_prison_site_building_profilest' inherits-from='histfig_site_link'/>
+
+    <class-type type-name='histfig_hf_link' original-name='histfig_hf_linkst'>
+        <int32_t name='target_hf' ref-target='historical_figure'/>
+        <int16_t name='link_strength'/>
+        <int32_t name='hf_vector_idx' init-value='-1' refers-to='$global.world.history.figures[$]'/>
+
+        <virtual-methods>
+            <vmethod ret-type='histfig_hf_link_type' name='getType'/>
+            <vmethod is-destructor='true'/>
+            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
+            <vmethod name='read_file'>
+                <pointer name='file' type-name='file_compressorst'/>
+                <enum name='loadversion' type-name='save_version'/>
+            </vmethod>
+            <vmethod name='generate_xml'>
+                <pointer type-name='stl-fstream'/>
+                <int32_t name='indent'/>
+            </vmethod>
+        </virtual-methods>
+    </class-type>
+
+    <class-type type-name='histfig_hf_link_motherst' inherits-from='histfig_hf_link'/>
+
+    <class-type type-name='histfig_hf_link_fatherst' inherits-from='histfig_hf_link'/>
+
+    <class-type type-name='histfig_hf_link_spousest' inherits-from='histfig_hf_link'/>
+
+    <class-type type-name='histfig_hf_link_former_spousest' inherits-from='histfig_hf_link'/>
+
+    <class-type type-name='histfig_hf_link_deceased_spousest' inherits-from='histfig_hf_link'/>
+
+    <class-type type-name='histfig_hf_link_childst' inherits-from='histfig_hf_link'/>
+
+    <class-type type-name='histfig_hf_link_deityst' inherits-from='histfig_hf_link'/>
+
+    <class-type type-name='histfig_hf_link_loverst' inherits-from='histfig_hf_link'/>
+
+    <class-type type-name='histfig_hf_link_prisonerst' inherits-from='histfig_hf_link'/>
+
+    <class-type type-name='histfig_hf_link_imprisonerst' inherits-from='histfig_hf_link'/>
+
+    <class-type type-name='histfig_hf_link_masterst' inherits-from='histfig_hf_link'/>
+
+    <class-type type-name='histfig_hf_link_former_masterst' inherits-from='histfig_hf_link'/>
+
+    <class-type type-name='histfig_hf_link_apprenticest' inherits-from='histfig_hf_link'/>
+
+    <class-type type-name='histfig_hf_link_former_apprenticest' inherits-from='histfig_hf_link'/>
+
+    <class-type type-name='histfig_hf_link_companionst' inherits-from='histfig_hf_link'>
+        <int32_t name='agreement_id'/>
+        <int32_t name='agreement_party_id'/>
+    </class-type>
+
+    <class-type type-name='histfig_hf_link_pet_ownerst' inherits-from='histfig_hf_link'/>
+
+    <enum-type type-name='histfig_flags'> bay12: HistoryFigureFlagType
+        <enum-item name='reveal_artwork'/>
+        <enum-item name='equipment_created'/>
+        <enum-item name='deity'/>
+        <enum-item name='force'/>
+        <enum-item name='skeletal_deity'/>
+        <enum-item name='rotting_deity'/>
+        <enum-item name='worldgen_acted'/>
+        <enum-item name='ghost'/>
+        <enum-item name='skin_destroyed'/>
+        <enum-item name='meat_destroyed'/>
+        <enum-item name='bones_destroyed'/>
+        <enum-item name='brag_on_kill'/>
+        <enum-item name='kill_quest'/>
+        <enum-item name='chatworthy'/>
+        <enum-item name='flashes'/>
+        <enum-item name='never_cull'/>
+    </enum-type>
+
+    <bitfield-type type-name='histfig_temp_flag' base-type='uint32_t'> bay12: HF_TEMP_FLAG_*
+        <flag-bit name='legends_has_network_map'/>
+    </bitfield-type>
+
+    <struct-type type-name='historical_figure' instance-vector='$global.world.history.figures' key-field='id'
+                 original-name='history_figurest'>
+        <enum base-type='int16_t' name='profession' type-name='profession'/>
+
+        <int16_t name='race' ref-target='creature_raw'/>
+        <int16_t name='caste' ref-target='caste_raw' aux-value='$$.race'/>
+
+        <enum name='sex' type-name='pronoun_type'/>
+
+        <bitfield type-name='orientation_flags' name='orientation_flags'/>
+        <int32_t name='appeared_year'/>
+        <int32_t name='born_year'/>
+        <int32_t name='born_seconds'/>
+        <int32_t name='curse_year' since='v0.34.01'/>
+        <int32_t name='curse_seconds' since='v0.34.01'/>
+
+        <int32_t name='birth_year_bias' init-value='0' since='v0.34.01'/>
+        <int32_t name='birth_time_bias' init-value='0' since='v0.34.01'/>
+
+        <int32_t name='old_year'/>
+        <int32_t name='old_seconds'/>
+        <int32_t name='died_year'/>
+        <int32_t name='died_seconds'/>
+
+        <compound type-name='language_name' name='name'/>
+
+        <code-helper name='describe'>
+            (describe-obj $.name)
+            (awhen (find-creature $.race)
+              (fmt "~:(~A ~A~)" $it.caste[$.caste].caste_id $it.creature_id))
+        </code-helper>
+
+        <int32_t name='civ_id' ref-target='historical_entity'/>
+        <int32_t name='population_id' ref-target='entity_population'/>
+
+        <int32_t name='breed_id' comment='from legends export'/>
+        <int32_t name='cultural_identity' ref-target='cultural_identity' since='v0.40.01'/>
+        <int32_t name='family_head_id' ref-target='historical_figure' since='v0.44.01' comment='When a unit is asked about their family in adventure mode, the historical figure corresponding to this ID is called the head of the family or ancestor.'/>
+
+        <df-flagarray name='flags' index-enum='histfig_flags'/>
+
+        <int32_t name='unit_id' ref-target='unit'/>
+        <int32_t name='nemesis_id' ref-target='nemesis_record' since='v0.40.01' comment='sometimes garbage'/>
+        <int32_t name='id'/>
+
+        <int32_t name='art_count'/>
+
+        <stl-vector name='entity_links' pointer-type='histfig_entity_link'/>
+        <stl-vector name='site_links' pointer-type='histfig_site_link'/>
+        <stl-vector name='histfig_links' pointer-type='histfig_hf_link'/>
+
+        <pointer name='info' type-name='historical_figure_info' comment='bay12: hf_profilest profile'/>
+
+        <pointer name='vague_relationships' type-name='relationship_quick_infost' comment="Do not have to be available mutually, i.e. DF can display Legends relations forming for the other party that does not have an entry (plus time and other conditions not located)"/>
+        <pointer name="worldgen_site" type-name="world_site"/>
+        <pointer name="worldgen_region" type-name="world_region"/>
+        <pointer name="worldgen_layer" type-name="world_underground_region"/>
+        <pointer name="worldgen_genetics" type-name='unit_genes'/>
+        <pointer name="worldgen_relationships" pointer-type='wg_relationship_quick_infost'/>
+        <int32_t name="temp_var"/>
+        <bitfield name="temp_flag" base-type='uint32_t' type-name='histfig_temp_flag'/>
+        <int32_t name='gen_material_skill_ip_sum' init-value='-1' since='v0.40.17-19'/>
+        <int32_t name='defensive_skill_ip_sum' init-value='-1'/>
+        -- protected --
+        <size_t name='pool_id'/>
+    </struct-type>
+</data-definition>
+
+<!--
+Local Variables:
+indent-tabs-mode: nil
+nxml-child-indent: 4
+End:
+-->
