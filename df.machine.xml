@@ -1,13 +1,20 @@
 <data-definition>
-    -- MACHINE
+    <struct-type type-name='machine_nodest'>
+        <int32_t name="building_id" ref-target='building'/>
+        <stl-vector name="connections" type-name='int32_t'
+                    comment='indices into the same component vector'/>
+    </struct-type>
+
+    <bitfield-type type-name="machine_flag" base-type='uint32_t'> bay12: MACHINE_FLAG_*
+        <flag-bit name='active'/>
+        <flag-bit name='frozen'/>
+        <flag-bit name='unfreeze_check'/>
+    </bitfield-type>
 
     <enum-type type-name='machine_type'> bay12: MachineType
+        <enum-item name='NONE' value='-1'/>
         <enum-item name='standard'/>
     </enum-type>
-
-
-
-
 
     <class-type type-name='machine' original-name='machinest'
                 instance-vector='$global.world.machines.all' key-field='id'>
@@ -17,13 +24,7 @@
 
         <int32_t name="id"/>
 
-        <stl-vector name="components">
-            <pointer> bay12: machine_nodest
-                <int32_t name="building_id" ref-target='building'/>
-                <stl-vector name="connections" type-name='int32_t'
-                            comment='indices into the same component vector'/>
-            </pointer>
-        </stl-vector>
+        <stl-vector name="components" pointer-type='machine_nodest'/>
 
         <int32_t name="cur_power"/>
         <int32_t name="min_power"/>
@@ -31,11 +32,7 @@
         <int8_t name='visual_phase'/>
         <int16_t name="phase_timer"/>
 
-        <bitfield name="flags" base-type='uint32_t'> bay12: MACHINE_FLAG_*
-            <flag-bit name='active'/>
-            <flag-bit name='frozen'/>
-            <flag-bit name='unfreeze_check'/>
-        </bitfield>
+        <bitfield name="flags" base-type='uint32_t' type-name='machine_flag'/>
 
         <virtual-methods>
             <vmethod ret-type='machine_type' name='getType'/>
@@ -55,6 +52,15 @@
 
     <class-type type-name='machine_standardst' inherits-from='machine'/>
 
+    <class-type type-name='machine_handler' original-name='machine_handlerst' custom-methods='true'>
+        <stl-vector name='all' pointer-type='machine'/>
+        <stl-vector name='temp_save' has-bad-pointers='true' pointer-type='machine'/>
+        <virtual-methods>
+            <vmethod name='add_to_machine'>
+                <pointer type-name='building'/>
+            </vmethod>
+        </virtual-methods>
+    </class-type>
 </data-definition>
 
 <!--
