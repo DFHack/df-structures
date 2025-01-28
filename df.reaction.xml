@@ -1,65 +1,12 @@
 <data-definition>
-    <enum-type type-name='reaction_flags'> bay12: ReactionFlagType
-        <enum-item name='FUEL'/>
-        <enum-item name='AUTOMATIC'/>
-        <enum-item name='ADVENTURE_MODE_ENABLED'/>
-        <enum-item name='GENERATED'/>
-    </enum-type>
-
-    <struct-type type-name='reaction' original-name='reactionst'
-                instance-vector='$global.world.raws.reactions.reactions'>
-        <stl-string name="code"/>
-        <stl-string name="name"/>
-
-        <code-helper name='describe'>$.code</code-helper>
-
-        <df-flagarray name='flags' index-enum='reaction_flags'/>
-
-        <stl-vector name="reagents" pointer-type='reaction_reagent'/>
-        <stl-vector name="products" pointer-type='reaction_product'/>
-
-        <enum name='skill' type-name='job_skill'/>
-        <int32_t name='max_multiplier' init-value='-1' since='v0.42.01'/>
-
-        <compound name='building'> not a compound
-            <stl-vector name='token' pointer-type='stl-string'/>
-            <stl-vector name='temp_job_key' type-name='interface_key'/>
-            <stl-vector name='type'>
-                <enum base-type='int32_t' type-name='building_type'/>
-            </stl-vector>
-            <stl-vector type-name='int32_t' name='subtype'/>
-            <stl-vector type-name='int32_t' name='custom'/>
-            <stl-vector type-name='interface_key' name='hotkey'/>
-        </compound>
-
-        <int32_t name="index"/>
-
-        <int32_t name="source_hfid" ref-target='historical_figure' since='v0.42.01'/>
-        <int32_t name="source_enid" ref-target='historical_entity' since='v0.42.01'/>
-        <stl-vector name="raw_strings" pointer-type='stl-string' since='v0.42.01'/>
-        <stl-string name="category" since='v0.42.01'/>
-        <stl-vector name="descriptions" pointer-type='reaction_description' since='v0.42.01'/>
-        <int32_t name='rand_range' since='v0.47.02' init-value='11'/>
-        <int32_t name='skill_mult' since='v0.47.02' init-value='5'/>
-        <int32_t name='attr_gain' since='v0.47.02' init-value='10'/>
-        <int32_t name='exp_gain' since='v0.47.02' init-value='30'/>
-    </struct-type>
-
-    <struct-type type-name='reaction_category' original-name='custom_reaction_categoryst'>
-        <stl-string name='id'/>
-        <stl-string name='parent'/>
-        <stl-string name='name'/>
-        <enum name='key' type-name='interface_key'/>
-        <stl-string name='description'/>
-    </struct-type>
-
-    <struct-type type-name='reaction_description' original-name='reaction_description_elementst'>
-        <stl-string name='text'/>
-        <enum type-name='item_type' name='item_type'/>
-        <stl-string name='item_token'/>
-    </struct-type>
+    <bitfield-type type-name='reaction_reagent_flags'> bay12: REACTION_REAGENT_FLAG_*
+        <flag-bit name='PRESERVE_REAGENT'/>
+        <flag-bit name='IN_CONTAINER'/>
+        <flag-bit name='DOES_NOT_DETERMINE_PRODUCT_AMOUNT'/>
+    </bitfield-type>
 
     <enum-type type-name='reaction_reagent_type' base-type='int32_t'> bay12: ReactionReagentType
+        <enum-item name='NONE' value='-1'/>
         <enum-item name='item'/>
     </enum-type>
 
@@ -105,12 +52,6 @@
         </virtual-methods>
     </class-type>
 
-    <bitfield-type type-name='reaction_reagent_flags'> bay12: REACTION_REAGENT_FLAG_*
-        <flag-bit name='PRESERVE_REAGENT'/>
-        <flag-bit name='IN_CONTAINER'/>
-        <flag-bit name='DOES_NOT_DETERMINE_PRODUCT_AMOUNT'/>
-    </bitfield-type>
-
     <class-type type-name='reaction_reagent_itemst' inherits-from='reaction_reagent'>
         <enum base-type='int16_t' name='item_type' type-name='item_type'/>
         <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
@@ -140,6 +81,7 @@
     </class-type>
 
     <enum-type type-name='reaction_product_type' base-type='int32_t'> bay12: ReactionProductType
+        <enum-item name='NONE' value='-1'/>
         <enum-item name='item'/>
         <enum-item name='improvement'/>
     </enum-type>
@@ -233,6 +175,73 @@
 
         <static-array type-name='stl-string' name='material_str' count='3'/>
     </class-type>
+
+    <struct-type type-name='reaction_description' original-name='reaction_description_elementst'>
+        <stl-string name='text'/>
+        <enum type-name='item_type' name='item_type'/>
+        <stl-string name='item_token'/>
+    </struct-type>
+
+    <enum-type type-name='reaction_flags'> bay12: ReactionFlagType
+        <enum-item name='FUEL'/>
+        <enum-item name='AUTOMATIC'/>
+        <enum-item name='ADVENTURE_MODE_ENABLED'/>
+        <enum-item name='GENERATED'/>
+    </enum-type>
+
+    <struct-type type-name='reaction' original-name='reactionst'
+                instance-vector='$global.world.raws.reactions.reactions'>
+        <stl-string name="code"/>
+        <stl-string name="name"/>
+
+        <code-helper name='describe'>$.code</code-helper>
+
+        <df-flagarray name='flags' index-enum='reaction_flags'/>
+
+        <stl-vector name="reagents" pointer-type='reaction_reagent'/>
+        <stl-vector name="products" pointer-type='reaction_product'/>
+
+        <enum name='skill' type-name='job_skill'/>
+        <int32_t name='max_multiplier' init-value='-1' since='v0.42.01'/>
+
+        <compound name='building'> not a compound
+            <stl-vector name='token' pointer-type='stl-string'/>
+            <stl-vector name='temp_job_key' type-name='interface_key'/>
+            <stl-vector name='type'>
+                <enum base-type='int32_t' type-name='building_type'/>
+            </stl-vector>
+            <stl-vector type-name='int32_t' name='subtype'/>
+            <stl-vector type-name='int32_t' name='custom'/>
+            <stl-vector type-name='interface_key' name='hotkey'/>
+        </compound>
+
+        <int32_t name="index"/>
+
+        <int32_t name="source_hfid" ref-target='historical_figure' since='v0.42.01'/>
+        <int32_t name="source_enid" ref-target='historical_entity' since='v0.42.01'/>
+        <stl-vector name="raw_strings" pointer-type='stl-string' since='v0.42.01'/>
+        <stl-string name="category" since='v0.42.01'/>
+        <stl-vector name="descriptions" pointer-type='reaction_description' since='v0.42.01'/>
+        <int32_t name='rand_range' since='v0.47.02' init-value='11'/>
+        <int32_t name='skill_mult' since='v0.47.02' init-value='5'/>
+        <int32_t name='attr_gain' since='v0.47.02' init-value='10'/>
+        <int32_t name='exp_gain' since='v0.47.02' init-value='30'/>
+    </struct-type>
+
+    <struct-type type-name='reaction_category' original-name='custom_reaction_categoryst'>
+        <stl-string name='id'/>
+        <stl-string name='parent'/>
+        <stl-string name='name'/>
+        <enum name='key' type-name='interface_key'/>
+        <stl-string name='description'/>
+    </struct-type>
+
+    -- Unused: reaction_handling_informationst
+
+    <struct-type type-name='reaction_handlerst'>
+        <stl-vector name='reactions' pointer-type='reaction'/>
+        <stl-vector name='reaction_categories' pointer-type='reaction_category'/>
+    </struct-type>
 </data-definition>
 
 <!--
