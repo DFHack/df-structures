@@ -1,0 +1,63 @@
+<data-definition>
+    -- Unused: nem_unit_specifierst
+
+    <enum-type type-name='nemesis_flags'> bay12: NemesisFlagType
+        <enum-item name='ACTIVE_ADVENTURER' comment='used when loading save. Swapping the player character via tactical mode disables this flag on the old player character and sets it for the new one.'/>
+        <enum-item/>
+        <enum-item name='ADVENTURER' comment='blue color and guided by forces unknown description in legends mode'/>
+        <enum-item name='TEMP_FLAG_ASSOCIATE_PEOPLE_TO_REALIZATION'/>
+        <enum-item name='BRAG_ON_KILL'/>
+        <enum-item name='KILL_QUEST'/>
+        <enum-item name='CHAT_WORTHY'/>
+        <enum-item name='FLASHES' comment='Causes the unit tile to flash between dark and light.'/>
+
+        <enum-item name='DO_NOT_CULL'/>
+        <enum-item name='HERO' comment='Set after assigning the Hero status during adventure mode character creation, produces the vanguard of destiny description in legends mode.'/>
+        <enum-item name='CHOSEN' comment='Set after assigning the Demigod status during adventure mode character creation, produces the divine parentage description in legends mode.'/>
+        <enum-item name='POTENTIAL_CIVILIZED_ACTOR'/>
+        <enum-item name='CHECK_FOR_POSITION_CLAIM'/>
+        <enum-item name='POTENTIAL_PLOTTER_ACTOR'/>
+    </enum-type>
+
+    <struct-type type-name='nemesis_record' key-field='id' instance-vector='$global.world.nemesis.all' original-name='nemesisst'>
+        <int32_t name='id' comment='sequential index in the array'/>
+
+        <int32_t name='unit_id' ref-target='unit'/>
+
+        <int32_t name='save_file_id' ref-target='unit_chunk' comment='unit-*.dat'/>
+        <int16_t name='member_idx' comment='index in the file'/>
+
+        <pointer name='figure' type-name='historical_figure'/>
+        <pointer name='unit' type-name='unit'/>
+
+        <code-helper name='describe'>
+            (describe-obj $.figure)
+        </code-helper>
+
+        <int32_t name='group_leader_id' ref-target='nemesis_record'/>
+        <stl-vector name='companions' type-name='int32_t' ref-target='nemesis_record'/>
+
+        <int16_t name='activeplotindex' init-value='-1'/>
+        <int32_t name='travel_link_nemid' ref-target='nemesis_record'/>
+        <int32_t name='ideal_item_container_id' init-value='-1'/>
+        <int32_t name='next_plot_year'/>
+        <int32_t name='next_plot_season_count'/>
+        <df-flagarray name='flags' index-enum='nemesis_flags'/>
+    </struct-type>
+
+    <struct-type type-name='nemesis_handlerst'>
+        <stl-vector name='all' pointer-type='nemesis_record'/>
+        <static-array name='other' count='28'>
+            <stl-vector pointer-type='nemesis_record'/>
+        </static-array>
+        <stl-vector name='order_load' has-bad-pointers='true' pointer-type='nemesis_record'/>
+        <bool name='do_not_remove_from_vector'/>
+    </struct-type>
+</data-definition>
+
+<!--
+Local Variables:
+indent-tabs-mode: nil
+nxml-child-indent: 4
+End:
+-->
