@@ -1,0 +1,282 @@
+<data-definition>
+    <struct-type type-name='local_edge_datast'>
+        <int16_t name='break_one'/>
+        <int16_t name='break_two'/>
+    </struct-type>
+
+    -- Unused: MIDMAP_FLAG_*
+    -- Unused: region_midmap_initst
+
+    <struct-type type-name='ocean_beach_compst'>
+        <int16_t name='soil_freq'/>
+        <int16_t name='pebble_freq'/>
+        <int16_t name='solid_rock_freq'/>
+        <int16_t name='boulder_freq'/>
+        <int16_t name='driftwood_freq'/>
+    </struct-type>
+
+    <enum-type type-name='feature_square_flag_river_type'> bay12: FeatureSquareFlagRiverType
+        <enum-item name='source'/>
+        <enum-item name='sink'/>
+    </enum-type>
+
+    <enum-type type-name='feature_square_flag_layer_type'> bay12: FeatureSquareFlagLayerType
+        <enum-item name='liquid_u'/>
+        <enum-item name='liquid_d'/>
+        <enum-item name='liquid_l'/>
+        <enum-item name='liquid_r'/>
+    </enum-type>
+
+    <struct-type type-name='world_region_feature' original-name='feature_square_infost'>
+        <int16_t name='feature_idx'>
+            <code-helper name='refers-to'>
+                (let* ((info $$._parent._parent._global)
+                       (wdata $global.world.world_data)
+                       (x $info.pos.x)
+                       (y $info.pos.y))
+                  (when (/= $ -1)
+                    (let* ((rip $wdata.feature_map[(floor x 16)][(floor y 16)])
+                           (flst $rip.features.feature_init[(logand x 15)][(logand y 15)]))
+                      $flst[$])))
+            </code-helper>
+        </int16_t>
+        <int32_t name="layer" ref-target='world_underground_region'/>
+        <int32_t name="region_tile_idx">
+            <code-helper name='describe'>
+                (let ((l $$._parent.layer.ref-target))
+                  (when l
+                    (list (fmt "(~A,~A)-(~A:~A)"
+                               $l.region_coords.x[$] $l.region_coords.y[$]
+                               $l.region_min_z[$] $l.region_max_z[$]))))
+            </code-helper>
+        </int32_t>
+        <int16_t name='min_z'/>
+        <int16_t name='max_z'/>
+
+        <int16_t name='zup_x'/>
+        <int16_t name='zup_y'/>
+        <int16_t name='zdown_x'/>
+        <int16_t name='zdown_y'/>
+
+        <int16_t name='left_y1'/>
+        <int16_t name='left_y2'/>
+        <int16_t name='right_y1'/>
+        <int16_t name='right_y2'/>
+
+        <int16_t name='up_x1'/>
+        <int16_t name='up_x2'/>
+        <int16_t name='down_x1'/>
+        <int16_t name='down_x2'/>
+
+        <int8_t name='u_flow'/>
+        <int8_t name='d_flow'/>
+        <int8_t name='l_flow'/>
+        <int8_t name='r_flow'/>
+
+        <uint32_t name="seed"/>
+        <df-flagarray name="flag" comment='feature_square_flag_river_type OR feature_square_flag_layer_type'/>
+
+        <int16_t name='left_z_min'/>
+        <int16_t name='left_z_max'/>
+        <int16_t name='right_z_min'/>
+        <int16_t name='right_z_max'/>
+
+        <int16_t name='up_z_min'/>
+        <int16_t name='up_z_max'/>
+        <int16_t name='down_z_min'/>
+        <int16_t name='down_z_max'/>
+
+        <enum type-name='tile_liquid' name='liquid_type'/>
+        <int16_t name='liquid_upper_filled_z'/>
+        <int16_t name='openness'/>
+        <int16_t name='passage_density'/>
+        <static-array count='2' type-name='int16_t' name='vertical_connection'/>
+
+        <enum name="top_layer_idx" type-name='layer_type' base-type='int16_t'
+                    comment='topmost cave layer the feature reaches'/>
+    </struct-type>
+
+    -- Unused: midmap_gen_el_restrictionst
+
+    <bitfield-type type-name='midmap_square_flag' base-type='uint8_t'> bay12: MIDMAP_SQUARE_FLAG_*
+        <flag-bit name='construction' comment="the MLTs of world_data.constructions.all"/>
+        <flag-bit name='minor_site_footprint' comment="MLTs with sites other than MountainHall, DarkFortress, ForestRetreat, Town"/>
+        <flag-bit name='river' comment="Only a very small subset (selection criteria unknown), but the MLTs marked match up with Rivers* tiles plus implicit River tiles interpolated from that"/>
+    </bitfield-type>
+
+    <struct-type type-name='world_region_details' original-name='region_midmapst'>
+        <static-array count='17' name='biome'>
+            <static-array type-name='int8_t' count='17'
+                          comment='lower 4 bits: biome 1..9; |=0x30 if fort'/>
+            <comment>biome field reference:
+                789
+                456
+                123
+                as directions, with 5 = own world tile, 1 = SW, 9 = NE, etc.</comment>
+        </static-array>
+        <static-array count='17' name='elevation'>
+            <static-array type-name='int16_t' count='17'/>
+        </static-array>
+
+        <static-array count='16' name='seed' comment='looks random'>
+            <static-array type-name='uint32_t' count='16'/>
+        </static-array>
+
+        <compound name='edges'>
+            <comment>
+                In order to determine how biomes cross embark tile edges,
+                the rectangle framing an embark tile is split into 4 corners,
+                and 4 straight edge segments, using ranges measured in tiles:
+
+                +-/----/+
+                |       /
+                /   *   |
+                /       /
+                +-/-/---+
+
+                After this, each corner and edge segment is assigned the biome
+                of one of the adjoining 4 or 2 embark tiles, based on the values
+                in these arrays. It may be necessary to access adjacent details
+                objects to collect the full outline:
+
+                c11 x11 | c21
+                y11 *** | y21
+                -------------
+                c12 x12 | c22
+
+                There are also certain rules forcing ocean/lake biomes to lose
+                edges to mountains, and both of them to anything else, no matter
+                what the original array value is. The actual biomes for tiles in
+                the frame are semi-randomly interpolated from this edge spec.
+
+                For some reason DF provides for all edges of all mid level tiles
+                in a world tile, but not for the corners on the south and east
+                edges: for these you have to go to the next world tile.
+                This has some effect on the corners on the south and east edges of
+                the world where there are no adjacent tiles to get the data from.
+                There the rules are static: the biomes of corners are taken from
+                the easternmost and southernmost of the two touching corners.
+
+                The rules for corner determination when the biome_corner field has
+                specified a biome that's specified to yield as per the above seems
+                to be to first take the NW corner (0), then the NE (1) one, and
+                then the SW (2) one. If the selected corner doesn't exist (because
+                it's outside of the world) the same fallback corner selection is
+                used, with the exception of a northern row selection of NW (0),
+                where the home corner (3) is selected.
+            </comment>
+            <static-array count='16' name='split_x'
+                          comment='splits for horizontal edges, x=min y=max'>
+                <static-array type-name='local_edge_datast' count='17'/>
+            </static-array>
+            <static-array count='17' name='split_y'
+                          comment='splits for vertical edges, x=min y=max'>
+                <static-array type-name='local_edge_datast' count='16'/>
+           </static-array>
+
+            <static-array name='biome_corner' count='16'
+                          comment='0=Reference is NW, 1=Reference is N, 2=Reference is W, 3=Reference is current tile'>
+                <static-array type-name='int8_t' count='16'/>
+                <comment>
+                    All 4 corners touching get the same reference (which determines the biome),
+                    i.e. SE corner of the tile to the NW, SW corner of the tile to the
+                    N, NE corner of the tile to the W, and the NW corner of the current
+                    tile, as directed by the biome_corner value.
+                </comment>
+            </static-array>
+            <static-array name='biome_x' count='16' comment='0=Reference is N, 1=Reference is current tile (adopted by S edge to the N)'>
+                <static-array type-name='int8_t' count='16'/>
+            </static-array>
+            <static-array name='biome_y' count='16' comment='0=Reference is W, 1=Reference is current tile (Adopted by E edge to the W)'>
+                <static-array type-name='int8_t' count='16'/>
+            </static-array>
+        </compound>
+
+        <code-helper name='describe'> (describe-obj $.pos) </code-helper>
+
+        <compound name='pos' type-name='coord2d'/>
+        <compound name='ocean_beach_comp' type-name='ocean_beach_compst'/>
+
+        -- Rivers crossing embark tile edges
+        <compound name='rivers_vertical'>
+            <static-array name='x_min' count='16'>
+                <static-array type-name='int16_t' count='17'/>
+            </static-array>
+            <static-array name='x_max' count='16'>
+                <static-array type-name='int16_t' count='17'/>
+            </static-array>
+            <static-array name='active' count='16'>
+                <static-array type-name='int8_t' count='17'/>
+            </static-array>
+            <static-array name='elevation' count='16'>
+                <static-array type-name='int16_t' count='17'/>
+            </static-array>
+        </compound>
+
+        <compound name='rivers_horizontal'>
+            <static-array name='y_min' count='17'>
+                <static-array type-name='int16_t' count='16'/>
+            </static-array>
+            <static-array name='y_max' count='17'>
+                <static-array type-name='int16_t' count='16'/>
+            </static-array>
+            <static-array name='active' count='17'>
+                <static-array type-name='int8_t' count='16'/>
+            </static-array>
+            <static-array name='elevation' count='17'>
+                <static-array type-name='int16_t' count='16'/>
+            </static-array>
+        </compound>
+
+        <static-array name='other_features' count='16'>
+            <static-array count='16'>
+                <bitfield name='flags' base-type='uint8_t' type-name='midmap_square_flag'/>
+            </static-array>
+        </static-array>
+
+        <static-array count='16' name='features'>
+            <static-array count='16'>
+                <stl-vector pointer-type='world_region_feature'/>
+            </static-array>
+        </static-array>
+
+        <int16_t name='lava_stone' ref-target='inorganic_raw'/>
+
+        <static-array count='48' name='site_map_travel_dir' since='v0.40.01'><static-array count='48' type-name='uint8_t'/></static-array>
+
+        <static-array count='16' name='temp_elevation'>
+            <static-array type-name='int16_t' count='16'/>
+        </static-array>
+        <static-array count='16' name='temp_path_map'>
+            <static-array type-name='int32_t' count='16'/>
+        </static-array>
+
+        <int16_t name='site_finder_x1'/>
+        <int16_t name='site_finder_x2'/>
+        <int16_t name='site_finder_y1'/>
+        <int16_t name='site_finder_y2'/>
+    </struct-type>
+
+    <struct-type type-name='region_midmap_datast'>
+        <stl-vector name='region_details' pointer-type='world_region_details'/>
+
+        <int32_t name="adv_region_x"/>
+        <int32_t name="adv_region_y"/>
+        <int32_t name="adv_emb_x"/>
+        <int32_t name="adv_emb_y"/>
+
+        <int16_t name="loadarea_sx"/>
+        <int16_t name="loadarea_sy"/>
+        <int16_t name="loadarea_ex"/>
+        <int16_t name="loadarea_ey"/>
+
+        <stl-map name="midmap_place" comment="std::map&lt;std::pair&lt;int16_t,int16_t&gt;,VIndex&gt;; not saved"/>
+    </struct-type>
+</data-definition>
+
+<!--
+Local Variables:
+indent-tabs-mode: nil
+nxml-child-indent: 4
+End:
+-->
