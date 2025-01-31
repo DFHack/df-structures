@@ -1,0 +1,72 @@
+<data-definition>
+    <enum-type type-name="world_population_type"> bay12: WilderPopTypes
+        <enum-item name='Animal' comment='ROAMING'/>
+        <enum-item name='Vermin'/>
+        <enum-item name='Unused3'/>
+        <enum-item name='VerminInnumerable' comment='SOIL'/>
+        <enum-item name='ColonyInsect' comment='SOIL_COLONY'/>
+        <enum-item name='Tree'/>
+        <enum-item name='Grass'/>
+        <enum-item name='Bush'/>
+        <enum-item name='Unused9'/>
+    </enum-type>
+
+    <struct-type type-name='world_population' original-name='regionpopst'>
+        <enum base-type='int16_t' name='type' type-name='world_population_type'/>
+
+        <compound is-union='true'>
+            <int16_t name="race" ref-target='creature_raw'/>
+            <int16_t name="plant" ref-target='plant_raw'/>
+        </compound>
+
+        <int32_t name="count_min" init-value='10000001'/>
+        <int32_t name="count_max" init-value='10000001'/>
+
+        <int32_t name='temp_num' init-value='0' since='v0.40.01'/>
+
+        <int32_t name="owner" ref-target='historical_entity'/>
+        <int32_t name="breed" ref-target='breed'/>
+        <int32_t name="production_zone" init-value='-1'/>
+
+        <int32_t name='interaction_idx' init-value='-1' since='v0.34.01'/>
+        <int32_t name='interaction_instance' init-value='-1' since='v0.34.01'/>
+        <int32_t name='interaction_effect' init-value='-1' since='v0.47.01'/>
+    </struct-type>
+
+    <struct-type type-name='world_population_ref' original-name='regionpopinfost'>
+        <int16_t name="region_x"/>
+        <int16_t name="region_y"/>
+        <int16_t name="feature_idx" init-value="-1"/>
+
+        <int32_t name='cave_id' ref-target='world_underground_region'/>
+
+        <int32_t name='site_id' ref-target='world_site'/>
+
+        <int32_t name="population_idx">
+            <code-helper name='refers-to'>
+                (let* ((info $$._global)
+                       (wdata $global.world.world_data)
+                       (x $info.region_x)
+                       (y $info.region_y)
+                       (reg (or (when (/= $info.feature_idx -1)
+                                  (let* ((rip $wdata.feature_map[(floor x 16)][(floor y 16)])
+                                         (flst $rip.features.feature_init[(logand x 15)][(logand y 15)]))
+                                    $flst[$info.feature_idx].feature))
+                                (awhen $info.cave_id.ref-target
+                                  $it.feature_init.feature)
+                                (find-instance $world_region ;
+                                               $wdata.region_map[x][y].region_id))))
+                  $reg.population[$])
+            </code-helper>
+        </int32_t>
+
+        <int16_t name='layer_depth' comment="gets overwritten when creatures arrives on map, so it knows which edge it should go to"/>
+    </struct-type>
+</data-definition>
+
+<!--
+Local Variables:
+indent-tabs-mode: nil
+nxml-child-indent: 4
+End:
+-->
