@@ -1,0 +1,133 @@
+<data-definition>
+    <bitfield-type type-name='musicsound_flag' base-type='uint32_t'> bay12: MUSICSOUND_FLAG_*
+        <flag-bit name='just_added_event'/>
+        <flag-bit name='was_playing'/>
+        <flag-bit name='fade_song_out'/>
+        <flag-bit name='title_ambience_fade_in'/>
+        <flag-bit name='no_music_start_while_megabox_open'/>
+        <flag-bit name='post_start_ambience_fade'/>
+        <flag-bit name='fade_card_out'/>
+    </bitfield-type>
+
+    <enum-type type-name='music_event_type' base-type='int32_t'> bay12: MusicEventType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='FIRST_CAVERN_OPENED'/>
+        <enum-item name='DEATH_SPIRAL'/>
+        <enum-item name='MEGABEAST_ATTACK'/>
+        <enum-item name='FORGOTTEN_BEAST_ATTACK'/>
+        <enum-item name='TAVERN_MUSIC_PRESENT'/>
+        <enum-item name='TAVERN_DANCE_PRESENT'/>
+        <enum-item name='SIEGE'/>
+        <enum-item name='JUST_EMBARKED'/>
+        <enum-item name='LOST_FORT'/>
+        <enum-item name='FORT_LEVEL'/>
+        <enum-item name='FIRST_GHOST'/>
+    </enum-type>
+
+    -- Unused: MusicContextType
+    -- Unused: Song
+    -- Unused: SoundType
+    -- Skipped: musicsound_info - platform-dependent implementation?
+    -- Unused: music_datast
+    -- Unused: loading_music_filest
+
+    <struct-type type-name='musicsoundst'>
+        <int32_t name='soft_channel_number'/>
+
+        <long name='last_main_was_playing_count'/>
+        <long name='last_any_was_playing_count'/>
+        <long name='next_play_duration'/>
+        <long name='song_started_count'/>
+        <long name='last_event_count_tavern'/>
+        <long name='last_event_count_death_spiral'/>
+        <long name='song_fade_start_count'/>
+        <long name='card_fade_start_count'/>
+        <long name='title_ambience_fade_in_count'/>
+        <long name='post_start_ambience_fade_count'/>
+
+        <int32_t name='card_playing'/>
+        <long name='card_started_count'/>
+
+        <int32_t name='ambience_vote_tavern'/>
+        <int32_t name='ambience_vote_workshop'/>
+        <int32_t name='ambience_vote_performance'/>
+        <static-array type-name='int32_t' count='20' name='ambience_combat_strikes'/>
+
+        <int32_t name='queued_song'/>
+        <long name='queued_song_count'/>
+
+        <int32_t name='planned_song'/>
+        <stl-vector type-name='int32_t' name='planned_cards'/>
+        <stl-vector type-name='int32_t' name='neutral_card_queue'/>
+
+        <bitfield name='flags' base-type='uint32_t' type-name='musicsound_flag'/>
+        <enum name='latest_event' type-name='music_event_type'/>
+
+        <static-array type-name='int32_t' count='1000' name='total_plays'/>
+        <static-array type-name='int32_t' count='3' name='play_history'/>
+        <static-array type-name='int32_t' count='3' name='neutral_card_history'/>
+
+        <int32_t name='ambience_active'/>
+        <int32_t name='ambience_fading'/>
+        <int32_t name='ambience_active_channel'/>
+        <bool name='ambience_crossfading'/>
+        <long name='ambience_crossfade_start'/>
+        <int32_t name='ambience_siege_enid'/>
+        <long name='ambience_siege_start'/>
+        <bool name='ambience_siege_end_played'/>
+        <static-array type-name='int32_t' count='1000' name='ambience_mode'/>
+        <static-array type-name='long' count='1000' name='ambience_mode_start'/>
+        <long name='ambience_last_sound'/>
+
+        <int32_t name='next_song_id'/>
+        <int32_t name='next_sound_id'/>
+
+        <stl-unordered-map name='loaded_music' comment='unordered_map&lt;std::string, music_datast&gt;'/>
+        <stl-unordered-map name='music_by_id' comment='unordered_map&lt;int, music_datast&gt;'/>
+        <stl-unordered-map name='loaded_sounds' comment='unordered_map&lt;std::string, int&gt;'/>
+        <stl-vector name='loading_files' comment='std::ffuture&lt;loading_music_filest&gt;'/>
+
+        <pointer name='internal' comment='musicsound_info'/>
+
+        <int32_t name='song' init-value='-1' refers-to='$$._parent.mod[$]'/>
+        <bool name='music_active'/>
+        <bool name='sound_priority'/>
+        <int32_t name='sound_playing'/>
+
+        <bool name='doing_forced'/>
+        <uint32_t name='forcesongtime'/>
+        <uint32_t name='forcesongstart'/>
+
+        <bool name='on'/>
+    </struct-type>
+
+    <struct-type type-name='adv_music_statest'>
+        <bool name='have_done_chargen_music'/>
+        <bool name='have_done_start_music'/>
+        <bool name='have_played_initial_trade_music'/>
+        <bool name='have_played_initial_civilization_music'/>
+        <bool name='have_played_initial_cannibal_music'/>
+        <bool name='have_played_first_quest_music'/>
+        <bool name='have_played_first_dangerous_music'/>
+        <bool name='have_played_death_music'/>
+        <bool name='have_played_initial_mounted_travel_music'/>
+        <bool name='have_played_tavern_music'/>
+
+        <long name='adv_last_music_play_time'/>
+        <bool name='playing_combat_music'/>
+        <bool name='playing_combat_music_doing_layers_and_groups'/>
+        <long name='adv_combat_music_start_time'/>
+        <long name='adv_combat_music_time_started_last_layer'/>
+        <long name='adv_combat_music_last_regular_time'/>
+        <int32_t name='adv_combat_music_group'/>
+        <int32_t name='adv_combat_music_layer'/>
+        <long name='adv_start_music_time'/>
+    </struct-type>
+</data-definition>
+
+<!--
+Local Variables:
+indent-tabs-mode: nil
+nxml-child-indent: 4
+End:
+-->
