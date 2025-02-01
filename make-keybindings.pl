@@ -7,7 +7,7 @@ print <<'__END__';
 <data-definition>
     WARNING: THIS FILE IS AUTO-GENERATED - DO NOT EDIT
 
-    <enum-type type-name='interface_key' base-type='long'>
+    <enum-type type-name='interface_key' base-type='long'> bay12: InterfaceKeyType
 __END__
 
 my $startname;
