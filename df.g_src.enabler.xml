@@ -1,0 +1,261 @@
+<data-definition>
+    -- Unused: pstringst
+    -- Unused: stringvectst
+    -- Unused: flagarrayst
+    -- Unused: ColorData
+    -- Unused: TILEFLAG_*
+    -- Unused: render_phase
+
+    <struct-type type-name='curses_text_boxst'>
+        <stl-vector pointer-type='stl-string' name='text'/>
+    </struct-type>
+
+    -- Unused: COPYTEXTUREFLAG_*
+
+    <bitfield-type type-name='enabler_flag' base-type='ulong'> bay12: ENABLERFLAG_*
+        <flag-bit name='render'/>
+        <flag-bit name='maxfps'/>
+        <flag-bit name='basic_text'/>
+    </bitfield-type>
+
+    -- Unused: ttf_id
+
+    <struct-type type-name='enabler_textures' original-name='textures'>
+        <stl-vector type-name='pointer' name='raws' comment='SDL_Surface'/>
+        <stl-vector type-name='int32_t' name='free_spaces'/>
+        <int32_t name='init_texture_size'/>
+        <bool name='uploaded'/>
+    </struct-type>
+
+    -- Unused: tile
+    -- Unused: GL_WindowInit
+    -- Unused: GL_Window
+
+    <enum-type type-name='zoom_commands'>
+        <enum-item name='zoom_in'/>
+        <enum-item name='zoom_out'/>
+        <enum-item name='zoom_reset'/>
+        <enum-item name='zoom_fullscreen'/>
+        <enum-item name='zoom_resetgrid'/>
+    </enum-type>
+
+    <bitfield-type type-name='texture_fullid_flag' base-type='uint32_t'>
+        <flag-bit name='transparent_background'/>
+        <flag-bit name='do_recolor'/>
+        <flag-bit name='convert'/>
+    </bitfield-type>
+
+    <struct-type type-name='texture_fullid'>
+        <int32_t name='texpos'/>
+        <s-float name='r'/>
+        <s-float name='g'/>
+        <s-float name='b'/>
+        <s-float name='br'/>
+        <s-float name='bg'/>
+        <s-float name='bb'/>
+        <bitfield name='flag' base-type='uint32_t' type-name='texture_fullid_flag'/>
+    </struct-type>
+
+    <class-type type-name='renderer'>
+        <pointer type-name='uint8_t' name='screen' is-array='true'/>
+        <pointer type-name='long' name='screentexpos' is-array='true'/>
+        <pointer type-name='long' name='screentexpos_lower' is-array='true'/>
+        <pointer type-name='long' name='screentexpos_anchored' is-array='true'/>
+        <pointer type-name='long' name='screentexpos_anchored_x' is-array='true'/>
+        <pointer type-name='long' name='screentexpos_anchored_y' is-array='true'/>
+        <pointer type-name='uint32_t' name='screentexpos_flag' is-array='true'/>
+
+        <pointer type-name='uint8_t' name='screen_top' is-array='true'/>
+        <pointer type-name='long' name='screentexpos_top' is-array='true'/>
+        <pointer type-name='long' name='screentexpos_top_lower' is-array='true'/>
+        <pointer type-name='long' name='screentexpos_top_anchored' is-array='true'/>
+        <pointer type-name='long' name='screentexpos_top_anchored_x' is-array='true'/>
+        <pointer type-name='long' name='screentexpos_top_anchored_y' is-array='true'/>
+        <pointer type-name='uint32_t' name='screentexpos_top_flag' is-array='true'/>
+
+        <pointer type-name='uint8_t' name='directtexcopy' is-array='true'/>
+
+        <pointer type-name='uint8_t' name='screen_old' is-array='true'/>
+        <pointer type-name='long' name='screentexpos_old' is-array='true'/>
+        <pointer type-name='long' name='screentexpos_lower_old' is-array='true'/>
+        <pointer type-name='long' name='screentexpos_anchored_old' is-array='true'/>
+        <pointer type-name='long' name='screentexpos_anchored_x_old' is-array='true'/>
+        <pointer type-name='long' name='screentexpos_anchored_y_old' is-array='true'/>
+        <pointer type-name='uint32_t' name='screentexpos_flag_old' is-array='true'/>
+
+        <pointer type-name='uint8_t' name='screen_top_old' is-array='true'/>
+        <pointer type-name='long' name='screentexpos_top_old' is-array='true'/>
+        <pointer type-name='long' name='screentexpos_top_lower_old' is-array='true'/>
+        <pointer type-name='long' name='screentexpos_top_anchored_old' is-array='true'/>
+        <pointer type-name='long' name='screentexpos_top_anchored_x_old' is-array='true'/>
+        <pointer type-name='long' name='screentexpos_top_anchored_y_old' is-array='true'/>
+        <pointer type-name='uint32_t' name='screentexpos_top_flag_old' is-array='true'/>
+
+        <pointer type-name='uint8_t' name='directtexcopy_old' is-array='true'/>
+
+        <pointer type-name='int32_t' name='screentexpos_refresh_buffer' is-array='true'/>
+
+        <virtual-methods>
+            <vmethod name='update_tile'> <int32_t name='x'/> <int32_t name='y'/> </vmethod>
+            <vmethod name='update_anchor_tile'> <int32_t name='x'/> <int32_t name='y'/> </vmethod>
+            <vmethod name='update_top_tile'> <int32_t name='x'/> <int32_t name='y'/> </vmethod>
+            <vmethod name='update_top_anchor_tile'> <int32_t name='x'/> <int32_t name='y'/> </vmethod>
+            <vmethod name='update_viewport_tile'> <pointer type-name='graphic_viewportst' name='vp'/> <int32_t name='x'/> <int32_t name='y'/> </vmethod>
+            <vmethod name='update_map_port_tile'> <pointer type-name='graphic_map_portst' name='vp'/> <int32_t name='x'/> <int32_t name='y'/> </vmethod>
+            <vmethod name='update_all'/>
+            <vmethod name='do_blank_screen_fill'/>
+            <vmethod name='update_full_viewport'> <pointer type-name='graphic_viewportst' name='vp'/> </vmethod>
+            <vmethod name='update_full_map_port'> <pointer type-name='graphic_map_portst' name='vp'/> </vmethod>
+            <vmethod name='clean_tile_cache'/>
+            <vmethod name='tidy_tile_cache'/>
+            <vmethod name='clean_cached_tile'> <int32_t name='texpos'/> <s-float name='r'/> <s-float name='g'/> <s-float name='b'/> <s-float name='br'/> <s-float name='bg'/> <s-float name='bb'/> <uint32_t name='flag'/> </vmethod>
+            <vmethod name='render'/>
+            <vmethod name='set_fullscreen'/>
+            <vmethod name='zoom'> <enum base-type='int32_t' type-name='zoom_commands'/> </vmethod>
+            <vmethod name='resize'> <int32_t name='w'/> <int32_t name='h'/> </vmethod>
+            <vmethod name='grid_resize'> <int32_t name='w'/> <int32_t name='h'/> </vmethod>
+            <vmethod name='set_viewport_zoom_factor'> <int32_t name='nfactor'/> </vmethod>
+            <vmethod name='get_renderer' ret-type='pointer'/>
+            <vmethod name='get_window' ret-type='pointer'/>
+            <vmethod is-destructor='true'/>
+            <vmethod ret-type='bool' name='get_precise_mouse_coords'>
+                <pointer type-name='int32_t' name='px'/>
+                <pointer type-name='int32_t' name='py'/>
+                <pointer type-name='int32_t' name='x'/>
+                <pointer type-name='int32_t' name='y'/>
+            </vmethod>
+            <vmethod name='get_current_interface_tile_dims'>
+                <pointer type-name='int32_t' name='cur_tx'/>
+                <pointer type-name='int32_t' name='cur_ty'/>
+            </vmethod>
+            <vmethod ret-type='bool' name='uses_opengl'/>
+        </virtual-methods>
+    </class-type>
+
+    <bitfield-type type-name='fullscreen_state' base-type='uint8_t'> bay12: FullscreenState
+        <flag-bit name='fullscreen'/>
+        <flag-bit name='exclusive'/>
+    </bitfield-type>
+
+    <class-type type-name='enabler' original-name='enablerst' custom-methods='true'>
+        <extra-include filename='Hooks.h'/>
+        <bitfield name='fullscreen_state' type-name='fullscreen_state'/>
+
+        <stl-deque name='overridden_grid_sizes'>
+            <int32_t name='x'/>
+            <int32_t name='y'/>
+        </stl-deque>
+
+        <pointer name='renderer' type-name='renderer'/>
+
+        <int32_t name='calculated_fps'/>
+        <int32_t name='calculated_gfps'/>
+        <stl-deque name='frame_timings' type-name='int32_t'/>
+        <stl-deque name='gframe_timings' type-name='int32_t'/>
+        <int32_t name='frame_sum'/>
+        <int32_t name='gframe_sum'/>
+        <int32_t name='frame_last'/>
+        <int32_t name='gframe_last'/>
+        <s-float name='fps'/>
+        <s-float name='gfps'/>
+        <s-float name='fps_per_gfps'/>
+        <uint32_t name='last_tick'/>
+        <s-float name='outstanding_frames'/>
+        <s-float name='outstanding_gframes'/>
+
+        <uint32_t name='async_frames'/>
+        <bool name='async_paused'/>
+
+        <compound name='async_tobox'> Chan{async_cmd}
+            <stl-mutex name='mtx'/>
+            <stl-condition-variable name='cv'/>
+            <stl-deque name='vals'>
+                <enum name='cmd'>
+                    <enum-item name='pause'/>
+                    <enum-item name='start'/>
+                    <enum-item name='render'/>
+                    <enum-item name='inc'/>
+                    <enum-item name='set_fps'/>
+                </enum>
+                <int32_t name='val'/>
+            </stl-deque>
+        </compound>
+
+        <compound name='async_frombox'> Chan{async_msg}
+            <stl-mutex name='mtx'/>
+            <stl-condition-variable name='cv'/>
+            <stl-deque name='vals'>
+                <enum name='msg'>
+                    <enum-item name='quit'/>
+                    <enum-item name='complete'/>
+                    <enum-item name='set_fps'/>
+                    <enum-item name='set_gfps'/>
+                    <enum-item name='push_resize'/>
+                    <enum-item name='pop_resize'/>
+                    <enum-item name='reset_textures'/>
+                </enum>
+                <compound is-union='true'>
+                    <int32_t name='fps'/>
+                    <compound>
+                        <int32_t name='x'/>
+                        <int32_t name='y'/>
+                    </compound>
+                </compound>
+            </stl-deque>
+        </compound>
+
+        <compound name='async_zoom'> Chan{zoom_commands}
+            <stl-mutex name='mtx'/>
+            <stl-condition-variable name='cv'/>
+            <stl-deque name='vals'>
+                <enum base-type='int32_t' type-name='zoom_commands'/>
+            </stl-deque>
+        </compound>
+
+        <pointer name='async_fromcomplete'/> binary_semaphore
+
+        <ulong name='renderer_threadid'/> SDL_threadID
+        <bool name='must_do_render_things_before_display'/>
+
+        <stl-string name='command_line'/>
+
+        <bitfield name='flag' base-type='ulong' type-name='enabler_flag'/>
+
+        <int8_t name='mouse_lbut'/>
+        <int8_t name='mouse_rbut'/>
+        <int8_t name='mouse_lbut_down'/>
+        <int8_t name='mouse_rbut_down'/>
+        <int8_t name='mouse_lbut_lift'/>
+        <int8_t name='mouse_rbut_lift'/>
+        <int8_t name='mouse_mbut'/>
+        <int8_t name='mouse_mbut_down'/>
+        <int8_t name='mouse_mbut_lift'/>
+        <int8_t name='tracking_on'/>
+
+        <compound name='textures' type-name='enabler_textures'/>
+
+        <int32_t name='simticks'/> note: this is a std::atomic_int
+        <int32_t name='gputicks'/> note: this is a std::atomic_int
+
+        <uint32_t name='clock' comment='An *approximation* of the current time for use in garbage collection thingies, updated every frame or so.'/>
+        <bool name='mouse_focus'/>
+        <static-array type-name='uint8_t' count='32' name='last_text_input'/>
+
+        <virtual-methods>
+            <vmethod ret-type='stl-string' name='GetKeyDisplay'>
+                <enum type-name='interface_key' base-type='int32_t'/>
+            </vmethod>
+        </virtual-methods>
+
+        <custom-methods>
+            <cmethod name='zoom_display'/>
+        </custom-methods>
+    </class-type>
+</data-definition>
+
+<!--
+Local Variables:
+indent-tabs-mode: nil
+nxml-child-indent: 4
+End:
+-->
