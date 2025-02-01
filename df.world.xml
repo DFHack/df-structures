@@ -1,17 +1,4 @@
 <data-definition>
-    <enum-type type-name='units_other_id'>
-        <enum-item name='ANY_RIDER'/>
-        <enum-item name='ANY_BABY'/>
-    </enum-type>
-
-    <df-other-vectors-type type-name='units_other' index-enum='units_other_id' item-type='unit'>
-    </df-other-vectors-type>
-
-    <struct-type type-name='unit_context_block' original-name='unit_context_blockst'>
-        <static-array name='context_unit' pointer-type='unit' count='200' />
-        <int32_t name="num"/>
-    </struct-type>
-
     <struct-type type-name='random_object_infost'>
         <stl-vector pointer-type='random_object_batchst' name='batch'/>
     </struct-type>
@@ -79,17 +66,7 @@
 
         -- Units
 
-        <compound name='units'> bay12: unit_handlerst
-            <stl-vector name='all' pointer-type='unit'/>
-
-            <stl-vector name='active' pointer-type='unit' comment='not sorted, entry 0 is adventurer'/>
-
-            <compound name='other' type-name='units_other'/>
-
-            <pointer name='adv_unit' type-name='unit'/>
-            <stl-vector name='temp_save' has-bad-pointers='true' pointer-type='unit'/>
-            <stl-vector name='unit_context_block' pointer-type='unit_context_block' since='v0.44.06'/>
-        </compound>
+        <compound name='units' type-name='unit_handlerst'/>
 
         -- Unit and Art Chunks
 
@@ -660,62 +637,12 @@
             <stl-vector name='race_count' type-name='int32_t'/>
         </compound>
 
-        <compound name='attack_chance_info'> bay12: attack_chance_infost
-            <stl-vector name='modifier' pointer-type='attack_chance_modifierst'/>
-            <stl-vector name='attack'>
-                <pointer> bay12: attack_chance_attackst
-                    <pointer name='attack_item' type-name='item'/>
-                    <int32_t name='attack_index'/>
-                    <bitfield name='modifier_flags' type-name='attack_chance_modifier_flags'/>
-                </pointer>
-            </stl-vector>
-            <stl-vector name='target'>
-                <pointer> bay12: attack_chance_targetst
-                    <int16_t name='target_bp'/>
-                    <int32_t name='initial_hit_chance_adjustment'/>
-                    <int32_t name='initial_hit_squareness_adjustment'/>
-                    <bitfield name='modifier_flags' type-name='attack_chance_modifier_flags'/>
-                </pointer>
-            </stl-vector>
-
-            <int32_t name='current_modifier_number'/>
-            <int32_t name='current_attack_number'/>
-            <int32_t name='current_target_number'/>
-        </compound>
+        <compound name='attack_chance_info' type-name='attack_chance_infost'/>
 
         <compound name='active_tutorial'> bay12: active_tutorialst
             <int32_t name='index'/>
             <int32_t name='active_step'/>
         </compound>
-    </struct-type>
-
-    <bitfield-type type-name='attack_chance_modifier_flags' base-type='uint32_t'> bay12: ATTACK_CHANCE_MODIFIER_FLAG_*
-        <flag-bit name='HEAD'/>
-        <flag-bit name='BODY'/>
-        <flag-bit name='LIMB'/>
-        <flag-bit name='PRIORITY_WIELD'/>
-        <flag-bit name='MAIN_ATTACK'/>
-        <flag-bit name='ADJUSTED_UP_LOTS'/>
-        <flag-bit name='ADJUSTED_UP'/>
-        <flag-bit name='ADJUSTED_DOWN'/>
-        <flag-bit name='ADJUSTED_DOWN_LOTS'/>
-        <flag-bit name='RING_OF_SAVINGS'/>
-        <flag-bit name='GRASP'/>
-        <flag-bit name='STANCE'/>
-        <flag-bit name='ARMOR_3'/>
-        <flag-bit name='ARMOR_2'/>
-        <flag-bit name='ARMOR_1'/>
-        <flag-bit name='SMALL_AIM_MINUS'/>
-        <flag-bit name='COUNTS_AS_LETHAL'/>
-    </bitfield-type>
-
-    <struct-type type-name='attack_chance_modifierst'>
-        <pointer name='attack_item' type-name='item'/>
-        <int32_t name='attack_index'/>
-        <int16_t name='target_bp'/>
-        <int32_t name='hit_chance_adjustment'/>
-        <int32_t name='hit_squareness_adjustment'/>
-        <bitfield name='flags' type-name='attack_chance_modifier_flags'/>
     </struct-type>
 
     <enum-type type-name='world_flags'> bay12: WorldFlagType
