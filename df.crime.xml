@@ -1,0 +1,84 @@
+<data-definition>
+    <bitfield-type type-name='punishment_flag' base-type='uint32_t'> bay12: PUNISHMENTFLAG_*
+        <flag-bit name='beating'/>
+        <flag-bit name='exiled'/>
+        <flag-bit name='death_sentence' comment='sentenced to death'/>
+        <flag-bit name='no_prison_available' comment='would have been imprisoned but for lack of accommodations'/>
+    </bitfield-type>
+
+    <struct-type type-name='punishmentst'>
+        <int32_t name='hammerstrikes'/>
+        <int32_t name='prison_time'/>
+        <bitfield name='flags' base-type='uint32_t' type-name='punishment_flag'/>
+    </struct-type>
+
+    <struct-type type-name='witness_reportst'>
+        <int32_t name='incident_id' ref-target='incident' init-value='-1'/>
+        <int32_t name='crime_id' ref-target='crime' init-value='-1'/>
+        <enum type-name='witness_type' name='type' init-value='NONE'/>
+        <int32_t name='year' init-value='0'/>
+        <int32_t name='year_tick' init-value='0'/>
+        <int32_t name='witness_id' ref-target='unit' init-value='-1'/>
+        <compound name='witness_ihf' type-name='incident_hfid'/>
+        <int32_t name='accused_id' ref-target='unit' init-value='-1'/>
+        <compound name='accused_ihf' type-name='incident_hfid'/>
+        <int32_t name='reported_year' init-value='0'/>
+        <int32_t name='reported_year_tick' init-value='0'/>
+    </struct-type>
+
+    <bitfield-type type-name='crime_flag' base-type='uint32_t'> bay12: CRIMEFLAG_*
+        <flag-bit name='sentenced'/>
+        <flag-bit name='discovered'/>
+        <flag-bit name='needs_trial'
+                  comment='i.e. the player chooses whom to convict'/>
+    </bitfield-type>
+
+    <struct-type type-name='crime' original-name='crimest'
+                 instance-vector='$global.world.crimes.all' key-field='id'>
+        <int32_t name='id'/>
+
+        <enum name='mode' type-name='crime_type'/>
+
+        <compound name='punishment' type-name='punishmentst'/>
+
+        <int32_t name='criminal' ref-target='unit'/>
+        <compound name='criminal_hf' type-name='incident_hfid'/>
+        <int32_t name='accused' ref-target='unit'/>
+        <compound name='accused_hf' type-name='incident_hfid'/>
+        <int32_t name='victim' ref-target='unit'/>
+        <compound name='victim_hf' type-name='incident_hfid'/>
+
+        <bitfield name='flags' base-type='uint32_t' type-name='crime_flag'/>
+
+        <int32_t name='incident_id' ref-target='incident'/>
+
+        <int32_t name='event_year'/>
+        <int32_t name='event_time'/>
+        <int32_t name='discovered_year'/>
+        <int32_t name='discovered_time'/>
+
+        <int32_t name='site' ref-target='world_site'/>
+        <int32_t name='entity' ref-target='historical_entity'/>
+
+        <int32_t name='item_id' ref-target='item' comment="seen with crime of theft"/>
+
+        <stl-vector name='reports' pointer-type='incident_hfid'/>
+
+        <stl-vector name='counterintelligence' since='v0.47.01' pointer-type='incident_hfid'/>
+
+        <stl-vector name='witnesses' pointer-type='witness_reportst'/>
+        <int32_t name='agreement_id' ref-target='agreement'/>
+    </struct-type>
+
+    <struct-type type-name='crime_handlerst'>
+        <stl-vector name='all' pointer-type='crime'/>
+        <stl-vector name='order_load' has-bad-pointers='true' pointer-type='crime'/>
+    </struct-type>
+</data-definition>
+
+<!--
+Local Variables:
+indent-tabs-mode: nil
+nxml-child-indent: 4
+End:
+-->

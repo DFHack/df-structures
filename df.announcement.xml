@@ -1,0 +1,212 @@
+<data-definition>
+    <bitfield-type type-name='announcement_info_flag' base-type='uint32_t'> bay12: ANNOUNCEMENT_INFO_FLAG_*
+        <flag-bit name='SPARRING_EVENT' comment='determined by unit_action_data_attack.flags.sparring_hit'/>
+    </bitfield-type>
+
+    <enum-type type-name='report_zoom_type' base-type='int32_t'> bay12: AnnouncementLocationType
+        <enum-item name='Generic'/>
+        <enum-item name='Item'/>
+        <enum-item name='Unit'/>
+    </enum-type>
+
+    <struct-type type-name='announcement_infost' comment='allocated on the stack, included in df-structures to assist with disassembly'>
+        <enum type-name='announcement_type' name='type'/>
+        <int16_t name='color'/>
+        <bool name='bright'/>
+        <compound type-name='coord' name='pos'/>
+        <enum type-name='report_zoom_type' name='zoom_type'/>
+        <compound type-name='coord' name='pos2'/>
+        <enum type-name='report_zoom_type' name='zoom_type2'/>
+        <int16_t name='display_timer' init-value='2000' comment='graphical frames for announcement bar to linger on last line with no new announcement'/>
+        <pointer type-name='unit' name='unit_a'/>
+        <pointer type-name='unit' name='unit_d'/>
+        <int32_t name='activity_id' init-value='-1' comment='same as field in report'/>
+        <int32_t name='activity_event_id' init-value='-1' comment='same as field in report'/>
+        <int32_t name='speaker_id' ref-target='unit'/>
+        <bitfield base-type='uint32_t' name='flags' type-name='announcement_info_flag'/>
+        <int32_t name='portrait_hfid' ref-target='historical_figure'/>
+    </struct-type>
+
+    <bitfield-type type-name='announcement_flag' base-type='uint8_t'> bay12: ANNOUNCEMENTFLAG_*
+        <flag-bit name='continuation'
+                  comment='When split into multiple lines, set on all but the first'/>
+        <flag-bit name='unconscious' comment='units.active[0]'/>
+        <flag-bit name='announcement' comment='displayed'/>
+    </bitfield-type>
+
+    <struct-type type-name='report' original-name='announcementst'
+                 instance-vector='$global.world.status.reports' key-field='id'>
+        <enum name='type' type-name='announcement_type'
+              comment='valid only if coordinates are'/>
+
+        <stl-string name='text'/>
+        <code-helper name='describe'>$.text</code-helper>
+
+        <int16_t name='color' init-value='7'/>
+        <bool name='bright' init-value='true'/>
+
+        <int32_t name='duration' init-value='100' comment='remaining graphical frames to display this report in announcement bar'/>
+
+        <bitfield name='flags' base-type='uint8_t' type-name='announcement_flag'/>
+
+        <int32_t name='repeat_count' comment='100 => displays: x101'/>
+
+        <enum type-name='report_zoom_type' name='zoom_type' since='v0.44.10'/>
+        <compound name='pos' type-name='coord'/>
+        <enum type-name='report_zoom_type' name='zoom_type2' since='v0.44.10'/>
+        <compound name='pos2' type-name='coord' since='v0.44.10'/>
+
+        <int32_t name='id'/>
+        <int32_t name='year'/>
+        <int32_t name='time'/>
+
+        <int32_t name='activity_id' ref-target='activity_entry' since='v0.40.01'/>
+        <int32_t name='activity_event_id' ref-target='activity_event' since='v0.40.01'/>
+        <int32_t name='speaker_id' ref-target='unit' since='v0.40.01' comment='unit speaking the conversation'/>
+    </struct-type>
+
+    <struct-type type-name='popup_message' original-name='mega_announcementst'>
+        <stl-string name='text'/>
+
+        <int16_t name='color' init-value='7'/>
+        <bool name='bright' init-value='true'/>
+        <int32_t name='portrait_hfid' ref-target='historical_figure'/>
+    </struct-type>
+
+    <bitfield-type type-name='combat_event_strike_intro_flag' base-type='uint32_t'> bay12: COMBAT_EVENT_STRIKE_INTRO_FLAG_*
+        <flag-bit name='behind'/>
+        <flag-bit name='side'/>
+        <flag-bit name='grapple'/>
+        <flag-bit name='item'/>
+        <flag-bit name='tap'/>
+        <flag-bit name='passive'/>
+        <flag-bit name='liquipowder'/>
+    </bitfield-type>
+
+    <enum-type type-name='combat_report_event_type' base-type='int16_t'> bay12: CombatEventType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='StruckItem'/>
+        <enum-item name='Deflected'/>
+        <enum-item name='ThroughTissue'/>
+        <enum-item name='CompoundFracture'/>
+        <enum-item name='BrokenAway'/>
+        <enum-item name='BasicWound'/>
+        <enum-item name='Unconscious'/>
+        <enum-item name='Stunned'/>
+        <enum-item name='MoreStunned'/>
+        <enum-item name='Winded'/>
+        <enum-item name='MoreWinded'/>
+        <enum-item name='Nausea'/>
+        <enum-item name='MoreNausea'/>
+        <enum-item name='SeveredPart'/>
+        <enum-item name='PopOut'/>
+        <enum-item name='ExtractInjected'/>
+        <enum-item name='ExtractSprayed'/>
+        <enum-item name='BloodSucked'/>
+        <enum-item name='StrikeInto'/>
+        <enum-item name='GrabGlances'/>
+        <enum-item name='KnockedBack'/>
+        <enum-item name='StuckIn'/>
+        <enum-item name='LatchOnPart'/>
+        <enum-item name='LatchOn'/>
+        <enum-item name='Enraged'/>
+        <enum-item name='PassThrough'/>
+        <enum-item name='GlancesAway'/>
+        <enum-item name='TendonDamaged'/>
+        <enum-item name='LigamentDamaged'/>
+        <enum-item name='MajorArtery'/>
+        <enum-item name='Artery'/>
+        <enum-item name='MotorNerve'/>
+        <enum-item name='SensoryNerve'/>
+        <enum-item name='NoForce'/>
+        <enum-item name='Interrupted'/>
+        <enum-item name='Pulped'/>
+        <enum-item name='Gelded'/>
+        <enum-item name='ItemBroke'/>
+    </enum-type>
+
+    <struct-type type-name='combat_eventst'>
+        <enum type-name='combat_report_event_type' name='type'/>
+        -- here be unions!
+        <static-array name='field1' type-name='int32_t' count='4' comment='varies by event type'/>
+        <static-array name='field2' type-name='int16_t' count='4' comment='varies by event type'/>
+        <static-array name='str' type-name='stl-string' count='4'/>
+        <bitfield name='flags' base-type='uint32_t' type-name='combat_event_strike_intro_flag'/>
+    </struct-type>
+
+    <struct-type type-name='combat_event_listst'>
+        <static-array name='slotdata' count='100' type-name='combat_eventst'/>
+        <static-array name='slot_id_used' type-name='int16_t' count='38' index-enum='combat_report_event_type'/>
+        <static-array name='slot_id_idx1' type-name='int16_t' count='38' index-enum='combat_report_event_type'/>
+        <static-array name='slot_id_idx2' type-name='int16_t' count='38' index-enum='combat_report_event_type'/>
+        <int16_t name='slots_used'/>
+    </struct-type>
+
+    <struct-type type-name='announcement_alertst'>
+        <enum type-name='announcement_alert_type' name='type'/>
+        <stl-vector name='announcement_id' type-name='int32_t' ref-target='report'/>
+        <stl-vector name='report_unid' type-name='int32_t' ref-target='unit'/>
+        <stl-vector name='report_unit_announcement_category' type-name='unit_report_type' comment='vector must be same length as report_unid'/>
+    </struct-type>
+
+    <bitfield-type type-name='report_flag' base-type='uint32_t'> bay12: REPORT_FLAG_*
+        <flag-bit name='combat'/>
+        <flag-bit name='hunting'/>
+        <flag-bit name='sparring'/>
+        <flag-bit name='mission'/>
+        <flag-bit name='spoils'/>
+        <flag-bit name='tribute'/>
+        <flag-bit name='interrogation'/>
+    </bitfield-type>
+
+    <struct-type type-name='adv_announcementst'>
+        <stl-string name='str'/>
+        <pointer name='parent' type-name='report'/>
+    </struct-type>
+
+    <bitfield-type type-name='announcement_temp_flag' base-type='uint32_t'> bay12: ANNOUNCEMENT_TEMP_FLAG_*
+        <flag-bit name='adv_handle_announcements'/>
+        <flag-bit name='adv_doing_more'/>
+        <flag-bit name='adv_preserve_announcements'/>
+        <flag-bit name='adv_have_more'/>
+        <flag-bit name='adv_showing_announcements'/>
+    </bitfield-type>
+
+    <struct-type type-name='announcement_handlerst'>
+        <stl-vector name='reports' pointer-type='report' comment='global'/>
+        <stl-vector name='announcements' pointer-type='report' comment='display'/>
+        <stl-vector name='popups' pointer-type='popup_message'/>
+        <compound name='mega_text' type-name='markup_text_boxst'/>
+        <int32_t name='mega_portrait_hfid' ref-target='historical_figure'/>
+
+        <int32_t name='next_report_id'/>
+        <bitfield name='flags' base-type='uint32_t' type-name='report_flag'/>
+
+        <static-array name='current_numeric_unid' type-name='int32_t' count='9' ref-target='unit' since='v0.40.01'/>
+
+        <stl-vector name='mission_reports' pointer-type='mission_report'/>
+        <stl-vector name='spoils_reports' pointer-type='spoils_report' since='v0.44.06'/>
+        <stl-vector name='interrogation_reports' pointer-type='interrogation_report' since='v0.47.01'/>
+
+        <stl-vector name='announcement_alert' pointer-type='announcement_alertst'/>
+
+        <stl-vector name='alert_button_announcement_id' type-name='int32_t' comment='entries are report ids'/>
+
+        <int32_t name='display_timer' comment='bay12: announcetime'/>
+        <compound name='slots' type-name='combat_event_listst'/>
+        <bitfield name='temp_flag' base-type='uint32_t' type-name='announcement_temp_flag'/>
+        <int32_t name='adv_scroll_position'/>
+        <bool name='adv_scrolling'/>
+        <int32_t name='adv_highest_scroll_position'/>
+        <stl-vector name='adv_announcement' pointer-type='adv_announcementst'/>
+
+        <stl-mutex name='announcement_mutex' comment='bay12: mtx'/>
+    </struct-type>
+</data-definition>
+
+<!--
+Local Variables:
+indent-tabs-mode: nil
+nxml-child-indent: 4
+End:
+-->

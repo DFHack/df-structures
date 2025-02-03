@@ -1,0 +1,76 @@
+<data-definition>
+    <enum-type type-name='scale_type' base-type='int32_t'> bay12: ScaleFoundationType
+        <enum-item name='Octave' comment="The octave is divided into X steps of even length"/>
+        <enum-item name='Variable' comment="The octave is divided into notes at varying intervals, approximated by quartertones"/>
+        <enum-item name='PerfectFourth' comment="The perfect fourth interval is divided into steps of even length"/>
+    </enum-type>
+
+    <bitfield-type type-name='scale_chord_flag' base-type='uint32_t'> bay12: SCALE_CHORD_FLAG_*
+        <flag-bit comment='lower'/>
+    </bitfield-type>
+
+    <struct-type type-name='chord' original-name='scale_chordst'>
+        <stl-string name='name'/>
+        <static-array name='notes' type-name='int32_t' count='5' comment="chord_size entries used. Refers to the notes indices"/>
+        <int32_t name='chord_size'/>
+        <bitfield base-type='uint32_t' name='flags' type-name='scale_chord_flag'/>
+    </struct-type>
+
+    <enum-type type-name='scale_construction_type' base-type='int32_t'> bay12: ScaleConstructionType
+        <enum-item name='ByInterval'/>
+        <enum-item name='PerfectFifthJoinedPerfectFourth'/>
+        <enum-item name='PerfectFifthHalfMajorThird'/>
+        <enum-item name='TritoneHalfPercentFourth'/>
+        <enum-item name='PerfectFourthWholePerfectFourth'/>
+    </enum-type>
+
+    <struct-type type-name='named_scale' original-name='scale_constructionst'>
+        <enum name='type' type-name='scale_construction_type'/>
+        <stl-string name='name'/>
+        <static-array name='degrees' type-name='int32_t' count='7' comment="indices into the (not necessarily named) notes of the scale"/>
+        <int32_t name='degrees_used' comment="elements used in array above"/>
+        <static-array name='chord_index' type-name='int32_t' count='2'/>
+    </struct-type>
+
+    <enum-type type-name='scale_naming_type' base-type='int32_t'> bay12: ScaleNamingType
+        <enum-item name='EveryNote'/>
+        <enum-item name='PreferredNotes'/>
+        <enum-item name='EveryNoteAfterConstructionByDegree'/>
+        <enum-item name='PreferredNoteAfterConstructionByDegree'/>
+    </enum-type>
+
+    <struct-type type-name='scale_namingst'>
+        <enum name='type' type-name='scale_naming_type'/>
+        <static-array name='name' type-name='stl-string' count='25'/>
+        <static-array name='abreviation' type-name='stl-string' count='25'/>
+        <static-array name='number' type-name='int32_t' count='25'/>
+        <int32_t name='length' comment='number of elements of the arrays above used'/>
+    </struct-type>
+
+    <bitfield-type type-name='scale_flag' base-type='uint32_t'> bay12: SCALE_FLAG_*
+        <flag-bit name='tonic_note_fixed_at_performance' comment='moveable_tonic'/>
+    </bitfield-type>
+
+    <struct-type type-name='scale' instance-vector='$global.world.scales.all' key-field='id'>
+        <int32_t name='id'/>
+        <bitfield name='flags' base-type='uint32_t' type-name='scale_flag'/>
+        <enum name='type' type-name='scale_type' base-type='int32_t'/>
+        <static-array name='quartertones_used' type-name='int32_t' count='25' comment="Quartertone corresponding note matches. Scale_length elements are used when type = Variable. Unused elements uninitialized"/>
+        <int32_t name='scale_length' comment="Number of notes in the scale. When type = Variable this is the number of used indices pointing out their placement."/>
+        <stl-vector name='chords' pointer-type='chord'/>
+        <stl-vector name='scales' pointer-type='named_scale' comment="Note that the top level scale doesn't have a name. These seem to be named scales using the unnamed scale's notes as their foundation"/>
+        <compound name='notes' type-name='scale_namingst'/>
+    </struct-type>
+
+    <struct-type type-name='scale_handlerst'>
+        <stl-vector name='all' pointer-type='scale'/>
+        <stl-vector name='order_load' pointer-type='scale' has-bad-pointers='true'/>
+    </struct-type>
+</data-definition>
+
+<!--
+Local Variables:
+indent-tabs-mode: nil
+nxml-child-indent: 4
+End:
+-->

@@ -209,7 +209,8 @@ sub get_primitive_base($;$) {
     if ($base =~ /u?int[136]?[2468]_t/) {
         header_ref("cstdint");
     }
-    $primitive_types{$base} or die "Must be primitive: $base\n";
+
+    $base = primitive_type_name($base);
 
     return $base;
 }

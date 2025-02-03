@@ -1,0 +1,841 @@
+<data-definition>
+    <enum-type type-name='site_realization_building_type' base-type='int32_t'> bay12: SiteRealizationBuildingType
+        <enum-item name='NONE' value='-1'/>
+
+        <enum-item name='cottage_plot'/>
+        <enum-item name='castle_wall'/>
+        <enum-item name='castle_tower'/>
+        <enum-item name='castle_courtyard'/>
+        <enum-item name='house'/>
+        <enum-item name='temple'/>
+        <enum-item name='tomb'/>
+        <enum-item name='shop_house'/>
+        <enum-item name='warehouse'/>
+        <enum-item name='market_square'/>
+        10
+        <enum-item name='pasture'/>
+        <enum-item name='waste'/>
+        <enum-item name='courtyard'/>
+        <enum-item name='well'/>
+        <enum-item name='vault'/>
+        <enum-item name='great_tower'/>
+        <enum-item name='trenches'/>
+        <enum-item name='tree_house'/>
+        <enum-item name='hillock_house'/>
+        <enum-item name='mead_hall'/>
+        20
+        <enum-item name='fortress_entrance'/>
+        <enum-item name='library'/>
+        <enum-item name='tavern'/>
+        <enum-item name='counting_house'/>
+        <enum-item name='guild_hall'/>
+        <enum-item name='city_tower'/>
+        <enum-item name='shrine'/>
+        <enum-item name='meadow'/>
+        <enum-item name='dormitory'/>
+        <enum-item name='dininghall'/>
+        30
+        <enum-item name='necromancer_tower'/>
+        <enum-item name='barrow'/>
+        <enum-item name='mythical_palace'/>
+        <enum-item name='mythical_dungeon'/>
+        <enum-item name='mythical_lair'/>
+    </enum-type>
+
+    <class-type type-name='site_realization_building_infost'>
+        <virtual-methods>
+            <vmethod ret-type='site_realization_building_type' name='getType'/>
+            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
+            <vmethod name='read_file'>
+                <pointer name='file' type-name='file_compressorst'/>
+                <enum name='loadversion' type-name='save_version'/>
+            </vmethod>
+            <vmethod is-destructor='true'/>
+        </virtual-methods>
+    </class-type>
+
+    <bitfield-type type-name='srb_info_flag_castle_wall' base-type='uint32_t'> bay12: SRB_INFO_FLAG_CASTLE_WALL_*
+        <flag-bit name='vertical'/>
+        <flag-bit name='nw_fortified'/>
+        <flag-bit name='se_fortified'/>
+        <flag-bit name='central_gate'/>
+    </bitfield-type>
+
+    <class-type type-name='site_realization_building_info_castle_wallst'
+                inherits-from='site_realization_building_infost'>
+        <bitfield name='flags' base-type='uint32_t' type-name='srb_info_flag_castle_wall'/>
+        <int32_t name="door_pos"/>
+        <int32_t name="start_x"/>
+        <int32_t name="start_y"/>
+        <int32_t name="start_z"/>
+        <int32_t name="end_x"/>
+        <int32_t name="end_y"/>
+        <int32_t name='end_z'/>
+        <compound name='wall_item'> not a compound
+            <int32_t name="race" ref-target='creature_raw'/>
+            <enum name='item_type' type-name='item_type'/>
+            <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
+            <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+            <int32_t name='mat_index'/>
+        </compound>
+        <compound name='door_item'> not a compound
+            <int32_t name="race" ref-target='creature_raw'/>
+            <enum name='item_type' type-name='item_type'/>
+            <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
+            <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+            <int32_t name='mat_index'/>
+        </compound>
+    </class-type>
+
+    <bitfield-type type-name='tower_shape' base-type='uint32_t'> bay12: SRB_INFO_FLAG_CASTLE_TOWER_*
+        <flag-bit name='round'/>
+        <flag-bit name='hollow' comment='no internal floors or fortifications'/>
+        <flag-bit name='keep' comment='fill with rooms at the bottom'/>
+        <flag-bit name='use_relative_elevation' comment='ignore set heights and generate automatically'/>
+        <flag-bit name='relative_elevation_to_highest_land' comment='set on goblin towers. doesnt seem to do anything'/>
+    </bitfield-type>
+
+    <class-type type-name='site_realization_building_info_castle_towerst'
+                inherits-from='site_realization_building_infost'>
+        <int32_t name='roof_z'/>
+        <int32_t name="base_z" comment="can be below ground, but not above ground"/>
+        <int32_t name="door_n_elevation"/>
+        <int32_t name="door_s_elevation"/>
+        <int32_t name="door_e_elevation"/>
+        <int32_t name="door_w_elevation"/>
+        <compound name='door_item'> not a compound
+            <int32_t name="race" ref-target='creature_raw'/>
+            <enum name='item_type' type-name='item_type'/>
+            <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
+            <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+            <int32_t name='mat_index'/>
+        </compound>
+        <compound name='wall_item'> not a compound
+            <int32_t name="race" ref-target='creature_raw'/>
+            <enum name='item_type' type-name='item_type'/>
+            <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
+            <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+            <int32_t name='mat_index'/>
+        </compound>
+        <bitfield name='shape' type-name='tower_shape'/>
+        <int32_t name="relative_bot_el"/>
+        <int32_t name="relative_top_el"/>
+    </class-type>
+
+    <class-type type-name='site_realization_building_info_castle_courtyardst'
+                inherits-from='site_realization_building_infost'/>
+
+    <enum-type type-name='site_shop_type' base-type='int32_t'> bay12: SRBShopType
+        <enum-item name='NONE' value='-1'/>
+
+        <enum-item name='GeneralImports'/>
+        <enum-item name='FoodImports'/>
+        <enum-item name='ClothingImports'/>
+        <enum-item name='Cloth'/>
+        <enum-item name='Leather'/>
+        <enum-item name='WovenClothing'/>
+        <enum-item name='LeatherClothing'/>
+        <enum-item name='BoneCarver'/>
+        <enum-item name='GemCutter'/>
+        <enum-item name='Weaponsmith'/>
+        <enum-item name='Bowyer'/>
+        <enum-item name='Blacksmith'/>
+        <enum-item name='Armorsmith'/>
+        <enum-item name='MetalCraft'/>
+        <enum-item name='LeatherGoods'/>
+        <enum-item name='Carpenter'/>
+        <enum-item name='StoneFurniture'/>
+        <enum-item name='MetalFurniture'/>
+
+        these are only used with market_square
+        <enum-item name='ImportedGoodsMarket'/>
+        <enum-item name='ImportedFoodMarket'/>
+        <enum-item name='ImportedClothingMarket'/>
+        <enum-item name='MeatMarket'/>
+        <enum-item name='FruitAndVegetableMarket'/>
+        <enum-item name='CheeseMarket'/>
+        <enum-item name='ProcessedGoodsMarket'/>
+    </enum-type>
+
+    <class-type type-name='site_realization_building_info_shop_housest'
+                inherits-from='site_realization_building_infost'>
+        <enum name="type" type-name='site_shop_type'/>
+        <compound name='name' type-name='language_name'/>
+    </class-type>
+
+    <class-type type-name='site_realization_building_info_market_squarest'
+                inherits-from='site_realization_building_infost'>
+        <enum name="type" type-name='site_shop_type'/>
+    </class-type>
+
+    <class-type type-name='site_realization_building_info_shrinest'
+                inherits-from='site_realization_building_infost'>
+        <enum name='practice_type' type-name='religious_practice_type'/>
+        <compound name='practice_data' type-name='religious_practice_data'/>
+    </class-type>
+
+    <class-type type-name='site_realization_building_info_trenchesst'
+                inherits-from='site_realization_building_infost'>
+        <uint32_t name='trench_flag'/>
+        <static-array name='spokes' count='4' comment='N, S, E, W'>
+            <int32_t name='mound_min' comment='-30000 = nothing here'/>
+            <int32_t name='trench_min'/>
+            <int32_t name='trench_max'/>
+            <int32_t name='mound_max'/>
+        </static-array>
+    </class-type>
+
+    <enum-type type-name='tree_house_type' base-type='int32_t'> bay12: SRBTreeType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='TreeHouse'/>
+        <enum-item name='HomeTree'/>
+        <enum-item name='ShapingTree'/>
+        <enum-item name='MarketTree'/>
+        <enum-item name='Tavern'/>
+        <enum-item name='Library'/>
+        <enum-item name='CountingHouse'/>
+        <enum-item name='Guildhall'/>
+        <enum-item name='Tower'/>
+    </enum-type>
+
+    <class-type type-name='site_realization_building_info_tree_housest'
+                inherits-from='site_realization_building_infost'>
+        <enum name="type" type-name='tree_house_type'/>
+        <enum name="shop_type" type-name='site_shop_type'/>
+        <compound name='name' type-name='language_name'/>
+    </class-type>
+
+    <enum-type type-name='hillock_house_type' base-type='int32_t'> bay12: SRBHillockType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='Residence'/>
+        <enum-item name='CivicMound'/>
+        <enum-item name='CastleMound'/>
+        <enum-item name='DrinkingMound'/>
+    </enum-type>
+
+    <class-type type-name='site_realization_building_info_hillock_housest'
+                inherits-from='site_realization_building_infost'>
+        <enum name="type" type-name='hillock_house_type'/>
+    </class-type>
+
+    <struct-type type-name='srb_entity_popst'>
+        <int32_t name="count"/>
+        <compound name='pop_spec' type-name='entity_pop_specifierst'/>
+    </struct-type>
+
+    <bitfield-type type-name='srb_item_flag' base-type='uint32_t'> bay12: SRB_ITEM_FLAG_*
+        <flag-bit name='for_sale'/>
+        <flag-bit name='for_storage'/>
+    </bitfield-type>
+
+    <struct-type type-name='srb_itemst'>
+        <int32_t name='production_zone_index'/>
+        <enum name='allotment' type-name='resource_allotment_specifier_type'/>
+        <int32_t name='controlling_civ' ref-target='historical_entity'/>
+        <int32_t name='allotment_idx'/>
+        <int32_t name='amount'/>
+        <bitfield name='flag' base-type='uint32_t' type-name='srb_item_flag'/>
+    </struct-type>
+
+    <bitfield-type type-name='srb_building_flag' base-type='int32_t'>
+        <flag-bit name='abandoned'/>
+        <flag-bit name='ruined'/>
+        <flag-bit name='tagged_for_resources'/>
+        <flag-bit name='cz_ruined'/>
+    </bitfield-type>
+
+    <enum-type type-name='site_realization_building_facing_type' base-type='int32_t'> bay12: SiteRealizationBuildingFacingType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='UP'/>
+        <enum-item name='RIGHT'/>
+        <enum-item name='DOWN'/>
+        <enum-item name='LEFT'/>
+    </enum-type>
+
+    <struct-type type-name='site_realization_building' original-name='site_realization_buildingst' key-field='id'>
+        <int32_t name="id"/>
+
+        <code-helper name='find-instance'>
+            (find-by-id $(find-instance $world_site $$).realization.buildings $id $)
+        </code-helper>
+
+        <enum name='type' type-name='site_realization_building_type'/>
+
+        <int32_t name="min_x" comment='in tiles relative to site'/>
+        <int32_t name="min_y"/>
+        <int32_t name="max_x"/>
+        <int32_t name="max_y"/>
+
+        <enum name='facing' type-name='site_realization_building_facing_type'/>
+        <stl-vector name="inhabitants" pointer-type='srb_entity_popst'/>
+        <int32_t name="civzone_id" ref-target='building'/>
+        <compound name='item'> not a compound
+            <int32_t name="race" ref-target='creature_raw'/>
+            <enum name='item_type' type-name='item_type'/>
+            <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
+            <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+            <int32_t name='mat_index'/>
+        </compound>
+        <int32_t name="abstract_building_id" comment='used for temple and mead hall'/>
+        <int32_t name="plot_id"/>
+        <pointer name="building_info" type-name='site_realization_building_infost'/>
+        <stl-vector name="items" pointer-type='srb_itemst'/>
+        <bitfield name="flags" base-type='int32_t' type-name='srb_building_flag'/>
+        <stl-vector name="artifacts" type-name='int32_t' ref-target='artifact_record'/>
+        <int32_t name='added_abs_el_z' init-value='-1000000' since='v0.40.01'/>
+        <stl-vector name="sub_ab_id" type-name='int32_t' ref-target='abstract_building'/>
+        <enum name='shrine_practice_type' type-name='religious_practice_type'/>
+        <compound name='shrine_practice_data' type-name='religious_practice_data'/>
+        <int32_t name='sbp_id' since='v0.40.01'/>
+    </struct-type>
+
+    -- Unused: path_tracerst
+
+    <bitfield-type type-name='site_realization_face_flag' base-type='uint32_t'> bay12: SITE_REALIZATION_FACE_FLAG_*
+        <flag-bit name='tagged_for_resources'/>
+    </bitfield-type>
+
+    <struct-type type-name='site_realization_facest'>
+        <int32_t name='id'/>
+        <stl-vector name='buildings' pointer-type='site_realization_building'/>
+        <bitfield name='flags' base-type='uint32_t' type-name='site_realization_face_flag'/>
+        <uint32_t name='seed'/>
+        <stl-vector type-name='int32_t' name='artifacts' ref-target='artifact_record'/>
+    </struct-type>
+
+    <struct-type type-name='site_realization_crossroads' original-name='road_infost'>
+        <static-array name='road_min_y' count='48' type-name='int32_t'/>
+        <static-array name='road_max_y' count='48' type-name='int32_t'/>
+        <static-array name='road_min_x' count='48' type-name='int32_t'/>
+        <static-array name='road_max_x' count='48' type-name='int32_t'/>
+        <int32_t name="idx_x"/>
+        <int32_t name="idx_y"/>
+        <int32_t name="tile_width"/>
+        <int32_t name="tile_height"/>
+        <int32_t name="n_road_idx"/>
+        <int32_t name="s_road_idx"/>
+        <int32_t name="e_road_idx"/>
+        <int32_t name="w_road_idx"/>
+        <int32_t name="n_road_wcid" ref-target='world_construction'/>
+        <int32_t name="s_road_wcid" ref-target='world_construction'/>
+        <int32_t name="e_road_wcid" ref-target='world_construction'/>
+        <int32_t name="w_road_wcid" ref-target='world_construction'/>
+        <int32_t name="center_x_tile"/>
+        <int32_t name="center_y_tile"/>
+        <pointer name="up" type-name="site_realization_crossroads"/>
+        <pointer name="down" type-name="site_realization_crossroads"/>
+        <pointer name="right" type-name="site_realization_crossroads"/>
+        <pointer name="left" type-name="site_realization_crossroads"/>
+        <bool name="use_x_road_for_intersection"/>
+        <bool name="place_buildings"/>
+        <int32_t name='component'/>
+        <uint8_t name='nw_plot_type'/>
+        <uint8_t name='sw_plot_type'/>
+        <uint8_t name='ne_plot_type'/>
+        <uint8_t name='se_plot_type'/>
+        <bool name='plot_tagged'/>
+        <bool name='paved'/>
+        <enum name='shrine_practice_type' type-name='religious_practice_type'/>
+        <compound name='shrine_practice_data' type-name='religious_practice_data'/>
+
+        very temporary
+        <static-array name='x_least_z' count='48' type-name='int16_t'/>
+        <static-array name='y_least_z' count='48' type-name='int16_t'/>
+    </struct-type>
+
+    <struct-type type-name='river_infost'>
+        <static-array name='river_min_x' count='48' type-name='int32_t'/>
+        <static-array name='river_max_x' count='48' type-name='int32_t'/>
+        <int32_t name="x"/>
+        <int32_t name="y"/>
+        <int32_t name="dim_x"/>
+        <int32_t name="dim_y"/>
+        <int32_t name="river_idx"/>
+        <pointer name="n_con" type-name="river_infost"/>
+        <pointer name="s_con" type-name="river_infost"/>
+        <pointer name="e_con" type-name="river_infost"/>
+        <pointer name="w_con" type-name="river_infost"/>
+        <bool name="brook"/>
+        <int8_t name="u_flow"/>
+        <int8_t name="d_flow"/>
+        <int8_t name="l_flor"/>
+        <int8_t name="r_flow"/>
+        <int16_t name="m_z"/>
+    </struct-type>
+
+    <enum-type type-name='site_underground_layer_type' base-type='int32_t'> bay12: SiteUndergroundLayerType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='CATACOMBS'/>
+        <enum-item name='DUNGEON'/>
+        <enum-item name='SEWERS'/>
+        <enum-item name='PITS'/>
+        <enum-item name='PITS_TOWER'/>
+        <enum-item name='PITS_INDUSTRIAL'/>
+        <enum-item name='PITS_LIVING'/>
+        <enum-item name='CIVILIZED'/>
+        <enum-item name='CIVILIZED_LIVING'/>
+        <enum-item name='CIVILIZED_INDUSTRIAL'/>
+        <enum-item name='CIVILIZED_CONNECTION_FARMING'/>
+        <enum-item name='CIVILIZED_CONNECTION_FORTRESS'/>
+        <enum-item name='HIVE'/>
+        <enum-item name='HIVE_NATURAL_CAVE_CONNECTION'/>
+        <enum-item name='HIVE_LIVING'/>
+        <enum-item name='HIVE_TROPHY'/>
+        <enum-item name='HIVE_TRAPS'/>
+        <enum-item name='HIVE_BROOD'/>
+        <enum-item name='HIVE_ANIMALS'/>
+        <enum-item name='HIVE_COMPOST'/>
+        <enum-item name='CIVILIZED_GUILD_QUARTER'/>
+        <enum-item name='CIVILIZED_MERCHANT_QUARTER'/>
+    </enum-type>
+
+    <struct-type type-name='site_underground_layerst'>
+        <enum name="type" type-name='site_underground_layer_type'/>
+        <enum name="subtype" type-name='site_underground_layer_type'/>
+        <int32_t name="top_el"/>
+        <int32_t name="bottom_el"/>
+        <int32_t name="local_id"/>
+        <int32_t name="sul_ab_id"/>
+        <int32_t name="n_x"/>
+        <int32_t name="s_x"/>
+        <int32_t name="w_y"/>
+        <int32_t name="e_y"/>
+        <int32_t name="n_el"/>
+        <int32_t name="s_el"/>
+        <int32_t name="w_el"/>
+        <int32_t name="e_el"/>
+        <int32_t name="n_id"/>
+        <int32_t name="s_id"/>
+        <int32_t name="w_id"/>
+        <int32_t name="e_id"/>
+        <int32_t name="down_x"/>
+        <int32_t name="down_y"/>
+        <int32_t name="down_id"/>
+        <int32_t name="up_x"/>
+        <int32_t name="up_y"/>
+        <int32_t name="up_id"/>
+        <stl-vector name='connected_srb_local_id' type-name='int32_t'/>
+        <stl-vector name='subord_ab_local_id' type-name='int32_t'/>
+        <stl-vector name='layer_ab_local_id' type-name='int32_t'/>
+        <compound name='location_death' type-name='location_deathst'/>
+        <stl-vector name='pop' pointer-type='srb_entity_popst'/>
+        <stl-vector name='item' pointer-type='srb_itemst'/>
+        <stl-vector name='artifact_id' type-name='int32_t' ref-target='artifact_record'/>
+        <static-array name='industry_allocation' count='50' type-name='civzone_type'/>
+        <int32_t name="industry_allocation_num"/>
+        <int32_t name="upper_left_abs_smm_x"/>
+        <int32_t name="upper_left_abs_smm_y"/>
+    </struct-type>
+
+    <struct-type type-name='sul_featurest'>
+        <int32_t name="feature_idx"/>
+        <int32_t name="feature_x"/>
+        <int32_t name="feature_y"/>
+        <int32_t name="feature_depth"/>
+    </struct-type>
+
+    <enum-type type-name='feature_layer_type' base-type='int16_t'> bay12: FeatureLayerType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='SUBTERRANEAN'/>
+        <enum-item name='MAGMA_CORE'/>
+        <enum-item name='UNDERWORLD'/>
+    </enum-type>
+
+    <struct-type type-name='sul_feature_layerst'>
+        <int32_t name="top_el"/>
+        <int32_t name="bot_el"/>
+        <enum name="type" type-name='feature_layer_type'/>
+        <int16_t name="depth_level"/>
+        <enum name="liquid_type" type-name='tile_liquid'/>
+        <int32_t name="liquid_upper_filled_z"/>
+        <static-array name='vertical_connection' count='2' type-name='layer_connection_type'/>
+        <int32_t name="feature_layer"/>
+        <int32_t name="feature_layer_sq"/>
+    </struct-type>
+
+    <bitfield-type type-name='underground_info_flag' base-type='uint32_t'> bay12: UNDERGROUND_INFO_FLAG_*
+        <flag-bit name='want_sewer'/>
+        <flag-bit name='sewer'/>
+        <flag-bit name='n_blocked'/>
+        <flag-bit name='s_blocked'/>
+        <flag-bit name='e_blocked'/>
+        <flag-bit name='w_blocked'/>
+        <flag-bit name='n_checked'/>
+        <flag-bit name='s_checked'/>
+        <flag-bit name='e_checked'/>
+        <flag-bit name='w_checked'/>
+        <flag-bit name='n_main_connection'/>
+        <flag-bit name='s_main_connection'/>
+        <flag-bit name='e_main_connection'/>
+        <flag-bit name='w_main_connection'/>
+        <flag-bit name='n_access_connection'/>
+        <flag-bit name='s_access_connection'/>
+        <flag-bit name='e_access_connection'/>
+        <flag-bit name='w_access_connection'/>
+        <flag-bit name='orig_river'/>
+        <flag-bit name='have_access'/>
+        <flag-bit name='access_point'/>
+        <flag-bit name='invalid_sewer_start'/>
+    </bitfield-type>
+
+    <struct-type type-name='underground_infost'>
+        <int32_t name="top_el" init-value='-30000'/>
+        <int32_t name="bot_el" init-value='-30000'/>
+        <int32_t name='layer_top_el' init-value='-30000' since='v0.40.01'/>
+        <int32_t name='layer_bot_el' init-value='-30000' since='v0.40.01'/>
+        <int32_t name='underworld_top_el' init-value='-30000' since='v0.40.01'/>
+        <int32_t name='underworld_bot_el' init-value='-30000' since='v0.40.01'/>
+        <stl-vector name='feature_layer' pointer-type='sul_feature_layerst'/>
+        <stl-vector name='feature' pointer-type='sul_featurest' since='v0.44.01'/>
+        <int32_t name="sewer_wet_el" init-value='-30000'/>
+        <int32_t name="river_wet_el" init-value='-30000'/>
+        <bitfield name='flags' base-type='uint32_t' type-name='underground_info_flag'/>
+        <int32_t name="intersection_x"/>
+        <int32_t name="intersection_y"/>
+        <int32_t name="access_road_tx"/>
+        <int32_t name="access_road_ty"/>
+        <int32_t name="access_x"/>
+        <int32_t name="access_y"/>
+        <int32_t name="access_dir"/>
+        <stl-vector name="layer" pointer-type='site_underground_layerst'/>
+        <int32_t name="interlaced_w_y"/>
+        <int32_t name="interlaced_e_y"/>
+        <int32_t name="interlaced_n_x"/>
+        <int32_t name="interlaced_s_x"/>
+        <int32_t name='tunnel_w_y' init-value='-1' since='v0.40.01'/>
+        <int32_t name='tunnel_e_y' init-value='-1' since='v0.40.01'/>
+        <int32_t name='tunnel_n_x' init-value='-1' since='v0.40.01'/>
+        <int32_t name='tunnel_s_x' init-value='-1' since='v0.40.01'/>
+    </struct-type>
+
+    <enum-type type-name='site_realization_plot_type' base-type="int32_t"> bay12: SiteRealizationPlotType
+        <enum-item name="Crops1"/>
+        <enum-item name="Crops2"/>
+        <enum-item name="Crops3"/>
+        <enum-item name="Meadow"/>
+        <enum-item name="Pasture"/>
+        <enum-item name="Orchard"/>
+        <enum-item name="Woodland"/>
+        <enum-item name="Waste"/>
+        <enum-item name="Yard"/>
+    </enum-type>
+
+    <bitfield-type type-name='site_realization_plot_flag' base-type='uint32_t'> bay12: SRP_FLAG_*
+        <flag-bit name='cz_ruined'/>
+    </bitfield-type>
+
+    <struct-type type-name='site_realization_plotst'>
+        <enum type-name='site_realization_plot_type' name="type"/>
+        <int32_t name="index"/>
+        <int32_t name="approx_area"/>
+        <int32_t name="min_x"/>
+        <int32_t name="max_x"/>
+        <int32_t name="min_y"/>
+        <int32_t name="max_y"/>
+        <int32_t name="site_crop_idx" init-value='-1' since='v0.40.01'/>
+        <bitfield name='flags' base-type='uint32_t' type-name='site_realization_plot_flag'/>
+    </struct-type>
+
+    <enum-type type-name='site_graphics_tile_type' base-type='int32_t'> bay12: SiteGraphicsTileType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='CROPS'/>
+        <enum-item name='CROPS_FALLOW'/>
+        <enum-item name='MEADOW'/>
+        <enum-item name='PASTURE'/>
+        <enum-item name='INNER_YARD'/>
+        <enum-item name='ORCHARD'/>
+        <enum-item name='SOLID_BUILDINGS'/>
+        <enum-item name='BUILDINGS_ROAD_NSWE'/>
+        <enum-item name='BUILDINGS_ROAD_SWE'/>
+        <enum-item name='BUILDINGS_ROAD_NWE'/>
+        <enum-item name='BUILDINGS_ROAD_NSE'/>
+        <enum-item name='BUILDINGS_ROAD_NSW'/>
+        <enum-item name='BUILDINGS_ROAD_NS'/>
+        <enum-item name='BUILDINGS_ROAD_NW'/>
+        <enum-item name='BUILDINGS_ROAD_NE'/>
+        <enum-item name='BUILDINGS_ROAD_SW'/>
+        <enum-item name='BUILDINGS_ROAD_SE'/>
+        <enum-item name='BUILDINGS_ROAD_WE'/>
+        <enum-item name='BUILDINGS_ROAD_N'/>
+        <enum-item name='BUILDINGS_ROAD_S'/>
+        <enum-item name='BUILDINGS_ROAD_W'/>
+        <enum-item name='BUILDINGS_ROAD_E'/>
+        <enum-item name='ISOLATED_BUILDING'/>
+        <enum-item name='SPECIAL_BUILDING_11'/>
+        <enum-item name='SPECIAL_BUILDING_21_W'/>
+        <enum-item name='SPECIAL_BUILDING_21_E'/>
+        <enum-item name='SPECIAL_BUILDING_12_N'/>
+        <enum-item name='SPECIAL_BUILDING_12_S'/>
+        <enum-item name='SPECIAL_BUILDING_22_NW'/>
+        <enum-item name='SPECIAL_BUILDING_22_NE'/>
+        <enum-item name='SPECIAL_BUILDING_22_SW'/>
+        <enum-item name='SPECIAL_BUILDING_22_SE'/>
+        <enum-item name='PLAZA'/>
+        <enum-item name='DIRT_FIELD'/>
+        <enum-item name='ROAD_PAVED_NSWE'/>
+        <enum-item name='ROAD_PAVED_SWE'/>
+        <enum-item name='ROAD_PAVED_NWE'/>
+        <enum-item name='ROAD_PAVED_NSE'/>
+        <enum-item name='ROAD_PAVED_NSW'/>
+        <enum-item name='ROAD_PAVED_NS'/>
+        <enum-item name='ROAD_PAVED_NW'/>
+        <enum-item name='ROAD_PAVED_NE'/>
+        <enum-item name='ROAD_PAVED_SW'/>
+        <enum-item name='ROAD_PAVED_SE'/>
+        <enum-item name='ROAD_PAVED_WE'/>
+        <enum-item name='ROAD_PAVED_N'/>
+        <enum-item name='ROAD_PAVED_S'/>
+        <enum-item name='ROAD_PAVED_W'/>
+        <enum-item name='ROAD_PAVED_E'/>
+        <enum-item name='ROAD_DIRT_NSWE'/>
+        <enum-item name='ROAD_DIRT_SWE'/>
+        <enum-item name='ROAD_DIRT_NWE'/>
+        <enum-item name='ROAD_DIRT_NSE'/>
+        <enum-item name='ROAD_DIRT_NSW'/>
+        <enum-item name='ROAD_DIRT_NS'/>
+        <enum-item name='ROAD_DIRT_NW'/>
+        <enum-item name='ROAD_DIRT_NE'/>
+        <enum-item name='ROAD_DIRT_SW'/>
+        <enum-item name='ROAD_DIRT_SE'/>
+        <enum-item name='ROAD_DIRT_WE'/>
+        <enum-item name='ROAD_DIRT_N'/>
+        <enum-item name='ROAD_DIRT_S'/>
+        <enum-item name='ROAD_DIRT_W'/>
+        <enum-item name='ROAD_DIRT_E'/>
+        <enum-item name='BROOK'/>
+        <enum-item name='RIVER'/>
+        <enum-item name='CASTLE'/>
+        <enum-item name='CASTLE_WALL_NSWE'/>
+        <enum-item name='CASTLE_WALL_SWE'/>
+        <enum-item name='CASTLE_WALL_NWE'/>
+        <enum-item name='CASTLE_WALL_NSE'/>
+        <enum-item name='CASTLE_WALL_NSW'/>
+        <enum-item name='CASTLE_WALL_NS'/>
+        <enum-item name='CASTLE_WALL_NW'/>
+        <enum-item name='CASTLE_WALL_NE'/>
+        <enum-item name='CASTLE_WALL_SW'/>
+        <enum-item name='CASTLE_WALL_SE'/>
+        <enum-item name='CASTLE_WALL_WE'/>
+        <enum-item name='CASTLE_KEEP'/>
+        <enum-item name='WOODEN_WALL_NSWE'/>
+        <enum-item name='WOODEN_WALL_SWE'/>
+        <enum-item name='WOODEN_WALL_NWE'/>
+        <enum-item name='WOODEN_WALL_NSE'/>
+        <enum-item name='WOODEN_WALL_NSW'/>
+        <enum-item name='WOODEN_WALL_NS'/>
+        <enum-item name='WOODEN_WALL_NW'/>
+        <enum-item name='WOODEN_WALL_NE'/>
+        <enum-item name='WOODEN_WALL_SW'/>
+        <enum-item name='WOODEN_WALL_SE'/>
+        <enum-item name='WOODEN_WALL_WE'/>
+        <enum-item name='WOODEN_KEEP'/>
+        <enum-item name='BRIDGE_BROOK_WE'/>
+        <enum-item name='BRIDGE_BROOK_NS'/>
+        <enum-item name='BRIDGE_RIVER_WE'/>
+        <enum-item name='BRIDGE_RIVER_NS'/>
+        <enum-item name='GATE_NS'/>
+        <enum-item name='GATE_WE'/>
+        <enum-item name='WOODEN_GATE_TOWER'/>
+        <enum-item name='STONE_GATE_TOWER'/>
+        <enum-item name='GREAT_DARK_TOWER'/>
+        <enum-item name='GREAT_DARK_TOWER_00'/>
+        <enum-item name='GREAT_DARK_TOWER_10'/>
+        <enum-item name='GREAT_DARK_TOWER_20'/>
+        <enum-item name='GREAT_DARK_TOWER_01'/>
+        <enum-item name='GREAT_DARK_TOWER_11'/>
+        <enum-item name='GREAT_DARK_TOWER_21'/>
+        <enum-item name='GREAT_DARK_TOWER_02'/>
+        <enum-item name='GREAT_DARK_TOWER_12'/>
+        <enum-item name='GREAT_DARK_TOWER_22'/>
+        <enum-item name='DARK_TOWER'/>
+        <enum-item name='TRENCH_NSWE'/>
+        <enum-item name='TRENCH_SWE'/>
+        <enum-item name='TRENCH_NWE'/>
+        <enum-item name='TRENCH_NSE'/>
+        <enum-item name='TRENCH_NSW'/>
+        <enum-item name='TRENCH_NS'/>
+        <enum-item name='TRENCH_NW'/>
+        <enum-item name='TRENCH_NE'/>
+        <enum-item name='TRENCH_SW'/>
+        <enum-item name='TRENCH_SE'/>
+        <enum-item name='TRENCH_WE'/>
+        <enum-item name='TRENCH_N'/>
+        <enum-item name='TRENCH_S'/>
+        <enum-item name='TRENCH_W'/>
+        <enum-item name='TRENCH_E'/>
+        <enum-item name='TRENCH'/>
+        <enum-item name='HILLOCK_HOUSE'/>
+        <enum-item name='HILLOCK_HALL'/>
+        <enum-item name='HILLOCK_TAVERN'/>
+        <enum-item name='HILLOCK_CIVIC'/>
+        <enum-item name='TREE_RESIDENTIAL'/>
+        <enum-item name='TREE_HOME'/>
+        <enum-item name='TREE_INDUSTRY'/>
+        <enum-item name='TREE_MARKET'/>
+        <enum-item name='TREE_INN'/>
+        <enum-item name='TREE_LIBRARY'/>
+        <enum-item name='TREE_BUILDING'/>
+        <enum-item name='TOWER_UNDEAD'/>
+        <enum-item name='BUILDING'/>
+        <enum-item name='VAULT'/>
+        <enum-item name='VAULT_00'/>
+        <enum-item name='VAULT_10'/>
+        <enum-item name='VAULT_20'/>
+        <enum-item name='VAULT_01'/>
+        <enum-item name='VAULT_11'/>
+        <enum-item name='VAULT_21'/>
+        <enum-item name='VAULT_02'/>
+        <enum-item name='VAULT_12'/>
+        <enum-item name='VAULT_22'/>
+        <enum-item name='MYTHICAL_PALACE'/>
+        <enum-item name='MYTHICAL_DUNGEON'/>
+        <enum-item name='MYTHICAL_LAIR'/>
+    </enum-type>
+
+    <bitfield-type type-name='site_realization_feature_flag' base-type='uint8_t'> bay12: SITE_REALIZATION_FEATURE_*
+        <flag-bit name='road'/>
+        <flag-bit name='water'/>
+        <flag-bit name='marked'/>
+        <flag-bit name='underground_nonlayer'/>
+    </bitfield-type>
+
+    <bitfield-type type-name='site_realization_square_flag' base-type='uint32_t'> bay12: SITE_REALIZATION_SQUARE_FLAG_*
+        <flag-bit name='basic_town'/>
+        <flag-bit name='final_wall'/>
+        <flag-bit name='water_block'/>
+        <flag-bit name='roaded_town'/>
+        <flag-bit name='has_river'/>
+        <flag-bit name='inner_town'/>
+        <flag-bit name='wall'/>
+        <flag-bit name='large_water'/>
+        <flag-bit name='aquifer'/>
+        <flag-bit name='forbidden_adv_travel'/>
+        <flag-bit name='special_building'/>
+    </bitfield-type>
+
+    <bitfield-type type-name='site_map_travel_dir' base-type='uint8_t'> bay12: SITE_MAP_TRAVEL_DIR_*
+        <flag-bit name='north'/>
+        <flag-bit name='south'/>
+        <flag-bit name='east'/>
+        <flag-bit name='west'/>
+        <flag-bit name='northwest'/>
+        <flag-bit name='southwest'/>
+        <flag-bit name='northeast'/>
+        <flag-bit name='southeast'/>
+    </bitfield-type>
+
+    <bitfield-type type-name='site_realization_flag' base-type='uint32_t'> bay12: SITE_REALIZATION_FLAG_*
+        <flag-bit name='renew_picture'/>
+    </bitfield-type>
+
+    <struct-type type-name='world_site_realization' original-name='site_realizationst'>
+        <stl-vector name='buildings' pointer-type='site_realization_building'/>
+        <int32_t name="num_buildings"/>
+        <int32_t name="cur_sul_id"/>
+        <int32_t name="num_areas"/>
+        <static-array name='mini_flags' count='17'>
+            <static-array count='17' type-name='site_realization_feature_flag'/>
+        </static-array>
+        <static-array name='mini_tiles' count='17'>
+            <static-array count='17' type-name='uint8_t'/>
+        </static-array>
+        <static-array name='mini_colors' count='17'>
+            <static-array count='17' type-name='int16_t' comment='bold shl 6|bg shl 3|fg'/>
+        </static-array>
+
+        <static-array name='map_tile_g' count='17'>
+            <static-array count='17' type-name='site_graphics_tile_type'/>
+        </static-array>
+        <static-array name='map_tile_g_sc1' count='17'>
+            <static-array count='17' type-name='int32_t'/>
+        </static-array>
+        <static-array name='map_tile_g_sc2' count='17'>
+            <static-array count='17' type-name='int32_t'/>
+        </static-array>
+
+        <static-array name='road_map' count='51'>
+            <static-array count='51' pointer-type='site_realization_crossroads'/>
+        </static-array>
+        <static-array name='river_map' count='51'>
+            <static-array count='51' pointer-type='river_infost'/>
+        </static-array>
+        <static-array name='underground_info' count='17'>
+            <static-array count='17' type-name='underground_infost'/>
+        </static-array>
+
+        <static-array name='building_map' count='17'>
+            <static-array count='17' type-name='site_realization_facest'/>
+        </static-array>
+
+        <static-array name='flags_map' count='51' since='v0.40.01'>
+            <static-array count='51' type-name='site_realization_square_flag'/>
+        </static-array>
+        <static-array name='square_id' count='51'>
+            <static-array count='51' type-name='int32_t'/>
+        </static-array>
+        <static-array name='zoom_tiles' count='51'>
+            <static-array count='51' type-name='uint8_t'/>
+        </static-array>
+        <static-array name='zoom_colors' count='51'>
+            <static-array count='51' type-name='uint16_t'/>
+        </static-array>
+        <static-array name='zoom_movemask' count='51'>
+            <static-array count='51' type-name='site_map_travel_dir'/>
+        </static-array>
+
+        <static-array name='site_map_tile_g' count='51'>
+            <static-array count='51' type-name='site_graphics_tile_type'/>
+        </static-array>
+        <static-array name='site_map_tile_g_sc1' count='51'>
+            <static-array count='51' type-name='int32_t'/>
+        </static-array>
+        <static-array name='site_map_tile_g_sc2' count='51'>
+            <static-array count='51' type-name='int32_t'/>
+        </static-array>
+
+        <static-array name='area_map' count='52'>
+            <static-array count='52' type-name='int32_t' refers-to='$$._global.areas[$]'/>
+        </static-array>
+        <stl-vector name='areas' pointer-type='site_realization_plotst'/>
+
+        <bitfield name='flags' base-type='uint32_t' type-name='site_realization_flag'/>
+        <int32_t name="army_controller_pos_x"/>
+        <int32_t name="army_controller_pos_y"/>
+        <static-array name='walker' count='500' type-name='sr_walkerst'/>
+        <int32_t name='cur_max_walker_num'/>
+        <int32_t name='next_walker_group_id'/>
+        <int32_t name='max_walker_guard'/>
+
+        <static-array name='special_shrine_practice_type' type-name='religious_practice_type' count='300'/>
+        <static-array name='special_shrine_practice_data' type-name='religious_practice_data' count='300'/>
+        <int32_t name='special_shrine_practice_num' since='v0.47.01'/>
+
+        <static-array name='building_well' pointer-type='site_realization_building' count='20'/>
+        <int32_t name='num_building_well'/>
+        <static-array name='building_temple' pointer-type='site_realization_building' count='20'/>
+        <int32_t name='num_building_temple'/>
+        <static-array name='building_tavern' pointer-type='site_realization_building' count='20'/>
+        <int32_t name='num_building_tavern'/>
+        <static-array name='building_library' pointer-type='site_realization_building' count='20'/>
+        <int32_t name='num_building_library'/>
+        <static-array name='building_counting_house' pointer-type='site_realization_building' count='20'/>
+        <int32_t name='num_building_counting_house'/>
+        <static-array name='building_guildhall' pointer-type='site_realization_building' count='20'/>
+        <int32_t name='num_building_guildhall'/>
+        <static-array name='building_tower' pointer-type='site_realization_building' count='20'/>
+        <int32_t name='num_building_tower'/>
+        <static-array name='building_default_artifact' pointer-type='site_realization_building' count='20'/>
+        <int32_t name='num_building_default_artifact'/>
+        <static-array name='building_shrine' pointer-type='site_realization_building' count='100'/>
+        <int32_t name='num_building_shrine'/>
+
+        <stl-vector name="site_underground_layer" pointer-type='site_underground_layerst'/>
+    </struct-type>
+</data-definition>
+
+<!--
+Local Variables:
+indent-tabs-mode: nil
+nxml-child-indent: 4
+End:
+-->

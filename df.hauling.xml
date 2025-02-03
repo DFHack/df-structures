@@ -1,0 +1,93 @@
+<data-definition>
+    <bitfield-type type-name='stop_stockpile_link_flag' base-type='uint32_t'> bay12: STOP_STOCKPILE_LINK_FLAG_*
+        <flag-bit name='take'/>
+        <flag-bit name='give'/>
+    </bitfield-type>
+
+    <struct-type type-name='route_stockpile_link' original-name='stop_stockpile_linkst'>
+        <int32_t name='building_id' ref-target='building'/>
+        <bitfield name='mode' base-type='uint32_t' type-name='stop_stockpile_link_flag'/>
+    </struct-type>
+
+    <bitfield-type type-name='stop_leave_condition_flag' base-type='uint32_t'> bay12: STOP_LEAVE_CONDITION_FLAG_*
+        <flag-bit name='at_most' comment='use_less'/>
+        <flag-bit name='desired'/>
+    </bitfield-type>
+
+    <struct-type type-name='stop_depart_condition' original-name='stop_leave_conditionst'>
+        <int32_t name='timeout'/>
+        <enum base-type='int32_t' name='direction'>
+            <enum-item name='North'/>
+            <enum-item name='South'/>
+            <enum-item name='East'/>
+            <enum-item name='West'/>
+        </enum>
+        <enum base-type='int32_t' name='mode'>
+            <enum-item name='Push'/>
+            <enum-item name='Ride'/>
+            <enum-item name='Guide'/>
+        </enum>
+        <int32_t name='load_percent'
+                 comment='broken display unless 0, 50 or 100'/>
+        <bitfield name='flags' base-type='uint32_t' type-name='stop_leave_condition_flag'/>
+        <compound name='guide_path' type-name='coord_path'
+                  comment='initialized on first run, and saved'/>
+    </struct-type>
+
+    <struct-type type-name='hauling_stop' original-name='hauling_stopst' key-field='id'>
+        <int32_t name='id'/>
+        <stl-string name='name'/>
+        <compound name='pos' type-name='coord'/>
+
+        <compound name='settings' type-name='stockpile_settings'/>
+
+        <stl-vector name='conditions' pointer-type='stop_depart_condition'/>
+        <stl-vector name='stockpiles' pointer-type='route_stockpile_link'/>
+
+        <int32_t name='time_waiting'/>
+        <int32_t name='cart_id' ref-target='item'/>
+    </struct-type>
+
+    <struct-type type-name='hauling_route' original-name='hauling_routest'
+                 instance-vector='$global.plotinfo.hauling.routes' key-field='id'>
+        <int32_t name='id'/>
+        <stl-string name="name"/>
+        <stl-vector name="stops" pointer-type='hauling_stop'/>
+        <stl-vector name="vehicle_ids">
+            <int32_t ref-target='vehicle'/>
+        </stl-vector>
+        <stl-vector name="vehicle_stops">
+            <int32_t refers-to='$$._global.stops[$]'/>
+        </stl-vector>
+    </struct-type>
+
+    <bitfield-type type-name='mode_hauling_stop_flag' base-type='uint32_t'> bay12: MODE_HAULING_STOP_FLAG_*
+        <flag-bit name='DISCONNECTED_TRACK'/>
+    </bitfield-type>
+
+    <struct-type type-name='hauling_infost'>
+        <stl-vector name='routes' pointer-type='hauling_route'/>
+        <int32_t name='next_id'/>
+
+        <int32_t name='scroll_position'/>
+        <bool name='scrolling'/>
+
+        <stl-vector name='view_routes' pointer-type='hauling_route'/>
+        <stl-vector name='view_stops' pointer-type='hauling_stop'/>
+        <stl-vector name='view_bad' type-name='mode_hauling_stop_flag'/>
+
+        <bool name='in_stop'/>
+        <int32_t name='adding_stop_route_id'/>
+
+        <bool name='entering_nickname'/>
+        <int32_t name='nickname_route_id'/>
+        <int32_t name='nickname_stop_id'/>
+    </struct-type>
+</data-definition>
+
+<!--
+Local Variables:
+indent-tabs-mode: nil
+nxml-child-indent: 4
+End:
+-->
