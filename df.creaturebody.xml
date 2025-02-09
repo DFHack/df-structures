@@ -1,0 +1,115 @@
+<data-definition>
+    <struct-type type-name='unit_attribute' original-name='attributest'>
+        <int32_t name='value' comment='effective = value - soft_demotion' init-value='1000'/>
+        <int32_t name='max_value' init-value='2000'/>
+        <int32_t name='improve_counter'
+                 comment='counts to PHYS_ATT_RATES improve cost; then value++'/>
+        <int32_t name='unused_counter'
+                 comment='counts to PHYS_ATT_RATES unused rate; then rust_counter++'/>
+        <int32_t name='soft_demotion'
+                 comment='0-100; when not 0 blocks improve_counter'/>
+        <int32_t name='rust_counter'
+                 comment='counts to PHYS_ATT_RATES rust; then demotion_counter++'/>
+        <int32_t name='demotion_counter'
+                 comment='counts to PHYS_ATT_RATES demotion; then value--; soft_demotion++'/>
+    </struct-type>
+
+    <enum-type type-name='body_part_template_contype' base-type='int16_t'> bay12: CreatureBodyPartParentTypes
+        <enum-item name='UPPERBODY'/>
+        <enum-item name='LOWERBODY'/>
+        <enum-item name='HEAD'/>
+        <enum-item name='GRASP'/>
+        <enum-item name='STANCE'/>
+    </enum-type>
+
+    <enum-type type-name='body_part_template_flags'> bay12: CreatureBodyPartFlagType
+        <enum-item name='HEAD'/>
+        <enum-item name='UPPERBODY'/>
+        <enum-item name='LOWERBODY'/>
+        <enum-item name='SIGHT'/>
+        <enum-item name='EMBEDDED'/>
+        <enum-item name='INTERNAL'/>
+        <enum-item name='CIRCULATION'/>
+        <enum-item name='SKELETON'/>
+
+        <enum-item name='LIMB'/>
+        <enum-item name='GRASP'/>
+        <enum-item name='STANCE'/>
+        <enum-item name='GUTS'/>
+        <enum-item name='BREATHE'/>
+        <enum-item name='SMALL'/>
+        <enum-item name='THROAT'/>
+        <enum-item name='JOINT'/>
+
+        <enum-item name='THOUGHT'/>
+        <enum-item name='NERVOUS'/>
+        <enum-item name='RIGHT'/>
+        <enum-item name='LEFT'/>
+        <enum-item name='HEAR'/>
+        <enum-item name='SMELL'/>
+        <enum-item name='FLIER'/>
+        <enum-item name='DIGIT'/>
+
+        <enum-item name='MOUTH'/>
+        <enum-item name='APERTURE'/>
+        <enum-item name='SOCKET'/>
+        <enum-item name='TOTEMABLE'/>
+        <enum-item name='UNDER_PRESSURE'/>
+        <enum-item name='VERMIN_BUTCHER_ITEM'/>
+        <enum-item name='CONNECTOR'/>
+        <enum-item name='PREVENTS_PARENT_COLLAPSE'/>
+
+        <enum-item name='GELDABLE'/>
+    </enum-type>
+
+    -- Unused: CreateBodyPartShorts
+    -- Unused: CreateBodyPartStrings
+
+    <struct-type type-name='body_part_template' original-name='creaturebody_partst'>
+        -- string[CreateBodyPartStrings]
+        <stl-string name='id'/>
+        <stl-string name='con'/>
+        <stl-string name='category'/>
+        <stl-string name='con_cat'/>
+
+        -- int16_t[CreateBodyPartShorts]
+        <enum type-name='body_part_template_contype' base-type='int16_t' name='contype'/>
+
+        <df-flagarray name='flags' index-enum='body_part_template_flags'/>
+
+        <int32_t name='default_relsize'/>
+        <int32_t name='number'/>
+
+        <stl-vector name='name_singular' pointer-type='stl-string' comment='first comes from BP, rest come from INDIVIDUAL_NAME'/>
+        <stl-vector name='name_plural' pointer-type='stl-string'/>
+    </struct-type>
+
+    -- Unused: CreatureBodyStrings
+
+    <struct-type type-name='body_template' instance-vector='$global.world.raws.creaturebody.body_templates' original-name='creaturebody_defst'>
+        -- string[CreatureBodyStrings]
+        <stl-string name='id' comment='in bay12 this is a static array with one member'/>
+
+        <stl-vector name='parts' pointer-type='body_part_template'/>
+    </struct-type>
+
+    <struct-type type-name='creaturebody_glossst'>
+        <stl-string name='id'/>
+        <stl-string name='old_singular'/>
+        <stl-string name='new_singular'/>
+        <stl-string name='old_plural'/>
+        <stl-string name='new_plural'/>
+    </struct-type>
+
+    <struct-type type-name='creaturebody_handlerst'>
+        <stl-vector name='body_templates' pointer-type='body_template' comment='bay12: creaturebody'/>
+        <stl-vector name='bodyglosses' pointer-type='creaturebody_glossst'/>
+    </struct-type>
+</data-definition>
+
+<!--
+Local Variables:
+indent-tabs-mode: nil
+nxml-child-indent: 4
+End:
+-->

@@ -1,0 +1,99 @@
+<data-definition>
+    <enum-type type-name='unit_list_options'> bay12: unit_list_options
+        <enum-item name='NONE'/>
+        <enum-item name='PORTRAIT'/>
+        <enum-item name='NAME_PROF'/>
+        <enum-item name='RECENTER'/>
+        <enum-item name='SHEET'/>
+        <enum-item name='CUR_JOB'/>
+        <enum-item name='ACTIVITY_DETAILS'/>
+        <enum-item name='HAPPINESS'/>
+        <enum-item name='SPECIALIZED'/>
+        <enum-item name='WORK_DETAILS'/>
+        <enum-item name='SKILLS'/>
+        <enum-item name='SELECTED'/>
+        <enum-item name='SHOW_GENDER'/>
+        <enum-item name='CUSTOM_BUILD'/>
+        <enum-item name='FORCE_JOB_WIDTH'/>
+        <enum-item name='ACTIVATE_ON_CURSOR'/>
+    </enum-type>
+
+    <bitfield-type type-name='unit_list_flag' base-type='uint8_t'> bay12: UNIT_LIST_FLAG_*
+        <flag-bit name='show_gender'/>
+        <flag-bit name='custom_build'/>
+        <flag-bit name='force_job_width'/>
+        <flag-bit name='activate_on_cursor'/>
+    </bitfield-type>
+
+    <class-type type-name='widget_unit_portrait' original-name='widgets::unit_portrait' inherits-from='widget'>
+        <pointer name='u' type-name='unit'/>
+    </class-type>
+
+    <class-type type-name='widget_creature_portrait' original-name='widgets::creature_portrait' inherits-from='widget'>
+        <int16_t name='race'/>
+        <int16_t name='ccaste'/>
+    </class-type>
+
+    <class-type type-name='widget_item_portrait' original-name='widgets::item_portrait' inherits-from='widget'>
+        <pointer name='i' type-name='item'/>
+    </class-type>
+
+    <class-type type-name='widget_unit_name' original-name='widgets::unit_name' inherits-from='widget'>
+        <pointer name='u' type-name='unit'/>
+        <bool name='show_gender'/>
+        <bool name='show_profession'/>
+        <bool name='one_line_only'/>
+    </class-type>
+
+    <class-type type-name='widget_item_name' original-name='widgets::item_name' inherits-from='widget'>
+        <pointer name='it' type-name='item'/>
+    </class-type>
+
+    <struct-type type-name='item_or_unit'>
+        <pointer/>
+        <bool/>
+    </struct-type>
+
+    <class-type type-name='widget_unit_list' original-name='widgets::unit_list' inherits-from='widget_container'>
+        <stl-vector name='deferred_units_builds'>
+            <stl-weak-ptr type-name='widget_container'/>
+            <pointer/>
+            <bool/>
+        </stl-vector>
+        <stl-shared-ptr type-name='widget' name='no_unit_entry'/>
+        <stl-vector type-name='sort_entry' name='sorting_by' comment='std::vector&lt;sort_entry&lt;item_or_unit&gt;&gt;'/>
+        <stl-vector name='always_sorting_by'> <stl-function type-name='bool'/> </stl-vector>
+        <stl-vector name='partitions'> <stl-function type-name='bool'/> </stl-vector>
+        <stl-unordered-map name='ascending_sort'/> std::unordered_map&lt;std::string,bool&gt;
+        <bitfield type-name='unit_list_sort_flag' name='sort_flags' base-type='uint8_t'/>
+        <bitfield type-name='unit_list_flag' name='flags' base-type='uint8_t'/>
+        <stl-vector name='filter_func'> <stl-function type-name='bool'/> </stl-vector>
+        <stl-vector name='preprocess_unit_func'> <stl-function/> </stl-vector>
+        <stl-vector name='postprocess_unit_func'> <stl-function/> </stl-vector>
+        <stl-vector name='preprocess_item_func'> <stl-function/> </stl-vector>
+        <stl-vector name='postprocess_item_func'> <stl-function/> </stl-vector>
+        <stl-function name='close_callback'/>
+        <stl-vector type-name='unit_list_options' name='options'/>
+        <stl-vector type-name='item_or_unit' name='entry_list'/>
+        <stl-unordered-map name='selected' comment='std::unordered_set&lt;void *&gt;'/>
+        <stl-unordered-map type-name='stl-string' name='job_sort_str' comment='std::unordered_map&lt;void *,std::string&gt;'/>
+        <int32_t name='cursor_idx'/>
+        <stl-function name='is_selected' comment='std::function&lt;bool(item_or_unit)&gt;'/>
+        <stl-vector name='on_select_change'>
+            <stl-function comment='std::function&lt;void(item_or_unit,bool)&gt;'/>
+        </stl-vector>
+        <enum type-name='unit_list_options' name='skill_type'/>
+        <stl-mutex name='mtx'/>
+        <static-array type-name='int32_t' count='149' index-enum='job_skill' name='skills'/>
+        <stl-string name='filter_str'/>
+    </class-type>
+
+    <class-type type-name='widget_unit_sort_widget' inherits-from='widget_sort_widget' comment='template specialization using unit_list + unit_list::item_or_unit'/>
+</data-definition>
+
+<!--
+Local Variables:
+indent-tabs-mode: nil
+nxml-child-indent: 4
+End:
+-->

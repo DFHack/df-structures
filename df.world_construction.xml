@@ -1,0 +1,113 @@
+<data-definition>
+    <enum-type type-name='world_construction_square_type' base-type='int16_t'> bay12: WorldConstructionSquareType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='ROAD'/>
+        <enum-item name='TUNNEL'/>
+        <enum-item name='BRIDGE'/>
+        <enum-item name='WALL'/>
+    </enum-type>
+
+    <class-type type-name='world_construction_square' original-name='world_construction_squarest'>
+        <code-helper name='describe'> (describe-obj $.region_pos) </code-helper>
+
+        <compound name='region_pos' type-name='coord2d'/>
+        <int32_t name='construction_id' ref-target='world_construction'/>
+
+        <stl-vector name='embark_x' type-name='int16_t'/>
+        <stl-vector name='embark_y' type-name='int16_t'/>
+        <stl-vector name='embark_exit' type-name='int16_t'/>
+        <stl-vector name='embark_z' type-name='int16_t'/>
+
+        <virtual-methods>
+            <vmethod ret-type='world_construction_square_type' name='getType'/>
+            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
+            <vmethod name='read_file'>
+                <pointer name='file' type-name='file_compressorst'/>
+                <enum name='loadversion' type-name='save_version'/>
+            </vmethod>
+            <vmethod is-destructor='true'/>
+        </virtual-methods>
+    </class-type>
+
+    <class-type type-name='world_construction_square_roadst' inherits-from='world_construction_square'>
+        <enum type-name='item_type' base-type='int16_t' name='item_type'/>
+        <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+    </class-type>
+
+    <class-type type-name='world_construction_square_tunnelst' inherits-from='world_construction_square'/>
+
+    <class-type type-name='world_construction_square_bridgest' inherits-from='world_construction_square'>
+        <int32_t name='road_id' ref-target='world_construction'/>
+        <enum type-name='item_type' base-type='int16_t' name='item_type'/>
+        <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+    </class-type>
+
+    <class-type type-name='world_construction_square_wallst' inherits-from='world_construction_square'>
+        <enum type-name='item_type' base-type='int16_t' name='item_type'/>
+        <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+    </class-type>
+
+    <struct-type type-name='world_construction_data_blockst'>
+        <stl-vector name='square' pointer-type='world_construction_square'/>
+    </struct-type>
+
+    <class-type type-name='world_construction' original-name='world_constructionst'
+                instance-vector='$global.world.world_data.constructions.list' key-field='id'>
+        <int32_t name='id'/>
+
+        <stl-vector name='square_obj' pointer-type='world_construction_square'/>
+        <compound name='square_pos' type-name='coord2d_path'/>
+
+        <virtual-methods>
+            <vmethod ret-type='world_construction_type' name='getType'/>
+            <vmethod name='getName'><ret-type><pointer type-name='language_name'/></ret-type></vmethod>
+            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
+            <vmethod name='read_file'>
+                <pointer name='file' type-name='file_compressorst'/>
+                <enum name='loadversion' type-name='save_version'/>
+            </vmethod>
+            <vmethod is-destructor='true'/>
+        </virtual-methods>
+    </class-type>
+
+    <class-type type-name='world_construction_roadst' inherits-from='world_construction'>
+        <compound type-name='language_name' name='name'/>
+    </class-type>
+
+    <class-type type-name='world_construction_tunnelst' inherits-from='world_construction'>
+        <compound type-name='language_name' name='name'/>
+    </class-type>
+
+    <class-type type-name='world_construction_wallst' inherits-from='world_construction'>
+        <compound type-name='language_name' name='name'/>
+    </class-type>
+
+    <class-type type-name='world_construction_bridgest' inherits-from='world_construction'>
+        <compound type-name='language_name' name='name'/>
+    </class-type>
+
+    <struct-type type-name='world_construction_datast'>
+        <int16_t name="width"/>
+        <int16_t name="height"/>
+
+        <pointer name="map" is-array='true'>
+            <pointer is-array='true' type-name='world_construction_data_blockst'/>
+        </pointer>
+
+        <stl-vector name="list" pointer-type='world_construction'/>
+        <int32_t name="next_id"/>
+    </struct-type>
+</data-definition>
+
+<!--
+Local Variables:
+indent-tabs-mode: nil
+nxml-child-indent: 4
+End:
+-->

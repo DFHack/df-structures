@@ -1,0 +1,228 @@
+<data-definition>
+    <struct-type type-name='descriptor_color' original-name='colorst' instance-vector='$global.world.raws.descriptors.colors'>
+        <stl-string name="id"/>
+        <code-helper name='describe'>$.id</code-helper>
+        <stl-vector name="word_token" pointer-type='stl-string'/>
+        <stl-vector name="words" type-name='int32_t' ref-target='language_word'/>
+        <stl-string name="name"/>
+        <enum name='color' type-name='curses_color' base-type='int8_t'/>
+        <int8_t name='bold'/>
+        <s-float name="red"/>
+        <s-float name="green"/>
+        <s-float name="blue"/>
+
+        <compound name='palette' type-name='palettest'/>
+    </struct-type>
+
+    <bitfield-type type-name='shape_flag' base-type='uint32_t'> bay12: SHAPE_FLAG_*
+        <flag-bit name='noun'/>
+        <flag-bit name='adj'/>
+        <flag-bit name='adj_noun'/>
+    </bitfield-type>
+
+    <struct-type type-name='descriptor_shape' original-name='shapest' instance-vector='$global.world.raws.descriptors.shapes'>
+        <stl-string name="id"/>
+        <code-helper name='describe'>$.id</code-helper>
+        <stl-vector name="words_str" pointer-type='stl-string' comment='temporary storage before resolving to language_word' />
+        <stl-vector name="words" type-name='int32_t' ref-target='language_word'/>
+        <stl-string name="name"/>
+        <stl-string name="name_plural"/>
+        <stl-vector name="adj" pointer-type='stl-string'/>
+
+        <bitfield name='gems_use' base-type='uint32_t' type-name='shape_flag'/>
+
+        <stl-vector name="category" pointer-type='stl-string' since='v0.47.01'/>
+        <int32_t name='faces' since='v0.47.01'/>
+        <uint8_t name="tile"/>
+
+        <int32_t name='statue_tex_top'/>
+        <int32_t name='statue_tex_bottom'/>
+        <stl-vector name='statue_adj_tex_top' type-name='int32_t'/>
+        <stl-vector name='statue_adj_tex_bottom' type-name='int32_t'/>
+        <int32_t name='texpos_large_gem'/>
+        <int32_t name='texpos_small_gem_element'/>
+        <static-array name='texpos_small_gem_variant' count='4' type-name='int32_t'/>
+    </struct-type>
+
+    <struct-type type-name='descriptor_pattern' original-name='color_patternst' instance-vector='$global.world.raws.descriptors.patterns'>
+        <stl-string name='id'/>
+        <code-helper name='describe'>$.id</code-helper>
+        <stl-vector name="colors" type-name='int16_t' ref-target='descriptor_color'/>
+        <enum base-type='int16_t' type-name='pattern_type' name='pattern'/>
+        <stl-vector name='cp_color' pointer-type='stl-string'/>
+    </struct-type>
+
+    <bitfield-type type-name='track_graphics_flag' base-type='int32_t'> bay12: TRACK_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+        <flag-bit name='wooden'/>
+        <flag-bit name='n'/>
+        <flag-bit name='s'/>
+        <flag-bit name='w'/>
+        <flag-bit name='e'/>
+    </bitfield-type>
+
+    <struct-type type-name='track_graphics_infost'>
+        <bitfield name='flags' type-name='track_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='fortification_graphics_flag' base-type='int32_t'> bay12: FORTIFICATION_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+        <flag-bit name='wood'/>
+        <flag-bit name='ice'/>
+        <flag-bit name='n'/>
+        <flag-bit name='s'/>
+        <flag-bit name='w'/>
+        <flag-bit name='e'/>
+    </bitfield-type>
+
+    <struct-type type-name='fortification_graphics_infost'>
+        <bitfield name='flags' type-name='fortification_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='stair_graphics_flag' base-type='int64_t'> bay12: STAIR_GRAPHICS_FLAG_*
+        <flag-bit name='shape' count='2' type-name='stair_graphics_flag_shape'/>
+        <flag-bit name='color_index' count='8'/>
+        <flag-bit name='material' count='8' type-name='stair_graphics_flag_material'/>
+    </bitfield-type>
+
+    <enum-type type-name='stair_graphics_flag_shape' base-type='int64_t'> bay12: STAIR_GRAPHICS_FLAG_SHAPE_*
+        <enum-item name='UPDOWN'/>
+        <enum-item name='UP'/>
+        <enum-item name='DOWN'/>
+    </enum-type>
+
+    <enum-type type-name='stair_graphics_flag_material' base-type='int64_t'> bay12: STAIR_GRAPHICS_FLAG_MATERIAL_*
+        <enum-item name='STONE'/>
+        <enum-item name='GRASS'/>
+        <enum-item name='SAND'/>
+        <enum-item name='SAND_Y'/>
+        <enum-item name='SAND_W'/>
+        <enum-item name='SAND_B'/>
+        <enum-item name='SAND_R'/>
+        <enum-item name='SOIL'/>
+        <enum-item name='FOZEN'/>
+        <enum-item name='CONSTRUCTED_WOOD'/>
+        <enum-item name='CONSTRUCTED_METAL'/>
+        <enum-item name='CONSTRUCTED_STONE'/>
+    </enum-type>
+
+    <struct-type type-name='stair_graphics_infost'>
+        <bitfield name='flags' type-name='stair_graphics_flag' base-type='int64_t'/> unlike all of the others, this one is int64
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='boulder_floor_graphics_flag' base-type='int32_t'> bay12: BOULDER_FLOOR_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+        <flag-bit name='texture_index' count='8'/>
+    </bitfield-type>
+
+    <struct-type type-name='boulder_floor_graphics_infost'>
+        <bitfield name='flags' type-name='boulder_floor_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='engraved_floor_graphics_flag' base-type='int32_t'> bay12: ENGRAVED_FLOOR_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <struct-type type-name='engraved_floor_graphics_infost'>
+        <bitfield name='flags' type-name='engraved_floor_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='wood_floor_graphics_flag' base-type='int32_t'> bay12: WOOD_FLOOR_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <struct-type type-name='wood_floor_graphics_infost'>
+        <bitfield name='flags' type-name='wood_floor_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='metal_floor_graphics_flag' base-type='int32_t'> bay12: METAL_FLOOR_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <struct-type type-name='metal_floor_graphics_infost'>
+        <bitfield name='flags' type-name='metal_floor_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='stone_block_floor_graphics_flag' base-type='int32_t'> bay12: STONE_BLOCK_FLOOR_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <struct-type type-name='stone_block_floor_graphics_infost'>
+        <bitfield name='flags' type-name='stone_block_floor_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='viewport_wall_flag' base-type='int64_t'> TODO: defined in g_src/graphics.h
+        <flag-bit name='todo'/>
+    </bitfield-type>
+    <bitfield-type type-name='viewport_ramp_flag' base-type='int64_t'> TODO: defined in g_src/graphics.h
+        <flag-bit name='todo'/>
+    </bitfield-type>
+    <bitfield-type type-name='viewport_spatter_flag' base-type='int64_t'> TODO: defined in g_src/graphics.h
+        <flag-bit name='todo'/>
+    </bitfield-type>
+
+    <struct-type type-name='wall_graphics_infost'>
+        <bitfield name='flags' type-name='viewport_wall_flag' base-type='int64_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <struct-type type-name='ramp_graphics_infost'>
+        <bitfield name='flags' type-name='viewport_ramp_flag' base-type='int64_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <struct-type type-name='spatter_graphics_infost'>
+        <bitfield name='flags' type-name='viewport_spatter_flag' base-type='int64_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='combat_animation_swish_graphics_flag' base-type='int32_t'> bay12: COMBAT_ANIMATION_SWISH_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='9'/>
+        <flag-bit name='direction' count='3'/>
+        <flag-bit name='frame' count='2'/>
+        <flag-bit name='type' count='2'/>
+    </bitfield-type>
+
+    <struct-type type-name='combat_animation_swish_graphics_infost'>
+        <bitfield name='flags' type-name='combat_animation_swish_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <struct-type type-name='descriptor_handlerst'>
+        <stl-vector name='colors' pointer-type='descriptor_color'/>
+        <stl-vector name='shapes' pointer-type='descriptor_shape'/>
+        <stl-vector name='patterns' pointer-type='descriptor_pattern'/>
+
+        <stl-vector name='simple_shape_index' type-name='int32_t' since='v0.47.01'/>
+        <stl-vector name='simple_shape_adj_index' type-name='int32_t' since='v0.47.01'/>
+        <stl-vector name='simple_shape_scramble_ind' type-name='int32_t' since='v0.47.01'/>
+
+        <stl-vector name='boulder_floor_graphics_info' pointer-type='boulder_floor_graphics_infost'/> 0.50.01
+        <stl-vector name='engraved_floor_graphics_info' pointer-type='engraved_floor_graphics_infost'/> 0.50.01
+        <stl-vector name='wood_floor_graphics_info' pointer-type='wood_floor_graphics_infost'/> 0.50.01
+        <stl-vector name='metal_floor_graphics_info' pointer-type='metal_floor_graphics_infost'/> 0.50.01
+        <stl-vector name='stone_block_floor_graphics_info' pointer-type='stone_block_floor_graphics_infost'/> 0.50.01
+        <stl-vector name='wall_graphics_info' pointer-type='wall_graphics_infost'/> 0.50.01
+        <stl-vector name='ramp_graphics_info' pointer-type='ramp_graphics_infost'/> 0.50.01
+        <stl-vector name='stair_graphics_info' pointer-type='stair_graphics_infost'/> 0.50.01
+        <stl-vector name='fortification_graphics_info' pointer-type='fortification_graphics_infost'/> 0.50.01
+        <stl-vector name='track_graphics_info' pointer-type='track_graphics_infost'/> 0.50.01
+        <stl-vector name='spatter_graphics_info' pointer-type='spatter_graphics_infost'/> 0.50.08-beta
+        <stl-vector name='combat_animation_swish_graphics_info' pointer-type='combat_animation_swish_graphics_infost'/> 0.51.01
+    </struct-type>
+</data-definition>
+
+<!--
+Local Variables:
+indent-tabs-mode: nil
+nxml-child-indent: 4
+End:
+-->

@@ -1,0 +1,1724 @@
+<data-definition>
+    -- Unused: WG_PUNISH_STATUS_FLAG_*
+
+    <enum-type type-name='evidence_type' base-type='int32_t'> bay12: EvidenceType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='PLOTTER_BRIBERY_ATTEMPT'/>
+        <enum-item name='PLOTTER_SEDITION_ATTEMPT'/>
+        <enum-item name='PLOTTER_SKIM_EMBEZZLEMENT_ATTEMPT'/>
+        <enum-item name='PLOTTER_ASSASSINATION_ATTEMPT'/>
+        <enum-item name='PLOTTER_ABDUCTION_ATTEMPT'/>
+        <enum-item name='PLOTTER_SABOTAGE_ATTEMPT'/>
+        <enum-item name='PLOTTER_THEFT_ATTEMPT'/>
+        <enum-item name='CAUGHT_INFILTRATING'/>
+        <enum-item name='SUSPECT_CONFESSED_AGREEMENT'/>
+        <enum-item name='CAUGHT_UNDER_SURVEILLANCE'/>
+    </enum-type>
+
+    <bitfield-type type-name='evidence_flag' base-type='uint32_t'> bay12: EVIDENCE_FLAG_*
+        <flag-bit name='tested_by_interrogation'/>
+    </bitfield-type>
+
+    <bitfield-type type-name='evidence_hf_file_flag' base-type='uint32_t'> bay12: EVIDENCE_HF_FILE_FLAG_*
+        <flag-bit name='have_new_general_evidence'/>
+        <flag-bit name='have_new_untested_evidence'/>
+        <flag-bit name='under_surveillance'/>
+        <flag-bit name='basic_name_attached_to_visual'/>
+    </bitfield-type>
+
+    <bitfield-type type-name='evidence_hf_file_temp_flag' base-type='uint32_t'> bay12: EVIDENCE_HF_FILE_TEMP_FLAG_*
+        <flag-bit name='has_master'/>
+        <flag-bit name='has_org_association'/>
+    </bitfield-type>
+
+    <struct-type type-name='evidence_hf_filest'>
+        <int32_t name='hfid' ref-target='historical_figure'/>
+        <bitfield name='flags' base-type='uint32_t' type-name='evidence_hf_file_flag'/>
+        <stl-vector name='evidence' type-name='int32_t'/>
+        <stl-vector name='agreement' type-name='int32_t' ref-target='agreement'/>
+        <stl-vector name='evidence_flag' type-name='evidence_flag'/>
+        <stl-vector name='wanted_crime' type-name='crime_type'/>
+        <stl-vector name='wanted_crime_agreement' type-name='int32_t'  ref-target='agreement'/>
+        <stl-vector name='used_identity' type-name='int32_t' ref-target='identity'/>
+        <bitfield name='temp_flags' base-type='uint32_t' type-name='evidence_hf_file_temp_flag'/>
+    </struct-type>
+
+    <bitfield-type type-name='evidence_repository_flag' base-type='uint32_t'> bay12: EVIDENCE_REPOSITORY_FLAG_*
+        <flag-bit name='have_wanted_hf'/>
+    </bitfield-type>
+
+    <struct-type type-name='evidence_repositoryst'>
+        <stl-vector name='hf_file' pointer-type='evidence_hf_filest'/>
+        <stl-vector name='foiled_plot_agreements' type-name='int32_t' ref-target='agreement' comment="all known agreements"/>
+        <stl-vector name='known_events' type-name='int32_t' ref-target='history_event'/>
+
+        <bitfield name='flags' base-type='uint32_t' type-name='evidence_repository_flag' since='v0.34.01'/>
+    </struct-type>
+
+    -- Unused: entity_art_race_restrictionst
+    -- Unused: entity_art_form_inventoryst
+    -- Unused: ENTITY_TRADE_GOOD_INFO_FLAG_*
+    -- Unused: entity_trade_good_infost
+    -- Unused: art_namerst
+
+    <enum-type type-name='town_labor_type' base-type='int32_t'> bay12: TownLaborType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='CLOTH'/>
+        <enum-item name='TANNING'/>
+        <enum-item name='CLOTHING_CLOTH'/>
+        <enum-item name='CLOTHING_LEATHER'/>
+        <enum-item name='CRAFTS_BONE_CARVER'/>
+        <enum-item name='GEM_CUTTER'/>
+        <enum-item name='METAL_WEAPON_SMITH'/>
+        <enum-item name='WOOD_WEAPON_SMITH'/>
+        <enum-item name='BLACK_SMITH'/>
+        <enum-item name='METAL_ARMOR_SMITH'/>
+        <enum-item name='METAL_CRAFTER'/>
+        <enum-item name='LEATHER_ACCESSORIES'/>
+        <enum-item name='FURNITURE_WOOD'/>
+        <enum-item name='FURNITURE_STONE'/>
+        <enum-item name='FURNITURE_METAL'/>
+    </enum-type>
+
+    -- Unused: entity_material_specifierst
+
+    <class-type type-name='resource_allotment_specifier' original-name='resource_allotment_specifierst'>
+        <uint32_t name='flags'/>
+
+        <enum name='town_labor' type-name='town_labor_type' since='v0.34.01-04'/>
+        <int32_t name='last_spec_hours' since='v0.34.01-04'/>
+
+        <virtual-methods>
+            <vmethod ret-type='resource_allotment_specifier_type' name='getType'/>
+            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
+            <vmethod name='read_file'>
+                <pointer name='file' type-name='file_compressorst'/>
+                <enum name='loadversion' type-name='save_version'/>
+            </vmethod>
+            <vmethod is-destructor='true'/>
+        </virtual-methods>
+    </class-type>
+
+    <bitfield-type type-name='ras_crop_flag' base-type='uint32_t'> bay12: RAS_CROP_FLAG_*
+        <flag-bit name='edible_raw'/>
+        <flag-bit name='edible_cooked'/>
+        <flag-bit name='thread'/>
+        <flag-bit name='millable'/>
+        <flag-bit name='extractable_vial'/>
+        <flag-bit name='extractable_barrel'/>
+        <flag-bit name='extractable_still_vial'/>
+        <flag-bit name='orchard'/>
+        <flag-bit name='garden'/>
+        <flag-bit name='farmed'/>
+    </bitfield-type>
+
+    <class-type type-name='resource_allotment_specifier_cropst' inherits-from='resource_allotment_specifier'>
+        <int32_t name='plant_type' ref-target='plant_raw'/>
+        <int32_t name='growth_index'/>
+        <bitfield name='crop_flags' base-type='uint32_t' type-name='ras_crop_flag'/>
+        <int32_t name='pz_ai_mill_product'/>
+        <int32_t name='pz_ai_extract_still_vial'/>
+        <int32_t name='pz_ai_extract_barrel'/>
+        <int32_t name='pz_ai_extract_vial'/>
+        <int32_t name='pz_ai_thread'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_threadst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+        <int32_t name='pz_ai_cloth'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_clothst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+        <int32_t name='pz_ai_pants'/>
+        <int32_t name='pz_ai_body'/>
+        <int32_t name='pz_ai_boots'/>
+        <int32_t name='pz_ai_gloves'/>
+        <int32_t name='pz_ai_helm'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_craftsst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+    </class-type>
+
+    <bitfield-type type-name='ras_stone_flag' base-type='uint32_t'> bay12: RAS_STONE_FLAG_*
+        <flag-bit name='metal_ore'/>
+        <flag-bit name='rough_gem'/>
+    </bitfield-type>
+
+    <class-type type-name='resource_allotment_specifier_stonest' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+        <int32_t name='frequency'/>
+        <bitfield name='stone_flags' base-type='uint32_t' type-name='ras_stone_flag'/>
+        <int32_t name='pz_ai_gem'/>
+        <int32_t name='pz_ai_chair'/>
+        <int32_t name='pz_ai_table'/>
+        <int32_t name='pz_ai_box'/>
+        <int32_t name='pz_ai_cabinet'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_tablest' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_cabinetst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_chairst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_boxst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+    </class-type>
+
+    <bitfield-type type-name='ras_metal_flag' base-type='uint32_t'> bay12: RAS_METAL_FLAG_*
+        <flag-bit name='items_weapon'/>
+        <flag-bit name='items_weapon_ranged'/>
+        <flag-bit name='anvil'/>
+        <flag-bit name='ammo'/>
+        <flag-bit name='digger'/>
+        <flag-bit name='armor'/>
+        <flag-bit name='hard'/>
+    </bitfield-type>
+
+    <class-type type-name='resource_allotment_specifier_metalst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+        <bitfield name='metal_flags' base-type='uint32_t' type-name='ras_metal_flag'/>
+        <int32_t name='pz_ai_pants'/>
+        <int32_t name='pz_ai_body'/>
+        <int32_t name='pz_ai_boots'/>
+        <int32_t name='pz_ai_gloves'/>
+        <int32_t name='pz_ai_helm'/>
+        <int32_t name='pz_ai_weapon_melee'/>
+        <int32_t name='pz_ai_chair'/>
+        <int32_t name='pz_ai_table'/>
+        <int32_t name='pz_ai_box'/>
+        <int32_t name='pz_ai_cabinet'/>
+        <int32_t name='pz_ai_crafts'/>
+        <int32_t name='pz_ai_ammo'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_woodst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+        <int32_t name='pz_ai_weapon_ranged'/>
+        <int32_t name='pz_ai_chair'/>
+        <int32_t name='pz_ai_table'/>
+        <int32_t name='pz_ai_box'/>
+        <int32_t name='pz_ai_cabinet'/>
+        <int32_t name='pz_ai_bed'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_armor_bodyst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_armor_pantsst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_armor_glovesst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_armor_bootsst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_armor_helmst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_clothing_bodyst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_clothing_pantsst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+   </class-type>
+
+    <class-type type-name='resource_allotment_specifier_clothing_glovesst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_clothing_bootsst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_clothing_helmst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_ammost' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_weapon_meleest' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_weapon_rangedst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_anvilst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_gemsst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_leatherst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+        <int32_t name='pz_ai_pants'/>
+        <int32_t name='pz_ai_body'/>
+        <int32_t name='pz_ai_boots'/>
+        <int32_t name='pz_ai_gloves'/>
+        <int32_t name='pz_ai_helm'/>
+        <int32_t name='pz_ai_quiver'/>
+        <int32_t name='pz_ai_backpack'/>
+        <int32_t name='pz_ai_flask'/>
+        <int32_t name='pz_ai_bag'/>
+        <int32_t name='pz_ai_crafts'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_quiverst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_backpackst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_flaskst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_bagst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_bedst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_meatst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_bonest' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+        <int32_t name='pz_ai_crafts'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_hornst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+        <int32_t name='pz_ai_crafts'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_shellst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+        <int32_t name='pz_ai_crafts'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_tallowst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_toothst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+        <int32_t name='pz_ai_crafts'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_pearlst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_soapst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+    </class-type>
+
+    <bitfield-type type-name='ras_extract_flag' base-type='uint32_t'> bay12: RAS_EXTRACT_FLAG_*
+        <flag-bit name='edible_raw'/>
+        <flag-bit name='edible_cooked'/>
+        <flag-bit name='cheeseable'/>
+    </bitfield-type>
+
+    <class-type type-name='resource_allotment_specifier_extractst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+        <bitfield name='extract_flags' base-type='uint32_t' type-name='ras_extract_flag'/>
+        <int16_t name='cheese_mat_type' ref-target='material' aux-value='$$.mat_index2'/>
+        <int32_t name='cheese_mat_index'/>
+        <int32_t name='pz_ai_cheese'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_cheesest' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+    </class-type>
+
+    <class-type type-name='resource_allotment_specifier_skinst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+        <int16_t name='product_mat_type' ref-target='material' aux-value='$$.mat_index2'/>
+        <int32_t name='product_mat_index'/>
+        <int32_t name='pz_ai_leather'/>
+    </class-type>
+
+    <bitfield-type type-name='ras_powder_flag' base-type='uint32_t'> bay12: RAS_POWDER_FLAG_*
+        <flag-bit name='edible_raw'/>
+        <flag-bit name='edible_cooked'/>
+    </bitfield-type>
+
+    <class-type type-name='resource_allotment_specifier_powderst' inherits-from='resource_allotment_specifier'>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+        <bitfield name='powder_flags' base-type='uint32_t' type-name='ras_powder_flag'/>
+    </class-type>
+
+    <struct-type type-name='pz_butchery_specifierst'>
+        <int32_t name="id_or_combined_caste_id"/>
+        <stl-vector name="resource_allotment" type-name="resource_allotment_specifier_type"/>
+        <stl-vector name="allotment_index" type-name="int32_t"/>
+        <stl-vector name="amount" type-name="int32_t"/>
+    </struct-type>
+
+    <struct-type type-name='resource_allotment_data' original-name='production_zonest'
+                 instance-vector='$global.world.world_data.resource_allotments'>
+        <int32_t name='index'/>
+        <static-array name='resource_allotments' count='100'>
+            <stl-vector pointer-type='resource_allotment_specifier'/>
+        </static-array>
+        <int32_t name='center_x'/>
+        <int32_t name='center_y'/>
+        <int32_t name='producing_civilization_enid' ref-target='historical_entity'/>
+        <int32_t name="last_market_stid" ref-target='world_site'/>
+        <stl-vector name="butchery_specifier" pointer-type='pz_butchery_specifierst'/>
+    </struct-type>
+
+    -- Unused: wg_demographicsst
+
+    <struct-type type-name='embark_profile' original-name='embark_profilest'>
+        <stl-string name='name'/>
+        <stl-vector name='skill_type' type-name='job_skill'/>
+        <stl-vector name='skill_dwarf_idx' type-name='int16_t'/>
+        <stl-vector name='skill_level' type-name='int16_t'/>
+
+        <stl-vector name='reclaim_dwarf_idx' type-name='int16_t'/>
+        <stl-vector name='reclaim_prof_soldier' type-name='profession'/>
+        <stl-vector name='reclaim_prof_civilian' type-name='profession'/>
+
+        <stl-vector name='item_type' type-name='int16_t'/>
+        <stl-vector name='item_subtype' type-name='int16_t'/>
+        <stl-vector name='mat_type' type-name='int16_t'/>
+        <stl-vector name='mat_index' type-name='int32_t'/>
+        <stl-vector name='item_count' type-name='int32_t'/>
+
+        <stl-vector name='pet_race' type-name='int32_t' ref-target='creature_raw'/>
+        <stl-vector name='pet_caste' type-name='int16_t' ref-target='caste_raw'/>
+        <stl-vector name='pet_profession' type-name='profession'/>
+        <stl-vector name='pet_count' type-name='int32_t'/>
+    </struct-type>
+
+    -- Unused: create_building_datast
+    -- Unused: EntityDefPositionStringType
+
+    <struct-type type-name='entity_position_raw' original-name='entity_def_positionst'>
+        <stl-string name='code'/>
+        <int32_t name='id'/>
+        <df-flagarray name='flags' index-enum='entity_position_raw_flags'/>
+
+        <static-array name='allowed_creature_str' count='2'>
+            <stl-vector pointer-type='stl-string'/>
+        </static-array>
+        <stl-vector name='allowed_creature' type-name='int32_t' ref-target='creature_raw'/>
+        <stl-vector name='allowed_class' pointer-type='stl-string'/>
+
+        <static-array name='rejected_creature_str' count='2'>
+            <stl-vector pointer-type='stl-string'/>
+        </static-array>
+        <stl-vector name='rejected_creature' type-name='int32_t' ref-target='creature_raw'/>
+        <stl-vector name='rejected_class' pointer-type='stl-string'/>
+
+        <static-array type-name='stl-string' name='name' count='2'/> bay12: string[EntityDefPositionStringType]
+        <static-array type-name='stl-string' name='name_female' count='2'/>
+        <static-array type-name='stl-string' name='name_male' count='2'/>
+        <static-array type-name='stl-string' name='spouse' count='2'/>
+        <static-array type-name='stl-string' name='spouse_female' count='2'/>
+        <static-array type-name='stl-string' name='spouse_male' count='2'/>
+        <static-array type-name='stl-string' name='squad' count='2'/>
+        <stl-string name='land_name'/>
+
+        <int16_t name='squad_size'/>
+
+        <stl-vector name='commander_str' pointer-type='stl-string'/>
+        <stl-vector name='commander_id' type-name='int32_t'/>
+        <stl-vector name='commander_types' type-name='int16_t'/>
+
+        <int16_t name='land_holder'/>
+        <int16_t name='number'/>
+        <int16_t name='requires_population'/>
+        <enum name='execution_skill' type-name='job_skill' base-type='int16_t'/>
+        <int32_t name='precedence'/>
+
+        <stl-string name='replaced_by_str'/>
+        <int32_t name='replaced_by'/>
+
+        <stl-vector name='appointed_by_str' pointer-type='stl-string'/>
+        <stl-vector name='appointed_by' type-name='int32_t'/>
+
+        <stl-vector name='succession_by_position_str' pointer-type='stl-string'/>
+        <stl-vector name='succession_by_position' type-name='int32_t'/>
+
+        <static-array type-name='bool' name='responsibilities' count='43' index-enum='entity_position_responsibility'/>
+        <static-array type-name='int16_t' name='color' count='3'/>
+
+        <int32_t name='required_boxes'/>
+        <int32_t name='required_cabinets'/>
+        <int32_t name='required_racks'/>
+        <int32_t name='required_stands'/>
+
+        <int32_t name='required_office'/> bay12: int32_t[DemandRooms]
+        <int32_t name='required_bedroom'/>
+        <int32_t name='required_dining'/>
+        <int32_t name='required_tomb'/>
+
+        <int32_t name='mandate_max'/>
+        <int32_t name='demand_max'/>
+
+        <stl-string name='description'/>
+    </struct-type>
+
+    <struct-type type-name='entity_def_tissue_stylest'>
+        <stl-string name='name'/>
+        <stl-vector name='preferred_shapings' type-name='tissue_style_type'/>
+        <int32_t name='maintain_length_min'/>
+        <int32_t name='maintain_length_max'/>
+    </struct-type>
+
+    <bitfield-type type-name='entity_def_animal_flag' base-type='uint32_t'> bay12: ENTITY_DEF_ANIMAL_FLAG_*
+        <flag-bit name='ALWAYS_PRESENT'/>
+        <flag-bit name='NEVER_MOUNT'/>
+        <flag-bit name='ALWAYS_MOUNT'/>
+        <flag-bit name='NEVER_WAGON_PULLER'/>
+        <flag-bit name='ALWAYS_WAGON_PULLER'/>
+        <flag-bit name='NEVER_SIEGE'/>
+        <flag-bit name='ALWAYS_SIEGE'/>
+        <flag-bit name='NEVER_PET'/>
+
+        <flag-bit name='ALWAYS_PET'/>
+        <flag-bit name='NEVER_PACK_ANIMAL'/>
+        <flag-bit name='ALWAYS_PACK_ANIMAL'/>
+    </bitfield-type>
+
+    <struct-type type-name='entity_animal_raw' original-name='entity_def_animalst'>
+        <stl-string name='token'/>
+        <stl-vector pointer-type='stl-string' name='caste_token'/>
+        <stl-vector pointer-type='stl-string' name='animal_class'/>
+        <stl-vector pointer-type='stl-string' name='forbidden_class'/>
+        <bitfield name='flags' base-type='uint32_t' type-name='entity_def_animal_flag'/>
+    </struct-type>
+
+    <struct-type type-name='entity_raw' original-name='entity_defst' instance-vector='$global.world.raws.entities.all'>
+        <stl-string name='code'/>
+        <int32_t name='index' since='v0.40.01' comment='into instace-vector'/>
+        <stl-vector name='raws' pointer-type='stl-string' since='v0.40.01'/>
+
+        <code-helper name='describe'>$.translation</code-helper>
+
+        <stl-vector name='creature_ids' type-name='int16_t' ref-target='creature_raw'/>
+        <stl-vector name='creatures' pointer-type='stl-string'/>
+
+        <compound name='equipment'> not an actual compound
+            <stl-vector name='digger_id' type-name='int16_t' ref-target='itemdef_weaponst'/>
+            <stl-vector name='weapon_id' type-name='int16_t' ref-target='itemdef_weaponst'/>
+            <stl-vector name='armor_id' type-name='int16_t' ref-target='itemdef_armorst'/>
+            <stl-vector name='ammo_id' type-name='int16_t' ref-target='itemdef_ammost'/>
+            <stl-vector name='helm_id' type-name='int16_t' ref-target='itemdef_helmst'/>
+            <stl-vector name='gloves_id' type-name='int16_t' ref-target='itemdef_glovesst'/>
+            <stl-vector name='shoes_id' type-name='int16_t' ref-target='itemdef_shoesst'/>
+            <stl-vector name='pants_id' type-name='int16_t' ref-target='itemdef_pantsst'/>
+            <stl-vector name='shield_id' type-name='int16_t' ref-target='itemdef_shieldst'/>
+            <stl-vector name='trapcomp_id' type-name='int16_t' ref-target='itemdef_trapcompst'/>
+            <stl-vector name='toy_id' type-name='int16_t' ref-target='itemdef_toyst'/>
+            <stl-vector name='instrument_id' type-name='int16_t' ref-target='itemdef_instrumentst'/>
+            <stl-vector name='tool_id' type-name='int16_t' ref-target='itemdef_toolst'/>
+            <stl-vector name='siegeammo_id' type-name='int16_t' ref-target='itemdef_siegeammost'/>
+
+            <stl-vector name='armor_rarity' type-name='int8_t'/>
+            <stl-vector name='helm_rarity' type-name='int8_t'/>
+            <stl-vector name='gloves_rarity' type-name='int8_t'/>
+            <stl-vector name='shoes_rarity' type-name='int8_t'/>
+            <stl-vector name='pants_rarity' type-name='int8_t'/>
+
+            <stl-vector name='digger_str' pointer-type='stl-string'/>
+            <stl-vector name='weapon_str' pointer-type='stl-string'/>
+            <stl-vector name='armor_str' pointer-type='stl-string'/>
+            <stl-vector name='ammo_str' pointer-type='stl-string'/>
+            <stl-vector name='helm_str' pointer-type='stl-string'/>
+            <stl-vector name='gloves_str' pointer-type='stl-string'/>
+            <stl-vector name='shoes_str' pointer-type='stl-string'/>
+            <stl-vector name='pants_str' pointer-type='stl-string'/>
+            <stl-vector name='shield_str' pointer-type='stl-string'/>
+            <stl-vector name='trapcomp_str' pointer-type='stl-string'/>
+            <stl-vector name='toy_str' pointer-type='stl-string'/>
+            <stl-vector name='instrument_str' pointer-type='stl-string'/>
+            <stl-vector name='siegeammo_str' pointer-type='stl-string'/>
+            <stl-vector name='tool_str' pointer-type='stl-string'/>
+        </compound>
+
+        <stl-vector name='currency_value' type-name='int32_t'
+                    index-refers-to='(material-by-id 0 $)'/>
+
+        <df-flagarray name='flags' index-enum='entity_raw_flags'/>
+        <stl-string name='translation'/>
+
+        <compound name='symbols'> not an actual compound
+            <static-array name='symbols_major' type-name='language_word_table' index-enum='entity_name_type' count='19'/>
+            <static-array name='symbols_minor' type-name='language_word_table' index-enum='entity_name_type' count='19'/>
+            <static-array name='select_symbol' index-enum='entity_name_type' count='19'>
+                <stl-vector pointer-type='stl-string'/>
+            </static-array>
+            <static-array name='subselect_symbol' index-enum='entity_name_type' count='19'>
+                <stl-vector pointer-type='stl-string'/>
+            </static-array>
+            <static-array name='cull_symbol' index-enum='entity_name_type' count='19'>
+                <stl-vector pointer-type='stl-string'/>
+            </static-array>
+        </compound>
+
+        <static-array name='sphere_alignment' type-name='int32_t' count='130' index-enum='sphere_type'/>
+        <static-array name='art_facet_modifier' type-name='int32_t' count='4' index-enum='art_facet_type'/>
+        <static-array name='art_image_element_modifier' type-name='int32_t' count='5' index-enum='art_image_element_type'/>
+        <static-array name='item_improvement_modifier' type-name='int32_t'
+                      count='14' index-enum='improvement_type'/>
+
+        <static-array name='friendly_color' type-name='int16_t' count='3'/>
+
+        <enum base-type='int32_t' name='default_site_type' type-name='world_site_type'/>
+        <static-array name='likes_site' type-name='int8_t' count='11' index-enum='world_site_type'/>
+        <static-array name='tolerates_site' type-name='int8_t' count='11' index-enum='world_site_type'/>
+
+        <static-array name='biome_support' type-name='int32_t' count='51' index-enum='biome_type'/>
+        <static-array name='start_biome' type-name='int8_t' count='51' index-enum='biome_type'/>
+        <static-array name='settlement_biome' type-name='int8_t' count='51' index-enum='biome_type'/>
+
+        <static-array name='active_season' type-name='int8_t' count='4' index-enum='season'/>
+
+        <compound name='progress_trigger'>  not an actual compound
+            <int16_t name='population'/>
+            <int16_t name='production'/>
+            <int16_t name='trade'/>
+            <int16_t name='pop_siege'/>
+            <int16_t name='prod_siege'/>
+            <int16_t name='trade_siege'/>
+        </compound>
+
+        <static-array name='ethic' count='22' index-enum='ethic_type'>
+            <enum base-type='int16_t' type-name='ethic_response'/>
+        </static-array>
+
+        <static-array name='values' type-name='int32_t' count='64' index-enum='value_type'/>
+        <static-array name='variable_value_min' type-name='int32_t' count='64' index-enum='value_type' since='v0.42.01'/>
+        <static-array name='variable_value_max' type-name='int32_t' count='64' index-enum='value_type' since='v0.42.01'/>
+        <bitfield name='scholar' base-type='uint32_t' type-name='entity_scholar_flag'/>
+        <int32_t name='max_site_pop_number'/>
+        <int32_t name='max_pop_number'/>
+        <int32_t name='max_starting_civ_number'/>
+
+        <stl-vector name='religion' type-name='int16_t'/>
+        <stl-vector name='religion_sphere'>
+            <enum base-type='int16_t' type-name='sphere_type'/>
+        </stl-vector>
+
+        <compound name='jobs'> not an actual compound
+            <static-array name='permitted_job' type-name='bool'
+                          index-enum='profession'/>
+            <static-array name='permitted_labor' type-name='bool'
+                          index-enum='unit_labor' count='94'/>
+
+            <static-array name='world_construction' type-name='bool'
+                          index-enum='world_construction_type' count='4'/>
+        </compound>
+
+        <stl-vector name='positions' pointer-type='entity_position_raw'/>
+
+        <static-array name='variable_positions' type-name='int8_t'
+                      index-enum='entity_position_responsibility' count='43'/>
+
+        <static-array name='site_variable_positions' type-name='int8_t'
+                      index-enum='entity_position_responsibility' count='43'/>
+
+        <stl-vector name='tissue_styles' pointer-type='entity_def_tissue_stylest'/>
+
+        <compound name='workshops'> not an actual compound
+            <stl-vector name='permitted_building_str' pointer-type='stl-string'/>
+            <stl-vector name='permitted_building_id' type-name='int32_t' ref-target='building_def'/>
+            <stl-vector name='permitted_reaction_str' pointer-type='stl-string'/>
+            <stl-vector name='permitted_reaction_id' type-name='int32_t' ref-target='reaction'/>
+        </compound>
+
+        <int32_t name='banditry'/>
+
+        <stl-vector pointer-type='stl-string' name='gem_shapes_str'/>
+        <stl-vector pointer-type='stl-string' name='stone_shapes_str'/>
+        <stl-vector name='gem_shapes' type-name='int32_t' ref-target='descriptor_shape'/>
+        <stl-vector name='stone_shapes' type-name='int32_t' ref-target='descriptor_shape'/>
+        <int32_t name='source_hfid' ref-target='historical_figure'/>
+        <int32_t name='source_enid' ref-target='historical_entity' since='v0.42.01'/>
+        <stl-vector pointer-type='entity_animal_raw' name='animal'/>
+
+        <stl-vector pointer-type='stl-string' name='currency_str1'/>
+        <stl-vector pointer-type='stl-string' name='currency_str2'/>
+    </struct-type>
+
+    -- Unused: entity_def_handling_informationst
+
+    <struct-type type-name='entity_def_handlerst'>
+        <stl-vector name='all' pointer-type='entity_raw'/>
+    </struct-type>
+
+    <bitfield-type type-name='uniform_indiv_choice' base-type='uint32_t'> bay12: ITEM_CREATION_PARAM_FLAG_*
+        <flag-bit name='any'/>
+        <flag-bit name='melee'/>
+        <flag-bit name='ranged'/>
+    </bitfield-type>
+
+    <struct-type type-name='entity_uniform_item' original-name='item_creation_paramst'>
+        <int8_t name='random_dye'/>
+        <int8_t name='armorlevel'/>
+        <int16_t name='item_color' ref-target='descriptor_color'/>
+        <int32_t name='art_image_id'/>
+        <int16_t name='art_image_subid'/>
+        <int16_t name='image_thread_color' ref-target='descriptor_color'/>
+        <enum name='image_material_class' type-name='entity_material_category'/>
+        <int16_t name='maker_race'/>
+        <bitfield name="indiv_choice" type-name='uniform_indiv_choice'/>
+        <int16_t name="mattype" ref-target='material' aux-value='$$.matindex'/>
+        <int32_t name="matindex"/>
+        <enum name="material_class" type-name='entity_material_category'/>
+    </struct-type>
+
+    <enum-type type-name='entity_entity_link_type'> bay12: EntityAssociation, no base type
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='PARENT'/>
+        <enum-item name='CHILD'/>
+        <enum-item name='RELIGIOUS' comment='Seen between religion and merc company.' since='v0.47.01'/>
+    </enum-type>
+
+    <struct-type type-name='entity_entity_link' original-name='entity_associationst'>
+        <enum base-type='int16_t' type-name='entity_entity_link_type' name='type'/>
+        <int32_t name='target' ref-target='historical_entity'/>
+        <int16_t name='strength'/>
+    </struct-type>
+
+    <bitfield-type type-name='entity_site_ab_profile_flag' base-type='uint32_t'> bay12: ENTITY_SITE_AB_PROFILE_FLAG_*
+        <flag-bit name='residence'/>
+        <flag-bit name='place_of_worship'/>
+        <flag-bit name='headquarters'/>
+    </bitfield-type>
+
+    <struct-type type-name='entity_site_ab_profilest'>
+        <int32_t name='id' init-value='-1'/>
+        <bitfield name='purpose_flag' base-type='uint32_t' type-name='entity_site_ab_profile_flag'/>
+    </struct-type>
+
+    <enum-type type-name='entity_site_link_type' base-type='int32_t'> bay12: EntitySiteProfileLocationType
+        <enum-item name='None' value='-1'/>
+            Probably inactive/failed/NA. Seen with status = 0/2/8/16/128/144/8192. Entities Civilization/SiteGovernment/NomadicGroup/Outcast (not all value/entity permutations)
+        <enum-item name='All'/>
+            Civilization: status = 0 if any flags set and status = 2 if not, with the exception of "fortress" that can be set in either case. capital, monument, reclaim, and land_for_holding flags seen.
+            does not seem to indicate clearly whether the site is owned currently. Note that civs don't have links to most of its sites, as it normally goes via site governments.
+            SiteGovernment: flags.residence => status = 0. No flags set with any other status value. Thus, SiteGovernment/type=Claim/status=0 probably means it's the current official local government.
+            NomadicGroup: flags.residence => status = 0. Probably official local government (mostly Camp). Other status values (1/129) have no flags set.
+            Religion: all were Fortress (and had that flag) and had status = 0. Thus, probably civ level "owner", as the monasteries seem to have local site governments.
+            MilitaryUnit: residence+fortress flags => status = 0 and owner (with no local site government). status = 5 and no flags set was the alternative seen.
+            Outcast: flags.residence => status = 0 and local government. Alternative seen is status = 1 and no flags set.
+        <enum-item name='Inside_Wall'/>
+        <enum-item name='Outside_Wall'/>
+            NomadicGroup/SiteGovernment, all with criminal_gang flag set and status = 0. Can also be found with None (failed/inactive?). Connection usually not mentioned anywhere.
+        <enum-item name='Outskirts'/>
+        <enum-item name='Local_Activity'/>
+            Religion: All have status = 0. At least one of the residence and base_of_operation flags set.
+            Outcast: status = 0 => flag residence and/or base_of_operation. Reverse not true. Assume status = 0 still active, with 2, 3, 131, 195 being failures.
+            MerchantCompany: All have status = 0 and the capital flag set. Some also have base_of_operations.
+            Guild: All have status = 0 and the capital flag set.
+    </enum-type>
+
+    <bitfield-type type-name='entity_site_link_flags' base-type='uint32_t'> bay12: ENTITY_SITE_PROFILE_FLAG_*
+        <flag-bit name='residence'             comment='site is residence'/>
+        <flag-bit name='capital'               comment='site is capital'/>
+        <flag-bit name='fortress'              comment='used at least by those castles which arent currently in'/>
+        <flag-bit name='local_market'          comment='for villages to think about their market town'/>
+        <flag-bit name='trade_partner'         comment='for markets to think about other markets'/>
+        <flag-bit name='monument'              comment='for a civ to know its tomb sites'/>
+        <flag-bit name='primary_criminal_gang'/>
+        <flag-bit name='criminal_gang'        />
+        <flag-bit name='invasion_marked'       comment='marked for invasion'/>
+        <flag-bit name='land_for_holding'      comment='all regular sites get this if civ has nobles, whether they have a noble or not (reclaim and capital (can be?) excluded, as can "slow repopulation" by civ group)'/>
+        <flag-bit name='central_holding_land'  comment='only dwarf fortresses get this for now'/>
+        <flag-bit name='land_holder_residence' comment='the regular sites where a baron etc. actually lives'/>
+        <flag-bit name='invasion_push_out'     comment='pushed out by invasion'/>
+        <flag-bit name='reclaim'               comment='marked for reclaim'/>
+        <flag-bit name='occupation_failed'     comment='failed to hold hostile occupation'/>
+        <flag-bit name='base_of_operation'     comment='set for some Religions, Criminals, and Merchant Companies. The function is largely a guess. Persecution, founding seen, as well as no mentioning of a relation at all in exported legends'/>
+        <flag-bit name='holy_city'             comment='for the holy city of a religion'/>
+    </bitfield-type>
+
+    <struct-type type-name='entity_site_link' original-name='entity_site_profilest'>
+        <int32_t name="target" ref-target='world_site'/> this is a union in toady code but we can probably ignore that per putnam
+        <int32_t name="entity_id" ref-target='historical_entity'/>
+        <int32_t name="entity_cache_index" comment="not saved"/>
+        <int32_t name='position_profile_id' init-value='-1' comment="index into entity.positions.assignments of Civilization (?)"/>
+        <enum name='type' type-name='entity_site_link_type' comment="called location in df source"/>
+        <int32_t name='start_hr' init-value='-1'/>
+        <int32_t name='end_hr' init-value='-1'/>
+        <bitfield name='flags' type-name='entity_site_link_flags'/>
+        <bitfield name='former_flag' type-name='entity_site_link_flags'/>
+          Summary: 0 seems to be active, 1, 2, 3, 5, 131, various cessations of activity. 8, 16, 128, 144, 8192 something unrelated, and the 129, 195 possible cessations"
+          0: Civilization/SiteGovernment/NomadicGroup/Religion/Outcast/MerchantCompany/Guild. Seems to be 'Active'. Civ can have 'Active' claim on site not held, while others seem to be currently active.
+          1: SiteGovernment/NomadicGroup/Outcast. Seems to be defeated and losing presence at the site. Nomads/Outcasts might not have been the masters of the site as single rampage can cause enmity of two entities.
+          2: Civilization: type = None/Active, (failed to find difference). All sites seen were either destroyed or abandoned, can be reclaimed, but without that flag set. No flags set except a possible 'fortress'. Note that no conquest was seen.
+             Outcast: type = Local_Activity. All have criminal flags. Some may have indications of having left, but some don't...
+          3: Outcast, all with type = Local_Activity. All seen were fully incorporated into other criminal gangs.
+          5: SiteGovernment/MilitaryUnit. All Fortress. All type = Claim. SiteGovernment just replaced w/o event. MercenaryCompay abandoned or were replaced silently, and no flags set.
+          8: All SiteGovernment with type = None. Seems to be references to SiteGovernments without any known relations. No flags set.
+          16: SiteGovernment/NomadicGroup with type = None. Seems to be references to entities without any known relations. No flags set.
+          128: SiteGovernment/NomadicGroup/Outcast with type = None. Seems to be references to entities without any known relations. No flags set.
+          129: NomadicGroup settling in destroyed site/site horribly experimented on, being present silently, and site getting destroyed again. type = Claim.
+          131: Outcast, type = Local_Activity. No flags. All relocated to site location, typically catacombs. All fully incorporated into other organization, as per 3.
+          144: NomadicGroup (only one entry). type = None. No flags. No apparent connection.
+          195: Outcast (only 2 entries). type = Local_Activity. No flags. Both moved to inn and became primary criminal org. One had lots of members moving from the inn. Different site destroyed in both cases. No incorporation seen, though.
+          8192: Civilization/SiteGovernment. type = None. No flags. No apparent connection.
+
+          former_flag is an accumulation of every flag the entity has ever had, any operation that clears part of flag also adds that flag to former_flag
+        <int32_t name="link_strength" init-value='100'/>
+        <int32_t name='initial_controlling_population' init-value='0' comment="all non zero cases are SiteGovernments with type = Claim, status = 0, and flags.residence = true. All examined were formed as forced administrations"/>
+        <int32_t name='last_check_controlling_population' init-value='0' comment="same value as previous field"/>
+        the above are related to army.squads in some way
+        <stl-vector name='ab_profile' pointer-type='entity_site_ab_profilest' comment="When a single element the first value makes sense as an abstract building related to the entity, but longer lists do not, including numbers larger than the number of abstract buildings"/>
+        <int32_t name='target_site_x' comment='target site world coordinate x'/>
+        <int32_t name='target_site_y' comment='target site world coordinate y'/>
+        <int32_t name='last_checked_army_year' init-value='-1' since='v0.43.01' comment="all cases seen were NomadicGroup with criminal_gang flag set, unk_4 = 0 and type = Foreign_Crime, except for cases with type = Claim and residence flag set as well"/>
+        <int32_t name='last_checked_army_year_tick' init-value='-1' since='v0.43.01' comment="paired with the previous field. Could be year/year_tick pair set to the start of play for all of these as all have the same number pair in the same save"/>
+    </struct-type>
+
+    -- Unused: EquipmentRole
+    -- Unused: EntityArtImageType
+
+    <enum-type type-name='entity_uniform_type' base-type='int16_t'> bay12: EntityUniformType
+        <enum-item name='None' value='-1'/>
+        <enum-item name='Guard'/>
+        <enum-item name='HighPriest'/>
+        <enum-item name='Priest'/>
+        <enum-item name='Soldier'/>
+    </enum-type>
+
+    <bitfield-type type-name='uniform_flags' base-type='uint32_t'> bay12: ENTITY_UNIFORM_FLAG_*
+        <flag-bit name='replace_clothing'/>
+        <flag-bit name='exact_matches'/>
+    </bitfield-type>
+
+    <struct-type type-name='entity_uniform' original-name='entity_uniformst' key-field='id'>
+        <int32_t name="id"/>
+        <enum name="type" type-name='entity_uniform_type'/>
+
+        <code-helper name='describe'>
+            (describe-obj $.name)
+        </code-helper>
+
+        <static-array name='uniform_item_types' count='7' index-enum='uniform_category'>
+            <stl-vector>
+                <enum base-type='int16_t' type-name='item_type'/>
+            </stl-vector>
+        </static-array>
+
+        <static-array name='uniform_item_subtypes' count='7' index-enum='uniform_category'>
+            <stl-vector>
+                <int16_t refers-to='(item-subtype-target $$._parent._parent._parent.uniform_item_types[$$._parent._key][$$._key] $)'/>
+            </stl-vector>
+        </static-array>
+
+        <static-array name='uniform_item_info' count='7' index-enum='uniform_category'>
+            <stl-vector pointer-type='entity_uniform_item'/>
+        </static-array>
+
+        <stl-string name="name"/>
+
+        <bitfield name='flags' type-name='uniform_flags'/>
+    </struct-type>
+
+    <struct-type type-name='embark_item_choice' original-name='entity_trade_listst'>
+        <static-array name='list' count='107' index-enum='entity_sell_category'>
+            <stl-vector pointer-type='itinfost'/>
+        </static-array>
+        <stl-vector name='race' type-name='int32_t' ref-target='creature_raw'
+                    index-refers-to='$$._parent.caste[$].ref-target'/>
+        <stl-vector name='caste' type-name='int16_t'
+                    ref-target='caste_raw' aux-value='$$._parent.race[$._key]'/>
+        <stl-vector name='profession' index-refers-to='$$._parent.caste[$].ref-target'>
+            <enum base-type='int16_t' type-name='profession'/>
+        </stl-vector>
+    </struct-type>
+
+    <struct-type type-name='transport_linkst'>
+        <compound name='path' type-name='coord2d_path' comment="set only for the first source/destination/construction entry in pairs"/>
+        <int32_t name='source_site' ref-target='world_site'/>
+        <int32_t name='destination_site' ref-target='world_site'/>
+        <stl-vector name='construction' ref-target='construction' type-name='int32_t' comment="set only for the first (source) entry in pairs"/>
+        <int16_t name='desired_level'/>
+        <int16_t name='attained_level'/>
+    </struct-type>
+
+    -- Unused: entity_army_squadst
+    -- Unused: EAP_MERC_FIGHTER_FLAG_*
+    -- Unused: EAP_FLAG_*
+    -- Unused: entity_army_profilest
+    -- Unused: EntityPositionStringType
+
+    <struct-type type-name='entity_position' original-name='entity_positionst' key-field='id'>
+        <stl-string name='code'/>
+        <int32_t name='id'/>
+
+        <code-helper name='describe'>$.code</code-helper>
+
+        <df-flagarray name='flags' index-enum='entity_position_flags'/>
+
+        <stl-vector name='allowed_creature' type-name='int32_t' ref-target='creature_raw'/>
+        <stl-vector name='allowed_class' pointer-type='stl-string'/>
+
+        <stl-vector name='rejected_creature' type-name='int32_t' ref-target='creature_raw'/>
+        <stl-vector name='rejected_class' pointer-type='stl-string'/>
+
+        <static-array type-name='stl-string' name='name' count='2'/> bay12: string[EntityPositionStringType]
+        <static-array type-name='stl-string' name='name_female' count='2'/>
+        <static-array type-name='stl-string' name='name_male' count='2'/>
+        <static-array type-name='stl-string' name='spouse' count='2'/>
+        <static-array type-name='stl-string' name='spouse_female' count='2'/>
+        <static-array type-name='stl-string' name='spouse_male' count='2'/>
+        <static-array type-name='stl-string' name='squad' count='2'/>
+        <stl-string name='land_name'/>
+
+        <int16_t name='squad_size'/>
+
+        <stl-vector name='commander_id' type-name='int32_t'/>
+        <stl-vector name='commander_civ' type-name='int32_t' ref-target='historical_entity'/>
+        <stl-vector name='commander_types' type-name='int16_t'/>
+
+        <int16_t name='land_holder'/>
+        <int16_t name='requires_population'/>
+
+        <enum name='execution_skill' type-name='job_skill' since='v0.34.01'/>
+
+        <int32_t name='precedence' init-value='30001'/>
+        <int32_t name='replaced_by' init-value='-1'/>
+        <int16_t name='number' init-value='1'/>
+
+        <stl-vector name='appointed_by' type-name='int32_t'/>
+        <stl-vector name='appointed_by_civ' type-name='int32_t' ref-target='historical_entity'/>
+        <stl-vector name='succession_by_position' type-name='int32_t'/>
+
+        <static-array type-name='bool' name='responsibilities' count='43' index-enum='entity_position_responsibility'/>
+        <stl-string name='description'/>
+        <static-array type-name='int16_t' name='color' count='3'/>
+
+        <int32_t name='required_boxes'/>
+        <int32_t name='required_cabinets'/>
+        <int32_t name='required_racks'/>
+        <int32_t name='required_stands'/>
+
+        <int32_t name='required_office'/> bay12: int32_t[DemandRooms]
+        <int32_t name='required_bedroom'/>
+        <int32_t name='required_dining'/>
+        <int32_t name='required_tomb'/>
+
+        <int32_t name='mandate_max'/>
+        <int32_t name='demand_max'/>
+        <int32_t name='best_appointment_precedence' init-value='30001' since='v0.47.01'/>
+    </struct-type>
+
+    <struct-type type-name='entity_position_profile_claimst' key-field='hfid'>
+        <int32_t name='hfid' comment='bay12: local_id is an alias'/>
+    </struct-type>
+
+    <enum-type type-name='entity_position_profile_flags'> bay12: EntityPositionProfileFlagType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='active'/>
+        <enum-item name='temp'/>
+        <enum-item name='temp2'/>
+        <enum-item name='temp3'/>
+    </enum-type>
+
+    <struct-type type-name='entity_position_assignment' key-field='id' original-name='entity_position_profilest'>
+        <int32_t name='id' comment='bay12: global_id'/>
+
+        <code-helper name='describe'>
+            (describe-obj $.position_id.refers-to)
+            (awhen $.histfig.ref-target
+              (describe-obj it))
+        </code-helper>
+
+        <int32_t name='histfig' ref-target='historical_figure' comment='bay12: holder_hfid'/>
+        <int32_t name='histfig2' ref-target='historical_figure' since='v0.40.01' comment='bay12: last_holder_hfid'/>
+        <int32_t name='position_id'
+                 refers-to='(find-by-id $$._global._parent._global.positions.own $id $)'
+                 comment='position within relevant entity'/>
+        <int32_t name='position_vector_idx' init-value='-1' comment='bay12: position_cache_index'/>
+
+        <df-flagarray name='flags' index-enum='entity_position_profile_flags'/>
+        <int32_t name='squad_id' ref-target='squad' comment='bay12: leads_squad_id'/>
+        <int32_t name='st_id' init-value='-1'/>
+        <int32_t name='ab_id' init-value='-1'/>
+        <int32_t name='vassal_of_entity_id' init-value='-1' since='v0.40.01'/>
+        <int32_t name='vassal_of_position_profile_id' init-value='-1' since='v0.40.01'/>
+        <stl-vector name='claim' pointer-type='entity_position_profile_claimst' since='v0.40.01' comment='not saved'/>
+        <int32_t name='assigned_army_controller_id' since='v0.47.01' comment='unknown size, not initialized or saved'/>
+    </struct-type>
+
+    <struct-type type-name='entity_tissue_style' original-name='entity_tissue_stylest' key-field='id'>
+        <code-helper name='describe'>$.name</code-helper>
+        <code-helper name='find-instance'>
+            (find-by-id $(find-instance $historical_entity $$).tissue_styles.all $id $)
+        </code-helper>
+
+        <stl-string name='name'/>
+        <stl-vector name='preferred_shapings' type-name='tissue_style_type'/>
+        <stl-vector name='shaping_chance' type-name='int32_t'/>
+        <int32_t name='maintain_length_min'/>
+        <int32_t name='maintain_length_max'/>
+        <int32_t name='id'/>
+    </struct-type>
+
+    -- Unused: TradeCategoryType
+
+    <struct-type type-name='world_gen_entity_debtst'>
+        <int32_t name='civ' ref-target='historical_entity'/>
+        <int32_t name='amount'/>
+        <int32_t name='age_weeks'/>
+    </struct-type>
+
+    <enum-type type-name='entity_burial_request_status_type' base-type='int32_t'> bay12: EntityBurialRequestStatusType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='NEW'/>
+        <enum-item name='ENTOMBED'/>
+        <enum-item name='ALREADY_ENTOMBED_ELSEWHERE'/>
+        <enum-item name='CULLED'/>
+        <enum-item name='RAISED'/>
+        <enum-item name='SKIPPED'/>
+        <enum-item name='UNREACHABLE'/>
+    </enum-type>
+
+    <struct-type type-name='entity_burial_requestst'>
+        <int32_t name='civ' ref-target='historical_entity'/>
+        <stl-vector name='prof' type-name='int32_t' comment='profession?'/>
+        <enum name='status' type-name='entity_burial_request_status_type'/>
+    </struct-type>
+
+    <bitfield-type type-name='entity_law_flag' base-type='uint32_t'> bay12: ENTITY_LAW_FLAG_*
+        <flag-bit name='harsh' comment='will TORTURE_FOR_INFORMATION'/>
+        <flag-bit name='hostile_occupation'/>
+    </bitfield-type>
+
+    <struct-type type-name='entity_lawst'>
+        <bitfield name='conquered_site_group_flags' base-type='uint32_t' type-name='entity_law_flag' since='v0.34.01'/>
+    </struct-type>
+
+    <enum-type type-name='training_knowledge_level' base-type='int32_t'> bay12: AnimalTrainingKnowledgeType
+        <enum-item name='None'/>
+        <enum-item name='FewFacts'/>
+        <enum-item name='GeneralFamiliarity'/>
+        <enum-item name='Knowledgeable'/>
+        <enum-item name='Expert'/>
+        <enum-item name='Domesticated'/>
+        <enum-item name='NUM'/>
+        <enum-item name='NONE' comment='not -1'/>
+    </enum-type>
+
+    <struct-type type-name='entity_animal_training_knowledgest'>
+        <stl-vector name="level" type-name='training_knowledge_level' index-refers-to='(find-instance $creature_raw $)'/>
+        <stl-vector name="skill_points" type-name='int32_t' index-refers-to='(find-instance $creature_raw $)'/>
+    </struct-type>
+
+    <enum-type type-name='occasion_schedule_feature' base-type='int32_t'> bay12: EntityOccasionScheduleElementType
+        <enum-item name='ANIMALS_ACCOMPANYING'/> race, caste
+        <enum-item name='ANIMALS_MOUNTED'/> race, caste
+        <enum-item name='STORYTELLING'/> history event
+        <enum-item name='POETRY_RECITAL'/> poetry form
+        <enum-item name='MUSICAL_PERFORMANCE'/> musical form
+        <enum-item name='DANCE_PERFORMANCE'/> dance form
+        <enum-item name='MOVING_PERFORMANCE_STAGE'/>
+        <enum-item name='CRIERS_IN_FRONT'/>
+        <enum-item name='ORDER_OF_PRECEDENCE'/>
+        <enum-item name='BANNERS'/>
+        <enum-item name='IMAGES'/> histfig
+        <enum-item name='FLOWERS_CARRIED'/> plant id, growth idx
+        <enum-item name='FLOWERS_SCATTERED'/> plant id, growth idx
+        <enum-item name='ACROBATS'/>
+        <enum-item name='INCENSE_BURNING'/>
+        <enum-item name='COSTUMES'/>
+        <enum-item name='CANDLES'/>
+        <enum-item name='THE_GIVING_OF_ITEMS'/> item type, item subtype, material, matgloss
+        <enum-item name='THE_SACRIFICE_OF_ITEMS'/> item type, item subtype, material, matgloss
+        <enum-item name='THE_SACRIFICE_OF_CREATURES'/> race, caste
+        <enum-item name='THE_SACRIFICE_OF_PLANTS'/> plant id
+    </enum-type>
+
+    <struct-type type-name='entity_occasion_schedule_feature' original-name='eos_elementst'>
+        <enum name='feature' base-type='int32_t' type-name='occasion_schedule_feature'/>
+        <int32_t name='reference' />
+        <int32_t name='reference2'/>
+        <int32_t name='reference3'/>
+        <int32_t name='reference4'/>
+    </struct-type>
+
+    <enum-type type-name='occasion_schedule_type' base-type='int32_t'> bay12: EntityOccasionScheduleType
+        <enum-item name='DANCE_PERFORMANCE'/> dance form
+        <enum-item name='MUSICAL_PERFORMANCE'/> musical form
+        <enum-item name='POETRY_RECITAL'/> poetry form
+        <enum-item name='STORYTELLING'/> history event
+        <enum-item name='DANCE_COMPETITION'/> dance form
+        <enum-item name='MUSICAL_COMPETITION'/> musical form
+        <enum-item name='POETRY_COMPETITION'/> poetry form
+        <enum-item name='FOOT_RACE'/>
+        <enum-item name='FLY_RACE'/>
+        <enum-item name='MOUNTED_RACE'/> race, caste
+        <enum-item name='WRESTLING_COMPETITION'/>
+        <enum-item name='THROWING_COMPETITION'/> item type, subtype, material, matgloss
+        <enum-item name='GLADIATORY_COMPETITION'/>
+        <enum-item name='PROCESSION'/> start abstract building, end abstract building
+        <enum-item name='CEREMONY'/>
+    </enum-type>
+
+    <bitfield-type type-name='entity_occasion_schedule_flag' base-type='uint32_t'> bay12: ENTITY_OCCASION_SCHEDULE_FLAG_*
+        <flag-bit name='group_or_troupe'/>
+    </bitfield-type>
+
+    <struct-type type-name='entity_occasion_schedule' original-name='entity_occasion_schedulest'>
+        <enum name='type' type-name='occasion_schedule_type'/>
+        <int32_t name='reference' comment="art form / event / item_type /procession start abstract building"/>
+        <int32_t name='reference2' comment="item_subtype / procession stop abstract building"/>
+        <int32_t name='reference3' comment='material'/>
+        <int32_t name='reference4' comment='matgloss'/>
+        <bitfield name='flags' base-type='uint32_t' type-name='entity_occasion_schedule_flag'/>
+        <stl-vector name='features' pointer-type='entity_occasion_schedule_feature' />
+        <int32_t name='start_year_tick'/>
+        <int32_t name='end_year_tick'/>
+    </struct-type>
+
+    <enum-type type-name='entity_occasion_purpose_type' base-type='int32_t'> bay12: EntityOccasionPurposeType
+        <enum-item name='COMMEMORATE_EVENT'/> history_event
+        <enum-item name='FAIR'/>
+        <enum-item name='GENERAL_HOLY_PERIOD_FOR_FIGURE'/> historical_figure, sphere_type
+    </enum-type>
+
+    <bitfield-type type-name='entity_occasion_flag' base-type='uint32_t'> bay12: ENTITY_OCCASION_FLAG_*
+        <flag-bit name='defunct'/>
+    </bitfield-type>
+
+    <struct-type type-name='entity_occasion' original-name='entity_occasion_defst' comment="some festivals are annual, some single time. COMMEMORATE_EVENT without Defunct seems to match with single time, which doesn't make much sense. Only frequency seen is yearly">
+        <int32_t name="id"/>
+        <bitfield name='flags' base-type='uint32_t' type-name='entity_occasion_flag'/>
+        <int32_t name='site' ref-target='world_site'/>
+        <int32_t name='structure' ref-target='abstract_building'/>
+        <compound name='name' type-name='language_name'/>
+        <int32_t name='start_year_tick'/>
+        <int32_t name='end_year_tick'/>
+        <enum name='purpose' type-name='entity_occasion_purpose_type'/>
+        <int32_t name="purpose_id" init-value='-1' comment='history_event or histfig'/>
+        <int32_t name='purpose_subid' init-value='-1' comment='optional sphere'/>
+        <stl-vector name='schedule' pointer-type='entity_occasion_schedule'/>
+
+        <pointer name='active_collection' type-name='history_event_collection_occasionst' comment='unsaved, worldgen'/>
+    </struct-type>
+
+    <struct-type type-name='entity_occasion_info' original-name='entity_calendarst'>
+        <stl-vector name="occasions" pointer-type='entity_occasion' since='v0.42.01'/>
+        <int32_t name="next_occasion_id"/>
+        <static-array name='events' type-name='int32_t' count='10' ref-target='history_event'/>
+        <int32_t name='count' comment="number of elements used in array above"/>
+    </struct-type>
+
+    <struct-type type-name='artifact_claim' original-name='entity_artifact_claimst'>
+        <int32_t name='artifact_id' ref-target='artifact_record'/>
+        <enum name='claim_type' base-type='int32_t' type-name='artifact_claim_type'/>
+        <int32_t name='symbol_claim_id' init-value='-1' comment='refers to entity_position_assignment'/>
+        <int32_t name='claim_year' init-value='-1' comment="Written contents often seem to lack info of being claimed"/>
+        <int32_t name='claim_year_tick' init-value='-1' comment="usually init"/>
+        <int32_t name='renounce_event' ref-target='history_event'/>
+
+        <compound name='temp_arl' type-name='artifact_rumor_locationst'/>
+
+        <pointer name='temp_site_ent' type-name='historical_entity' has-bad-pointers='true'/>
+        <pointer name='temp_civ_ent' type-name='historical_entity' has-bad-pointers='true'/>
+    </struct-type>
+
+    <enum-type type-name='entity_focus_type' base-type='int32_t'> bay12: EntityFocusType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='PROMOTE_PROFESSION_UNIT'/>
+    </enum-type>
+
+    <struct-type type-name='entity_focusst'>
+        <enum name='type' type-name='entity_focus_type'/>
+        <enum name='profession' base-type='int32_t' type-name='profession'/>
+    </struct-type>
+
+    <bitfield-type type-name='entity_honor_required_skill_flag'> bay12: ENTITY_HONOR_REQUIRED_SKILL_FLAG_*
+        <flag-bit name='melee_weapon'/>
+        <flag-bit name='ranged_weapon'/>
+    </bitfield-type>
+
+    <bitfield-type type-name='entity_honor_flag' base-type='uint32_t'> bay12: ENTITY_HONOR_FLAG_*
+        <flag-bit name='granted_to_all_new_members'/>
+    </bitfield-type>
+
+    <struct-type type-name='honors_type' original-name='entity_honorst' key-field='id'>
+        <int32_t name='id'/>
+        <bitfield name='flags' base-type='uint32_t' type-name='entity_honor_flag'/>
+        <stl-string name='name'/>
+        <int32_t name='precedence_awarded'/>
+        <enum name='required_skill' type-name='job_skill' base-type='int16_t'/>
+        <bitfield name='required_skill_type' base-type='uint32_t' type-name='entity_honor_required_skill_flag'/>
+        <int32_t name='required_skill_points'/>
+        <int32_t name='required_kills'/>
+        <int32_t name='required_battles'/>
+        <int32_t name='required_years_of_membership'/>
+        <stl-vector name='honored' type-name='int32_t' ref-target='historical_figure'/>
+        <stl-vector name='required_position' type-name='int32_t' ref-target='entity_position'/>
+        <stl-vector name='required_former_position' type-name='int32_t' ref-target='entity_position'/>
+    </struct-type>
+
+    -- Unused: WG_INTERROGATION_DATA_FLAG_*
+    -- Unused: wg_interrogation_datast
+    -- Unused: WG_CONVICTION_DATA_FLAG_*
+    -- Unused: wg_conviction_datast
+
+    <bitfield-type type-name='entity_scholar_flag' base-type='uint32_t'> bay12: ENTITY_SCHOLAR_FLAG_*
+        <flag-bit name='PHILOSOPHER'/>
+        <flag-bit name='MATHEMATICIAN'/>
+        <flag-bit name='HISTORIAN'/>
+        <flag-bit name='ASTRONOMER'/>
+        <flag-bit name='NATURALIST'/>
+        <flag-bit name='CHEMIST'/>
+        <flag-bit name='GEOGRAPHER'/>
+        <flag-bit name='DOCTOR'/>
+
+        <flag-bit name='ENGINEER'/>
+    </bitfield-type>
+
+    <bitfield-type type-name='entity_flag' base-type='uint32_t'> bay12: ENTITYFLAG_*
+        <flag-bit name='neighbor' comment="NEARBY"/>
+        <flag-bit name='player_civ' comment="VISIBLE"/>
+        <flag-bit name='make_nems_check_positions'/>
+        <flag-bit name='discovered'/>
+        <flag-bit name='dead'/>
+            SiteGovernment and Outcast has this flag set when there are no site links with the residence or invasion_push_out
+            flag set. Others (NomadicGroup, MilitaryUnit seen) have it set when the criteria of the first group are fullfilled
+            together with occupation_failed, criminal_gang, and reclaim being absent as well, provided they have at least one
+            site link (no site link = flag not set).
+            Civilizations can have the flag set when having lost all sites, but usually do not, so the flag seems useless
+            at that level (Some exterminated kobolds have it set, while most do not, for instance. Embark culled dwarven civs
+            may or may not have it set).
+        <flag-bit name='secret'/>
+        <flag-bit name='possible_evaluate_position_profile'/>
+        <flag-bit name='possible_succession_position_profile'/>
+        <flag-bit name='possible_appointable_position_profile'/>
+        <flag-bit name='possible_elected_position_profile'/>
+        <flag-bit name='unspecific_race'/>
+        <flag-bit name='evaluate_position_profile_activity'/>
+        <flag-bit name='has_poetry_for_trav_poets'/>
+        <flag-bit name='has_music_for_trav_bards'/>
+        <flag-bit name='has_dance_for_trav_dancers'/>
+        <flag-bit name='trav_bards_get_sing'/>
+        <flag-bit name='trav_bards_get_keyboard_instrument'/>
+        <flag-bit name='trav_bards_get_stringed_instrument'/>
+        <flag-bit name='trav_bards_get_wind_instrument'/>
+        <flag-bit name='trav_bards_get_percussion_instrument'/>
+        <flag-bit name='trav_bards_get_speaking'/>
+        <flag-bit name='have_art_pointers'/>
+        <flag-bit name='isolated'/>
+        <flag-bit name='ignore_siege_triggers'/>
+        <flag-bit name='calculated_best_appointment_precedence'/>
+        <flag-bit name='religious_devotion'/>
+        <flag-bit name='might_have_interaction_region_pops'/>
+    </bitfield-type>
+
+    <enum-type type-name='historical_entity_type' base-type='int16_t'> bay12: EntityType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='Civilization'/>
+        <enum-item name='SiteGovernment'/>
+        <enum-item name='VesselCrew'/>
+        <enum-item name='MigratingGroup'/>
+        <enum-item name='NomadicGroup'/>
+        <enum-item name='Religion'/>
+        <enum-item name='MilitaryUnit'/>
+        <enum-item name='Outcast'/>
+        <enum-item name='PerformanceTroupe'/>
+        <enum-item name='MerchantCompany'/>
+        <enum-item name='Guild'/>
+    </enum-type>
+
+    <struct-type type-name='historical_entity' key-field='id'
+                 instance-vector='$global.world.entities.all'
+                 original-name='entityst'>
+        <enum name='type' base-type='int16_t' type-name='historical_entity_type'/>
+        <int32_t name='id' comment='index in the array'/>
+
+        <pointer name='entity_raw' type-name='entity_raw'/>
+        <int32_t name='source_hfid' ref-target='historical_figure'/>
+
+        <int32_t name='save_file_id' comment='changes once has 100 entries'/>
+        <int16_t name='next_member_idx'/>
+
+        <compound name='name' type-name='language_name'/>
+
+        <code-helper name='describe'>
+            $.type
+            (describe-obj (find-creature $.race))
+            (describe-obj $.name)
+        </code-helper>
+
+        <int16_t name='race' ref-target='creature_raw'/>
+
+        <bitfield name='flags' base-type='uint32_t' type-name='entity_flag'/>
+        <stl-vector name='guild_professions' pointer-type='entity_focusst' since='v0.47.01' comment="Only seen 1, and only for guilds"/>
+        <stl-vector name='entity_links' pointer-type='entity_entity_link'/>
+        <stl-vector name='site_links' pointer-type='entity_site_link'/>
+
+        <stl-vector name='histfig_ids' type-name='int32_t' ref-target='historical_figure'/>
+
+        <stl-vector name='populations' type-name='int32_t' ref-target='entity_population'
+                    comment='1st entry copies to unit.population_id for Adventurer?'/>
+
+        <stl-vector name='nemesis_ids' type-name='int32_t' ref-target='nemesis_record'/>
+
+        <compound name='resources'> not a compound, nor are any of the compounds inside
+            <stl-vector name='digger_type' type-name='int16_t' ref-target='itemdef_weaponst'/>
+            <stl-vector name='weapon_type' type-name='int16_t' ref-target='itemdef_weaponst'/>
+            <stl-vector name='training_weapon_type' type-name='int16_t' ref-target='itemdef_weaponst'/>
+            <stl-vector name='armor_type' type-name='int16_t' ref-target='itemdef_armorst'/>
+            <stl-vector name='ammo_type' type-name='int16_t' ref-target='itemdef_ammost'/>
+            <stl-vector name='helm_type' type-name='int16_t' ref-target='itemdef_helmst'/>
+            <stl-vector name='gloves_type' type-name='int16_t' ref-target='itemdef_glovesst'/>
+            <stl-vector name='shoes_type' type-name='int16_t' ref-target='itemdef_shoesst'/>
+            <stl-vector name='pants_type' type-name='int16_t' ref-target='itemdef_pantsst'/>
+            <stl-vector name='shield_type' type-name='int16_t' ref-target='itemdef_shieldst'/>
+            <stl-vector name='trapcomp_type' type-name='int16_t' ref-target='itemdef_trapcompst'/>
+            <stl-vector name='toy_type' type-name='int16_t' ref-target='itemdef_toyst'/>
+            <stl-vector name='instrument_type' type-name='int16_t' ref-target='itemdef_instrumentst'/>
+            <stl-vector name='siegeammo_type' type-name='int16_t' ref-target='itemdef_siegeammost'/>
+            <stl-vector name='tool_type' type-name='int16_t' ref-target='itemdef_toolst'/>
+            <stl-vector name='reaction_idx' type-name='int32_t' ref-target='reaction' since='v0.42.01'/>
+
+            <compound name='metal'>
+                <compound name='pick' type-name='material_vec_ref'/>
+                <compound name='weapon' type-name='material_vec_ref'/>
+                <compound name='ranged' type-name='material_vec_ref'/>
+                <compound name='ammo' type-name='material_vec_ref'/>
+                <compound name='ammo_metal' type-name='material_vec_ref'/>
+                <compound name='armor' type-name='material_vec_ref' comment='also instruments, toys, and tools'/>
+                <compound name='anvil' type-name='material_vec_ref'/>
+            </compound>
+
+            <compound name='organic'>
+                <compound name='leather' type-name='material_vec_ref'/>
+                <compound name='parchment' type-name='material_vec_ref' since='v0.42.01'/>
+                <compound name='fiber' type-name='material_vec_ref'/>
+                <compound name='silk' type-name='material_vec_ref'/>
+                <compound name='wool' type-name='material_vec_ref'/>
+                <compound name='wood' type-name='material_vec_ref'/>
+            </compound>
+
+            <stl-vector name='metals' type-name='int32_t' ref-target='inorganic_raw' comment='bars'/>
+            <stl-vector name='stones' type-name='int32_t' ref-target='inorganic_raw' comment='boulders and blocks'/>
+            <stl-vector name='gems' type-name='int32_t' ref-target='inorganic_raw' comment='small and large cut'/>
+
+            <compound name='refuse'>
+                <compound name='bone' type-name='material_vec_ref'/>
+                <compound name='shell' type-name='material_vec_ref'/>
+                <compound name='pearl' type-name='material_vec_ref'/>
+                <compound name='ivory' type-name='material_vec_ref'/>
+                <compound name='horn' type-name='material_vec_ref'/>
+            </compound>
+
+            <compound name='misc_mat'>
+                <compound name='others' type-name='material_vec_ref' comment='amber and coral'/>
+                <compound name='glass' type-name='material_vec_ref'/>
+                <compound name='sand' type-name='material_vec_ref'/>
+                <compound name='clay' type-name='material_vec_ref'/>
+                <compound name='crafts' type-name='material_vec_ref'/>
+                <compound name='vials' type-name='material_vec_ref'/>
+                <compound name='barrels' type-name='material_vec_ref' comment='also buckets, splints, and crutches'/>
+                <compound name='flasks' type-name='material_vec_ref'/>
+                <compound name='quivers' type-name='material_vec_ref'/>
+                <compound name='backpacks' type-name='material_vec_ref'/>
+                <compound name='cages' type-name='material_vec_ref'/>
+                <compound name='temp_furniture' type-name='material_vec_ref' since='v0.34.01'/>
+                <compound name='perm_furniture' type-name='material_vec_ref' since='v0.34.01'/>
+                <compound name='booze' type-name='material_vec_ref'/>
+                <compound name='cheese' type-name='material_vec_ref'/>
+                <compound name='powders' type-name='material_vec_ref'/>
+                <compound name='extracts' type-name='material_vec_ref'/>
+                <compound name='meat' type-name='material_vec_ref'/>
+            </compound>
+
+            <stl-vector name='fish_races' type-name='int32_t' ref-target='creature_raw'/>
+            <stl-vector name='fish_castes' type-name='int16_t' ref-target='caste_raw' aux-value='$$._parent.fish_races[$._key]'/>
+
+            <stl-vector name='egg_races' type-name='int32_t' ref-target='creature_raw'/>
+            <stl-vector name='egg_castes' type-name='int16_t' ref-target='caste_raw' aux-value='$$._parent.egg_races[$._key]'/>
+
+            <compound name='plants' type-name='material_vec_ref'/>
+
+            <stl-vector name='tree_fruit_plants' type-name='int32_t' ref-target='plant_raw'/>
+            <stl-vector name='tree_fruit_growths' type-name='int16_t' ref-target='plant_growth' aux-value='$$._parent.tree_fruit_plants[$._key]'/>
+
+            <stl-vector name='shrub_fruit_plants' type-name='int32_t' ref-target='plant_raw'/>
+            <stl-vector name='shrub_fruit_growths' type-name='int16_t' ref-target='plant_growth' aux-value='$$._parent.shrub_fruit_plants[$._key]'/>
+
+            <compound name='seeds' type-name='material_vec_ref'/>
+
+            <compound name='wood_products' comment='lye, charcoal, potash, pearlash, and coke'>
+                <stl-vector name='item_type'>
+                    <enum base-type='int16_t' type-name='item_type'/>
+                </stl-vector>
+                <stl-vector type-name='int16_t' name='item_subtype'/>
+                <compound name='material' type-name='material_vec_ref'/>
+            </compound>
+
+            <compound name='animals'>
+                <stl-vector name='pet_races' type-name='int32_t' ref-target='creature_raw'/>
+                <stl-vector name='wagon_races' type-name='int32_t' ref-target='creature_raw'/>
+                <stl-vector name='pack_animal_races' type-name='int32_t' ref-target='creature_raw'/>
+                <stl-vector name='wagon_puller_races' type-name='int32_t' ref-target='creature_raw'/>
+                <stl-vector name='mount_races' type-name='int32_t' ref-target='creature_raw'/>
+                <stl-vector name='minion_races' type-name='int32_t' ref-target='creature_raw'/>
+                <stl-vector name='exotic_pet_races' type-name='int32_t' ref-target='creature_raw'/>
+
+                <stl-vector name='pet_castes' type-name='int16_t' ref-target='caste_raw' aux-value='$$._parent.pet_races[$._key]'/>
+                <stl-vector name='wagon_castes' type-name='int16_t' ref-target='caste_raw' aux-value='$$._parent.wagon_races[$._key]'/>
+                <stl-vector name='pack_animal_castes' type-name='int16_t' ref-target='caste_raw' aux-value='$$._parent.pack_animal_races[$._key]'/>
+                <stl-vector name='wagon_puller_castes' type-name='int16_t' ref-target='caste_raw' aux-value='$$._parent.wagon_puller_races[$._key]'/>
+                <stl-vector name='mount_castes' type-name='int16_t' ref-target='caste_raw' aux-value='$$._parent.mount_races[$._key]'/>
+                <stl-vector name='minion_castes' type-name='int16_t' ref-target='caste_raw' aux-value='$$._parent.minion_races[$._key]'/>
+                <stl-vector name='exotic_pet_castes' type-name='int16_t' ref-target='caste_raw' aux-value='$$._parent.unk728_races[$._key]'/>
+            </compound>
+
+            <stl-vector name='meat_fish_recipes' pointer-type='entity_recipe'/>
+            <stl-vector name='other_recipes' pointer-type='entity_recipe'/>
+
+            <static-array name='soldier_mats' count='3' comment='melee, archer1, archer - unused?'>
+                <int16_t name='mat_type' init-value='-1'/>
+                <int32_t name='mat_index'/>
+            </static-array>
+
+            <stl-vector name='traded' pointer-type='item' comment='never used, items would be equipped by arriving King'/>
+
+            <int16_t name='min_temperature'/>
+            <int16_t name='max_temperature'/>
+
+            <static-array name='ethic' count='22' index-enum='ethic_type'>
+                <enum base-type='int16_t' type-name='ethic_response'/>
+            </static-array>
+
+            <static-array name='values' type-name='int32_t' count='64' index-enum='value_type'/>
+
+            <uint32_t name='scholar_flag' since='v0.42.01'/> likely ENTITY_SCHOLAR_FLAG_*
+            <static-array name='permitted_skill' type-name='bool' index-enum='job_skill' count='149'/>
+
+            <stl-vector type-name='int16_t' name='art_image_types' comment='0 = civilization symbol, 1 = commissioned'/>
+            <stl-vector type-name='int32_t' name='art_image_ids'/>
+            <stl-vector type-name='int16_t' name='art_image_subids'/>
+            <stl-vector name='art_image_char' type-name='uint8_t'/>
+            <stl-vector name='foreground_color_curses'>
+                <enum type-name='curses_color' base-type='int8_t'/>
+            </stl-vector>
+            <stl-vector name='background_color_curses'>
+                <enum type-name='curses_color' base-type='int8_t'/>
+            </stl-vector>
+            <stl-vector name='foreground_color_curses_bright' type-name='bool'/>
+            <stl-vector name='foreground_color' type-name='int16_t' ref-target='descriptor_color' comment="foreground color used for the entity symbol in legends mode and the historical maps."/>
+            <stl-vector name='background_color' type-name='int16_t' ref-target='descriptor_color' comment="background color used for the entity symbol in legends mode and the historical maps."/>
+        </compound>
+
+        <stl-vector name='uniforms' pointer-type='entity_uniform'/>
+        <int32_t name='next_uniform_id'/>
+
+        <compound name='relations'> not a compound
+            <stl-vector name='known_sites' type-name='int32_t' ref-target='world_site' comment="only civs and site government. Fresh player site government has empty vector"/>
+            <stl-vector name='deities' type-name='int32_t' ref-target='historical_figure'/>
+            <stl-vector name='worship' type-name='int32_t' comment="worship acceptability"/>
+            <stl-vector name='belief_systems' type-name='int32_t' ref-target="belief_system" comment="In Religion type entities established by prophets after having developed their own belief system, the ID of this belief system is contained here."/>
+            <stl-vector name='constructions' pointer-type='transport_linkst' comment="only civs. Usually pairs for source/destination, with destination lacking path and construction. Construction and second entry can be lacking when destination lost(construction destroyed as well?). Also seen only source entry"/>
+
+            <compound name='diplomacy' type-name='diplomacy_datast'/>
+
+            <int16_t name='search_for_site_timer' init-value='0'/>
+            <stl-vector name='death_trap_x' type-name='int16_t'/>
+            <stl-vector name='death_trap_y' type-name='int16_t'/>
+            <stl-vector name='death_trap_timer' type-name='int32_t'/>
+            <stl-vector name='succession_position' type-name='int32_t' comment="position index (not id)"/>
+            <stl-vector name='succession_old_hf' type-name='int32_t' ref-target='historical_figure' comment="holder of office of corresponding position index"/>
+        </compound>
+
+        <compound name='positions'> not a compound
+            <stl-vector name='own' pointer-type='entity_position'/>
+            <stl-vector name='site' pointer-type='entity_position'/>
+            <stl-vector name='conquered_site' pointer-type='entity_position'/>
+
+            <int32_t name='next_position_id'/>
+
+            <stl-vector name='assignments' pointer-type='entity_position_assignment'/>
+
+            <int32_t name='next_assignment_id'/>
+
+            <stl-vector name='possible_evaluate' pointer-type='entity_position_assignment' since='v0.40.01'/>
+            <stl-vector name='possible_succession' pointer-type='entity_position_assignment' since='v0.40.01'/>
+            <stl-vector name='possible_appointable' pointer-type='entity_position_assignment' since='v0.40.01'/>
+            <stl-vector name='possible_elected' pointer-type='entity_position_assignment' since='v0.40.01'/>
+            <stl-vector name='possible_claimable' pointer-type='entity_position_assignment' since='v0.40.01'/>
+        </compound>
+
+        <compound name='tissue_styles'> not a compound
+            <stl-vector name='all' pointer-type='entity_tissue_style'/>
+            <int32_t name='next_style_id'/>
+        </compound>
+
+        <stl-vector name='squads' type-name='int32_t' ref-target='squad'/>
+
+        <int32_t name='global_event_knowledge_year' init-value='-1'/>
+        <stl-vector name='local_known_events' comment='since the above year' type-name='int32_t' ref-target='history_event'/>
+        <int32_t name='production_zone_id' comment='not sure what this refers to'/>
+        <compound name='law' type-name='entity_lawst'/>
+        <static-array name='worldgen_can_make_guildhall' count='15' index-enum='town_labor_type' type-name='int32_t' since='v0.34.01' comment='specialization_hours'/>
+
+        <pointer name='training_knowledge' type-name='entity_animal_training_knowledgest' since='v0.34.06'/>
+
+        <compound name='rumor_info' type-name='rumor_infost'/>
+
+        <int32_t name='last_checked_army_strength' since='v0.40.01'/>
+        <int32_t name='pwg_ai_throttle_refugee_check' since='v0.40.01'/>
+        <int32_t name='pwg_ai_throttle_create_or_reclaim_site' since='v0.40.01'/>
+        <int32_t name='pwg_ai_throttle_attempt_create_site' since='v0.40.01'/>
+        <int32_t name='pwg_ai_throttle_invasion_planning' since='v0.40.01'/>
+
+        <stl-vector name='performed_poetic_forms' type-name='int32_t' ref-target='poetic_form' since='v0.42.01'/>
+        <stl-vector name='performed_musical_forms' type-name='int32_t' ref-target='musical_form' since='v0.42.01'/>
+        <stl-vector name='performed_dance_forms' type-name='int32_t' ref-target='dance_form' since='v0.42.01'/>
+        <stl-vector name='performed_scale_id' type-name='int32_t' since='v0.42.01'/>
+        <stl-vector name='performed_rhythm_id' type-name='int32_t' since='v0.42.01'/>
+        -- wcid == written content ID
+        <stl-vector name='well_known_wcid' type-name='int32_t' since='v0.42.01'/>
+
+        -- bay12: entity_calendarst *calendar
+        <pointer name='occasion_info' type-name='entity_occasion_info' comment="only seen on Civilization, SiteGovernment, and Religion, but not all"/>
+
+        <stl-vector name='artifact_claims' pointer-type='artifact_claim' since='v0.44.01' comment='sorted on artifact id'/>
+
+        <stl-vector name='honors' pointer-type='honors_type' since='v0.47.01' comment='Only merc companies. Matches #Honors groups in Legends Viewer'/>
+        <int32_t name='next_honors_index' since='v0.47.01'/>
+
+        <int32_t name='equipment_purchases' since='v0.47.01' comment="average equipment quality"/>
+        <int32_t name='attack' since='v0.47.01' comment="hired battle victory"/>
+        <int32_t name='total_battles' since='v0.47.01' comment="hired battle total"/>
+
+        <pointer name='evidence_repository' since='v0.47.01' type-name='evidence_repositoryst'/>
+
+        <stl-vector name='divination_sets' type-name='int32_t' since='v0.47.01'/>
+
+        -- bay12: material_source_enid
+        <int32_t name='founding_site_government' ref-target='historical_entity' since='v0.47.01'/>
+
+        <stl-vector name='meeting_events' pointer-type='meeting_event'/>
+
+        -- bay12: reportst *lastreport
+        <pointer name='activity_stats' type-name='entity_activity_statistics'/>
+        <int16_t name='last_report_season'/>
+        <int32_t name='last_report_year'/>
+
+        <int32_t name='imports_from'/>
+        <int32_t name='offerings_from'/>
+        <int32_t name='offerings_recent' comment='since the last migrant wave or diplomat visit'/>
+        <static-array name='offerings_history' count='10' type-name='int32_t' comment='rotated yearly at 15th of Timber'/>
+        <int32_t name='hostility_level' comment='bay12: brazenness'/>
+        <int32_t name='siege_tier'/>
+        <int32_t name='dwf_attack_schedule_check_timer' since='v0.40.01'/>
+        <int32_t name='last_petition_year' since='v0.47.01'/>
+        <int32_t name='last_petition_season_count' since='v0.47.01'/>
+
+        <stl-vector name='armies' pointer-type='army' since='v0.40.01'/>
+        <stl-vector name='army_controllers' pointer-type='army_controller' since='v0.40.01'/>
+        <stl-vector name='hist_figures' pointer-type='historical_figure'/>
+        <stl-vector name='nemesis' pointer-type='nemesis_record'/>
+
+        <compound name='derived_resources'> not a compound
+            <compound name='mill_cookable' type-name='material_vec_ref'/>
+            <compound name='mill_dye' type-name='material_vec_ref'/>
+
+            <stl-vector name='armor_leather' type-name='int16_t' ref-target='itemdef_armorst'/>
+            <stl-vector name='armor_chain' type-name='int16_t' ref-target='itemdef_armorst'/>
+            <stl-vector name='armor_plate' type-name='int16_t' ref-target='itemdef_armorst'/>
+            <stl-vector name='armor_under' type-name='int16_t' ref-target='itemdef_armorst'/>
+            <stl-vector name='armor_over' type-name='int16_t' ref-target='itemdef_armorst'/>
+            <stl-vector name='armor_cover' type-name='int16_t' ref-target='itemdef_armorst'/>
+            <stl-vector name='pants_leather' type-name='int16_t' ref-target='itemdef_pantsst'/>
+            <stl-vector name='pants_chain' type-name='int16_t' ref-target='itemdef_pantsst'/>
+            <stl-vector name='pants_plate' type-name='int16_t' ref-target='itemdef_pantsst'/>
+            <stl-vector name='pants_under' type-name='int16_t' ref-target='itemdef_pantsst'/>
+            <stl-vector name='pants_over' type-name='int16_t' ref-target='itemdef_pantsst'/>
+            <stl-vector name='pants_cover' type-name='int16_t' ref-target='itemdef_pantsst'/>
+            <stl-vector name='helm_leather' type-name='int16_t' ref-target='itemdef_helmst'/>
+            <stl-vector name='helm_chain' type-name='int16_t' ref-target='itemdef_helmst'/>
+            <stl-vector name='helm_plate' type-name='int16_t' ref-target='itemdef_helmst'/>
+            <stl-vector name='helm_under' type-name='int16_t' ref-target='itemdef_helmst'/>
+            <stl-vector name='helm_over' type-name='int16_t' ref-target='itemdef_helmst'/>
+            <stl-vector name='helm_cover' type-name='int16_t' ref-target='itemdef_helmst'/>
+            <stl-vector name='shoes_leather' type-name='int16_t' ref-target='itemdef_shoesst'/>
+            <stl-vector name='shoes_chain' type-name='int16_t' ref-target='itemdef_shoesst'/>
+            <stl-vector name='shoes_plate' type-name='int16_t' ref-target='itemdef_shoesst'/>
+            <stl-vector name='shoes_under' type-name='int16_t' ref-target='itemdef_shoesst'/>
+            <stl-vector name='shoes_over' type-name='int16_t' ref-target='itemdef_shoesst'/>
+            <stl-vector name='shoes_cover' type-name='int16_t' ref-target='itemdef_shoesst'/>
+            <stl-vector name='gloves_leather' type-name='int16_t' ref-target='itemdef_glovesst'/>
+            <stl-vector name='gloves_chain' type-name='int16_t' ref-target='itemdef_glovesst'/>
+            <stl-vector name='gloves_plate' type-name='int16_t' ref-target='itemdef_glovesst'/>
+            <stl-vector name='gloves_under' type-name='int16_t' ref-target='itemdef_glovesst'/>
+            <stl-vector name='gloves_over' type-name='int16_t' ref-target='itemdef_glovesst'/>
+            <stl-vector name='gloves_cover' type-name='int16_t' ref-target='itemdef_glovesst'/>
+        </compound>
+        <static-array name='assignments_by_type' count='43'
+                      index-enum='entity_position_responsibility'>
+            <stl-vector pointer-type='entity_position_assignment'/>
+        </static-array>
+
+        <compound name='claims'>
+            <compound name='areas' type-name='coord2d_path'/>
+            <compound name='territory' type-name='coord2d_path'/>
+            <compound name='territory_frontier' type-name='coord2d_path'/>
+        </compound>
+
+        <stl-vector name='children' type-name='int32_t' ref-target='historical_entity'
+                    comment='territory entities'/>
+
+        -- bay12: army_strength_material_bonus
+        <int32_t name='metal_proficiency'
+            comment='best IMPACT_FRACTURE/10000 + MAX_EDGE/1000 for weapon mats plus best IMPACT_FRACTURE/10000 for armor mats'/>
+        <stl-vector name='weapon_proficiencies' type-name='job_skill'/>
+
+        <pointer name='resource_allotment' type-name='resource_allotment_data' comment="Only for SiteGovernment, but not all"/>
+
+        <stl-vector name='local_poetic_form' since='v0.42.01' pointer-type='poetic_form'/>
+        <stl-vector name='local_musical_form' since='v0.42.01' pointer-type='musical_form'/>
+        <stl-vector name='local_dance_form' since='v0.42.01' pointer-type='dance_form'/>
+        <stl-vector name='well_known_wc' since='v0.42.01' pointer-type='written_content'/>
+
+        -- worldgen only, unsaved
+        <int16_t name='settlement_x' init-value='-1'/>
+        <int16_t name='settlement_y' comment='uninitialized'/>
+        <bool name='settlement_toggled' comment='0'/>
+        <pointer name='landmass' type-name='world_landmass'/>                      -- Civ entities. Nil for sites.
+        <pointer name='region' type-name='world_region' has-bad-pointers='true'/>  -- Civ entities. Non pointers for sites.
+        <int32_t name='world_gen_army_strength' comment='uninitialized'/>
+        <int16_t name='connect_two_site_throttle_time' comment='0'/>
+
+        <stl-vector name='construct_shortest_con_throttle_stid' type-name='int32_t' comment='used during world gen'/>
+        <stl-vector name='construct_shortest_con_throttle_time' type-name='int16_t' comment='used during world gen'/>
+
+        <int16_t name='snatcher_site_toggle_count' comment='0'/>
+        <int32_t name='war_fatigue' comment='0'/>
+        <int32_t name='army_reeling_attack' comment='0'/>
+        <int32_t name='unkarmy_reeling_defense' comment='0'/>
+
+        <stl-vector name='attacked_site_id' type-name='int32_t' comment='used during world gen'/>
+        <stl-vector name='attacked_site_timer' type-name='int32_t' comment='used during world gen'/>
+
+        <int32_t name='did_wg_variable_position'/>
+        <int32_t name='did_wg_variable_market_position'/>
+        <int32_t name='dig_caution_end_year'/>
+        <int32_t name='total_pop'/>
+        <int32_t name='eating_pop_carn'/>
+        <int32_t name='eating_pop_omni'/>
+        <int32_t name='working_pop'/>
+        <int32_t name='working_e_pop'/>
+        <int32_t name='layabout_pool'/>
+        <int32_t name='peasant_pool'/>
+
+        <int32_t name='peasant_labor_hours' since='v0.47.01'/>?
+        <int32_t name='total_food_veg' since='v0.47.01'/>?
+        <int32_t name='total_food_carn' since='v0.47.01'/>?
+
+        <static-array name='trade_current_amount' count='38' type-name='int32_t'/>
+        <static-array name='trade_needed_amount' count='38' type-name='int32_t'/>
+        <static-array name='trade_wanted_amount' count='38' type-name='int32_t'/>
+        <static-array name='trade_maximum_buy_price' count='38' type-name='int32_t'/>
+        <static-array name='town_labor_hours' count='15' type-name='int32_t'/>
+
+        <stl-vector name='world_gen_entity_debt' pointer-type='world_gen_entity_debtst'/>
+        <int32_t name='account' since='v0.47.01'/>
+
+        <stl-vector name='burial_request' pointer-type='entity_burial_requestst' since='v0.34.01'/>
+        <pointer name='current_wgwg' pointer-type='world_gen_wandering_groupst'/>
+        <int32_t name='total_outcast_strength' since='v0.47.01'/>
+        <int32_t name='temporary_count'/>
+        -- protected --
+        <size_t name='pool_id'/>
+    </struct-type>
+
+    <struct-type type-name='entity_handlerst'>
+        <stl-vector name='all' pointer-type='historical_entity'/>
+
+        <stl-vector name='order_load' has-bad-pointers='true' pointer-type='historical_entity'/>
+
+        -- Apparently a temporary buffer for world construction stuff
+        <static-array count='20000' type-name='coord2d' name='slots'/>
+        <int16_t name='next_slot'/>
+    </struct-type>
+</data-definition>
+
+<!--
+Local Variables:
+indent-tabs-mode: nil
+nxml-child-indent: 4
+End:
+-->

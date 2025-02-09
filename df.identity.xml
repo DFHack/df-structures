@@ -1,0 +1,81 @@
+<data-definition>
+    <enum-type type-name='identity_type' base-type='int32_t'> bay12: IdentityPurposeType
+         <enum-attr name='id_tag' comment='for identity.id'/>
+
+         <enum-item name='None'  value='-1'>
+            <item-attr name='id_tag' value='histfig_id'/>
+         </enum-item>
+
+         <enum-item name='HidingCurse' comment='HIDDEN_PREDATOR'>
+            <item-attr name='id_tag' value='histfig_id'/>
+         </enum-item>
+
+         <enum-item name='Impersonating' comment='GOD_PRETENDER'>
+            <item-attr name='id_tag' value='histfig_id'/>
+         </enum-item>
+
+         <enum-item name='TrueName' comment="E.g. of demonic overlords. Can be used by adventurers to gain sway over them">
+            <item-attr name='id_tag' value='histfig_id'/>
+         </enum-item>
+
+         <enum-item name='FalseIdentity' comment="SCOUT_COVER">
+            <item-attr name='id_tag' value='nemesis_id'/>
+         </enum-item>
+
+         <enum-item name='InfiltrationIdentity' comment="IMPROMPTU_SITE_ID">
+            <item-attr name='id_tag' value='histfig_id'/>
+         </enum-item>
+
+         <enum-item name='Identity' comment="VILLAIN">
+            <item-attr name='id_tag' value='histfig_id'/>
+         </enum-item>
+    </enum-type>
+
+    <struct-type type-name='identity' original-name='identityst'
+                 instance-vector='$global.world.identities.all' key-field='id'>
+        dtor 0x8C17FA0
+
+        <int32_t name='id'/>
+        <compound name='name' type-name='language_name' comment="Not used when Impersonating"/>
+
+        <code-helper name='describe'>
+            (describe-obj $.name)
+            (awhen (find-creature $.race)
+              (fmt "~:(~A ~A~)" $it.caste[$.caste].caste_id $it.creature_id))
+        </code-helper>
+
+        <int32_t name='race' ref-target='creature_raw'/>
+        <int16_t name='caste' ref-target='caste_raw' aux-value='$$.race'/>
+
+        <int32_t name='impersonated_hf' ref-target='historical_figure' comment="only when Impersonating"/>
+        <compound is-union='true' union-tag-attr='id_tag'> bay12: "originator_hfid", yet Toady apparently stores Nemesis IDs here too?
+            <int32_t name='histfig_id' ref-target='historical_figure'/>
+            <int32_t name='nemesis_id' ref-target='nemesis_record'/>
+        </compound>
+
+        <enum name='type' type-name='identity_type' base-type='int32_t'/>
+
+        <int32_t name='birth_year' comment='the fake one, that is'/>
+        <int32_t name='birth_second'/>
+        <int32_t name='belief_system' ref-target='belief_system'/>
+        <int32_t name='worship_hf' ref-target='historical_figure'/>
+        <enum name='fake_practice_type' type-name='religious_practice_type'/>
+        <int32_t name='fake_practice_id' init-value='-1'/>
+        <enum name='profession' type-name='profession' base-type='int16_t'/>
+        <int32_t name='entity_id' ref-target='historical_entity'/>
+        <stl-vector name='entity_profile' pointer-type='entity_personal_reputation_profilest'/>
+        <stl-vector name='cultural_identity_profile' pointer-type='ci_personal_reputation_profilest'/>
+    </struct-type>
+
+    <struct-type type-name='identity_handlerst'>
+        <stl-vector name='all' pointer-type='identity'/>
+        <stl-vector name='order_load' has-bad-pointers='true' pointer-type='identity'/>
+    </struct-type>
+</data-definition>
+
+<!--
+Local Variables:
+indent-tabs-mode: nil
+nxml-child-indent: 4
+End:
+-->

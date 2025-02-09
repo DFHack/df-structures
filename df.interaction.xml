@@ -1,207 +1,4 @@
 <data-definition>
-
-    <enum-type type-name='interaction_flags'> bay12: InteractionFlagType
-        <enum-item name='GENERATED'/>
-        <enum-item name='EXPERIMENT_ONLY'/>
-    </enum-type>
-
-    <struct-type type-name='interaction'
-                 instance-vector='$global.world.raws.interactions' key-field='id'
-                 original-name='interactionst'>
-        <stl-string name="name"/>
-        <int32_t name="id"/>
-
-        <code-helper name='describe'>$.name</code-helper>
-
-        <stl-vector name="str" pointer-type='stl-string' comment='interaction raws'/>
-
-        <df-flagarray name='flags' index-enum='interaction_flags'/>
-
-        <stl-vector name="sources" pointer-type='interaction_source' comment='I_SOURCE'/>
-        <stl-vector name="targets" pointer-type='interaction_target' comment='I_TARGET'/>
-        <stl-vector name="effects" pointer-type='interaction_effect' comment='I_EFFECT'/>
-
-        <int32_t name='source_hfid' ref-target='historical_figure'/>
-        <int32_t name='source_enid' ref-target='historical_entity' since='v0.42.01'/>
-
-        <static-array name='texpos_list_icon' count='4'><static-array count='3' type-name='int32_t'/></static-array>
-        <int32_t name='texpos_default_list_icon' comment='InterfaceButtonMain'/>
-    </struct-type>
-
-    <enum-type type-name='interaction_effect_type' base-type='int16_t'> bay12: InteractionEffectType
-        <enum-item name='NONE' value='-1'/>
-        <enum-item name='ANIMATE'/>
-        <enum-item name='ADD_SYNDROME'/>
-        <enum-item name='RESURRECT'/>
-        <enum-item name='CLEAN'/>
-        <enum-item name='CONTACT'/>
-        <enum-item name='MATERIAL_EMISSION'/>
-        <enum-item name='HIDE'/>
-        <enum-item name='PROPEL_UNIT'/>
-        <enum-item name='SUMMON_UNIT'/>
-        <enum-item name='CHANGE_WEATHER'/>
-        <enum-item name='RAISE_GHOST'/>
-        <enum-item name='CREATE_ITEM'/>
-        <enum-item name='CHANGE_ITEM_QUALITY'/>
-    </enum-type>
-
-    <enum-type type-name='interaction_effect_location_hint' base-type='int32_t'> bay12: LocationHintType
-        <enum-item name='NONE' value='-1'/>
-        <enum-item name='IN_WATER'/>
-        <enum-item name='IN_MAGMA'/>
-        <enum-item name='NO_WATER'/>
-        <enum-item name='NO_MAGMA'/>
-        <enum-item name='NO_THICK_FOG'/>
-        <enum-item name='OUTSIDE'/>
-    </enum-type>
-
-    <enum-type type-name='intermittent_frequency_type' base-type='int32_t'> bay12: IntermittentFrequencyType
-        <enum-item name='NONE' value='-1'/>
-        <enum-item name='WEEKLY'/>
-    </enum-type>
-
-    <class-type type-name='interaction_effect' original-name='interaction_effectst'>
-        <int32_t name='index' comment='index of the effect within the parent interaction.effects'/>
-        <stl-vector name='targets' pointer-type='stl-string'/>
-        <stl-vector name='targets_index' type-name='int32_t' comment='for each target used in this effect, list the index of that target within the parent interaction.targets'/>
-        <enum name='intermittent' type-name='intermittent_frequency_type'/>
-        <stl-vector name='locations' type-name='interaction_effect_location_hint' comment='IE_LOCATION'/>
-        <bitfield name='flags' base-type='uint32_t'> bay12: INTERACTION_EFFECT_FLAG_*
-            <flag-bit name='IMMEDIATE' comment='IE_IMMEDIATE'/>
-        </bitfield>
-        <int32_t name='interaction_id' ref-target='interaction'/>
-        <stl-string name='arena_name' comment='IE_ARENA_NAME'/>
-
-        <virtual-methods>
-            <vmethod ret-type='interaction_effect_type' name='getType'/>
-            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
-            <vmethod name='read_file'>
-                <pointer name='file' type-name='file_compressorst'/>
-                <enum name='loadversion' type-name='save_version'/>
-            </vmethod>
-            <vmethod is-destructor='true'/>
-            <vmethod name='activateOnUnit'>
-                <pointer name='target' type-name='unit'/>
-                <pointer name='instance' type-name='interaction_instance'/>
-                <bool name='new_unit'/>
-                <pointer name='start_year' comment='actually std::optional(int32_t)'/>
-                <pointer name='end_year' comment='actually std::optional(int32_t)'/>
-            </vmethod>
-            <vmethod name='activateOnItem'><pointer name='target' type-name='item'/></vmethod>
-            <vmethod name='parseRaws' ret-type='bool'>
-                <pointer name='token' type-name='stl-string'/>
-                <pointer name='pos' type-name='int32_t'/>
-                <pointer name='curstr' type-name='stl-string'/>
-                <pointer name='context'/>
-                <bool name='allow_internal_tokens'/>
-            </vmethod>
-            <vmethod name='finalize'><int32_t name='idx'/></vmethod>
-            <vmethod name='applySyndromes' comment='init_material_information'/>
-            <vmethod name='activateOnHistfig'>
-                <pointer name='hf' type-name='historical_figure'/>
-                <pointer name='instance' type-name='interaction_instance'/>
-                <bool name='worldgen'/>
-            </vmethod>
-            <vmethod name='hasSyndrome' ret-type='bool'><pointer type-name='syndrome'/></vmethod>
-        </virtual-methods>
-    </class-type>
-
-    <struct-type type-name='creature_interactionst'>
-        <stl-vector name='syndrome' pointer-type='syndrome'/>
-    </struct-type>
-
-    <class-type type-name='interaction_effect_animatest' inherits-from='interaction_effect'>
-        <uint32_t name='spec_flags'/>
-        <compound name='creature_interaction' type-name='creature_interactionst'/>
-    </class-type>
-
-    <class-type type-name='interaction_effect_add_syndromest' inherits-from='interaction_effect'>
-        <uint32_t name='spec_flags'/>
-        <compound name='creature_interaction' type-name='creature_interactionst'/>
-    </class-type>
-
-    <class-type type-name='interaction_effect_resurrectst' inherits-from='interaction_effect'>
-        <uint32_t name='spec_flags'/>
-        <compound name='creature_interaction' type-name='creature_interactionst'/>
-    </class-type>
-
-    <class-type type-name='interaction_effect_cleanst' inherits-from='interaction_effect'>
-        <uint32_t name='spec_flags'/>
-        <int32_t name='grime_level' comment='IE_GRIME_LEVEL'/>
-        <bitfield name='syndrome_tag' type-name='syndrome_flags' comment='IE_SYNDROME_TAG'/>
-    </class-type>
-
-    <class-type type-name='interaction_effect_contactst' inherits-from='interaction_effect'>
-        <uint32_t name='spec_flags'/>
-    </class-type>
-
-    <class-type type-name='interaction_effect_material_emissionst' inherits-from='interaction_effect'>
-        <uint32_t name='spec_flags'/>
-    </class-type>
-
-    <class-type type-name='interaction_effect_hidest' inherits-from='interaction_effect'>
-        <uint32_t name='spec_flags'/>
-    </class-type>
-
-    <class-type type-name='interaction_effect_change_item_qualityst' inherits-from='interaction_effect'>
-        <int32_t name='quality_added' comment='IE_CHANGE_QUALITY'/>
-        <int32_t name='quality_set' comment='IE_SET_QUALITY'/>
-    </class-type>
-
-    <class-type type-name='interaction_effect_change_weatherst' inherits-from='interaction_effect'>
-        <uint32_t name='spec_flags'/>
-        <int16_t name='add_weather_flag'/>
-        <int16_t name='remove_weather_flag'/>
-    </class-type>
-
-    <class-type type-name='interaction_effect_raise_ghostst' inherits-from='interaction_effect'>
-        <uint32_t name='spec_flags'/>
-        <compound name='creature_interaction' type-name='creature_interactionst'/>
-    </class-type>
-
-    <class-type type-name='interaction_effect_create_itemst' inherits-from='interaction_effect'>
-        <enum name='item_type' type-name='item_type' base-type='int16_t' comment='IE_ITEM'/>
-        <int16_t name='item_subtype' comment='IE_ITEM'/>
-        <int16_t name='mat_type' comment='IE_ITEM'/>
-        <int32_t name='mat_index' init-value='-1' comment='IE_ITEM'/>
-        <int16_t name='probability' comment='IE_ITEM'/>
-        <int16_t name='quantity' comment='IE_ITEM'/>
-        <int32_t name='quality_min' comment='IE_ITEM_QUALITY'/>
-        <int32_t name='quality_max' comment='IE_ITEM_QUALITY'/>
-        <bitfield name='spec_flags' base-type='uint32_t'> bay12: INTERACTION_EFFECT_CREATE_ITEM_FLAG_*
-            <flag-bit name='named_artifact'/>
-            <flag-bit name='crafts'/>
-        </bitfield>
-        <stl-string name='item_str1'/>
-        <stl-string name='item_str2'/>
-        <stl-string name='mat_str1'/>
-        <stl-string name='mat_str2'/>
-        <stl-string name='mat_str3'/>
-    </class-type>
-
-    <class-type type-name='interaction_effect_propel_unitst' inherits-from='interaction_effect'>
-        <uint32_t name='spec_flags'/>
-        <int32_t name='propel_force' comment='IE_PROPEL_FORCE'/>
-    </class-type>
-
-    <class-type type-name='interaction_effect_summon_unitst' inherits-from='interaction_effect'>
-        <bitfield name='spec_flags' base-type='uint32_t'> bay12: INTERACTION_EFFECT_SUMMON_UNIT_FLAG_*
-            <flag-bit name='make_pet_if_possible'/>
-        </bitfield>
-        <stl-string name='race_str' comment='CREATURE'/>
-        <stl-string name='caste_str' comment='CREATURE'/>
-        <stl-vector name='races' type-name='int32_t' ref-target='creature_raw'/>
-        <stl-vector name='castes' type-name='int16_t'/>
-        <stl-vector type-name='int32_t' name='required_creature_flags' comment='contains indexes of flags in creature_raw_flags, IE_CREATURE_FLAG'/>
-        <stl-vector type-name='int32_t' name='forbidden_creature_flags' comment='contains indexes of flags in creature_raw_flags, IE_FORBIDDEN_CREATURE_FLAG'/>
-        <stl-vector type-name='int32_t' name='required_caste_flags' comment='contains indexes of flags in caste_raw_flags, IE_CREATURE_CASTE_FLAG'/>
-        <stl-vector type-name='int32_t' name='forbidden_caste_flags' comment='contains indexes of flags in caste_raw_flags, IE_FORBIDDEN_CREATURE_CASTE_FLAG'/>
-        <int32_t name='min_gait_speed' init-value='-1' comment='effortless gaits only'/>
-        <int32_t name='max_gait_speed' init-value='-1'/>
-        <int32_t name='time_range_min' comment='IE_TIME_RANGE'/>
-        <int32_t name='time_range_max' comment='IE_TIME_RANGE'/>
-    </class-type>
-
     <enum-type type-name='interaction_source_type' base-type='int16_t'> bay12: InteractionSourceType
         <enum-item name='REGION'/>
         <enum-item name='SECRET'/>
@@ -251,26 +48,32 @@
         </virtual-methods>
     </class-type>
 
+    <bitfield-type type-name='interaction_source_region_flag' base-type='uint32_t'> bay12: INTERACTION_SOURCE_REGION_FLAG_*
+        <flag-bit name='NORMAL_ALLOWED'/>
+        <flag-bit name='EVIL_ALLOWED'/>
+        <flag-bit name='GOOD_ALLOWED'/>
+        <flag-bit name='SAVAGE_ALLOWED'/>
+        <flag-bit name='EVIL_ONLY'/>
+        <flag-bit name='GOOD_ONLY'/>
+        <flag-bit name='SAVAGE_ONLY'/>
+    </bitfield-type>
+
     <class-type type-name='interaction_source_regionst' inherits-from='interaction_source'>
-        <bitfield name='region_flags' base-type='uint32_t'> bay12: INTERACTION_SOURCE_REGION_FLAG_*
-            <flag-bit name='NORMAL_ALLOWED'/>
-            <flag-bit name='EVIL_ALLOWED'/>
-            <flag-bit name='GOOD_ALLOWED'/>
-            <flag-bit name='SAVAGE_ALLOWED'/>
-            <flag-bit name='EVIL_ONLY'/>
-            <flag-bit name='GOOD_ONLY'/>
-            <flag-bit name='SAVAGE_ONLY'/>
-        </bitfield>
+        <bitfield name='region_flags' base-type='uint32_t' type-name='interaction_source_region_flag'/>
         <static-array name='regions' type-name='int8_t' count='10' index-enum='world_region_type'/>
     </class-type>
 
+    <class-type type-name='interaction_source_underground_specialst' inherits-from='interaction_source'/>
+
+    <bitfield-type type-name='interaction_source_secret_flag' base-type='uint32_t'> bay12: IS_SECRET_FLAG_*
+        <flag-bit name='SUPERNATURAL_LEARNING_POSSIBLE'/>
+        <flag-bit name='MUNDANE_RESEARCH_POSSIBLE'/>
+        <flag-bit name='MUNDANE_RECORDING_POSSIBLE'/>
+        <flag-bit name='MUNDANE_TEACHING_POSSIBLE'/>
+    </bitfield-type>
+
     <class-type type-name='interaction_source_secretst' inherits-from='interaction_source'>
-        <bitfield name='learn_flags' base-type='uint32_t'> bay12: IS_SECRET_FLAG_*
-            <flag-bit name='SUPERNATURAL_LEARNING_POSSIBLE'/>
-            <flag-bit name='MUNDANE_RESEARCH_POSSIBLE'/>
-            <flag-bit name='MUNDANE_RECORDING_POSSIBLE'/>
-            <flag-bit name='MUNDANE_TEACHING_POSSIBLE'/>
-        </bitfield>
+        <bitfield name='learn_flags' base-type='uint32_t' type-name='interaction_source_secret_flag'/>
         <stl-vector name='spheres' type-name='sphere_type'/>
         <stl-vector name='goals' type-name='goal_type'/>
         <stl-string name='book_title_filename'/>
@@ -283,21 +86,9 @@
         <uint32_t name='spec_flags'/>
     </class-type>
 
-    <enum-type type-name='interaction_source_usage_hint' base-type='int32_t'> bay12: UsageHintType
-        <enum-item name='MAJOR_CURSE'/>
-        <enum-item name='GREETING'/>
-        <enum-item name='CLEAN_SELF'/>
-        <enum-item name='CLEAN_FRIEND'/>
-        <enum-item name='ATTACK'/>
-        <enum-item name='FLEEING'/>
-        <enum-item name='NEGATIVE_SOCIAL_RESPONSE'/>
-        <enum-item name='TORMENT'/>
-        <enum-item name='DEFEND'/>
-        <enum-item name='MEDIUM_CURSE'/>
-        <enum-item name='MINOR_CURSE'/>
-        <enum-item name='MEDIUM_BLESSING'/>
-        <enum-item name='MINOR_BLESSING'/>
-    </enum-type>
+    <class-type type-name='interaction_source_experimentst' inherits-from='interaction_source'>
+        <uint32_t name='spec_flags'/>
+    </class-type>
 
     <class-type type-name='interaction_source_deityst' inherits-from='interaction_source'>
         <uint32_t name='spec_flags'/>
@@ -316,12 +107,6 @@
         <uint32_t name='spec_flags'/>
     </class-type>
 
-    <class-type type-name='interaction_source_underground_specialst' inherits-from='interaction_source'/>
-
-    <class-type type-name='interaction_source_experimentst' inherits-from='interaction_source'>
-        <uint32_t name='spec_flags'/>
-    </class-type>
-
     <class-type type-name='interaction_source_mythicalst' inherits-from='interaction_source'>
         <int32_t name='power_level'/>
     </class-type>
@@ -330,13 +115,6 @@
         <compound name='info' type-name='interaction_informationst'/>
         <stl-string name='item_description'/>
     </class-type>
-
-    <enum-type type-name='interaction_target_type' base-type='int16_t'> bay12: InteractionTargetType
-        <enum-item name='CORPSE'/>
-        <enum-item name='CREATURE'/>
-        <enum-item name='MATERIAL'/>
-        <enum-item name='LOCATION'/>
-    </enum-type>
 
     <enum-type type-name='interaction_target_location_type' base-type='int32_t'> bay12: TargetLocationType
         <enum-item name='CONTEXT_NONE' value='-1'/>
@@ -347,6 +125,14 @@
         <enum-item name='CONTEXT_LOCATION'/>
         <enum-item name='CONTEXT_CREATURE_OR_LOCATION'/>
         <enum-item name='RANDOM_NEARBY_LOCATION'/>
+    </enum-type>
+
+    <enum-type type-name='interaction_target_type' base-type='int16_t'> bay12: InteractionTargetType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='CORPSE'/>
+        <enum-item name='CREATURE'/>
+        <enum-item name='MATERIAL'/>
+        <enum-item name='LOCATION'/>
     </enum-type>
 
     <class-type type-name='interaction_target' original-name='interaction_targetst'>
@@ -382,6 +168,10 @@
         </virtual-methods>
     </class-type>
 
+    <bitfield-type type-name='interaction_target_creature_information_flag' base-type='uint32_t'> bay12: ITCI_FLAG_*
+        <flag-bit name='CANNOT_TARGET_IF_ALREADY_AFFECTED' comment='CHECK_FOR_EXISTING_SYNDROME'/>
+    </bitfield-type>
+
     <struct-type type-name='interaction_target_info' original-name='interaction_target_creature_informationst'>
         <static-array name='affected_creature_str' count='2'><stl-vector pointer-type='stl-string'/></static-array>
         <stl-vector name='affected_creature' type-name='int32_t' comment='IT_AFFECTED_CREATURE'/>
@@ -395,9 +185,7 @@
         <bitfield name='required_flag' type-name='cie_add_tag_mask1'/>
         <bitfield name='forbidden_property' type-name='cie_add_tag_mask2'/>
         <bitfield name='forbidden_flag' type-name='cie_add_tag_mask1'/>
-        <bitfield name='restrictions' base-type='uint32_t'> bay12: ITCI_FLAG_*
-            <flag-bit name='CANNOT_TARGET_IF_ALREADY_AFFECTED' comment='CHECK_FOR_EXISTING_SYNDROME'/>
-        </bitfield>
+        <bitfield name='restrictions' base-type='uint32_t' type-name='interaction_target_creature_information_flag'/>
     </struct-type>
 
     <class-type type-name='interaction_target_corpsest' inherits-from='interaction_target'>
@@ -408,32 +196,9 @@
         <compound name='target_info' type-name='interaction_target_info'/>
     </class-type>
 
-    <enum-type type-name='breath_attack_type' base-type='int16_t'> bay12: BreathAttackType
-        <enum-item name='TRAILING_DUST_FLOW'/>
-        <enum-item name='TRAILING_VAPOR_FLOW'/>
-        <enum-item name='TRAILING_GAS_FLOW'/>
-        <enum-item name='SOLID_GLOB'/>
-        <enum-item name='LIQUID_GLOB'/>
-        <enum-item name='UNDIRECTED_GAS'/>
-        <enum-item name='UNDIRECTED_VAPOR'/>
-        <enum-item name='UNDIRECTED_DUST'/>
-        <enum-item name='WEB_SPRAY'/>
-        <enum-item name='DRAGONFIRE'/>
-        <enum-item name='FIREJET'/>
-        <enum-item name='FIREBALL'/>
-        <enum-item name='WEATHER_CREEPING_GAS'/>
-        <enum-item name='WEATHER_CREEPING_VAPOR'/>
-        <enum-item name='WEATHER_CREEPING_DUST'/>
-        <enum-item name='WEATHER_FALLING_MATERIAL'/>
-        <enum-item name='SPATTER_POWDER'/>
-        <enum-item name='SPATTER_LIQUID'/>
-        <enum-item name='UNDIRECTED_ITEM_CLOUD'/>
-        <enum-item name='TRAILING_ITEM_FLOW'/>
-        <enum-item name='SHARP_ROCK'/>
-        other: root around in, lick, head-bump, scratch, tusk, retract into shell, roll into a ball
-        often [CDI:CAN_BE_MUTUAL] but not always
-        <enum-item name='OTHER'/>
-    </enum-type>
+    <bitfield-type type-name='interaction_target_material_flag' base-type='uint32_t'> bay12: INTERACTION_TARGET_MATERIAL_FLAG_*
+        <flag-bit name='CONTEXT_MATERIAL'/>
+    </bitfield-type>
 
     <class-type type-name='interaction_target_materialst' inherits-from='interaction_target'>
         <static-array name='material_str' type-name='stl-string' count='3'/>
@@ -441,33 +206,210 @@
         <int32_t name='mat_index'/>
         <enum name='mat_state' type-name='matter_state'/>
         <enum type-name='breath_attack_type' name='breath_attack_type'/>
-        <bitfield name='restrictions' base-type='uint32_t'> bay12: INTERACTION_TARGET_MATERIAL_FLAG_*
-            <flag-bit name='CONTEXT_MATERIAL'/>
-        </bitfield>
+        <bitfield name='restrictions' base-type='uint32_t' type-name='interaction_target_material_flag'/>
     </class-type>
 
     <class-type type-name='interaction_target_locationst' inherits-from='interaction_target'/>
 
-    <struct-type type-name='interaction_target_instance_listst'>
-        <stl-vector name='gen_ref' pointer-type='general_ref'/>
-        <bitfield name='flags' base-type='uint32_t'> bay12: ITIL_FLAG_*
-            <flag-bit name='needs_manual_input'/>
-        </bitfield>
-    </struct-type>
+    <enum-type type-name='intermittent_frequency_type' base-type='int32_t'> bay12: IntermittentFrequencyType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='WEEKLY'/>
+    </enum-type>
 
-    <struct-type type-name='interaction_instance' original-name='interaction_instancest' instance-vector='$global.world.interaction_instances.all' key-field='id'>
-        <int32_t name='id'/>
+    <enum-type type-name='interaction_effect_type' base-type='int16_t'> bay12: InteractionEffectType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='ANIMATE'/>
+        <enum-item name='ADD_SYNDROME'/>
+        <enum-item name='RESURRECT'/>
+        <enum-item name='CLEAN'/>
+        <enum-item name='CONTACT'/>
+        <enum-item name='MATERIAL_EMISSION'/>
+        <enum-item name='HIDE'/>
+        <enum-item name='PROPEL_UNIT'/>
+        <enum-item name='SUMMON_UNIT'/>
+        <enum-item name='CHANGE_WEATHER'/>
+        <enum-item name='RAISE_GHOST'/>
+        <enum-item name='CREATE_ITEM'/>
+        <enum-item name='CHANGE_ITEM_QUALITY'/>
+    </enum-type>
+
+    <bitfield-type type-name='interaction_effect_flag' base-type='uint32_t'> bay12: INTERACTION_EFFECT_FLAG_*
+        <flag-bit name='IMMEDIATE' comment='IE_IMMEDIATE'/>
+    </bitfield-type>
+
+    <class-type type-name='interaction_effect' original-name='interaction_effectst'>
+        <int32_t name='index' comment='index of the effect within the parent interaction.effects'/>
+        <stl-vector name='targets' pointer-type='stl-string'/>
+        <stl-vector name='targets_index' type-name='int32_t' comment='for each target used in this effect, list the index of that target within the parent interaction.targets'/>
+        <enum name='intermittent' type-name='intermittent_frequency_type'/>
+        <stl-vector name='locations' type-name='interaction_effect_location_hint' comment='IE_LOCATION'/>
+        <bitfield name='flags' base-type='uint32_t' type-name='interaction_effect_flag'/>
         <int32_t name='interaction_id' ref-target='interaction'/>
-        <compound name='source_context'> bay12: interaction_instance_contextst
-            <enum name='type' base-type='int32_t'> bay12: IIContextType
-                <enum-item name='NONE' value='-1'/>
-                <enum-item name='SUBREGION'/>
-            </enum>
-            <int32_t name='region_index' comment='presumably matches the type above'/>
-        </compound>
-        <stl-vector name='affected_units' type-name='int32_t' ref-target='unit' comment='IDs of units affected by the regional interaction'/>
+        <stl-string name='arena_name' comment='IE_ARENA_NAME'/>
+
+        <virtual-methods>
+            <vmethod ret-type='interaction_effect_type' name='getType'/>
+            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
+            <vmethod name='read_file'>
+                <pointer name='file' type-name='file_compressorst'/>
+                <enum name='loadversion' type-name='save_version'/>
+            </vmethod>
+            <vmethod is-destructor='true'/>
+            <vmethod name='activateOnUnit'>
+                <pointer name='target' type-name='unit'/>
+                <pointer name='instance' type-name='interaction_instance'/>
+                <bool name='new_unit'/>
+                <pointer name='start_year' comment='actually std::optional(int32_t)'/>
+                <pointer name='end_year' comment='actually std::optional(int32_t)'/>
+            </vmethod>
+            <vmethod name='activateOnItem'><pointer name='target' type-name='item'/></vmethod>
+            <vmethod name='parseRaws' ret-type='bool'>
+                <pointer name='token' type-name='stl-string'/>
+                <pointer name='pos' type-name='int32_t'/>
+                <pointer name='curstr' type-name='stl-string'/>
+                <pointer name='context'/>
+                <bool name='allow_internal_tokens'/>
+            </vmethod>
+            <vmethod name='finalize'><int32_t name='idx'/></vmethod>
+            <vmethod name='applySyndromes' comment='init_material_information'/>
+            <vmethod name='activateOnHistfig'>
+                <pointer name='hf' type-name='historical_figure'/>
+                <pointer name='instance' type-name='interaction_instance'/>
+                <bool name='worldgen'/>
+            </vmethod>
+            <vmethod name='hasSyndrome' ret-type='bool'><pointer type-name='syndrome'/></vmethod>
+        </virtual-methods>
+    </class-type>
+
+    <class-type type-name='interaction_effect_animatest' inherits-from='interaction_effect'>
+        <uint32_t name='spec_flags'/>
+        <compound name='creature_interaction' type-name='creature_interactionst'/>
+    </class-type>
+
+    <class-type type-name='interaction_effect_resurrectst' inherits-from='interaction_effect'>
+        <uint32_t name='spec_flags'/>
+        <compound name='creature_interaction' type-name='creature_interactionst'/>
+    </class-type>
+
+    <class-type type-name='interaction_effect_raise_ghostst' inherits-from='interaction_effect'>
+        <uint32_t name='spec_flags'/>
+        <compound name='creature_interaction' type-name='creature_interactionst'/>
+    </class-type>
+
+    <bitfield-type type-name='interaction_effect_create_item_flag' base-type='uint32_t'> bay12: INTERACTION_EFFECT_CREATE_ITEM_FLAG_*
+        <flag-bit name='named_artifact'/>
+        <flag-bit name='crafts'/>
+    </bitfield-type>
+
+    <class-type type-name='interaction_effect_create_itemst' inherits-from='interaction_effect'>
+        <enum name='item_type' type-name='item_type' base-type='int16_t' comment='IE_ITEM'/>
+        <int16_t name='item_subtype' comment='IE_ITEM'/>
+        <int16_t name='mat_type' comment='IE_ITEM'/>
+        <int32_t name='mat_index' init-value='-1' comment='IE_ITEM'/>
+        <int16_t name='probability' comment='IE_ITEM'/>
+        <int16_t name='quantity' comment='IE_ITEM'/>
+        <int32_t name='quality_min' comment='IE_ITEM_QUALITY'/>
+        <int32_t name='quality_max' comment='IE_ITEM_QUALITY'/>
+        <bitfield name='spec_flags' base-type='uint32_t' type-name='interaction_effect_create_item_flag'/>
+        <stl-string name='item_str1'/>
+        <stl-string name='item_str2'/>
+        <stl-string name='mat_str1'/>
+        <stl-string name='mat_str2'/>
+        <stl-string name='mat_str3'/>
+    </class-type>
+
+    <class-type type-name='interaction_effect_change_item_qualityst' inherits-from='interaction_effect'>
+        <int32_t name='quality_added' comment='IE_CHANGE_QUALITY'/>
+        <int32_t name='quality_set' comment='IE_SET_QUALITY'/>
+    </class-type>
+
+    <bitfield-type type-name='interaction_effect_summon_unit_flag' base-type='uint32_t'> bay12: INTERACTION_EFFECT_SUMMON_UNIT_FLAG_*
+        <flag-bit name='make_pet_if_possible'/>
+    </bitfield-type>
+
+    <class-type type-name='interaction_effect_summon_unitst' inherits-from='interaction_effect'>
+        <bitfield name='spec_flags' base-type='uint32_t' type-name='interaction_effect_summon_unit_flag'/>
+        <stl-string name='race_str' comment='CREATURE'/>
+        <stl-string name='caste_str' comment='CREATURE'/>
+        <stl-vector name='races' type-name='int32_t' ref-target='creature_raw'/>
+        <stl-vector name='castes' type-name='int16_t'/>
+        <stl-vector type-name='int32_t' name='required_creature_flags' comment='contains indexes of flags in creature_raw_flags, IE_CREATURE_FLAG'/>
+        <stl-vector type-name='int32_t' name='forbidden_creature_flags' comment='contains indexes of flags in creature_raw_flags, IE_FORBIDDEN_CREATURE_FLAG'/>
+        <stl-vector type-name='int32_t' name='required_caste_flags' comment='contains indexes of flags in caste_raw_flags, IE_CREATURE_CASTE_FLAG'/>
+        <stl-vector type-name='int32_t' name='forbidden_caste_flags' comment='contains indexes of flags in caste_raw_flags, IE_FORBIDDEN_CREATURE_CASTE_FLAG'/>
+        <int32_t name='min_gait_speed' init-value='-1' comment='effortless gaits only'/>
+        <int32_t name='max_gait_speed' init-value='-1'/>
+        <int32_t name='time_range_min' comment='IE_TIME_RANGE'/>
+        <int32_t name='time_range_max' comment='IE_TIME_RANGE'/>
+    </class-type>
+
+    <class-type type-name='interaction_effect_propel_unitst' inherits-from='interaction_effect'>
+        <uint32_t name='spec_flags'/>
+        <int32_t name='propel_force' comment='IE_PROPEL_FORCE'/>
+    </class-type>
+
+    <class-type type-name='interaction_effect_add_syndromest' inherits-from='interaction_effect'>
+        <uint32_t name='spec_flags'/>
+        <compound name='creature_interaction' type-name='creature_interactionst'/>
+    </class-type>
+
+    <class-type type-name='interaction_effect_cleanst' inherits-from='interaction_effect'>
+        <uint32_t name='spec_flags'/>
+        <int32_t name='grime_level' comment='IE_GRIME_LEVEL'/>
+        <bitfield name='syndrome_tag' type-name='syndrome_flags' comment='IE_SYNDROME_TAG'/>
+    </class-type>
+
+    <class-type type-name='interaction_effect_change_weatherst' inherits-from='interaction_effect'>
+        <uint32_t name='spec_flags'/>
+        <int16_t name='add_weather_flag'/>
+        <int16_t name='remove_weather_flag'/>
+    </class-type>
+
+    <class-type type-name='interaction_effect_hidest' inherits-from='interaction_effect'>
+        <uint32_t name='spec_flags'/>
+    </class-type>
+
+    <class-type type-name='interaction_effect_contactst' inherits-from='interaction_effect'>
+        <uint32_t name='spec_flags'/>
+    </class-type>
+
+    <class-type type-name='interaction_effect_material_emissionst' inherits-from='interaction_effect'>
+        <uint32_t name='spec_flags'/>
+    </class-type>
+
+    <enum-type type-name='interaction_flags'> bay12: InteractionFlagType
+        <enum-item name='GENERATED'/>
+        <enum-item name='EXPERIMENT_ONLY'/>
+    </enum-type>
+
+    <struct-type type-name='interaction'
+                 instance-vector='$global.world.raws.interactions.all' key-field='id'
+                 original-name='interactionst'>
+        <stl-string name="name"/>
+        <int32_t name="id"/>
+
+        <code-helper name='describe'>$.name</code-helper>
+
+        <stl-vector name="str" pointer-type='stl-string' comment='interaction raws'/>
+
+        <df-flagarray name='flags' index-enum='interaction_flags'/>
+
+        <stl-vector name="sources" pointer-type='interaction_source' comment='I_SOURCE'/>
+        <stl-vector name="targets" pointer-type='interaction_target' comment='I_TARGET'/>
+        <stl-vector name="effects" pointer-type='interaction_effect' comment='I_EFFECT'/>
+
+        <int32_t name='source_hfid' ref-target='historical_figure'/>
+        <int32_t name='source_enid' ref-target='historical_entity' since='v0.42.01'/>
+
+        <static-array name='texpos_list_icon' count='4'><static-array count='3' type-name='int32_t'/></static-array>
+        <int32_t name='texpos_default_list_icon' comment='InterfaceButtonMain'/>
     </struct-type>
 
+    -- Unused: interaction_handling_informationst
+
+    <struct-type type-name='interaction_handlerst'>
+        <stl-vector name='all' since='v0.34.01' pointer-type='interaction'/>
+    </struct-type>
 </data-definition>
 
 <!--

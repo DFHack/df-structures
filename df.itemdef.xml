@@ -1,0 +1,1582 @@
+<data-definition>
+    <bitfield-type type-name='item_statue_graphics_type' base-type='int32_t'> bay12: ITEM_STATUE_GRAPHICS_TYPE_*
+        <flag-bit name='overall' count='4' type-name='item_statue_graphics_type_overall'/>
+        <flag-bit name='index_1' count='13'/>
+        <flag-bit name='index_2' count='14'/>
+    </bitfield-type>
+
+    <enum-type type-name='item_statue_graphics_type_overall' base-type='int32_t'> bay12: ITEM_STATUE_GRAPHICS_TYPE_OVERALL_*
+        <enum-item name='SHAPE'/>
+        <enum-item name='ITEM'/>
+        <enum-item name='CREATURE'/>
+        <enum-item name='TREE'/>
+        <enum-item name='PLANT'/>
+        <enum-item name='GENERIC_EVENT'/>
+    </enum-type>
+
+    <enum-type type-name='statue_generic_event_type' base-type='int32_t'> bay12: StatueGenericEventType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='BASE'/>
+        <enum-item name='DUEL'/>
+        <enum-item name='TRIUMPH'/>
+        <enum-item name='CIVILIZED'/>
+        <enum-item name='STRIKE_DOWN'/>
+        <enum-item name='SHOT'/>
+        <enum-item name='ITEM_CREATION'/>
+        <enum-item name='BATTLE'/>
+        <enum-item name='SITE'/>
+    </enum-type>
+
+    <bitfield-type type-name='item_statue_graphics_flag' base-type='int64_t'> bay12: ITEM_STATUE_GRAPHICS_FLAG_*
+        <flag-bit name='material' count='2' type-name='item_statue_graphics_flag_material'/>
+        <flag-bit name='material_color_index' count='8'/>
+        <flag-bit name='planned'/>
+        <flag-bit name='is_item'/>
+        <flag-bit name='artifact_index' count='8'/>
+        <flag-bit name='quality' count='3'/>
+    </bitfield-type>
+
+    <enum-type type-name='item_statue_graphics_flag_material' base-type='int64_t'> bay12: ITEM_STATUE_GRAPHICS_FLAG_MATERIAL_*
+        <enum-item name='WOOD'/>
+        <enum-item name='STONE'/>
+        <enum-item name='METAL'/>
+        <enum-item name='GLASS'/>
+    </enum-type>
+
+    <struct-type type-name='item_statue_graphics_infost'>
+        <bitfield name='flags' type-name='item_statue_graphics_flag' base-type='int64_t'/>
+        <int32_t name='texpos_top'/>
+        <int32_t name='texpos_bottom'/>
+    </struct-type>
+
+    <bitfield-type type-name='itemdef_attack_flag' base-type='uint32_t'> bay12: ITEMDEF_ATTACK_FLAG_*
+        <flag-bit name='independent_multiattack'/>
+        <flag-bit name='bad_multiattack'/>
+    </bitfield-type>
+
+    <struct-type type-name='weapon_attack' original-name='itemdef_attackst'>
+        <bool name='edged'/>
+        <int32_t name='contact'/>
+        <int32_t name='penetration'/>
+        <int32_t name='velocity_mult'/>
+        <stl-string name='verb_2nd'/>
+        <stl-string name='verb_3rd'/>
+        <stl-string name='noun'/>
+        <int32_t name="prepare" since='v0.40.01'/>
+        <int32_t name="recover" since='v0.40.01'/>
+        <bitfield name='flags' base-type='uint32_t' type-name='itemdef_attack_flag' since='v0.40.01'/>
+    </struct-type>
+
+    <enum-type type-name='itemdef_type' base-type='int32_t'> bay12: ItemDefType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='WEAPON'/>
+        <enum-item name='TOY'/>
+        <enum-item name='TOOL'/>
+        <enum-item name='INSTRUMENT'/>
+        <enum-item name='TRAPCOMP'/>
+        <enum-item name='ARMOR'/>
+        <enum-item name='AMMO'/>
+        <enum-item name='SIEGEAMMO'/>
+        <enum-item name='GLOVES'/>
+        <enum-item name='SHOES'/>
+        <enum-item name='SHIELD'/>
+        <enum-item name='HELM'/>
+        <enum-item name='PANTS'/>
+        <enum-item name='FOOD'/>
+    </enum-type>
+
+    <enum-type type-name='itemdef_flags'> bay12: ItemDefFlagType
+        <enum-item name='GENERATED'/>
+    </enum-type>
+
+    <class-type type-name='itemdef' original-name='itemdefst'>
+        <stl-string name="id"/>
+        <int16_t name="subtype"/>
+
+        <df-flagarray name='base_flags' index-enum='itemdef_flags' since='v0.34.08'/>
+
+        <int32_t name='source_hfid' ref-target='historical_figure' since='v0.40.01'/>
+        <int32_t name='source_enid' ref-target='historical_entity' since='v0.42.01'/>
+        <stl-vector name='raw_strings' pointer-type='stl-string'/>
+        <int32_t name='statue_texpos_top'/>
+        <int32_t name='statue_texpos_bottom'/>
+
+        <code-helper name='describe'>$.id</code-helper>
+
+        <virtual-methods>
+            <vmethod name='getType' ret-type='itemdef_type'/>
+
+            <vmethod name='parseRaws' ret-type='bool'>
+                <pointer name='context'/>
+                <pointer name='str' type-name='stl-string'/>
+                <pointer name='maintok' type-name='stl-string'/>
+                <int32_t name='pos'/>
+                <bool name='can_use_internal'/>
+            </vmethod>
+            <vmethod name='categorize' comment='add to world.raws.itemdefs.whatever'/>
+            <vmethod name='finalize' comment='calculate stuff like base value'/>
+            <vmethod name='init_material_information'/>
+            <vmethod is-destructor='true'/>
+        </virtual-methods>
+    </class-type>
+
+    <bitfield-type type-name='item_weapon_graphics_flag' base-type='int32_t'> bay12: ITEM_WEAPON_GRAPHICS_FLAG_*
+        <flag-bit name='material_color_index' count='8'/>
+        <flag-bit name='type' count='6' type-name='item_weapon_graphics_type'/>
+        <flag-bit name='wood'/>
+        <flag-bit name='wood_grown'/>
+    </bitfield-type>
+
+    <enum-type type-name='item_weapon_graphics_type' base-type='int32_t'> bay12: ITEM_WEAPON_GRAPHICS_TYPE_*
+        <enum-item name='MAIN'/>
+        <enum-item name='TRAP'/>
+        <enum-item name='UPRIGHT_1_TOP'/>
+        <enum-item name='UPRIGHT_2_TOP'/>
+        <enum-item name='UPRIGHT_3_TOP'/>
+        <enum-item name='UPRIGHT_4_TOP'/>
+        <enum-item name='UPRIGHT_5_TOP'/>
+        <enum-item name='UPRIGHT_6_TOP'/>
+        <enum-item name='UPRIGHT_7_TOP'/>
+        <enum-item name='UPRIGHT_8_TOP'/>
+        <enum-item name='UPRIGHT_9_TOP'/>
+        <enum-item name='UPRIGHT_10_TOP'/>
+        <enum-item name='UPRIGHT_1_BOTTOM'/>
+        <enum-item name='UPRIGHT_2_BOTTOM'/>
+        <enum-item name='UPRIGHT_3_BOTTOM'/>
+        <enum-item name='UPRIGHT_4_BOTTOM'/>
+        <enum-item name='UPRIGHT_5_BOTTOM'/>
+        <enum-item name='UPRIGHT_6_BOTTOM'/>
+        <enum-item name='UPRIGHT_7_BOTTOM'/>
+        <enum-item name='UPRIGHT_8_BOTTOM'/>
+        <enum-item name='UPRIGHT_9_BOTTOM'/>
+        <enum-item name='UPRIGHT_10_BOTTOM'/>
+    </enum-type>
+
+    <struct-type type-name='itemdef_weapon_graphics_infost'>
+        <bitfield name='flags' type-name='item_weapon_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <enum-type type-name='weapon_flags'> bay12: ItemDefWeaponFlagType
+        <enum-item name='CAN_STONE'/>
+        <enum-item name='HAS_EDGE_ATTACK'/>
+        <enum-item name='TRAINING'/>
+    </enum-type>
+
+    <class-type type-name='itemdef_weaponst' inherits-from='itemdef'
+                instance-vector='$global.world.raws.itemdefs.weapons'>
+        <stl-string name="name"/>
+        <stl-string name="name_plural"/>
+        <stl-string name="adjective"/>
+        <int32_t name="size"/>
+        <int32_t name="value"/>
+        <enum type-name="job_skill" name="skill_melee"/>
+        <enum type-name="job_skill" name="skill_ranged"/>
+        <stl-string name="ranged_ammo"/>
+        <int32_t name="two_handed"/>
+        <int32_t name="minimum_size"/>
+        <int32_t name="material_size"/>
+        <df-flagarray name='flags' index-enum='weapon_flags'/>
+        <stl-vector name="attacks" pointer-type='weapon_attack'/>
+        <int32_t name="shoot_force"/>
+        <int32_t name="shoot_maxvel"/>
+        <static-array name='texpos' type-name='int32_t' count='25'/>
+        <stl-vector name='graphics_info' pointer-type='itemdef_weapon_graphics_infost'/>
+    </class-type>
+
+    <bitfield-type type-name='item_trapcomp_graphics_flag' base-type='int32_t'> bay12: ITEM_TRAPCOMP_GRAPHICS_FLAG_*
+        <flag-bit name='material_color_index' count='8'/>
+        <flag-bit name='type' count='6' type-name='item_trapcomp_graphics_type'/>
+        <flag-bit name='wood'/>
+        <flag-bit name='wood_grown'/>
+    </bitfield-type>
+
+    <enum-type type-name='item_trapcomp_graphics_type' base-type='int32_t'> bay12: ITEM_TRAPCOMP_GRAPHICS_TYPE_*
+        <enum-item name='MAIN'/>
+        <enum-item name='TRAP'/>
+        <enum-item name='UPRIGHT_1_TOP'/>
+        <enum-item name='UPRIGHT_2_TOP'/>
+        <enum-item name='UPRIGHT_3_TOP'/>
+        <enum-item name='UPRIGHT_4_TOP'/>
+        <enum-item name='UPRIGHT_5_TOP'/>
+        <enum-item name='UPRIGHT_6_TOP'/>
+        <enum-item name='UPRIGHT_7_TOP'/>
+        <enum-item name='UPRIGHT_8_TOP'/>
+        <enum-item name='UPRIGHT_9_TOP'/>
+        <enum-item name='UPRIGHT_10_TOP'/>
+        <enum-item name='UPRIGHT_1_BOTTOM'/>
+        <enum-item name='UPRIGHT_2_BOTTOM'/>
+        <enum-item name='UPRIGHT_3_BOTTOM'/>
+        <enum-item name='UPRIGHT_4_BOTTOM'/>
+        <enum-item name='UPRIGHT_5_BOTTOM'/>
+        <enum-item name='UPRIGHT_6_BOTTOM'/>
+        <enum-item name='UPRIGHT_7_BOTTOM'/>
+        <enum-item name='UPRIGHT_8_BOTTOM'/>
+        <enum-item name='UPRIGHT_9_BOTTOM'/>
+        <enum-item name='UPRIGHT_10_BOTTOM'/>
+    </enum-type>
+
+    <struct-type type-name='itemdef_trapcomp_graphics_infost'>
+        <bitfield name='flags' type-name='item_trapcomp_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <enum-type type-name='trapcomp_flags'> bay12: ItemDefTrapCompFlagType
+        <enum-item name='IS_SCREW'/>
+        <enum-item name='IS_SPIKE'/>
+        <enum-item name='WOOD'/>
+        <enum-item name='METAL'/>
+        <enum-item name='HAS_EDGE_ATTACK'/>
+    </enum-type>
+
+    <class-type type-name='itemdef_trapcompst' inherits-from='itemdef'
+                instance-vector='$global.world.raws.itemdefs.trapcomps'>
+        <stl-string name="name"/>
+        <stl-string name="name_plural"/>
+        <stl-string name="adjective"/>
+
+        <int32_t name="size"/>
+        <int32_t name="value"/>
+        <int32_t name="hits"/>
+        <int32_t name="material_size"/>
+
+        <df-flagarray name='flags' index-enum='trapcomp_flags'/>
+
+        <stl-vector name="attacks" pointer-type='weapon_attack'/>
+        <static-array name='texpos' type-name='int32_t' count='22'/>
+        <stl-vector name='graphics_info' pointer-type='itemdef_trapcomp_graphics_infost'/>
+    </class-type>
+
+    <enum-type type-name='tool_flags' base-type='int32_t'> bay12: ItemDefToolFlagType
+        <enum-item name='HARD_MAT'/>
+        <enum-item name='METAL_MAT'/>
+        <enum-item name='HAS_EDGE_ATTACK'/>
+        <enum-item name='METAL_WEAPON_MAT'/>
+        <enum-item name='UNIMPROVABLE'/>
+        <enum-item name='SOFT_MAT'/>
+        <enum-item name='WOOD_MAT'/>
+        <enum-item name='INVERTED_TILE'/>
+        <enum-item name='FURNITURE'/>
+        <enum-item name='LEATHER_MAT'/>
+        <enum-item name='SILK_MAT'/>
+        <enum-item name='THREAD_PLANT_MAT'/>
+        <enum-item name='GLASS_MAT'/>
+        <enum-item name='CERAMIC_MAT'/>
+        <enum-item name='STONE_MAT'/>
+        <enum-item name='SHELL_MAT'/>
+        <enum-item name='BONE_MAT'/>
+        <enum-item name='NO_DEFAULT_JOB'/>
+        <enum-item name='INCOMPLETE_ITEM'/>
+        <enum-item name='SHEET_MAT'/>
+        <enum-item name='NO_DEFAULT_IMPROVEMENTS'/>
+        <enum-item name='USES_FACE_IMAGE_SET'/>
+    </enum-type>
+
+    <struct-type type-name='itemdef_default_improvementst'>
+        <enum type-name="improvement_type" name="type"/>
+        <enum base-type="int32_t" type-name="itemimprovement_specific_type" name="specific_type"/>
+        <stl-string name="instrument_part"/>
+        <enum type-name="tool_flags" name="restriction"/>
+    </struct-type>
+
+    <bitfield-type type-name='item_food_container_graphics_flag' base-type='int64_t'> bay12: ITEM_FOOD_CONTAINER_GRAPHICS_FLAG_*
+        <flag-bit name='contents_subtype' count='16'/>
+        <flag-bit name='color_index' count='8'/>
+        <flag-bit name='contents_color_index' count='8'/>
+        <flag-bit name='contents_variant' count='4'/>
+        <flag-bit name='contents_type' count='4' type-name='item_food_container_graphics_contents_type'/>
+        <flag-bit name='type' count='3' type-name='item_food_container_graphics_type'/>
+        <flag-bit name='subtype' count='16'/>
+    </bitfield-type>
+
+    <enum-type type-name='item_food_container_graphics_contents_type' base-type='int64_t'> bay12: ITEM_FOOD_CONTAINER_GRAPHICS_CONTENTS_TYPE_*
+        <enum-item name='EMPTY'/>
+        <enum-item name='LIQUID'/>
+        <enum-item name='BAG'/>
+        <enum-item name='FISH'/>
+        <enum-item name='MEAT'/>
+        <enum-item name='FOOD'/>
+        <enum-item name='PLANT'/>
+        <enum-item name='PLANT_SUBTERRANEAN'/>
+        <enum-item name='CHEESE'/>
+        <enum-item name='GLOB'/>
+    </enum-type>
+
+    <enum-type type-name='item_food_container_graphics_type' base-type='int64_t'> bay12: ITEM_FOOD_CONTAINER_GRAPHICS_TYPE_*
+        <enum-item name='WOOD_BARREL'/>
+        <enum-item name='METAL_BARREL'/>
+        <enum-item name='WOOD_BARREL_ABSTRACT'/>
+        <enum-item name='METAL_BARREL_ABSTRACT'/>
+        <enum-item name='TOOL_WOOD'/>
+        <enum-item name='TOOL_STONE'/>
+        <enum-item name='TOOL_METAL'/>
+    </enum-type>
+
+    <struct-type type-name='item_food_container_graphics_infost'>
+        <bitfield name='flags' type-name='item_food_container_graphics_flag' base-type='int64_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_tool_graphics_flag' base-type='int32_t'> bay12: ITEM_TOOL_GRAPHICS_FLAG_*
+        <flag-bit name='material' count='2' type-name='item_tool_graphics_flag_material'/>
+        <flag-bit name='quality' count='3'/>
+        <flag-bit name='variant' count='2'/>
+        <flag-bit name='spikes'/>
+        <flag-bit name='rings'/>
+        <flag-bit name='studs'/>
+        <flag-bit name='engraved'/>
+        <flag-bit name='bands'/>
+        <flag-bit name='damage_level' count='2'/>
+        <flag-bit name='blood'/>
+        <flag-bit name='vomit'/>
+        <flag-bit name='water'/>
+        <flag-bit name='dirt'/>
+        <flag-bit name='color_index' count='8'/>
+        <flag-bit name='localdef_shape_index' count='5'/> supposed to be 8, but the struct itself uses int32_t and only has room for 5
+    </bitfield-type>
+
+    <enum-type type-name='item_tool_graphics_flag_material' base-type='int32_t'> bay12: ITEM_TOOL_GRAPHICS_FLAG_MATERIAL_*
+        <enum-item name='WOOD'/>
+        <enum-item name='STONE'/>
+        <enum-item name='METAL'/>
+        <enum-item name='GLASS'/>
+    </enum-type>
+
+    <struct-type type-name='item_tool_graphics_infost'>
+        <bitfield name='flags' type-name='item_tool_graphics_flag' base-type='int32_t'/> see note above if Toady fixes this
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <class-type type-name='itemdef_toolst' inherits-from='itemdef'
+                instance-vector='$global.world.raws.itemdefs.tools'>
+        <stl-string name="name"/>
+        <stl-string name="name_plural"/>
+        <df-flagarray name='flags' index-enum='tool_flags'/>
+        <int32_t name="value"/>
+        <uint8_t name="tile"/>
+
+        <stl-vector name="tool_use" type-name='tool_uses'/>
+
+        <stl-string name="adjective"/>
+        <int32_t name="size"/>
+        <enum type-name="job_skill" name="skill_melee"/>
+        <enum type-name="job_skill" name="skill_ranged"/>
+        <stl-string name="ranged_ammo"/>
+        <int32_t name="two_handed"/>
+        <int32_t name="minimum_size"/>
+        <int32_t name="material_size"/>
+
+        <stl-vector name="attacks" pointer-type='weapon_attack'/>
+
+        <int32_t name="shoot_force"/>
+        <int32_t name="shoot_maxvel"/>
+
+        <int32_t name="container_capacity"/>
+
+        <stl-vector name='shape_category_str' pointer-type='stl-string' since='v0.47.01'/>
+        <stl-vector name='shape_category' type-name='int32_t' ref-target='descriptor_shape' since='v0.47.01'/>
+        <stl-string name="description" since='v0.42.01'/>
+        <stl-vector name="default_improvements" pointer-type='itemdef_default_improvementst' since='v0.42.01'/>
+        <static-array name='texpos' type-name="int32_t" count="8"/>
+        <stl-vector name='texpos_container_top_plant' type-name='int32_t'/>
+        <stl-vector name='texpos_container_top_plant_subterranean' type-name='int32_t'/>
+        <stl-vector name='texpos_container_top_meal' type-name='int32_t'/>
+        <stl-vector name='texpos_container_top_cheese' type-name='int32_t'/>
+        <stl-vector name='texpos_container_top_meat' type-name='int32_t'/>
+        <stl-vector name='texpos_container_top_fish' type-name='int32_t'/>
+        <stl-vector name='texpos_container_top_bag' type-name='int32_t'/>
+        <static-array name='texpos2' type-name="int32_t" count="60"/>
+        <stl-vector name='texpos_global_shape_index' type-name="int32_t"/>
+        <stl-vector name='texpos_global_shape_texpos' type-name="int32_t"/>
+        <stl-vector name='graphics_info' pointer-type='item_tool_graphics_infost'/>
+        <stl-vector name='food_container_graphics_info' pointer-type='item_food_container_graphics_infost'/>
+    </class-type>
+
+    <bitfield-type type-name='item_toy_graphics_flag' base-type='int32_t'> bay12: ITEM_TOY_GRAPHICS_FLAG_*
+        <flag-bit name='material' count='2' type-name='item_toy_graphics_flag_material'/>
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <enum-type type-name='item_toy_graphics_flag_material' base-type='int32_t'> bay12: ITEM_TOY_GRAPHICS_FLAG_MATERIAL_*
+        <enum-item name='WOOD'/>
+        <enum-item name='STONE'/>
+        <enum-item name='METAL'/>
+        <enum-item name='GLASS'/>
+    </enum-type>
+
+    <struct-type type-name='item_toy_graphics_infost'>
+        <bitfield name='flags' type-name='item_toy_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <enum-type type-name='toy_flags'> bay12: ItemDefToyFlagType
+        <enum-item name='HARD_MAT'/>
+    </enum-type>
+
+    <class-type type-name='itemdef_toyst' inherits-from='itemdef'
+                instance-vector='$global.world.raws.itemdefs.toys'>
+        <stl-string name="name"/>
+        <stl-string name="name_plural"/>
+        <df-flagarray name='flags' index-enum='toy_flags'/>
+        <int32_t name='texpos_item'/>
+        <int32_t name='texpos_item_wood'/>
+        <int32_t name='texpos_item_stone'/>
+        <int32_t name='texpos_item_metal'/>
+        <int32_t name='texpos_item_glass'/>
+        <stl-vector name='graphics_info' pointer-type='item_toy_graphics_infost'/>
+    </class-type>
+
+    <struct-type type-name='instrument_register' original-name='instrument_registerst'>
+        <int32_t name ='pitch_range_min'/>
+        <int32_t name ='pitch_range_max'/>
+        <stl-vector type-name='timbre_type' name='timbres'/>
+    </struct-type>
+
+    <struct-type type-name='timbre_infost'>
+        <stl-vector pointer-type='instrument_register' name="registers"/>
+        <stl-vector type-name='timbre_type' name="timbre"/>
+    </struct-type>
+
+    <bitfield-type type-name='instrument_piece_def_flag' base-type='uint32_t'> bay12: INSTRUMENT_PIECE_DEF_FLAG_*
+        <flag-bit name='always_singular'/>
+        <flag-bit name='always_plural'/>
+    </bitfield-type>
+
+    <struct-type type-name='instrument_piece' original-name='instrument_piece_defst'>
+        <stl-string name='type'/>
+        <stl-string name='id'/>
+        <int32_t name ='index'/>
+        <stl-string name="name"/>
+        <stl-string name="name_plural"/>
+        <bitfield base-type='uint32_t' name='flags' type-name='instrument_piece_def_flag'/>
+    </struct-type>
+
+    <enum-type type-name='instrument_flags'> bay12: ItemDefInstrumentFlagType
+        <enum-item name='INDEFINITE_PITCH'/>
+        <enum-item name='PLACED_AS_BUILDING'/>
+        <enum-item name='METAL_MAT'/>
+        <enum-item name='STONE_MAT'/>
+        <enum-item name='WOOD_MAT'/>
+        <enum-item name='GLASS_MAT'/>
+        <enum-item name='CERAMIC_MAT'/>
+        <enum-item name='SHELL_MAT'/>
+
+        <enum-item name='BONE_MAT'/>
+    </enum-type>
+
+    <class-type type-name='itemdef_instrumentst' inherits-from='itemdef'
+                instance-vector='$global.world.raws.itemdefs.instruments'>
+        <stl-string name="name"/>
+        <stl-string name="name_plural"/>
+        <df-flagarray name='flags' index-enum='instrument_flags'/>
+
+        <enum type-name='job_skill' name="music_skill"/>
+        <int32_t name="size"/>
+        <int32_t name='value'/>
+        <int32_t name="material_size"/>
+        <stl-vector pointer-type='instrument_piece' name="pieces"/>
+        <stl-string name="dominant_instrument_piece"/>
+        <int32_t name="pitch_range_min"/>
+        <int32_t name="pitch_range_max"/>
+        <int32_t name="volume_mb_min"/>
+        <int32_t name="volume_mb_max"/>
+        <stl-vector type-name='sound_production_type' name="sound_production"/>
+        <stl-vector pointer-type='stl-string' name="sound_production_parm1"/>
+        <stl-vector pointer-type='stl-string' name="sound_production_parm2"/>
+        <stl-vector type-name='int32_t' name="sound_production_actor_id"/>
+        <stl-vector type-name='int32_t' name="sound_production_target_id"/>
+        <stl-vector type-name='pitch_choice_type' name="pitch_choice"/>
+        <stl-vector pointer-type='stl-string' name="pitch_choice_parm1"/>
+        <stl-vector pointer-type='stl-string' name="pitch_choice_parm2"/>
+        <stl-vector type-name='int32_t' name="pitch_choice_piece_id1"/>
+        <stl-vector type-name='int32_t' name="pitch_choice_piece_id2"/>
+        <stl-vector type-name='tuning_type' name="tuning"/>
+        <stl-vector pointer-type='stl-string' name="tuning_parm"/>
+        <stl-vector type-name='int32_t' name="tuning_piece_id"/>
+        <compound name='timbre' type-name='timbre_infost'/>
+        <stl-string name="description"/>
+    </class-type>
+
+    <enum-type type-name='armor_general_flags'> bay12: ClothingDefFlagType
+        <enum-item name='SOFT'/>
+        <enum-item name='HARD'/>
+        <enum-item name='METAL'/>
+        <enum-item name='BARRED'/>
+        <enum-item name='SCALED'/>
+        <enum-item name='LEATHER'/>
+        <enum-item name='SHAPED'/>
+        <enum-item name='CHAIN_METAL_TEXT'/>
+
+        <enum-item name='STRUCTURAL_ELASTICITY_WOVEN_THREAD'/>
+        <enum-item name='STRUCTURAL_ELASTICITY_CHAIN_METAL'/>
+        <enum-item name='STRUCTURAL_ELASTICITY_CHAIN_ALL'/>
+    </enum-type>
+
+    <enum-type type-name='clothing_layer_type'> bay12: ClothingLayer, does NOT have matching typedef so use compiler default
+        <enum-item name='UNDER'/>
+        <enum-item name='OVER'/>
+        <enum-item name='ARMOR'/>
+        <enum-item name='COVER'/>
+    </enum-type>
+
+    <struct-type type-name='armor_properties' original-name='clothingdefst'>
+        <df-flagarray name='flags' index-enum='armor_general_flags'/>
+        <enum name="layer" type-name='clothing_layer_type'/>
+        <int16_t name="layer_size"/>
+        <int16_t name="layer_permit"/>
+        <int16_t name="coverage"/>
+    </struct-type>
+
+    <bitfield-type type-name='item_armor_graphics_flag' base-type='int32_t'> bay12: ITEM_ARMOR_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <struct-type type-name='item_armor_graphics_infost'>
+        <bitfield name='flags' type-name='item_armor_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <enum-type type-name='armor_flags'> bay12: ItemDefArmorFlagType
+        <enum-item name='METAL_ARMOR_LEVELS'/>
+    </enum-type>
+
+    <class-type type-name='itemdef_armorst' inherits-from='itemdef'
+                instance-vector='$global.world.raws.itemdefs.armor'>
+        <stl-string name="name"/>
+        <stl-string name="name_plural"/>
+        <stl-string name="name_preplural"/>
+        <stl-string name="material_placeholder"/>
+        <stl-string name="adjective" since='v0.40.01'/>
+
+        <int32_t name="value"/>
+        <int8_t name="armorlevel"/>
+        <int16_t name="ubstep"/>
+        <int16_t name="lbstep"/>
+        <int32_t name="material_size"/>
+
+        <compound name='props' type-name='armor_properties'/>
+
+        <df-flagarray name='flags' index-enum='armor_flags'/>
+        <int32_t name='texpos_item'/>
+        <stl-vector name='graphics_info' pointer-type='item_armor_graphics_infost'/>
+    </class-type>
+
+    <bitfield-type type-name='item_ammo_graphics_flag' base-type='int32_t'> bay12: ITEM_AMMO_GRAPHICS_FLAG_*
+        <flag-bit name='material_color_index' count='8'/>
+        <flag-bit name='direction' count='3' type-name='item_ammo_graphics_flag_direction'/>
+        <flag-bit name='wood'/>
+    </bitfield-type>
+
+    <enum-type type-name='item_ammo_graphics_flag_direction' base-type='int32_t'> bay12: ITEM_AMMO_GRAPHICS_FLAG_DIRECTION_*
+        <enum-item name='NW'/>
+        <enum-item name='N'/>
+        <enum-item name='NE'/>
+        <enum-item name='W'/>
+        <enum-item name='E'/>
+        <enum-item name='SW'/>
+        <enum-item name='S'/>
+        <enum-item name='SE'/>
+    </enum-type>
+
+    <struct-type type-name='itemdef_ammo_graphics_infost'>
+        <bitfield name='flags' type-name='item_ammo_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <enum-type type-name='ammo_flags'> bay12: ItemDefAmmoFlagType
+        <enum-item name='HAS_EDGE_ATTACK'/>
+    </enum-type>
+
+    <class-type type-name='itemdef_ammost' inherits-from='itemdef'
+                instance-vector='$global.world.raws.itemdefs.ammo'>
+        <stl-string name="name"/>
+        <stl-string name="name_plural"/>
+        <stl-string name="adjective" since='v0.40.01'/>
+        <stl-string name="ammo_class"/>
+
+        <df-flagarray name='flags' index-enum='ammo_flags'/>
+
+        <int32_t name="size" comment='divided by 10'/>
+        <int32_t name="value"/>
+
+        <stl-vector name="attacks" pointer-type='weapon_attack'/>
+
+        <static-array name='texpos' type-name='int32_t' count='16'/>
+        <stl-vector name='graphics_info' pointer-type='itemdef_ammo_graphics_infost'/>
+    </class-type>
+
+    <bitfield-type type-name='item_siegeammo_graphics_flag' base-type='int32_t'> bay12: ITEM_SIEGEAMMO_GRAPHICS_FLAG_*
+        <flag-bit name='material_color_index' count='8'/>
+        <flag-bit name='direction' count='3' type-name='item_ammo_graphics_flag_direction'/>
+        <flag-bit name='wood'/>
+    </bitfield-type>
+
+    <enum-type type-name='item_siegeammo_graphics_flag_direction' base-type='int32_t'> bay12: ITEM_SIEGEAMMO_GRAPHICS_FLAG_DIRECTION_*
+        <enum-item name='NW'/>
+        <enum-item name='N'/>
+        <enum-item name='NE'/>
+        <enum-item name='W'/>
+        <enum-item name='E'/>
+        <enum-item name='SW'/>
+        <enum-item name='S'/>
+        <enum-item name='SE'/>
+    </enum-type>
+
+    <struct-type type-name='itemdef_siegeammo_graphics_infost'>
+        <bitfield name='flags' type-name='item_siegeammo_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <class-type type-name='itemdef_siegeammost' inherits-from='itemdef'
+                instance-vector='$global.world.raws.itemdefs.siege_ammo'>
+        <stl-string name="name"/>
+        <stl-string name="name_plural"/>
+        <stl-string name="ammo_class"/>
+
+        <static-array name='texpos' type-name='int32_t' count='16'/>
+        <stl-vector name='graphics_info' pointer-type='itemdef_siegeammo_graphics_infost'/>
+    </class-type>
+
+    <bitfield-type type-name='item_gloves_graphics_flag' base-type='int32_t'> bay12: ITEM_GLOVES_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <struct-type type-name='item_gloves_graphics_infost'>
+        <bitfield name='flags' type-name='item_gloves_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <enum-type type-name='gloves_flags'> bay12: ItemDefGlovesFlagType
+        <enum-item name='METAL_ARMOR_LEVELS'/>
+    </enum-type>
+
+    <class-type type-name='itemdef_glovesst' inherits-from='itemdef'
+                instance-vector='$global.world.raws.itemdefs.gloves'>
+        <stl-string name="name"/>
+        <stl-string name="name_plural"/>
+        <stl-string name="adjective" since='v0.40.01'/>
+        <int32_t name="value"/>
+        <int8_t name='armorlevel'/>
+        <int16_t name="upstep"/>
+        <df-flagarray name='flags' index-enum='gloves_flags'/>
+        <int32_t name="material_size"/>
+        <compound name='props' type-name='armor_properties'/>
+        <int32_t name='texpos_item'/>
+        <stl-vector name='graphics_info' pointer-type='item_gloves_graphics_infost'/>
+    </class-type>
+
+    <bitfield-type type-name='item_shoes_graphics_flag' base-type='int32_t'> bay12: ITEM_SHOES_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+        <flag-bit name='metal'/>
+    </bitfield-type>
+
+    <struct-type type-name='item_shoes_graphics_infost'>
+        <bitfield name='flags' type-name='item_shoes_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+        <int32_t name='texpos_metal'/>
+    </struct-type>
+
+    <enum-type type-name='shoes_flags'> bay12: ItemDefShoesFlagType
+        <enum-item name='METAL_ARMOR_LEVELS'/>
+    </enum-type>
+
+    <class-type type-name='itemdef_shoesst' inherits-from='itemdef'
+                instance-vector='$global.world.raws.itemdefs.shoes'>
+        <stl-string name="name"/>
+        <stl-string name="name_plural"/>
+        <stl-string name="adjective" since='v0.40.01'/>
+        <int32_t name="value"/>
+        <int8_t name='armorlevel'/>
+        <int16_t name="upstep"/>
+        <df-flagarray name='flags' index-enum='shoes_flags'/>
+        <int32_t name="material_size"/>
+
+        <compound name='props' type-name='armor_properties'/>
+        <int32_t name='texpos_item'/>
+        <int32_t name='texpos_item_metal'/>
+        <stl-vector name='graphics_info' pointer-type='item_shoes_graphics_infost'/>
+    </class-type>
+
+    <bitfield-type type-name='item_shield_graphics_flag' base-type='int32_t'> bay12: ITEM_SHIELD_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+        <flag-bit name='wooden'/>
+    </bitfield-type>
+
+    <struct-type type-name='item_shield_graphics_infost'>
+        <bitfield name='flags' type-name='item_shield_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+        <int32_t name='texpos_wooden'/>
+    </struct-type>
+
+    <class-type type-name='itemdef_shieldst' inherits-from='itemdef'
+                instance-vector='$global.world.raws.itemdefs.shields'>
+        <stl-string name="name"/>
+        <stl-string name="name_plural"/>
+        <stl-string name="adjective" since='v0.40.01'/>
+        <int32_t name="value"/>
+        <int32_t name="blockchance"/>
+        <int8_t name='armorlevel'/>
+        <int16_t name="upstep"/>
+        <int32_t name="material_size"/>
+        <int32_t name='texpos_item'/>
+        <int32_t name='texpos_item_wooden'/>
+        <stl-vector name='graphics_info' pointer-type='item_shield_graphics_infost'/>
+    </class-type>
+
+    <bitfield-type type-name='item_helm_graphics_flag' base-type='int32_t'> bay12: ITEM_HELM_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <struct-type type-name='item_helm_graphics_infost'>
+        <bitfield name='flags' type-name='item_helm_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <enum-type type-name='helm_flags'> bay12: ItemDefHelmFlagType
+        <enum-item name='METAL_ARMOR_LEVELS'/>
+    </enum-type>
+
+    <class-type type-name='itemdef_helmst' inherits-from='itemdef'
+                instance-vector='$global.world.raws.itemdefs.helms'>
+        <stl-string name="name"/>
+        <stl-string name="name_plural"/>
+        <stl-string name="adjective" since='v0.40.01'/>
+        <int32_t name="value"/>
+        <int8_t name='armorlevel'/>
+        <df-flagarray name='flags' index-enum='helm_flags'/>
+        <int32_t name="material_size"/>
+        <compound name='props' type-name='armor_properties'/>
+        <int32_t name='texpos_item'/>
+        <stl-vector name='graphics_info' pointer-type='item_helm_graphics_infost'/>
+    </class-type>
+
+    <bitfield-type type-name='item_pants_graphics_flag' base-type='int32_t'> bay12: ITEM_PANTS_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <struct-type type-name='item_pants_graphics_infost'>
+        <bitfield name='flags' type-name='item_pants_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <enum-type type-name='pants_flags'> bay12: ItemDefPantsFlagType
+        <enum-item name='METAL_ARMOR_LEVELS'/>
+    </enum-type>
+
+    <class-type type-name='itemdef_pantsst' inherits-from='itemdef'
+                instance-vector='$global.world.raws.itemdefs.pants'>
+        <stl-string name="name"/>
+        <stl-string name="name_plural"/>
+        <stl-string name="name_preplural"/>
+        <stl-string name="material_placeholder"/>
+        <stl-string name="adjective" since='v0.40.01'/>
+
+        <int32_t name="value"/>
+        <int8_t name="armorlevel"/>
+        <df-flagarray name='flags' index-enum='pants_flags'/>
+        <int32_t name="material_size"/>
+        <int16_t name="lbstep"/>
+
+        <compound name='props' type-name='armor_properties'/>
+
+        <int32_t name='texpos_item'/>
+        <stl-vector name='graphics_info' pointer-type='item_pants_graphics_infost'/>
+    </class-type>
+
+    <class-type type-name='itemdef_foodst' inherits-from='itemdef'
+                instance-vector='$global.world.raws.itemdefs.food'>
+        <stl-string name="name"/>
+        <int16_t name="level"/>
+        <int32_t name='texpos_item'/>
+        <int32_t name='texpos_food_container_top'/>
+    </class-type>
+
+    <bitfield-type type-name='item_coin_graphics_flag' base-type='int32_t'> bay12: ITEM_COIN_GRAPHICS_FLAG_*
+        <flag-bit name='size' count='3' type-name='item_coin_graphics_flag_size'/>
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <enum-type type-name='item_coin_graphics_flag_size' base-type='int32_t'> bay12: ITEM_COIN_GRAPHICS_FLAG_SIZE_*
+        <enum-item name='SINGLE'/>
+        <enum-item name='PILE_1'/>
+        <enum-item name='PILE_2'/>
+        <enum-item name='PILE_4'/> yes, these are out of order!
+        <enum-item name='PILE_3'/>
+    </enum-type>
+
+    <struct-type type-name='item_coin_graphics_infost'>
+        <bitfield name='flags' type-name='item_coin_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_craft_graphics_flag' base-type='int32_t'> bay12: ITEM_CRAFT_GRAPHICS_FLAG_*
+        <flag-bit name='size' count='2' type-name='item_craft_graphics_flag_material'/>
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <enum-type type-name='item_craft_graphics_flag_material' base-type='int32_t'> bay12: ITEM_CRAFT_GRAPHICS_FLAG_MATERIAL_*
+        <enum-item name='METAL'/>
+        <enum-item name='WOOD'/>
+    </enum-type>
+
+    <struct-type type-name='item_craft_graphics_infost'>
+        <bitfield name='flags' type-name='item_craft_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_pipe_section_graphics_flag' base-type='int32_t'> bay12: ITEM_PIPE_SECTION_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <struct-type type-name='item_pipe_section_graphics_infost'>
+        <bitfield name='flags' type-name='item_pipe_section_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_liquid_graphics_flag' base-type='int32_t'> bay12: ITEM_LIQUID_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <struct-type type-name='item_liquid_graphics_infost'>
+        <bitfield name='flags' type-name='item_liquid_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_powder_graphics_flag' base-type='int32_t'> bay12: ITEM_POWDER_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <struct-type type-name='item_powder_graphics_infost'>
+        <bitfield name='flags' type-name='item_powder_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <struct-type type-name='item_bld_chain_graphics_infost'>
+        <int32_t name='bits' comment='irregular: (material) * 9 + dir'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_table_graphics_flag' base-type='int32_t'> bay12: ITEM_TABLE_GRAPHICS_FLAG_*
+        <flag-bit name='material' count='2' type-name='item_table_graphics_flag_material'/>
+        <flag-bit name='quality' count='3'/>
+        <flag-bit name='variant' count='2'/>
+        <flag-bit name='spikes'/>
+        <flag-bit name='rings'/>
+        <flag-bit name='studs'/>
+        <flag-bit name='engraved'/>
+        <flag-bit name='bands'/>
+        <flag-bit name='damage_level' count='2'/>
+        <flag-bit name='blood'/>
+        <flag-bit name='vomit'/>
+        <flag-bit name='water'/>
+        <flag-bit name='dirt'/>
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <enum-type type-name='item_table_graphics_flag_material' base-type='int32_t'> bay12: ITEM_TABLE_GRAPHICS_FLAG_MATERIAL_*
+        <enum-item name='WOOD'/>
+        <enum-item name='STONE'/>
+        <enum-item name='METAL'/>
+        <enum-item name='GLASS'/>
+    </enum-type>
+
+    <struct-type type-name='item_table_graphics_infost'>
+        <bitfield name='flags' type-name='item_table_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_window_graphics_flag' base-type='int32_t'> bay12: ITEM_WINDOW_GRAPHICS_FLAG_*
+        <flag-bit name='gem'/>
+        <flag-bit name='planned'/>
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <struct-type type-name='item_window_graphics_infost'>
+        <bitfield name='flags' type-name='item_window_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_instrument_graphics_flag' base-type='int32_t'> bay12: ITEM_INSTRUMENT_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+        <flag-bit name='planned'/>
+        <flag-bit name='building'/>
+        <flag-bit name='music_skill' count='3' type-name='item_instrument_graphics_flag_music_skill'/>
+    </bitfield-type>
+
+    <enum-type type-name='item_instrument_graphics_flag_music_skill' base-type='int32_t'> bay12: ITEM_INSTRUMENT_GRAPHICS_FLAG_MUSIC_SKILL_*
+        <enum-item name='NONE'/>
+        <enum-item name='KEYBOARD'/>
+        <enum-item name='STRINGED'/>
+        <enum-item name='WIND'/>
+        <enum-item name='PERCUSSION'/>
+    </enum-type>
+
+    <struct-type type-name='item_instrument_graphics_infost'>
+        <bitfield name='flags' type-name='item_instrument_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_chair_graphics_flag' base-type='int32_t'> bay12: ITEM_CHAIR_GRAPHICS_FLAG_*
+        <flag-bit name='material' count='2' type-name='item_chair_graphics_flag_material'/>
+        <flag-bit name='quality' count='3'/>
+        <flag-bit name='variant' count='2'/>
+        <flag-bit name='spikes'/>
+        <flag-bit name='rings'/>
+        <flag-bit name='studs'/>
+        <flag-bit name='engraved'/>
+        <flag-bit name='bands'/>
+        <flag-bit name='damage_level' count='2'/>
+        <flag-bit name='blood'/>
+        <flag-bit name='vomit'/>
+        <flag-bit name='water'/>
+        <flag-bit name='dirt'/>
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <enum-type type-name='item_chair_graphics_flag_material' base-type='int32_t'> bay12: ITEM_CHAIR_GRAPHICS_FLAG_MATERIAL_*
+        <enum-item name='WOOD'/>
+        <enum-item name='STONE'/>
+        <enum-item name='METAL'/>
+        <enum-item name='GLASS'/>
+    </enum-type>
+
+    <struct-type type-name='item_chair_graphics_infost'>
+        <bitfield name='flags' type-name='item_chair_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_box_graphics_flag' base-type='int32_t'> bay12: ITEM_BOX_GRAPHICS_FLAG_*
+        <flag-bit name='material' count='2' type-name='item_box_graphics_flag_material'/>
+        <flag-bit name='quality' count='3'/>
+        <flag-bit name='variant' count='2'/>
+        <flag-bit name='spikes'/>
+        <flag-bit name='rings'/>
+        <flag-bit name='studs'/>
+        <flag-bit name='engraved'/>
+        <flag-bit name='bands'/>
+        <flag-bit name='damage_level' count='2'/>
+        <flag-bit name='blood'/>
+        <flag-bit name='vomit'/>
+        <flag-bit name='water'/>
+        <flag-bit name='dirt'/>
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <enum-type type-name='item_box_graphics_flag_material' base-type='int32_t'> bay12: ITEM_BOX_GRAPHICS_FLAG_MATERIAL_*
+        <enum-item name='WOOD'/>
+        <enum-item name='STONE'/>
+        <enum-item name='METAL'/>
+        <enum-item name='GLASS'/>
+    </enum-type>
+
+    <struct-type type-name='item_box_graphics_infost'>
+        <bitfield name='flags' type-name='item_box_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_grate_graphics_flag' base-type='int32_t'> bay12: ITEM_GRATE_GRAPHICS_FLAG_*
+        <flag-bit name='material' count='2' type-name='item_grate_graphics_flag_material'/>
+        <flag-bit name='color_index' count='8'/>
+        <flag-bit name='open'/>
+        <flag-bit name='wall'/>
+    </bitfield-type>
+
+    <enum-type type-name='item_grate_graphics_flag_material' base-type='int32_t'> bay12: ITEM_GRATE_GRAPHICS_FLAG_MATERIAL_*
+        <enum-item name='WOOD'/>
+        <enum-item name='STONE'/>
+        <enum-item name='METAL'/>
+        <enum-item name='GLASS'/>
+    </enum-type>
+
+    <struct-type type-name='item_grate_graphics_infost'>
+        <bitfield name='flags' type-name='item_grate_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_door_graphics_flag' base-type='int32_t'> bay12: ITEM_DOOR_GRAPHICS_FLAG_*
+        <flag-bit name='material' count='2' type-name='item_door_graphics_flag_material'/>
+        <flag-bit name='quality' count='3'/>
+        <flag-bit name='variant' count='2'/>
+        <flag-bit name='spikes'/>
+        <flag-bit name='rings'/>
+        <flag-bit name='studs'/>
+        <flag-bit name='engraved'/>
+        <flag-bit name='bands'/>
+        <flag-bit name='damage_level' count='2'/>
+        <flag-bit name='blood'/>
+        <flag-bit name='vomit'/>
+        <flag-bit name='water'/>
+        <flag-bit name='dirt'/>
+        <flag-bit name='forbidden'/>
+        <flag-bit name='open'/>
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <enum-type type-name='item_door_graphics_flag_material' base-type='int32_t'> bay12: ITEM_DOOR_GRAPHICS_FLAG_MATERIAL_*
+        <enum-item name='WOOD'/>
+        <enum-item name='STONE'/>
+        <enum-item name='METAL'/>
+        <enum-item name='GLASS'/>
+    </enum-type>
+
+    <struct-type type-name='item_door_graphics_infost'>
+        <bitfield name='flags' type-name='item_door_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_hatch_cover_graphics_flag' base-type='int32_t'> bay12: ITEM_HATCH_COVER_GRAPHICS_FLAG_*
+        <flag-bit name='material' count='2' type-name='item_hatch_cover_graphics_flag_material'/>
+        <flag-bit name='quality' count='3'/>
+        <flag-bit name='variant' count='2'/>
+        <flag-bit name='spikes'/>
+        <flag-bit name='rings'/>
+        <flag-bit name='studs'/>
+        <flag-bit name='engraved'/>
+        <flag-bit name='bands'/>
+        <flag-bit name='damage_level' count='2'/>
+        <flag-bit name='blood'/>
+        <flag-bit name='vomit'/>
+        <flag-bit name='water'/>
+        <flag-bit name='dirt'/>
+        <flag-bit name='forbidden'/>
+        <flag-bit name='open'/>
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <enum-type type-name='item_hatch_cover_graphics_flag_material' base-type='int32_t'> bay12: ITEM_HATCH_COVER_GRAPHICS_FLAG_MATERIAL_*
+        <enum-item name='WOOD'/>
+        <enum-item name='STONE'/>
+        <enum-item name='METAL'/>
+        <enum-item name='GLASS'/>
+    </enum-type>
+
+    <struct-type type-name='item_hatch_cover_graphics_infost'>
+        <bitfield name='flags' type-name='item_hatch_cover_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_floodgate_graphics_flag' base-type='int32_t'> bay12: ITEM_FLOODGATE_GRAPHICS_FLAG_*
+        <flag-bit name='material' count='2' type-name='item_floodgate_graphics_flag_material'/>
+        <flag-bit name='quality' count='3'/>
+        <flag-bit name='variant' count='2'/>
+        <flag-bit name='spikes'/>
+        <flag-bit name='rings'/>
+        <flag-bit name='studs'/>
+        <flag-bit name='engraved'/>
+        <flag-bit name='bands'/>
+        <flag-bit name='damage_level' count='2'/>
+        <flag-bit name='blood'/>
+        <flag-bit name='vomit'/>
+        <flag-bit name='water'/>
+        <flag-bit name='dirt'/>
+        <flag-bit name='color_index' count='8'/>
+        <flag-bit name='open'/>
+    </bitfield-type>
+
+    <enum-type type-name='item_floodgate_graphics_flag_material' base-type='int32_t'> bay12: ITEM_FLOODGATE_GRAPHICS_FLAG_MATERIAL_*
+        <enum-item name='WOOD'/>
+        <enum-item name='STONE'/>
+        <enum-item name='METAL'/>
+        <enum-item name='GLASS'/>
+    </enum-type>
+
+    <struct-type type-name='item_floodgate_graphics_infost'>
+        <bitfield name='flags' type-name='item_floodgate_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_traction_bench_graphics_flag' base-type='int32_t'> bay12: ITEM_TRACTION_BENCH_GRAPHICS_FLAG_*
+        <flag-bit name='material' count='2' type-name='item_traction_bench_graphics_flag_material'/>
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <enum-type type-name='item_traction_bench_graphics_flag_material' base-type='int32_t'> bay12: ITEM_TRACTION_BENCH_GRAPHICS_FLAG_MATERIAL_*
+        <enum-item name='WOOD'/>
+        <enum-item name='STONE'/>
+        <enum-item name='METAL'/>
+        <enum-item name='GLASS'/>
+    </enum-type>
+
+    <struct-type type-name='item_traction_bench_graphics_infost'>
+        <bitfield name='flags' type-name='item_traction_bench_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_coffin_graphics_flag' base-type='int32_t'> bay12: ITEM_COFFIN_GRAPHICS_FLAG_*
+        <flag-bit name='material' count='2' type-name='item_coffin_graphics_flag_material'/>
+        <flag-bit name='color_index' count='8'/>
+        <flag-bit name='open'/>
+    </bitfield-type>
+
+    <enum-type type-name='item_coffin_graphics_flag_material' base-type='int32_t'> bay12: ITEM_COFFIN_GRAPHICS_FLAG_MATERIAL_*
+        <enum-item name='WOOD'/>
+        <enum-item name='STONE'/>
+        <enum-item name='METAL'/>
+        <enum-item name='GLASS'/>
+    </enum-type>
+
+    <struct-type type-name='item_coffin_graphics_infost'>
+        <bitfield name='flags' type-name='item_coffin_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_cloth_graphics_flag' base-type='int32_t'> bay12: ITEM_CLOTH_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <struct-type type-name='item_cloth_graphics_infost'>
+        <bitfield name='flags' type-name='item_cloth_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_splint_graphics_flag' base-type='int32_t'> bay12: ITEM_SPLINT_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <struct-type type-name='item_splint_graphics_infost'>
+        <bitfield name='flags' type-name='item_splint_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_rock_graphics_flag' base-type='int64_t'> bay12: ITEM_ROCK_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+        <flag-bit name='is_mythical_remnant'/>
+        <flag-bit name='sphere_index' count='8'/>
+    </bitfield-type>
+
+    <struct-type type-name='item_rock_graphics_infost'>
+        <bitfield name='flags' type-name='item_rock_graphics_flag' base-type='int64_t'/>
+        <int64_t name='texpos'/> yes, int64!
+    </struct-type>
+
+    <bitfield-type type-name='item_crutch_graphics_flag' base-type='int32_t'> bay12: ITEM_CRUTCH_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <struct-type type-name='item_crutch_graphics_infost'>
+        <bitfield name='flags' type-name='item_crutch_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_slab_graphics_flag' base-type='int32_t'> bay12: ITEM_SLAB_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+        <flag-bit name='engraving_intent' count='8'/>
+    </bitfield-type>
+
+    <struct-type type-name='item_slab_graphics_infost'>
+        <bitfield name='flags' type-name='item_slab_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_cage_graphics_flag' base-type='int64_t'> bay12: ITEM_CAGE_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+        <flag-bit name='material_wood'/>
+        <flag-bit name='material_glass'/>
+        <flag-bit name='material_has_item'/>
+        <flag-bit name='material_has_unit'/>
+        <flag-bit name='material_id_number' count='32'/>
+    </bitfield-type>
+
+    <struct-type type-name='item_cage_graphics_infost'>
+        <bitfield name='flags' type-name='item_cage_graphics_flag' base-type='int64_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_bucket_graphics_flag' base-type='int32_t'> bay12: ITEM_BUCET_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+        <flag-bit name='contents_color_index' count='8'/>
+        <flag-bit name='contains_anything'/>
+        <flag-bit name='metal'/>
+    </bitfield-type>
+
+    <struct-type type-name='item_bucket_graphics_infost'>
+        <bitfield name='flags' type-name='item_bucket_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_animal_trap_graphics_flag' base-type='int32_t'> bay12: ITEM_ANIMAL_TRAP_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+        <flag-bit name='material_wood'/>
+        <flag-bit name='occupied'/>
+    </bitfield-type>
+
+    <struct-type type-name='item_animal_trap_graphics_infost'>
+        <bitfield name='flags' type-name='item_animal_trap_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_bin_graphics_flag' base-type='int32_t'> bay12: ITEM_BIN_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+        <flag-bit name='contains_anything'/>
+        <flag-bit name='metal'/>
+        <flag-bit name='contents_color_index' count='8'/>
+        <flag-bit name='variant' count='4'/>
+        <flag-bit name='contents' count='6' type-name='item_bin_graphics_contents_type'/>
+    </bitfield-type>
+
+    <enum-type type-name='item_bin_graphics_contents_type' base-type='int32_t'> bay12: ITEM_BIN_GRAPHICS_CONTENTS_TYPE_*
+        <enum-item name='EMPTY'/>
+        <enum-item name='AMMO'/>
+        <enum-item name='CLOTHING'/>
+        <enum-item name='ARMOR_LEATHER'/>
+        <enum-item name='ARMOR_METAL'/>
+        <enum-item name='BARS'/>
+        <enum-item name='COAL'/>
+        <enum-item name='POWDERS'/>
+        <enum-item name='COINS'/>
+        <enum-item name='GEMS'/>
+        <enum-item name='MECHANISMS'/>
+        <enum-item name='BAGS'/>
+        <enum-item name='BOOKS'/>
+        <enum-item name='ROPES'/>
+        <enum-item name='LEATHER'/>
+        <enum-item name='WEAPONS'/>
+        <enum-item name='TRAP_COMPS'/>
+        <enum-item name='CRAFTS'/>
+        <enum-item name='BLOCKS'/>
+        <enum-item name='SHEETS'/>
+        <enum-item name='CLOTH'/>
+        <enum-item name='CHAINS'/>
+    </enum-type>
+
+    <struct-type type-name='item_bin_graphics_infost'>
+        <bitfield name='flags' type-name='item_bin_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_bag_graphics_flag' base-type='int32_t'> bay12: ITEM_BAG_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+        <flag-bit name='contents_color_index' count='8'/>
+        <flag-bit name='contents' count='2' type-name='item_bag_graphics_contents_type'/>
+    </bitfield-type>
+
+    <enum-type type-name='item_bag_graphics_contents_type' base-type='int32_t'> bay12: ITEM_BAG_GRAPHICS_CONTENTS_TYPE_*
+        <enum-item name='NONE'/>
+        <enum-item name='POWDER'/>
+        <enum-item name='LEAVES'/>
+        <enum-item name='SEEDS'/>
+    </enum-type>
+
+    <struct-type type-name='item_bag_graphics_infost'>
+        <bitfield name='flags' type-name='item_bag_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_anvil_graphics_flag' base-type='int32_t'> bay12: ITEM_ANVIL_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <struct-type type-name='item_anvil_graphics_infost'>
+        <bitfield name='flags' type-name='item_anvil_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_thread_graphics_flag' base-type='int32_t'> bay12: ITEM_THREAD_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <struct-type type-name='item_thread_graphics_infost'>
+        <bitfield name='flags' type-name='item_thread_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_backpack_graphics_flag' base-type='int32_t'> bay12: ITEM_BACKPACK_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <struct-type type-name='item_backpack_graphics_infost'>
+        <bitfield name='flags' type-name='item_backpack_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_quiver_graphics_flag' base-type='int32_t'> bay12: ITEM_QUIVER_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <struct-type type-name='item_quiver_graphics_infost'>
+        <bitfield name='flags' type-name='item_quiver_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_catapult_parts_graphics_flag' base-type='int32_t'> bay12: ITEM_CATAPULT_PARTS_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <struct-type type-name='item_catapult_parts_graphics_infost'>
+        <bitfield name='flags' type-name='item_catapult_parts_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_ballista_parts_graphics_flag' base-type='int32_t'> bay12: ITEM_BALLISTA_PARTS_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <struct-type type-name='item_ballista_parts_graphics_infost'>
+        <bitfield name='flags' type-name='item_ballista_parts_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_mechanisms_graphics_flag' base-type='int32_t'> bay12: ITEM_MECHANISMS_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <struct-type type-name='item_mechanisms_graphics_infost'>
+        <bitfield name='flags' type-name='item_mechanisms_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_egg_graphics_flag' base-type='int32_t'> bay12: ITEM_EGG_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+        <flag-bit name='size_index' count='2'/>
+    </bitfield-type>
+
+    <struct-type type-name='item_egg_graphics_infost'>
+        <bitfield name='flags' type-name='item_egg_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_book_graphics_flag' base-type='int32_t'> bay12: ITEM_BOOK_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+        <flag-bit name='material_wood'/>
+    </bitfield-type>
+
+    <struct-type type-name='item_book_graphics_infost'>
+        <bitfield name='flags' type-name='item_book_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_cabinet_graphics_flag' base-type='int32_t'> bay12: ITEM_CABINET_GRAPHICS_FLAG_*
+        <flag-bit name='material' count='2' type-name='item_cabinet_graphics_flag_material'/>
+        <flag-bit name='quality' count='3'/>
+        <flag-bit name='variant' count='2'/>
+        <flag-bit name='spikes'/>
+        <flag-bit name='rings'/>
+        <flag-bit name='studs'/>
+        <flag-bit name='engraved'/>
+        <flag-bit name='bands'/>
+        <flag-bit name='damage_level' count='2'/>
+        <flag-bit name='blood'/>
+        <flag-bit name='vomit'/>
+        <flag-bit name='water'/>
+        <flag-bit name='dirt'/>
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <enum-type type-name='item_cabinet_graphics_flag_material' base-type='int32_t'> bay12: ITEM_CABINET_GRAPHICS_FLAG_MATERIAL_*
+        <enum-item name='WOOD'/>
+        <enum-item name='STONE'/>
+        <enum-item name='METAL'/>
+        <enum-item name='GLASS'/>
+    </enum-type>
+
+    <struct-type type-name='item_cabinet_graphics_infost'>
+        <bitfield name='flags' type-name='item_cabinet_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_bed_graphics_flag' base-type='int32_t'> bay12: ITEM_BED_GRAPHICS_FLAG_*
+        <flag-bit name='material' count='2' type-name='item_bed_graphics_flag_material'/>
+        <flag-bit name='sheet_variant'/>
+        <flag-bit name='pillow_variant' count='2'/>
+        <flag-bit name='color_index' count='8'/>
+        <flag-bit name='sheet_color_index' count='8'/>
+    </bitfield-type>
+
+    <enum-type type-name='item_bed_graphics_flag_material' base-type='int32_t'> bay12: ITEM_BED_GRAPHICS_FLAG_MATERIAL_*
+        <enum-item name='WOOD'/>
+        <enum-item name='STONE'/>
+        <enum-item name='METAL'/>
+    </enum-type>
+
+    <struct-type type-name='item_bed_graphics_infost'>
+        <bitfield name='flags' type-name='item_bed_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_chain_graphics_flag' base-type='int32_t'> bay12: ITEM_CHAIN_GRAPHICS_FLAG_*
+        <flag-bit name='rope'/>
+        <flag-bit name='metal'/>
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <struct-type type-name='item_chain_graphics_infost'>
+        <bitfield name='flags' type-name='item_chain_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_flask_graphics_flag' base-type='int32_t'> bay12: ITEM_FLASK_GRAPHICS_FLAG_*
+        <flag-bit name='material' count='2' type-name='item_flask_graphics_flag_material'/>
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <enum-type type-name='item_flask_graphics_flag_material' base-type='int32_t'> bay12: ITEM_FLASK_GRAPHICS_FLAG_MATERIAL_*
+        <enum-item name='METAL'/>
+        <enum-item name='LEATHER'/>
+        <enum-item name='GLASS'/>
+    </enum-type>
+
+    <struct-type type-name='item_flask_graphics_infost'>
+        <bitfield name='flags' type-name='item_flask_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_goblet_graphics_flag' base-type='int32_t'> bay12: ITEM_GOBLET_GRAPHICS_FLAG_*
+        <flag-bit name='material' count='2' type-name='item_goblet_graphics_flag_material'/>
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <enum-type type-name='item_goblet_graphics_flag_material' base-type='int32_t'> bay12: ITEM_GOBLET_GRAPHICS_FLAG_MATERIAL_*
+        <enum-item name='METAL'/>
+        <enum-item name='STONE'/>
+        <enum-item name='WOOD'/>
+    </enum-type>
+
+    <struct-type type-name='item_goblet_graphics_infost'>
+        <bitfield name='flags' type-name='item_goblet_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_bar_graphics_flag' base-type='int32_t'> bay12: ITEM_BAR_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+        <flag-bit name='soap'/>
+    </bitfield-type>
+
+    <struct-type type-name='item_bar_graphics_infost'>
+        <bitfield name='flags' type-name='item_bar_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_block_graphics_flag' base-type='int32_t'> bay12: ITEM_BLOCK_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <struct-type type-name='item_block_graphics_infost'>
+        <bitfield name='flags' type-name='item_block_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_wood_graphics_flag' base-type='int32_t'> bay12: ITEM_WOOD_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <struct-type type-name='item_wood_graphics_infost'>
+        <bitfield name='flags' type-name='item_wood_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_gem_graphics_flag' base-type='int64_t'> bay12: ITEM_GEM_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+        <flag-bit name='type' count='4' type-name='item_gem_graphics_type'/>
+        <flag-bit name='shape_index' count='16'/>
+    </bitfield-type>
+
+    <enum-type type-name='item_gem_graphics_type' base-type='int64_t'> bay12: ITEM_GEM_GRAPHICS_TYPE_*
+        <enum-item name='LARGE_GEM'/>
+        <enum-item name='SMALL_GEM_1'/>
+        <enum-item name='SMALL_GEM_2'/>
+        <enum-item name='SMALL_GEM_3'/>
+        <enum-item name='SMALL_GEM_4'/>
+    </enum-type>
+
+    <struct-type type-name='item_gem_graphics_infost'>
+        <bitfield name='flags' type-name='item_gem_graphics_flag' base-type='int64_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='item_sheet_graphics_flag' base-type='int32_t'> bay12: ITEM_SHEET_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+    </bitfield-type>
+
+    <struct-type type-name='item_sheet_graphics_infost'>
+        <bitfield name='flags' type-name='item_sheet_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    -- Unused: itemdef_handling_informationst
+
+    <struct-type type-name='itemdef_handlerst'>
+        <stl-vector name='all' pointer-type='itemdef'/>
+        <stl-vector name='weapons' pointer-type='itemdef_weaponst'/>
+        <stl-vector name='trapcomps' pointer-type='itemdef_trapcompst'/>
+        <stl-vector name='toys' pointer-type='itemdef_toyst'/>
+        <stl-vector name='tools' pointer-type='itemdef_toolst'/>
+        <static-array name='tools_by_type' count='26' index-enum='tool_uses'>
+            <stl-vector pointer-type='itemdef_toolst'/>
+        </static-array>
+        <stl-vector name='instruments' pointer-type='itemdef_instrumentst'/>
+        <stl-vector name='armor' pointer-type='itemdef_armorst'/>
+        <stl-vector name='ammo' pointer-type='itemdef_ammost'/>
+        <stl-vector name='siege_ammo' pointer-type='itemdef_siegeammost'/>
+        <stl-vector name='gloves' pointer-type='itemdef_glovesst'/>
+        <stl-vector name='shoes' pointer-type='itemdef_shoesst'/>
+        <stl-vector name='shields' pointer-type='itemdef_shieldst'/>
+        <stl-vector name='helms' pointer-type='itemdef_helmst'/>
+        <stl-vector name='pants' pointer-type='itemdef_pantsst'/>
+        <stl-vector name='food' pointer-type='itemdef_foodst'/>
+
+        <stl-vector name='coin_graphics_info' pointer-type='item_coin_graphics_infost'/>
+        <stl-vector name='figurine_graphics_info' pointer-type='item_craft_graphics_infost'/>
+        <stl-vector name='amulet_graphics_info' pointer-type='item_craft_graphics_infost'/>
+        <stl-vector name='scepter_graphics_info' pointer-type='item_craft_graphics_infost'/>
+        <stl-vector name='crown_graphics_info' pointer-type='item_craft_graphics_infost'/>
+        <stl-vector name='ring_graphics_info' pointer-type='item_craft_graphics_infost'/>
+        <stl-vector name='bracelet_graphics_info' pointer-type='item_craft_graphics_infost'/>
+        <stl-vector name='earring_graphics_info' pointer-type='item_craft_graphics_infost'/>
+        <stl-vector name='bld_chain_graphics_info' pointer-type='item_bld_chain_graphics_infost'/>
+        <stl-vector name='table_graphics_info' pointer-type='item_table_graphics_infost'/>
+        <stl-vector name='window_graphics_info' pointer-type='item_window_graphics_infost'/>
+        <stl-vector name='chair_graphics_info' pointer-type='item_chair_graphics_infost'/>
+        <stl-vector name='cabinet_graphics_info' pointer-type='item_cabinet_graphics_infost'/>
+        <stl-vector name='bed_graphics_info' pointer-type='item_bed_graphics_infost'/>
+        <stl-vector name='statue_graphics_info' pointer-type='item_statue_graphics_infost'/>
+        <stl-vector name='box_graphics_info' pointer-type='item_box_graphics_infost'/>
+        <stl-vector name='door_graphics_info' pointer-type='item_door_graphics_infost'/>
+        <stl-vector name='grate_graphics_info' pointer-type='item_grate_graphics_infost'/>
+        <stl-vector name='hatch_cover_graphics_info' pointer-type='item_hatch_cover_graphics_infost'/>
+        <stl-vector name='floodgate_graphics_info' pointer-type='item_floodgate_graphics_infost'/>
+        <stl-vector name='traction_bench_graphics_info' pointer-type='item_traction_bench_graphics_infost'/>
+        <stl-vector name='coffin_graphics_info' pointer-type='item_coffin_graphics_infost'/>
+        <stl-vector name='cloth_graphics_info' pointer-type='item_cloth_graphics_infost'/>
+        <stl-vector name='splint_graphics_info' pointer-type='item_splint_graphics_infost'/>
+        <stl-vector name='crutch_graphics_info' pointer-type='item_crutch_graphics_infost'/>
+        <stl-vector name='slab_graphics_info' pointer-type='item_slab_graphics_infost'/>
+        <stl-vector name='cage_graphics_info' pointer-type='item_cage_graphics_infost'/>
+        <stl-vector name='bucket_graphics_info' pointer-type='item_bucket_graphics_infost'/>
+        <stl-vector name='animal_trap_graphics_info' pointer-type='item_animal_trap_graphics_infost'/>
+        <stl-vector name='bin_graphics_info' pointer-type='item_bin_graphics_infost'/>
+        <stl-vector name='bag_graphics_info' pointer-type='item_bag_graphics_infost'/>
+        <stl-vector name='anvil_graphics_info' pointer-type='item_anvil_graphics_infost'/>
+        <stl-vector name='thread_graphics_info' pointer-type='item_thread_graphics_infost'/>
+        <stl-vector name='backpack_graphics_info' pointer-type='item_backpack_graphics_infost'/>
+        <stl-vector name='quiver_graphics_info' pointer-type='item_quiver_graphics_infost'/>
+        <stl-vector name='catapult_parts_graphics_info' pointer-type='item_catapult_parts_graphics_infost'/>
+        <stl-vector name='ballista_parts_graphics_info' pointer-type='item_ballista_parts_graphics_infost'/>
+        <stl-vector name='mechanisms_graphics_info' pointer-type='item_mechanisms_graphics_infost'/>
+        <stl-vector name='egg_graphics_info' pointer-type='item_egg_graphics_infost'/>
+        <stl-vector name='book_graphics_info' pointer-type='item_book_graphics_infost'/>
+        <stl-vector name='wood_barrel_graphics_info' pointer-type='item_food_container_graphics_infost'/>
+        <stl-vector name='metal_barrel_graphics_info' pointer-type='item_food_container_graphics_infost'/>
+        <stl-vector name='chain_graphics_info' pointer-type='item_chain_graphics_infost'/>
+        <stl-vector name='flask_graphics_info' pointer-type='item_flask_graphics_infost'/>
+        <stl-vector name='goblet_graphics_info' pointer-type='item_goblet_graphics_infost'/>
+        <stl-vector name='bar_graphics_info' pointer-type='item_bar_graphics_infost'/>
+        <stl-vector name='block_graphics_info' pointer-type='item_block_graphics_infost'/>
+        <stl-vector name='wood_graphics_info' pointer-type='item_wood_graphics_infost'/>
+        <stl-vector name='gem_graphics_info' pointer-type='item_gem_graphics_infost'/>
+        <stl-vector name='sheet_graphics_info' pointer-type='item_sheet_graphics_infost'/>
+        <stl-vector name='instrument_graphics_info' pointer-type='item_instrument_graphics_infost'/>
+        <stl-vector name='liquid_graphics_info' pointer-type='item_liquid_graphics_infost'/>
+        <stl-vector name='powder_graphics_info' pointer-type='item_powder_graphics_infost'/>
+        <stl-vector name='pipe_section_graphics_info' pointer-type='item_pipe_section_graphics_infost'/>
+        <stl-vector name='rock_graphics_info' pointer-type='item_rock_graphics_infost'/>
+        <static-array name='statue_texpos_top' count='92' type-name='int32_t'/>
+        <static-array name='statue_texpos_bottom' count='92' type-name='int32_t'/>
+    </struct-type>
+</data-definition>
+
+<!--
+Local Variables:
+indent-tabs-mode: nil
+nxml-child-indent: 4
+End:
+-->

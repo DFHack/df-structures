@@ -1,0 +1,985 @@
+<data-definition>
+    <struct-type type-name='activity_event_flow_mapst'>
+        <static-array name='map' type-name='uint8_t' count='49'/>
+        <compound name='local_center' type-name='coord'/>
+    </struct-type>
+
+    <struct-type type-name='activity_event_participants' original-name='activity_event_participant_listst'>
+        <stl-vector name='histfigs' type-name='int32_t' ref-target='historical_figure'/>
+        <stl-vector name='units' type-name='int32_t' ref-target='unit'/>
+
+        -- Seemingly units that are free to be grouped
+        -- away into subevents or sparring pairs.
+        <stl-vector name='free_histfigs' type-name='int32_t' ref-target='historical_figure'/>
+        <stl-vector name='free_units' type-name='int32_t' ref-target='unit'/>
+
+        -- Holder event
+        <int32_t name='activity_id' ref-target='activity_entry'/>
+        <int32_t name='event_id' ref-target='activity_event'/>
+    </struct-type>
+
+    <enum-type type-name='activity_event_item_role_type' base-type='int32_t'> bay12: ActivityEventItemRoleType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='TARGET_TO_POUR'/>
+        <enum-item name='TARGET_TO_FILL'/>
+        <enum-item name='TARGET_TO_READ'/>
+        <enum-item name='TARGET_TO_WRITE_ON'/>
+        <enum-item name='TARGET_TO_COPY'/>
+        <enum-item name='PERFORMANCE_INSTRUMENT'/>
+        <enum-item name='TOY'/>
+    </enum-type>
+
+    <bitfield-type type-name='activity_event_item_flag' base-type='uint32_t'> bay12: ACTIVITY_EVENT_ITEM_FLAG_*
+        <flag-bit name='HIT_BY_DELETION'/>
+    </bitfield-type>
+
+    <struct-type type-name='activity_event_itemst'>
+        <enum type-name='activity_event_item_role_type' name='role'/>
+        <int32_t name='item_id' ref-target='item' init-value='-1' comment='is artifact id for some activities ie. copy written'/>
+        <bitfield name='flags' base-type='uint32_t' type-name='activity_event_item_flag'/>
+    </struct-type>
+
+    <enum-type type-name='activity_event_building_role_type' base-type='int32_t'> bay12: ActivityEventBuildingRoleType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='SIT_AND_READ'/>
+        <enum-item name='SIT_AND_WRITE'/>
+        <enum-item name='PLACED_WRITING_MATERIALS'/>
+        <enum-item name='PERFORMANCE_INSTRUMENT'/>
+    </enum-type>
+
+    <struct-type type-name='activity_event_buildingst'>
+        <enum type-name='activity_event_building_role_type' name='role'/>
+        <int32_t name='bld_id' ref-target='building'/>
+        <int32_t name='unit_id' ref-target='unit'
+                 comment='is unit ID for writing jobs and reading'/>
+        <bitfield name='flags' base-type='uint32_t'> bay12: ???
+            <flag-bit name='HIT_BY_DELETION'/>
+        </bitfield>
+    </struct-type>
+
+    <bitfield-type type-name='activity_event_flag' base-type='uint32_t'> bay12: ACTIVITY_EVENT_FLAG_*
+            <flag-bit name='dismissed' comment='to be removed from squad_position, anyway'/>
+            <flag-bit name='squad' comment='for all in training session, but not ind.drill'/>
+    </bitfield-type>
+
+    <enum-type type-name='activity_event_type' base-type='int16_t'> bay12: ActivityEventType
+        <enum-item name='NONE' value='-1'/>
+
+        <enum-item name='TrainingSession'/>
+        <enum-item name='CombatTraining'/>
+        <enum-item name='SkillDemonstration'/>
+        <enum-item name='IndividualSkillDrill'/>
+        <enum-item name='Sparring'/>
+        <enum-item name='RangedPractice'/>
+        <enum-item name='Harassment'/>
+        <enum-item name='Conversation'/>
+
+        <enum-item name='Conflict'/>
+        <enum-item name='Guard'/>
+        <enum-item name='Reunion'/>
+        <enum-item name='Prayer'/>
+        <enum-item name='Socialize'/>
+        <enum-item name='Worship'/>
+        <enum-item name='Performance'/>
+        <enum-item name='Research'/>
+
+        <enum-item name='PonderTopic'/>
+        <enum-item name='DiscussTopic'/>
+        <enum-item name='Read'/>
+        <enum-item name='FillServiceOrder'/>
+        <enum-item name='Write'/>
+        <enum-item name='CopyWrittenContent'/>
+        <enum-item name='TeachTopic'/>
+        <enum-item name='Play'/>
+
+        <enum-item name='MakeBelieve'/>
+        <enum-item name='PlayWithToy'/>
+        <enum-item name='Encounter'/>
+        <enum-item name='StoreObject'/>
+    </enum-type>
+
+    <class-type type-name='activity_event' original-name='activity_eventst'>
+        <int32_t name='event_id' comment='mostly, but not always, the index in activity.events'/>
+        <int32_t name='activity_id' ref-target='activity_entry'/>
+
+        <code-helper name='find-instance'>
+            (let ((activity (find-instance $activity_entry $$)))
+              (find-by-id $activity.events $event_id $))
+        </code-helper>
+
+        <int32_t name='parent_event_id' ref-target='activity_event' aux-value='$$.activity_id'/>
+
+        <bitfield name='flags' base-type='uint32_t' type-name='activity_event_flag'/>
+
+        <stl-vector name='item' pointer-type='activity_event_itemst'/>
+        <stl-vector name='building' pointer-type='activity_event_buildingst'/>
+
+        <virtual-methods>
+            <vmethod ret-type='activity_event_type' name='getType'/>
+            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
+            <vmethod name='read_file'>
+                <pointer name='file' type-name='file_compressorst'/>
+                <enum name='loadversion' type-name='save_version'/>
+            </vmethod>
+            <vmethod is-destructor='true'/>
+            <vmethod ret-type='bool' name='isEmpty'
+                     comment='returns true if hist_figure_ids empty or if various subclass fields are uninitialized'/>
+
+            <vmethod ret-type='int32_t' name='get_building_id'/>
+            <vmethod name='set_building_id'> <int32_t name='id'/> </vmethod>
+            <vmethod name='getParticipantInfo'>
+                <ret-type> <pointer type-name='activity_event_participants'/> </ret-type>
+            </vmethod>
+            <vmethod name='dismiss'> <bool name='children_too'/> </vmethod>
+            <vmethod name='move'>
+                <int16_t name='dx'/>
+                <int16_t name='dy'/>
+                <int16_t name='dz'/>
+            </vmethod>
+            <vmethod name='removeParticipant'> <int32_t name='histfig'/> <int32_t name='unit'/> <bool name='moving_to_related'/> </vmethod>
+
+            <vmethod name='follow_order'>
+                <pointer type-name='dungeon_contextst' name='context'/>
+                <pointer type-name='unit' name='unit'/>
+            </vmethod>
+            <vmethod ret-type='squad_order_cannot_reason' name='checkDrillInvalid'>
+                <pointer type-name='unit' name='unit'/>
+            </vmethod>
+            <vmethod ret-type='bool' name='decUniformLock'><pointer type-name='unit'/></vmethod>
+            <vmethod name='getSquadEventType' ret-type='squad_event_type'/>
+            <vmethod name='setDemoSkill'>
+                <enum name='skill' type-name='job_skill'/>
+            </vmethod>
+
+            <vmethod name='setSkillDemoTimers'>
+                <int32_t name='wait_countdown'/>
+                <int32_t name='train_rounds'/>
+                <int32_t name='train_countdown'/>
+            </vmethod>
+            <vmethod name='adjustOrganizeCounter'>
+                <int32_t name='amount'/>
+            </vmethod>
+            <vmethod name='getOrganizer' comment='rather, the instructor'>
+                <pointer name='hist_figure_id'>
+                    <pointer type-name='int32_t' ref-target='historical_figure'/>
+                </pointer>
+                <pointer name='unit_id'>
+                    <pointer type-name='int32_t' ref-target='unit'/>
+                </pointer>
+            </vmethod>
+            <vmethod name='getBuilding' comment='barracks'>
+                <ret-type><pointer type-name='int32_t'/></ret-type>
+            </vmethod>
+            <vmethod ret-type='bool' name='isSparring' comment='actually wrestling'/>
+
+            <vmethod ret-type='unit_uniform_mode_type' name='getUniformType'/>
+            <vmethod name='getName'>
+                <int32_t name='unit_id'/>
+                <pointer type-name='stl-string' name='str'/>
+            </vmethod>
+        </virtual-methods>
+    </class-type>
+
+    <class-type type-name='activity_event_training_sessionst' inherits-from='activity_event'>
+        <compound name='participants' type-name='activity_event_participants'/>
+    </class-type>
+
+    <class-type type-name='activity_event_combat_trainingst' inherits-from='activity_event'>
+        <compound name='participants' type-name='activity_event_participants'/>
+
+        <int32_t name='building_id' ref-target='building'/>
+        <int32_t name='hist_figure_id' ref-target='historical_figure'/>
+        <int32_t name='unit_id' ref-target='unit'/>
+        <int32_t name='organize_counter' comment='gt 0 => organizing, lt 0 => done'/>
+    </class-type>
+
+    <class-type type-name='activity_event_skill_demonstrationst' inherits-from='activity_event'>
+        <compound name='participants' type-name='activity_event_participants'/>
+
+        <int32_t name='building_id' ref-target='building'/>
+        <int32_t name='hist_figure_id' ref-target='historical_figure'/>
+        <int32_t name='unit_id' ref-target='unit'/>
+        <enum name='skill' type-name='job_skill'/>
+        <int32_t name='organize_counter'/>
+        <int32_t name='wait_countdown' init-value='1000'/>
+        <int32_t name='train_rounds' init-value='15'/>
+        <int32_t name='train_countdown' init-value='200'/>
+    </class-type>
+
+    <class-type type-name='activity_event_fill_service_orderst' inherits-from='activity_event'>
+        <int32_t name='histfig_id' ref-target='historical_figure'/>
+        <int32_t name='unit_id' ref-target='unit'/>
+        <int32_t name='occupation_id' ref-target='occupation'/>
+        <int32_t name='service_order_id'/>
+    </class-type>
+
+    <class-type type-name='activity_event_individual_skill_drillst' inherits-from='activity_event'>
+        <compound name='participants' type-name='activity_event_participants'/>
+
+        <int32_t name='building_id' ref-target='building'/>
+        <int32_t name='countdown' init-value='3000'/>
+    </class-type>
+
+    <struct-type type-name='activity_event_sparring_matchst'>
+        <stl-vector name='units' type-name='int32_t' ref-target='unit'/>
+        <int32_t name='countdown' init-value='3000'/>
+        <int32_t name='building_id' ref-target='building'/>
+    </struct-type>
+
+    <class-type type-name='activity_event_sparringst' inherits-from='activity_event'>
+        <compound name='participants' type-name='activity_event_participants'/>
+
+        <int32_t name='building_id' ref-target='building'/>
+        <stl-vector name='groups' pointer-type='activity_event_sparring_matchst'/>
+        <int32_t name='countdown' init-value='3000'/>
+    </class-type>
+
+    <class-type type-name='activity_event_ranged_practicest' inherits-from='activity_event'>
+        <compound name='participants' type-name='activity_event_participants'/>
+
+        <int32_t name='building_id' ref-target='building'/>
+        <compound name='fire_from' type-name='coord2d'/>
+        <int32_t name='countdown'/>
+    </class-type>
+
+    <bitfield-type type-name='harassment_target_profile_flag' base-type='uint32_t'> bay12: HARASSMENT_TARGET_PROFILE_FLAG_*
+        <flag-bit name='done'/>
+    </bitfield-type>
+
+    <struct-type type-name='harassment_target_profilest'>
+        <int32_t name='hfid' comment='is an hfid'/>
+        <static-array name='surround_hfid' count='3'><static-array count='3' type-name='int32_t' ref-target='historical_figure'/></static-array>
+
+        <int32_t name='demand_item_id' ref-target='item'/>
+        <int32_t name='demand_item_timer'/>
+
+        <stl-vector name='processed_item_id' type-name='int32_t' ref-target='item'/>
+
+        <bitfield name='flags' base-type='uint32_t' type-name='harassment_target_profile_flag'/>
+        <int32_t name='demand_incident_id'/>
+    </struct-type>
+
+    <enum-type type-name='harassment_stage_type' base-type='int32_t'> bay12: HarassmentStageType
+        <enum-item name='None' value='-1'/>
+        <enum-item name='Interview'/>
+        <enum-item name='Confront'/>
+        <enum-item name='Torment'/>
+    </enum-type>
+
+    <class-type type-name='activity_event_harassmentst' inherits-from='activity_event'>
+        <stl-vector name='harasser_hf' type-name='int32_t' ref-target='historical_figure'/>
+        <stl-vector name='target_profile' pointer-type='harassment_target_profilest'/>
+        <enum name='stage' type-name='harassment_stage_type'/>
+        <int32_t name='inactivity_timer'/>
+        <int32_t name='initiated_year'/>
+        <int32_t name='initiated_season_count'/>
+        <int32_t name='talker_hfid' ref-target='historical_figure'/>
+        <int32_t name='yield_timer'/>
+    </class-type>
+
+    <enum-type type-name='encounter_unit_stage_type' base-type='int32_t'> bay12: EncounterUnitStageType
+        <enum-item name='None' value='-1'/>
+        <enum-item name='PraseForReturningItem'/>
+        <enum-item name='DirectReturnOfItem'/>
+        <enum-item name='RequestItem'/>
+        <enum-item name='SeizeItem'/>
+        <enum-item name='ObtainClearance'/>
+    </enum-type>
+
+    <struct-type type-name='encounter_unitst'>
+        <int32_t name='unit' ref-target='unit'/>
+        <int32_t name='histfig' ref-target='historical_figure'/>
+        <enum name='stage' type-name='encounter_unit_stage_type'/>
+        <int32_t name='stage_last_year'/>
+        <int32_t name='stage_last_season_count'/>
+        <int32_t name='stage_count'/>
+        <int32_t name='start_x'/>
+        <int32_t name='start_y'/>
+        <int32_t name='start_z'/>
+        <int32_t name='obtain_clearance_reply_timer'/>
+    </struct-type>
+
+    <bitfield-type type-name='encounter_item_flag' base-type='uint32_t'> bay12: ENCOUNTERFLAG_ITEM_*
+        <flag-bit name='requested_barter'/>
+    </bitfield-type>
+
+    <struct-type type-name='encounter_itemst'>
+        <int32_t name='item' ref-target='item'/>
+        <int32_t name='artifact_id' ref-target='artifact_record'/>
+        <int32_t name='return_bld_id' ref-target='building'/>
+        <int32_t name='return_st_id' ref-target='world_site'/>
+        <int32_t name='return_ab_id' ref-target='abstract_building'/>
+        <int32_t name='demand_item_timer'/>
+        <int32_t name='soft_reply_timer'/>
+        <bitfield name='flags' base-type='uint32_t' type-name='encounter_item_flag'/>
+    </struct-type>
+
+    <class-type type-name='activity_event_encounterst' inherits-from='activity_event'>
+        <stl-vector name='unit_target' pointer-type='encounter_unitst'/>
+        <stl-vector name='item_target' pointer-type='encounter_itemst'/>
+        <stl-vector name='encounter_hf' type-name='int32_t' ref-target='historical_figure'/>
+        <stl-vector name='encounter_en' type-name='int32_t' ref-target='historical_entity'/>
+        <int32_t name='encounter_ac' ref-target='army_controller'/>
+        <int32_t name='inactivity_timer'/>
+        <int32_t name='initiated_year'/>
+        <int32_t name='initiated_season_count'/>
+        <int32_t name='talker_hf' ref-target='historical_figure'/>
+    </class-type>
+
+    <bitfield-type type-name='activity_event_reunion_flag' base-type='uint32_t'> bay12: ACTIVITY_EVENT_REUNION_FLAG_*
+        <flag-bit name='embraced'/>
+    </bitfield-type>
+
+    <class-type type-name='activity_event_reunionst' inherits-from='activity_event'>
+        <stl-vector name='reunion_hf' type-name='int32_t' ref-target='historical_figure'/>
+        <stl-vector name='reunion_unit' type-name='int32_t' ref-target='unit'/>
+        <int32_t name='inactivity_timer'/>
+        <int32_t name='initiated_year'/>
+        <int32_t name='initiated_season_count'/>
+        <int32_t name='good_contact_checks'/>
+        <bitfield name='spec_flag' base-type='uint32_t' type-name='activity_event_reunion_flag'/>
+    </class-type>
+
+    <struct-type type-name='conversation_participantst'>
+        <int32_t name='unit_id' ref-target='unit'/>
+        <int32_t name='histfig_id' ref-target='historical_figure'/>
+    </struct-type>
+
+    <struct-type type-name='utterancest'>
+        <int32_t name='speaker' ref-target='unit'/>
+        <int32_t name='speaker_hfid' ref-target='historical_figure'/>
+        <enum name='type' type-name='talk_choice_type'/>
+
+        <compound name='rumor' type-name='entity_event'/>
+        <int32_t name='incident_id'/>
+
+        <int16_t name='foreground'/>
+        <int16_t name='background'/>
+        <int16_t name='bright'/>
+        <int32_t name='year'/>
+        <int32_t name='ticks'/>
+
+        depends on conversation choice
+        <compound is-union='true'>
+            <int32_t name='variable1'/>
+            <enum name="adventure_desire" type-name='adventure_desire_state_type'/>
+            <enum name="opinion" type-name='opinion_type'/>
+            <int32_t name='sleep_zone_id'/>
+            <int32_t name='main_relevant_id'/>
+            <int32_t name='banter_item_id' ref-target='item'/>
+            <enum name="trouble_type" type-name='conversation_trouble_type'/>
+            <int32_t name='squad_id' ref-target='squad'/>
+            <int32_t name='agreement_id' ref-target='agreement'/>
+            <int32_t name='giver_entity_id' ref-target='historical_entity'/>
+            <int32_t name='asker_entity_id' ref-target='historical_entity'/>
+            <enum name="emotion" type-name='emotion_type'/>
+            <int32_t name='position_entity_id' ref-target='historical_entity'/>
+            <int32_t name='invocation_target_hfid' ref-target='historical_figure'/>
+            <int32_t name='service_order_id'/>
+            <enum name="value_type" type-name='value_type'/>
+            <enum name="squad_order_type" type-name='squad_order_type'/>
+            <int32_t name='belief_system_id'/>
+            <int32_t name='retrieve_artifact_quest_art_id' ref-target='artifact_record'/>
+        </compound>
+        <compound is-union='true'>
+            <int32_t name='variable2'/>
+            <enum name="reason" type-name='history_event_reason'/>
+            <int32_t name='site_id2' ref-target='world_site'/>
+            <int32_t name='banter_bld_id'/>
+            <int32_t name='trouble_amount'/>
+            <int32_t name='dipstate_holder_enid' ref-target='historical_entity'/>
+            <int32_t name='squad_joiner_unid' ref-target='unit'/>
+            <int32_t name='taker_entity_id' ref-target='historical_entity'/>
+            <int32_t name='considerer_entity_id' ref-target='historical_entity'/>
+            <enum name="circumstance" type-name='unit_thought_type'/>
+            <enum name="witness" type-name='witness_type'/>
+            <int32_t name='position_profile_id'/>
+            <int32_t name='invocation_target_identity_id'/>
+            <int32_t name='service_order_occid'/>
+            <int32_t name='value_level'/>
+            <int32_t name='squad_order_target_hfid' ref-target='historical_figure'/>
+            <int32_t name='story_index'/>
+            <int32_t name='question_identity_id'/>
+            <int32_t name='retrieve_artifact_quest_site_id' ref-target='world_site'/>
+        </compound>
+        <compound is-union='true'>
+            <int32_t name='variable3'/>
+            <int32_t name='banter_entity_id' ref-target='historical_entity'/>
+            <int32_t name='agreement_subject_id'/>
+            <int32_t name='order_squad_id' ref-target='squad'/>
+            <int32_t name='circumstance_id'/>
+            <enum name="occupation_type" type-name='occupation_type'/>
+            <int32_t name='squad_order_target_stid' ref-target='world_site'/>
+            <int32_t name='story_frame_index'/>
+            <int32_t name='retrieve_artifact_quest_giver_entity_id' ref-target='historical_entity'/>
+        </compound>
+        <compound is-union='true'>
+            <int32_t name='variable4'/>
+            <int32_t name='circumstance_value'/>
+            <int32_t name='occupation_unid' ref-target='unit'/>
+            <int32_t name='squad_order_target_enid' ref-target='historical_entity'/>
+        </compound>
+    </struct-type>
+
+    <struct-type type-name='talk_choice' original-name='conversation_choicest'>
+        <enum name='type' type-name='talk_choice_type'/>
+        <pointer name='rumor' type-name='entity_event'/>
+        <pointer name='witness_incident' type-name='witness_incidentst'/>
+        <compound is-union='true'>
+            <int32_t name='variable1'/>
+            <enum name="adventure_desire" type-name='adventure_desire_state_type'/>
+            <enum name="opinion" type-name='opinion_type'/>
+            <pointer name='sleep_permission_zone' comment='building_civzonest but the pointer is only valid for specific conversation topics'/>
+            <int32_t name='main_relevant_id'/>
+            <int32_t name='banter_item_id' ref-target='item'/>
+            <enum name="trouble_type" type-name='conversation_trouble_type'/>
+            <int32_t name='squad_id' ref-target='squad'/>
+            <int32_t name='agreement_id' ref-target='agreement'/>
+            <int32_t name='giver_entity_id' ref-target='historical_entity'/>
+            <int32_t name='asker_entity_id' ref-target='historical_entity'/>
+            <enum name="emotion" type-name='emotion_type'/>
+            <int32_t name='position_entity_id' ref-target='historical_entity'/>
+            <int32_t name='invocation_target_hfid' ref-target='historical_figure'/>
+            <int32_t name='service_order_id'/>
+            <enum name="value_type" type-name='value_type'/>
+            <enum name="squad_order_type" type-name='squad_order_type'/>
+            <int32_t name='belief_system_id'/>
+            <int32_t name='retrieve_artifact_quest_art_id' ref-target='artifact_record'/>
+        </compound>
+        <compound is-union='true'>
+            <int32_t name='variable2'/>
+            <enum name="reason" type-name='history_event_reason'/>
+            <int32_t name='site_id2' ref-target='world_site'/>
+            <int32_t name='banter_bld_id'/>
+            <int32_t name='trouble_amount'/>
+            <int32_t name='dipstate_holder_enid' ref-target='historical_entity'/>
+            <int32_t name='squad_joiner_unid' ref-target='unit'/>
+            <int32_t name='taker_entity_id' ref-target='historical_entity'/>
+            <int32_t name='considerer_entity_id' ref-target='historical_entity'/>
+            <enum name="circumstance" type-name='unit_thought_type'/>
+            <enum name="witness" type-name='witness_type'/>
+            <int32_t name='position_profile_id'/>
+            <int32_t name='invocation_target_identity_id'/>
+            <int32_t name='service_order_occid'/>
+            <int32_t name='value_level'/>
+            <int32_t name='squad_order_target_hfid' ref-target='historical_figure'/>
+            <int32_t name='story_index'/>
+            <int32_t name='question_identity_id'/>
+            <int32_t name='retrieve_artifact_quest_site_id' ref-target='world_site'/>
+        </compound>
+        <compound is-union='true'>
+            <int32_t name='variable3'/>
+            <int32_t name='banter_entity_id' ref-target='historical_entity'/>
+            <int32_t name='agreement_subject_id'/>
+            <int32_t name='order_squad_id' ref-target='squad'/>
+            <int32_t name='circumstance_id'/>
+            <enum name="occupation_type" type-name='occupation_type'/>
+            <int32_t name='squad_order_target_stid' ref-target='world_site'/>
+            <int32_t name='story_frame_index'/>
+            <int32_t name='retrieve_artifact_quest_giver_entity_id' ref-target='historical_entity'/>
+        </compound>
+        <compound is-union='true'>
+            <int32_t name='variable4'/>
+            <int32_t name='circumstance_value'/>
+            <int32_t name='occupation_unid' ref-target='unit'/>
+            <int32_t name='squad_order_target_enid' ref-target='historical_entity'/>
+        </compound>
+        <int32_t name='value' init-value='-1'/>
+    </struct-type>
+
+    <enum-type type-name='conversation_state_type' base-type='int32_t'> bay12: ConversationStateType
+        <enum-item name='None' value='-1'/>
+        <enum-item name='RespondGreeting'/>
+        <enum-item name='MainMenu'/>
+        <enum-item name='CurrentProblems'/>
+        <enum-item name='BringUpIncident'/>
+        <enum-item name='GeneralTroublesSummary'/>
+        <enum-item name='Incident'/>
+        <enum-item name='Rumor'/>
+        <enum-item name='RespondGoodbye'/>
+        <enum-item name='Bail'/>
+        <enum-item name='SleepPermissionRequested'/>
+
+        <enum-item name='AskJoin'/>
+        <enum-item name='RespondJoin'/>
+        <enum-item name='DiscussRescue'/>
+        <enum-item name='DiscussAgreement'/>
+        <enum-item name='DiscussTrade'/>
+        <enum-item name='DiscussSurroundingArea'/>
+        <enum-item name='RespondAccusation'/>
+        <enum-item name='DiscussProfession'/>
+        <enum-item name='DiscussFamily'/>
+        <enum-item name='RespondArmistice'/>
+
+        <enum-item name='RespondDemandYield'/>
+        <enum-item name='TroublesSummary'/>
+        <enum-item name='SpecificTrouble'/>
+        <enum-item name='AskDirections'/>
+        <enum-item name='AskedSiteDirections'/>
+        <enum-item name='AskedHistfigDirections'/>
+        <enum-item name='AskedForSiteGuide'/>
+        <enum-item name='AskedForHistfigGuide'/>
+        <enum-item name='JoinGuideDestination'/>
+        <enum-item name='AskAboutBuilding'/>
+
+        <enum-item name='Demand'/>
+        <enum-item name='PlacedOrder'/>
+        <enum-item name='BouncedOrder'/>
+        <enum-item name='RequestedFollow'/>
+        <enum-item name='Barter'/>
+        <enum-item name='DiscussHearthpersonDuties'/>
+        <enum-item name='AskedJoinSquad'/>
+        <enum-item name='DiscussJourney'/>
+        <enum-item name='DiscussGroup'/>
+        <enum-item name='DiscussConflict'/>
+
+        <enum-item name='DiscussSite'/>
+        <enum-item name='RespondDemand'/>
+        <enum-item name='RespondItemLocation'/>
+        <enum-item name='RespondTributeDemand'/>
+        <enum-item name='RespondTributeOffer'/>
+        <enum-item name='DiscussTradeCancellation'/>
+        <enum-item name='RespondPeaceOffer'/>
+        <enum-item name='DiscussAgreementConclusion'/>
+        <enum-item name='RespondAdoptionRequest'/>
+        <enum-item name='InvitedJoinSquad'/>
+
+        <enum-item name='KickedOutOfSquad'/>
+        <enum-item name='RespondPositionOffer'/>
+        <enum-item name='RespondInvocation'/>
+        <enum-item name='GaveSquadTaskReport'/>
+        <enum-item name='AskAboutPerson'/>
+        <enum-item name='AskedAboutHistfig'/>
+        <enum-item name='DiscussFeelings'/>
+        <enum-item name='RequestServiceStateAB'/>
+        <enum-item name='ListServiceStateAB'/>
+        <enum-item name='RequestSpecficStateService'/>
+
+        <enum-item name='RespondJoinEntertain'/>
+        <enum-item name='AskJoinTroupe'/>
+        <enum-item name='InvitedJoinTroupe'/>
+        <enum-item name='KickedOutOfTroupe'/>
+        <enum-item name='LeftTroupe'/>
+        <enum-item name='StateGeneralThoughts'/>
+        <enum-item name='DiscussValues'/>
+        <enum-item name='RespondValues'/>
+        <enum-item name='RespondPassiveReply'/>
+        <enum-item name='RespondFlattery'/>
+
+        <enum-item name='RespondDismissal'/>
+        <enum-item name='AskPersonalOccupation'/>
+        <enum-item name='AskEntireEntityOccupation'/>
+        <enum-item name='MissingArtifact'/>
+        <enum-item name='RequestIdentityForSiteClearance'/>
+        <enum-item name='Interrogate'/>
+        <enum-item name='FishForMaster'/>
+        <enum-item name='FishForPlots'/>
+        <enum-item name='Flatter'/>
+        <enum-item name='Pacify'/>
+
+        <enum-item name='UnneededPacify'/>
+        <enum-item name='ToldJoke'/>
+        <enum-item name='GiftPet'/>
+        <enum-item name='GavePet'/>
+        <enum-item name='OfferedService'/>
+    </enum-type>
+
+    <bitfield-type type-name='activity_event_conversation_flag' base-type='uint32_t'> bay12: ACTIVITY_EVENT_CONVERSATION_FLAG_*
+        <flag-bit name='monologue'/>
+        <flag-bit name='shouting'/>
+    </bitfield-type>
+
+    <class-type type-name='activity_event_conversationst' inherits-from='activity_event'>
+        <stl-vector name='participants' pointer-type='conversation_participantst'/>
+        <enum name='menu' type-name='conversation_state_type'/>
+        <compound name='state_rumor' type-name='entity_event'/>
+        <int32_t name='state_incident_id' since='v0.42.01'/>
+        <compound is-union='true'>
+            <int32_t name='state_relevant_id'/>
+            <int32_t name='state_value_type'/>
+            <int32_t name='state_asker_entity_id' ref-target='historical_entity'/>
+        </compound>
+        <compound is-union='true'>
+            <int32_t name='state_relevant_id_2'/>
+            <int32_t name='state_value_level'/>
+            <int32_t name='state_considerer_entity_id' ref-target='historical_entity'/>
+            <int32_t name='state_question_identity_id'/>
+        </compound>
+        <compound is-union='true'>
+            <int32_t name='state_relevant_id_3'/>
+            <int32_t name='state_attack_roll'/>
+            <int32_t name='state_occupation_type'/>
+        </compound>
+        <compound is-union='true'>
+            <int32_t name='state_relevant_id_4'/>
+            <int32_t name='state_defense_roll'/>
+        </compound>
+        <stl-vector type-name='conversation_trouble_type' name='state_trouble_type' since='v0.42.01'/>
+        <stl-vector name='state_trouble_amount' type-name='int32_t'/>
+        <stl-vector name='state_service_order_template' pointer-type='service_order_templatest'/>
+        <stl-vector name='state_mentioned_stid' type-name='int32_t' ref-target='world_site'/>
+        <stl-vector name='state_mentioned_hfid' type-name='int32_t' ref-target='historical_figure'/>
+        <compound name='state_incident_hf' type-name='incident_hfid'/>
+        <enum name='state_tact' type-name='conversation_tact_type' since='v0.47.01'/>
+
+        <stl-vector name='turns' pointer-type='utterancest'/>
+        <int32_t name='floor_holder' ref-target='unit' comment="-1 = no one's turn"/>
+        <int32_t name='floor_holder_hfid' ref-target='historical_figure' comment="-1 = no one's turn"/>
+        <int32_t name='pause' comment='ticks since the last turn'/>
+        <bitfield name='spec_flag' base-type='uint32_t' type-name='activity_event_conversation_flag'/>
+        <compound name='conflict_report' type-name='conflict_reportst'/>
+
+        <stl-vector name='choices' pointer-type='talk_choice'/>
+        <enum name='return_topic_state' type-name='conversation_state_type' init-value='None'/>
+        <compound name='return_topic_rumor' type-name='entity_event'/>
+        <int32_t name='return_topic_incident_id'/>
+    </class-type>
+
+    <class-type type-name='activity_event_guardst' inherits-from='activity_event'>
+        <stl-vector name='guard_hfid' type-name='int32_t' ref-target='historical_figure'/>
+        <compound name='pos' type-name='coord'/>
+        <int32_t name='dist'/>
+    </class-type>
+
+    <struct-type type-name='conflict_statest'>
+        <int32_t name='id'/>
+        <enum name='conflict_level' type-name='conflict_level'/>
+    </struct-type>
+
+    <struct-type type-name='conflict_sidest'>
+        <int32_t name='id'/>
+        <stl-vector name='histfig_ids' type-name='int32_t' ref-target='historical_figure'/>
+        <stl-vector name='unit_ids' type-name='int32_t' ref-target='unit'/>
+        <stl-vector name='enemies' pointer-type='conflict_statest' comment='relationships to other sides in this conflict'/>
+        <int32_t name='peak_strength'/>
+        <int32_t name='current_strength'/>
+    </struct-type>
+
+    <class-type type-name='activity_event_conflictst' inherits-from='activity_event'>
+        <stl-vector name='sides' pointer-type='conflict_sidest'/>
+        <int32_t name='next_side_local_id'/>
+
+        <int32_t name='eventcol' ref-target='history_event_collection'/>
+        <int32_t name='inactivity_timer'/>
+        <int32_t name='attack_inactivity_timer' since='v0.42.01'/>
+        <int32_t name='stop_fort_fights_timer' since='v0.50.01'/>
+    </class-type>
+
+    <class-type type-name='activity_event_prayerst' inherits-from='activity_event'>
+        <compound name='participants' type-name='activity_event_participants'/>
+        <int32_t name='histfig_id' ref-target='historical_figure' comment='praying to deity'/>
+        <enum type-name='sphere_type' name='topic' comment='praying to sphere'/>
+        <int32_t name='site_id' ref-target='world_site'/>
+        <int32_t name='location_id' ref-target='abstract_building' aux-value='$$.site_id'/>
+        <int32_t name='building_id' ref-target='building'/>
+        <int32_t name='timer'/>
+    </class-type>
+
+    <class-type type-name='activity_event_researchst' inherits-from='activity_event'>
+        <compound name='participants' type-name='activity_event_participants'/>
+        <int32_t name='site_id' ref-target='world_site'/>
+        <int32_t name='location_id' ref-target='abstract_building' aux-value='$$.site_id'/>
+        <int32_t name='building_id' ref-target='building'/>
+    </class-type>
+
+    <class-type type-name='activity_event_playst' inherits-from='activity_event'>
+        <compound name='participants' type-name='activity_event_participants'/>
+        <int32_t name='down_time_counter'/>
+        <compound name='flow_map' type-name='activity_event_flow_mapst'/>
+    </class-type>
+
+    <class-type type-name='activity_event_worshipst' inherits-from='activity_event'>
+        <compound name='participants' type-name='activity_event_participants'/>
+        <int32_t name='site_id' ref-target='world_site'/>
+        <int32_t name='location_id' ref-target='abstract_building' aux-value='$$.site_id'/>
+        <int32_t name='building_id' ref-target='building'/>
+        <int32_t name='down_time_counter'/>
+    </class-type>
+
+    <class-type type-name='activity_event_socializest' inherits-from='activity_event'>
+        <compound name='participants' type-name='activity_event_participants'/>
+        <int32_t name='site_id' ref-target='world_site'/>
+        <int32_t name='location_id' ref-target='abstract_building' aux-value='$$.site_id'/>
+        <int32_t name='building_id' ref-target='building'/>
+        <int32_t name='down_time_counter'/>
+    </class-type>
+
+    <bitfield-type type-name='performance_role_flag' base-type='uint32_t'> bay12: PERFORMANCE_ROLE_FLAG_*
+        <flag-bit name='adv_can_move'/>
+        <flag-bit name='was_removed'/>
+        <flag-bit name='simulating'/>
+        <flag-bit name='grabbed_item'/>
+        <flag-bit name='no_item_required'/>
+        <flag-bit name='spectator_may_react'/>
+        <flag-bit name='spoken'/>
+        <flag-bit name='chanted'/>
+    </bitfield-type>
+
+    <struct-type type-name='performance_rolest'>
+        <enum name='type' type-name='performance_participant_type'/>
+        <int32_t name='sub_type' comment='depends on type. if music: voice index in musical form'/>
+        <int32_t name='unit_id' ref-target='unit'/>
+        <int32_t name='histfig_id' ref-target='historical_figure'/>
+        <int32_t name='used_item' ref-target='item'/>
+        <int32_t name='used_building' ref-target='building'/>
+        <compound name='pos' type-name='coord'/>
+        <bitfield name='flags' base-type='uint32_t' type-name='performance_role_flag'/>
+        <int32_t name='roll_sum'/>
+        <int32_t name='roll_num'/>
+        <int32_t name='last_roll'/>
+    </struct-type>
+
+    <class-type type-name='activity_event_ponder_topicst' inherits-from='activity_event'>
+        <compound name='participants' type-name='activity_event_participants'/>
+        <int32_t name='site_id' ref-target='world_site'/>
+        <int32_t name='location_id' ref-target='abstract_building' aux-value='$$.site_id'/>
+        <int32_t name='building_id' ref-target='building'/>
+        <compound name='topic' type-name='topicst'/>
+        <int32_t name='timer'/>
+    </class-type>
+
+    <class-type type-name='activity_event_discuss_topicst' inherits-from='activity_event'>
+        <compound name='participants' type-name='activity_event_participants'/>
+        <int32_t name='site_id' ref-target='world_site'/>
+        <int32_t name='location_id' ref-target='abstract_building' aux-value='$$.site_id'/>
+        <int32_t name='building_id' ref-target='building'/>
+
+        <compound name='topic' type-name='topicst'/>
+        <int32_t name='timer'/>
+        <int32_t name='leader_bail_count'/>
+        <int32_t name='leader_hf' ref-target='historical_figure'/>
+    </class-type>
+
+    <class-type type-name='activity_event_teach_topicst' inherits-from='activity_event'>
+        <compound name='participants' type-name='activity_event_participants'/>
+        <int32_t name='site_id' ref-target='world_site'/>
+        <int32_t name='location_id' ref-target='abstract_building'/>
+        <int32_t name='building_id' ref-target='building'/>
+
+        <compound name='topic' type-name='topicst'/>
+
+        <int32_t name='time_left'/>
+        <int32_t name='instructor_bail_count'/>
+        <int32_t name='instructor_hfid' ref-target='historical_figure'/>
+    </class-type>
+
+    <bitfield-type type-name='activity_event_read_flag' base-type='uint32_t'> bay12: ACTIVITY_EVENT_READ_FLAG_*
+        <flag-bit name='checked_for_chair'/>
+    </bitfield-type>
+
+    <class-type type-name='activity_event_readst' inherits-from='activity_event'>
+        <compound name='participants' type-name='activity_event_participants'/>
+        <int32_t name='building_id'/>
+        <int32_t name='site_id' ref-target='world_site'/>
+        <int32_t name='location_id' ref-target='abstract_building' aux-value='$$.site_id'/>
+        <bitfield name='spec_flag' base-type='uint32_t' type-name='activity_event_read_flag'/>
+        <int32_t name='timer'/>
+    </class-type>
+
+    <bitfield-type type-name='activity_event_write_flag' base-type='uint32_t'> bay12: ACTIVITY_EVENT_WRITE_FLAG_*
+        <flag-bit name='checked_for_chair'/>
+        <flag-bit name='placed_materials'/>
+        <flag-bit name='checked_for_table'/>
+    </bitfield-type>
+
+    <class-type type-name='activity_event_writest' inherits-from='activity_event'>
+        <compound name='participants' type-name='activity_event_participants'/>
+        <int32_t name='building_id' ref-target='building'/>
+        <int32_t name='site_id' ref-target='world_site'/>
+        <int32_t name='location_id' ref-target='abstract_building'/>
+        <bitfield name='spec_flag' base-type='uint32_t' type-name='activity_event_write_flag'/>
+        <int32_t name='timer'/>
+        <enum name='form' type-name='written_content_type'/>
+        <int32_t name='form_id' ref-target='written_content'/>
+        <compound name='topic' type-name='topicst'/>
+    </class-type>
+
+    <bitfield-type type-name='activity_event_copy_written_content_flag' base-type='uint32_t'> bay12: ACTIVITY_EVENT_COPY_WRITTEN_CONTENT_FLAG_*
+        <flag-bit name='checked_for_chair'/>
+        <flag-bit name='placed_materials'/>
+        <flag-bit name='checked_for_table'/>
+    </bitfield-type>
+
+    <class-type type-name='activity_event_copy_written_contentst' inherits-from='activity_event'>
+        <int32_t name='unit_id' ref-target='unit'/>
+        <int32_t name='histfig_id' ref-target='historical_figure'/>
+        <int32_t name='occupation_id'/>
+        <int32_t name='building_id' ref-target='building'/>
+        <int32_t name='site_id' ref-target='world_site'/>
+        <int32_t name='location_id' ref-target='abstract_building'/>
+        <int32_t name='ab_order_id'/>
+        <bitfield name='spec_flag' base-type='uint32_t' type-name='activity_event_copy_written_content_flag'/>
+        <int32_t name='timer'/>
+        <int32_t name='inactivity_timer' since='v0.50.01'/>
+    </class-type>
+
+    -- Unused: DanceSnapshotType
+
+    <struct-type type-name='dance_snapshotst'>
+        <static-array name='rel_x' type-name='int16_t' count='28'/>
+        <static-array name='rel_y' type-name='int16_t' count='28'/>
+    </struct-type>
+
+    <class-type type-name='performance_play_orderst'>
+        <int32_t name='play_order_index'/>
+        <int32_t name='number_of_iterations'/>
+        <int32_t name='total_position_duration'/>
+        <stl-vector name='dance_snapshot' pointer-type='dance_snapshotst'/>
+        <int32_t name='dance_snapshot_dancer_num'/>
+        <virtual-methods>
+            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
+            <vmethod name='read_file'>
+                <pointer name='file' type-name='file_compressorst'/>
+                <enum name='loadversion' type-name='save_version'/>
+            </vmethod>
+        </virtual-methods>
+    </class-type>
+
+    <bitfield-type type-name='activity_event_make_believe_flag' base-type='uint32_t'> bay12: ACTIVITY_EVENT_MAKE_BELIEVE_FLAG_*
+        <flag-bit name='announced_type'/>
+        <flag-bit name='underway'/>
+    </bitfield-type>
+
+    <class-type type-name='activity_event_make_believest' inherits-from='activity_event'>
+        <compound name='participants' type-name='activity_event_participants'/>
+        <int32_t name='kill_timer'/>
+        <bitfield name='spec_flag' base-type='uint32_t' type-name='activity_event_make_believe_flag'/>
+        <int32_t name='time_left'/>
+        <compound name='flow_map' type-name='activity_event_flow_mapst'/>
+    </class-type>
+
+    <struct-type type-name='ae_play_with_toy_assignmentst'>
+        <int32_t name='unit_id' ref-target='unit'/>
+        <int32_t name='item_id' ref-target='item'/>
+    </struct-type>
+
+    <bitfield-type type-name='activity_event_play_with_toy_flag' base-type='uint32_t'> bay12: ACTIVITY_EVENT_PLAY_WITH_TOY_FLAG_*
+        <flag-bit name='announced_type'/>
+        <flag-bit name='underway'/>
+    </bitfield-type>
+
+    <class-type type-name='activity_event_play_with_toyst' inherits-from='activity_event'>
+        <compound name='participants' type-name='activity_event_participants'/>
+        <int32_t name='kill_timer'/>
+        <bitfield name='spec_flag' base-type='uint32_t' type-name='activity_event_play_with_toy_flag'/>
+        <int32_t name='time_left'/>
+        <compound name='flow_map' type-name='activity_event_flow_mapst'/>
+        <stl-vector name='toy_assignment' pointer-type='ae_play_with_toy_assignmentst'/>
+    </class-type>
+
+    <bitfield-type type-name='activity_event_performance_flag' base-type='uint32_t'> bay12: ACTIVITY_EVENT_PERFORMANCE_FLAG_*
+        <flag-bit name='announced_type'/>
+        <flag-bit name='legal_post_start_place_change'/>
+    </bitfield-type>
+
+    <class-type type-name='activity_event_performancest' inherits-from='activity_event'>
+        <compound name='participants' type-name='activity_event_participants'/>
+        <enum name='type' type-name='performance_event_type'/>
+        <int32_t name='main_form_id' comment='depends on type, could be poetry/music/dance form'/>
+        <int32_t name='written_content_id' ref-target='written_content'/>
+        <int32_t name='poetic_form' ref-target='poetic_form'/>
+        <int32_t name='music_form' ref-target='musical_form'/>
+        <int32_t name='dance_form' ref-target='dance_form'/>
+        <int32_t name='learn_pwc_id' ref-target='written_content'/>
+        <int32_t name='learn_mwc_id' ref-target='written_content'/>
+        <int32_t name='learn_dwc_id' ref-target='written_content'/>
+        <int32_t name='bld_id' ref-target='building'/>
+        <int32_t name='current_section'/>
+        <int32_t name='current_position'/>
+        <stl-vector name='participant_actions' pointer-type='performance_rolest'/>
+        <compound name='reader_pos_min' type-name='coord2d'/>
+        <compound name='reader_pos_max' type-name='coord2d'/>
+        <int16_t name='reader_pos_z'/>
+
+        <compound name='music_pos_min' type-name='coord2d'/>
+        <compound name='music_pos_max' type-name='coord2d'/>
+        <int16_t name='music_pos_z'/>
+
+        <compound name='dance_pos_min' type-name='coord2d'/>
+        <compound name='dance_pos_max' type-name='coord2d'/>
+        <int16_t name='dance_pos_z'/>
+
+        <stl-vector name='play_orders' pointer-type='performance_play_orderst'/>
+        <int32_t name='kill_timer'/>
+
+        <compound name='flow_map' type-name='activity_event_flow_mapst'/>
+
+        <bitfield name='spec_flag' base-type='uint32_t' type-name='activity_event_performance_flag'/>
+
+        <int32_t name='adv_missed_step'/>
+        <int32_t name='adv_saw_step'/>
+    </class-type>
+
+    <class-type type-name='activity_event_store_objectst' inherits-from='activity_event'>
+        <int32_t name='item_id' ref-target='item'/>
+        <compound name='goal' type-name='coord'/>
+        <int32_t name='building_id' ref-target='building'/>
+        <int32_t name='goal_zone_id' ref-target='building'/>
+        <int32_t name='inactivity_timer'/>
+    </class-type>
+
+    <enum-type type-name='activity_entry_type' base-type='int16_t'> bay12: ActivityType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='TrainingSession'/>
+        <enum-item name='IndividualSkillDrill'/>
+        <enum-item name='Conflict'/>
+        <enum-item name='Harassment'/>
+        <enum-item name='Guard'/>
+        <enum-item name='Conversation'/>
+        <enum-item name='Reunion'/>
+        <enum-item name='Prayer'/>
+        <enum-item name='Socialize'/>
+        <enum-item name='Research'/>
+        <enum-item name='FillServiceOrder'/>
+        <enum-item name='Read'/>
+        <enum-item name='Play'/>
+        <enum-item name='Encounter'/>
+        <enum-item name='StoreObject'/>
+    </enum-type>
+
+    <struct-type type-name='activity_entry' original-name='activityst' instance-vector='$global.world.activities.all' key-field='id'>
+        <int32_t name='id'/>
+        <enum name='type' type-name='activity_entry_type'/>
+        <stl-vector name='events' pointer-type='activity_event'/>
+        <int32_t name='next_event_id'/>
+        <int32_t name='army_controller' ref-target='army_controller' since='v0.40.01'/>
+    </struct-type>
+
+    <struct-type type-name='activity_handlerst'>
+        <stl-vector name='all' pointer-type='activity_entry'/>
+        <stl-vector name='order_load' has-bad-pointers='true' pointer-type='activity_entry'/>
+    </struct-type>
+
+    <bitfield-type type-name='dungeon_context_flag' base-type='uint32_t'> bay12: DUNGEON_CONTEXT_FLAG_*
+        <flag-bit name='IN_CONFLICT'/>
+        <flag-bit name='CLOSE_OPPONENT'/>
+        <flag-bit name='CAN_SEE_TARGET'/>
+        <flag-bit name='TOUCHABLE_TARGET'/>
+        <flag-bit name='ALARMED_BY_ACTIVITY'/>
+        <flag-bit name='ALARMED_BY_UNIT'/>
+    </bitfield-type>
+
+    <struct-type type-name='dungeon_contextst'>
+        <pointer name='target' type-name='unit'/>
+        <enum type-name='conflict_level' name='target_conflict_state'/>
+        <bitfield name='flags' base-type='uint32_t' type-name='dungeon_context_flag'/>
+        <int32_t name='highest_allied_strength'/>
+        <int32_t name='sum_opposed_strength'/>
+        <int32_t name='allied_loss'/>
+        <int32_t name='sum_opposed_loss'/>
+        <static-array name='spotted_unit' count='200'>
+            <pointer type-name='unit'/>
+        </static-array>
+        <int32_t name='spotted_num'/>
+        <pointer type-name='activity_event_conflictst' name='conflict_name'/>
+        <int32_t name='alarm_activity_id' ref-target='activity_entry'/>
+        <int32_t name='alarm_unit_id' ref-target='unit'/>
+    </struct-type>
+</data-definition>
+
+<!--
+Local Variables:
+indent-tabs-mode: nil
+nxml-child-indent: 4
+End:
+-->

@@ -1,0 +1,107 @@
+<data-definition>
+    <enum-type type-name='logic_condition_type' base-type='int32_t'> bay12: LogicConditionType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='AtLeast' comment='GREATER_EQUAL'/>
+        <enum-item name='AtMost' comment='LESSER_EQUAL'/>
+        <enum-item name='GreaterThan' comment='GREATER'/>
+        <enum-item name='LessThan' comment='LESSER'/>
+        <enum-item name='Exactly' comment='EQUAL'/>
+        <enum-item name='Not' comment='NOT_EQUAL'/>
+    </enum-type>
+
+    <struct-type type-name='manager_order_condition_item' original-name='workquota_item_conditionst'>
+        <enum type-name='logic_condition_type' name="compare_type"/>
+        <int32_t name='compare_val'/>
+        <enum name='item_type' type-name='item_type' init-value='NONE'/>
+        <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)' init-value='-1'/>
+        <int16_t name="mat_type" ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name="mat_index" init-value='-1'/>
+        <bitfield name='flags1' type-name='job_item_flags1'/>
+        <bitfield name='flags2' type-name='job_item_flags2'/>
+        <bitfield name='flags3' type-name='job_item_flags3'/>
+        <uint32_t name='flags4'/>
+        <uint32_t name='flags5'/>
+        <stl-string name='reaction_class'/>
+        <stl-string name='has_material_reaction_product'/>
+        <int32_t name='metal_ore' ref-target='inorganic_raw'/>
+        <int32_t name="min_dimension" init-value='-1'/>
+        <stl-vector name='contains' type-name='int32_t'/>
+        <int32_t name="reaction_id" ref-target='reaction'/>
+        <enum name='has_tool_use' type-name='tool_uses'/>
+    </struct-type>
+
+    <enum-type type-name='workquota_order_condition_type' base-type='int32_t'> bay12: WQOrderConditionType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='Activated'/>
+        <enum-item name='Completed'/>
+    </enum-type>
+
+    <bitfield-type type-name='workquota_order_condition_flag' base-type='uint32_t'> bay12: WQ_ORDER_CONDITION_FLAG_*
+        <flag-bit name='satisfied'/>
+    </bitfield-type>
+
+    <struct-type type-name='manager_order_condition_order' original-name='workquota_order_conditionst'>
+        <int32_t name='order_id' ref-target='manager_order'/>
+        <enum type-name='workquota_order_condition_type' name="condition" init-value='Completed'/>
+        <bitfield name='flags' base-type='uint32_t' type-name='workquota_order_condition_flag'/>
+    </struct-type>
+
+    <enum-type type-name='workquota_frequency_type' base-type='int32_t'> bay12: WorkQuotaFrequencyType
+        <enum-item name='OneTime'/>
+        <enum-item name='Daily'/>
+        <enum-item name='Monthly'/>
+        <enum-item name='Seasonally'/>
+        <enum-item name='Yearly'/>
+    </enum-type>
+
+    <bitfield-type type-name='manager_order_status' base-type='uint32_t'> bay12: WORKQUOTA_FLAG_*
+        <flag-bit name="validated"/>
+        <flag-bit name="active"/>
+    </bitfield-type>
+
+    <struct-type type-name='manager_order' original-name='workquotast'>
+        <int32_t name='id'/>
+        <enum name='job_type' base-type='int16_t' type-name='job_type'/>
+        <enum name='item_type' type-name='item_type' init-value='NONE'/>
+        <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)' init-value='-1'/>
+
+        <stl-string name="reaction_name"/>
+
+        <int16_t name="mat_type" ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name="mat_index" init-value='-1'/>
+
+        <compound name='specflag' type-name='job_spec_flags'/>
+        <compound name='specdata' type-name='job_spec_data'/>
+        <bitfield name="material_category" type-name='job_material_category'/>
+
+        <compound name='art_spec'> not a compound
+            <enum name='type' type-name='job_art_specifier_type'/>
+            <int32_t name='id' init-value='-1'/>
+            <int32_t name='subid' init-value='-1'/>
+        </compound>
+
+        <int16_t name="amount_left" />
+        <int16_t name="amount_total" />
+        <bitfield name="status" type-name='manager_order_status'/>
+        <enum type-name='workquota_frequency_type' name="frequency"/>
+        <int32_t name="finished_year" init-value='-1'/>
+        <int32_t name="finished_year_tick" init-value='-1'/>
+        <int32_t name="workshop_id" ref-target='building'/>
+        <int32_t name="max_workshops" comment='0 is unlimited'/>
+        <stl-vector name="item_conditions" pointer-type='manager_order_condition_item'/>
+        <stl-vector name='order_conditions' pointer-type='manager_order_condition_order'/>
+        <pointer name='items' type-name='job_reqst'/>
+    </struct-type>
+
+    <struct-type type-name='workquota_handlerst'>
+        <stl-vector name='all' pointer-type='manager_order'/>
+        <int32_t name='manager_order_next_id'/>
+    </struct-type>
+</data-definition>
+
+<!--
+Local Variables:
+indent-tabs-mode: nil
+nxml-child-indent: 4
+End:
+-->

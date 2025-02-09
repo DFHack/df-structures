@@ -1,0 +1,559 @@
+<data-definition>
+    -- Skipped: prefstringst (just a wrapper around string)
+
+    <enum-type type-name='inorganic_flags'> bay12: InorganicFlagType
+        <enum-item name='LAVA'/>
+        <enum-item name='GENERATED'/>
+        <enum-item name='CAN_OCCUR_ON_SURFACE'/>
+        <enum-item name='SEDIMENTARY'/>
+        <enum-item name='SEDIMENTARY_OCEAN_SHALLOW'/>
+        <enum-item name='IGNEOUS_INTRUSIVE'/>
+        <enum-item name='IGNEOUS_EXTRUSIVE'/>
+        <enum-item name='METAMORPHIC'/>
+
+        <enum-item name='DEEP_SURFACE'/>
+        <enum-item name='METAL_ORE'/>
+        <enum-item name='AQUIFER'/>
+        <enum-item name='SOIL_ANY'/>
+        <enum-item name='SOIL_OCEAN'/>
+        <enum-item name='SOIL_SAND'/>
+        <enum-item name='SEDIMENTARY_OCEAN_DEEP'/>
+        <enum-item name='THREAD_METAL'/>
+
+        <enum-item name='SPECIAL' comment='or any DEEP_*'/>
+        <enum-item name='SOIL'/>
+        <enum-item name='DEEP_SPECIAL'/>
+        <enum-item name='DIVINE'/>
+        <enum-item name='MYTHICAL'/>
+        <enum-item name='MYTHICAL_REMNANT'/>
+        <enum-item name='MYTHICAL_SUBSTANCE'/>
+        <enum-item/>
+
+        <enum-item/>
+        <enum-item name='WAFERS'/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+    </enum-type>
+
+    <struct-type type-name='inorganic_raw' original-name='inorganic_material_definitionst' instance-vector='$global.world.raws.inorganics.all' custom-methods='true'>
+        <stl-string name='id'/>
+
+        <stl-vector name='str' since='v0.34.01' pointer-type='stl-string'/>
+
+        <code-helper name='describe'>$.id</code-helper>
+
+        <df-flagarray name='flags' index-enum='inorganic_flags'/>
+
+        <int32_t name='source_hfid' ref-target='historical_figure'/>
+        <int32_t name='source_enid' ref-target='historical_entity' since='v0.42.01'/>
+
+        <compound name='metal_ore'> not a compound
+            <stl-vector name='str' comment='only during parsing' pointer-type='stl-string'/>
+            <stl-vector name='mat_index'>
+                <int16_t ref-target='inorganic_raw'/>
+            </stl-vector>
+            <stl-vector type-name='int16_t' name='probability'/>
+        </compound>
+
+        <compound name='thread_metal'> not a compound
+            <stl-vector name='str' comment='only during parsing' pointer-type='stl-string'/>
+            <stl-vector name='mat_index'>
+                <int16_t ref-target='inorganic_raw'/>
+            </stl-vector>
+            <stl-vector type-name='int16_t' name='probability'/>
+        </compound>
+
+        <stl-vector type-name='int32_t' name='economic_uses' ref-target='reaction'/>
+
+        <compound name='environment_spec'> not a compound
+            <stl-vector name='str' comment='only during parsing' pointer-type='stl-string'/>
+            <stl-vector name='mat_index'>
+                <int16_t ref-target='inorganic_raw'/>
+            </stl-vector>
+            <stl-vector name='inclusion_type'>
+                <enum base-type='int16_t' type-name='inclusion_type'/>
+            </stl-vector>
+            <stl-vector type-name='int8_t' name='probability'/>
+        </compound>
+
+        <compound name='environment'> not a compound
+            <stl-vector name='location'>
+                <enum base-type='int16_t' type-name='environment_type'/>
+            </stl-vector>
+            <stl-vector name='type'>
+                <enum base-type='int16_t' type-name='inclusion_type'/>
+            </stl-vector>
+            <stl-vector type-name='int8_t' name='probability'/>
+        </compound>
+
+        <int16_t name='times_used_land'/>
+        <int16_t name='times_used_ocean'/>
+
+        <compound name='material' type-name='material'/>
+        <custom-methods>
+            <cmethod name='isOre'/>
+        </custom-methods>
+    </struct-type>
+
+    -- Unused: random_inorganic_specifierst
+    -- Unused: inorganic_handling_informationst
+
+    <struct-type type-name='inorganic_material_definition_handlerst'>
+        <stl-vector name='all' pointer-type='inorganic_raw'/>
+        <stl-vector name='cheap'  pointer-type='inorganic_raw' comment='all inorganics with value less than 4'/>
+    </struct-type>
+
+    <enum-type type-name='plant_raw_flags'> bay12: PlantFlagType
+        <enum-item name='SPRING'/>
+        <enum-item name='SUMMER'/>
+        <enum-item name='AUTUMN'/>
+        <enum-item name='WINTER'/>
+        <enum-item name='BUNDLE'/>
+        <enum-item name='SEED'/>
+        <enum-item name='TREE_HAS_MUSHROOM_CAP'/>
+        <enum-item name='DRINK'/>
+
+        <enum-item name='EXTRACT_BARREL'/>
+        <enum-item name='EXTRACT_VIAL'/>
+        <enum-item name='EXTRACT_STILL_VIAL'/>
+        <enum-item name='GENERATED'/>
+        <enum-item name='THREAD'/>
+        <enum-item name='MILL'/>
+        <enum-item name='EDIBLE_GROWTH'/>
+        <enum-item name='SOIL_BACKGROUND'/>
+
+        <enum-item/> unused
+        <enum-item/>
+        <enum-item/>
+        <enum-item/>
+        <enum-item name='WET'/>
+        <enum-item name='DRY'/>
+        <enum-item name='BIOME_MOUNTAIN'/>
+        <enum-item name='BIOME_GLACIER'/>
+
+        <enum-item name='BIOME_TUNDRA'/>
+        <enum-item name='BIOME_SWAMP_TEMPERATE_FRESHWATER'/>
+        <enum-item name='BIOME_SWAMP_TEMPERATE_SALTWATER'/>
+        <enum-item name='BIOME_MARSH_TEMPERATE_FRESHWATER'/>
+        <enum-item name='BIOME_MARSH_TEMPERATE_SALTWATER'/>
+        <enum-item name='BIOME_SWAMP_TROPICAL_FRESHWATER'/>
+        <enum-item name='BIOME_SWAMP_TROPICAL_SALTWATER'/>
+        <enum-item name='BIOME_SWAMP_MANGROVE'/>
+
+        <enum-item name='BIOME_MARSH_TROPICAL_FRESHWATER'/>
+        <enum-item name='BIOME_MARSH_TROPICAL_SALTWATER'/>
+        <enum-item name='BIOME_FOREST_TAIGA'/>
+        <enum-item name='BIOME_FOREST_TEMPERATE_CONIFER'/>
+        <enum-item name='BIOME_FOREST_TEMPERATE_BROADLEAF'/>
+        <enum-item name='BIOME_FOREST_TROPICAL_CONIFER'/>
+        <enum-item name='BIOME_FOREST_TROPICAL_DRY_BROADLEAF'/>
+        <enum-item name='BIOME_FOREST_TROPICAL_MOIST_BROADLEAF'/>
+
+        <enum-item name='BIOME_GRASSLAND_TEMPERATE'/>
+        <enum-item name='BIOME_SAVANNA_TEMPERATE'/>
+        <enum-item name='BIOME_SHRUBLAND_TEMPERATE'/>
+        <enum-item name='BIOME_GRASSLAND_TROPICAL'/>
+        <enum-item name='BIOME_SAVANNA_TROPICAL'/>
+        <enum-item name='BIOME_SHRUBLAND_TROPICAL'/>
+        <enum-item name='BIOME_DESERT_BADLAND'/>
+        <enum-item name='BIOME_DESERT_ROCK'/>
+
+        <enum-item name='BIOME_DESERT_SAND'/>
+        <enum-item name='BIOME_OCEAN_TROPICAL'/>
+        <enum-item name='BIOME_OCEAN_TEMPERATE'/>
+        <enum-item name='BIOME_OCEAN_ARCTIC'/>
+        <enum-item name='BIOME_POOL_TEMPERATE_FRESHWATER'/>
+        <enum-item name='BIOME_SUBTERRANEAN_WATER'/>
+        <enum-item name='BIOME_SUBTERRANEAN_CHASM'/>
+        <enum-item name='BIOME_SUBTERRANEAN_LAVA'/>
+
+        <enum-item name='GOOD'/>
+        <enum-item name='EVIL'/>
+        <enum-item name='SAVAGE'/>
+        <enum-item name='BIOME_POOL_TEMPERATE_BRACKISHWATER'/>
+        <enum-item name='BIOME_POOL_TEMPERATE_SALTWATER'/>
+        <enum-item name='BIOME_POOL_TROPICAL_FRESHWATER'/>
+        <enum-item name='BIOME_POOL_TROPICAL_BRACKISHWATER'/>
+        <enum-item name='BIOME_POOL_TROPICAL_SALTWATER'/>
+
+        <enum-item name='BIOME_LAKE_TEMPERATE_FRESHWATER'/>
+        <enum-item name='BIOME_LAKE_TEMPERATE_BRACKISHWATER'/>
+        <enum-item name='BIOME_LAKE_TEMPERATE_SALTWATER'/>
+        <enum-item name='BIOME_LAKE_TROPICAL_FRESHWATER'/>
+        <enum-item name='BIOME_LAKE_TROPICAL_BRACKISHWATER'/>
+        <enum-item name='BIOME_LAKE_TROPICAL_SALTWATER'/>
+        <enum-item name='BIOME_RIVER_TEMPERATE_FRESHWATER'/>
+        <enum-item name='BIOME_RIVER_TEMPERATE_BRACKISHWATER'/>
+
+        <enum-item name='BIOME_RIVER_TEMPERATE_SALTWATER'/>
+        <enum-item name='BIOME_RIVER_TROPICAL_FRESHWATER'/>
+        <enum-item name='BIOME_RIVER_TROPICAL_BRACKISHWATER'/>
+        <enum-item name='BIOME_RIVER_TROPICAL_SALTWATER'/>
+        <enum-item name='TWIGS_SIDE_BRANCHES'/>
+        <enum-item name='SAPLING'/>
+        <enum-item name='TREE'/>
+        <enum-item name='GRASS'/>
+
+        <enum-item name='TWIGS_ABOVE_BRANCHES'/>
+        <enum-item name='TWIGS_BELOW_BRANCHES'/>
+        <enum-item name='TWIGS_SIDE_HEAVY_BRANCHES'/>
+        <enum-item name='TWIGS_ABOVE_HEAVY_BRANCHES'/>
+        <enum-item name='TWIGS_BELOW_HEAVY_BRANCHES'/>
+        <enum-item name='TWIGS_SIDE_TRUNK'/>
+        <enum-item name='TWIGS_ABOVE_TRUNK'/>
+        <enum-item name='TWIGS_BELOW_TRUNK'/>
+    </enum-type>
+
+    <enum-type type-name='plant_material_def' base-type='int16_t'> bay12: PlantMaterialUseType
+        <enum-item name='basic_mat'/>
+        <enum-item name='tree'/>
+        <enum-item name='drink'/>
+        <enum-item name='seed'/>
+        <enum-item name='thread'/>
+        <enum-item name='mill'/>
+        <enum-item name='extract_vial'/>
+        <enum-item name='extract_barrel'/>
+        <enum-item name='extract_still_vial'/>
+    </enum-type>
+
+    -- Unused: TreePartTileType
+
+    <bitfield-type type-name='growth_host_tile_flag' base-type='uint32_t'> bay12: GROWTH_HOST_TILE_FLAG_*
+        <flag-bit name='twigs'/>
+        <flag-bit name='light_branches'/>
+        <flag-bit name='heavy_branches'/>
+        <flag-bit name='trunk'/>
+        <flag-bit name='roots'/>
+        <flag-bit name='cap'/>
+        <flag-bit name='sapling'/>
+    </bitfield-type>
+
+    <struct-type type-name='plant_growth_print' original-name='pmd_growth_print_variantst'>
+        <int32_t name='priority' comment='final token in list'/>
+        <uint8_t name='tile_growth'/>
+        <uint8_t name='tile_item'/>
+        <static-array type-name='int16_t' name='color' count='3'/>
+        <int32_t name='timing_start'/>
+        <int32_t name='timing_end'/>
+    </struct-type>
+
+    <bitfield-type type-name='pmd_growth_flag' base-type='uint32_t'> bay12: PMD_GROWTH_FLAG_*
+        <flag-bit name='drops_off'/>
+        <flag-bit name='no_cloud'/>
+        <flag-bit name='has_seed'/>
+        <flag-bit count='4' name='graphics_type' type-name='pmd_growth_flag_graphics_type'/>
+    </bitfield-type>
+
+    <enum-type type-name='pmd_growth_flag_graphics_type' base-type='uint32_t'> bay12: PMD_GROWTH_FLAG_GRAPHICS_TYPE_*
+        <enum-item name='NONE'/>
+        <enum-item name='STANDARD_LEAVES'/>
+        <enum-item name='STANDARD_FRUIT_1'/>
+        <enum-item name='STANDARD_FLOWERS_1'/>
+        <enum-item name='STANDARD_FRUIT_2'/>
+        <enum-item name='STANDARD_FLOWERS_2'/>
+        <enum-item/> Toady didn't allocate every combination here
+        <enum-item/>
+        <enum-item name='STANDARD_FRUIT_3'/>
+    </enum-type>
+
+    <struct-type type-name='plant_growth' original-name='pmd_growthst'>
+        <stl-string name='id'/>
+
+        <code-helper name='describe'>(fmt "~:(~A ~A~)" $.id_id $.name[0])</code-helper>
+        <code-helper name='find-instance'>$global.world.raws.plants.all[$$].growths[$]</code-helper>
+
+        <stl-string name='name'/>
+        <stl-string name='name_plural'/>
+        <static-array type-name='stl-string' name='str_growth_item' count='5'/>
+        <enum name='item_type' type-name='item_type'/>
+        <int16_t name='item_subtype'/>
+        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index'/>
+        <stl-vector name='prints' pointer-type='plant_growth_print'/>
+        <static-array name='texpos_grass' type-name='int32_t' count='4'/>
+        <int32_t name='texpos_picked'/>
+        <int32_t name='timing_1'/>
+        <int32_t name='timing_2'/>
+        <bitfield name='locations' base-type='uint32_t' type-name='growth_host_tile_flag'/>
+        <int32_t name='density'/>
+        <bitfield name='behavior' base-type='uint32_t' type-name='pmd_growth_flag'/>
+        <int32_t name='trunk_height_perc_1'/>
+        <int32_t name='trunk_height_perc_2'/>
+    </struct-type>
+
+    -- Simplified: pmd_tree_texture_infost
+    <struct-type type-name='pmd_tree_texture_infost'>
+        <static-array name='texpos_tree_wood_tile' type-name='int32_t' count='104'/> index-enum TreePartTileType
+        <static-array name='texpos_tree_twigs_full' type-name='int32_t' count='12'/>
+        <static-array name='texpos_tree_twigs' type-name='int32_t' count='16'/>
+        <static-array name='texpos_overleaves' type-name='int32_t' count='15'/>
+        <static-array name='texpos_tree_overleaves_heavy_branch' type-name='int32_t' count='15'/>
+        <int32_t name='texpos_tree_cap_pillar'/>
+        <static-array name='texpos_tree_cap_wall_thick' type-name='int32_t' count='8'/>
+        <static-array name='texpos_tree_cap_wall' type-name='int32_t' count='15'/>
+        <int32_t name='texpos_tree_cap_thick_interior'/>
+        <static-array name='texpos_tree_cap_floor' type-name='int32_t' count='4'/>
+        <static-array name='texpos_tree_cap_ramp' type-name='int32_t' count='16'/>
+
+        <static-array name='texpos_tree_twigs_autumn' count='28'><static-array type-name='int32_t' count='3'/></static-array>
+        <static-array name='texpos_overleaves_trunk_autumn' count='15'><static-array type-name='int32_t' count='3'/></static-array>
+        <static-array name='texpos_overleaves_heavy_branch_autumn' count='15'><static-array type-name='int32_t' count='3'/></static-array>
+
+        <static-array name='texpos_tree_core_trunk' count='3'><static-array type-name='int32_t' count='3'/></static-array>
+        <static-array name='texpos_tree_core_shadow' count='3'><static-array type-name='int32_t' count='3'/></static-array>
+    </struct-type>
+
+    <struct-type type-name='plant_raw' original-name='plant_material_definitionst' instance-vector='$global.world.raws.plants.all'>
+        <stl-string name='id'/>
+
+        <int32_t name='index' since='v0.40.01'/>
+        <stl-vector name='raws' pointer-type='stl-string' since='v0.40.01'/>
+
+        <code-helper name='describe'>$.id</code-helper>
+
+        <df-flagarray name='flags' index-enum='plant_raw_flags'/>
+
+        <stl-string name='name'/>
+        <stl-string name='name_plural'/>
+        <stl-string name='adj'/>
+
+        <stl-string name='seed_singular'/>
+        <stl-string name='seed_plural'/>
+        <stl-string name='leaves_singular' comment='unused'/>
+        <stl-string name='leaves_plural' comment='unused'/>
+
+        <int32_t name='source_hfid' ref-target='historical_figure'/>
+        <int32_t name='source_enid' ref-target='historical_entity' since='v0.42.01'/>
+
+        <int16_t name='mill_dye_color' ref-target='descriptor_color'/>
+
+        <compound name='tiles'> not a compound
+            <uint8_t name='picked_tile'/>
+            <uint8_t name='dead_picked_tile'/>
+            <uint8_t name='shrub_tile'/>
+            <uint8_t name='dead_shrub_tile'/>
+            <uint8_t name='tree_tile' comment='unused'/>
+            <uint8_t name='dead_tree_tile' comment='unused'/>
+            <uint8_t name='sapling_tile'/>
+            <uint8_t name='dead_sapling_tile'/>
+            <static-array type-name='uint8_t' name='grass_tiles' count='16'/>
+            <static-array type-name='uint8_t' name='alt_grass_tiles' count='12'/>
+            <static-array type-name='uint8_t' name='tree_tiles' count='104'/>
+        </compound>
+
+        <static-array type-name='int32_t' name='texpos' count='18'/>
+        <pointer name='tree_texture_info' type-name='pmd_tree_texture_infost'/>
+
+        <int32_t name='growdur'/>
+        <int32_t name='value'/>
+
+        <compound name='colors'> not a compound
+            <static-array type-name='int8_t' name='picked_color' count='3'/>
+            <static-array type-name='int8_t' name='dead_picked_color' count='3'/>
+            <static-array type-name='int8_t' name='shrub_color' count='3'/>
+            <static-array type-name='int8_t' name='dead_shrub_color' count='3'/>
+            <static-array type-name='int8_t' name='seed_color' count='3'/>
+            <static-array type-name='int8_t' name='tree_color' count='3'/>
+            <static-array type-name='int8_t' name='dead_tree_color' count='3'/>
+            <static-array type-name='int8_t' name='sapling_color' count='3'/>
+            <static-array type-name='int8_t' name='dead_sapling_color' count='3'/>
+
+            <static-array type-name='int8_t' name='grass_colors_f' count='20'/>
+            <static-array type-name='int8_t' name='grass_colors_b' count='20'/>
+            <static-array type-name='int8_t' name='grass_colors_br' count='20'/>
+        </compound>
+
+        <static-array type-name='int32_t' name='alt_period' count='2'/>
+
+        <int8_t name='shrub_drown_level'/>
+        <int8_t name='tree_drown_level'/>
+        <int8_t name='sapling_drown_level'/>
+        <int16_t name='frequency'/>
+        <int16_t name='clustersize'/>
+
+        <stl-vector name='prefstring' pointer-type='stl-string'/>
+
+        <stl-vector name='material' pointer-type='material'/>
+
+        <compound name='material_defs'> not a compound
+            <static-array name='type' index-enum='plant_material_def'>
+                <int16_t ref-target='material' aux-value='$$._parent.idx[$._key]'/>
+            </static-array>
+            <static-array name='idx' index-enum='plant_material_def' type-name='int32_t'/>
+            <static-array name='str' index-enum='plant_material_def'>
+                <static-array type-name='stl-string' count='3'/>
+            </static-array>
+        </compound>
+
+        <int32_t name='underground_depth_min'/>
+        <int32_t name='underground_depth_max'/>
+
+        <stl-vector name='growths' pointer-type='plant_growth'/>
+        <stl-string name='root_name'/>
+        <stl-string name='trunk_name'/>
+        <stl-string name='heavy_branch_name'/>
+        <stl-string name='light_branch_name'/>
+        <stl-string name='twig_name'/>
+        <stl-string name='cap_name'/>
+
+        <int32_t name='trunk_period'/>
+        <int32_t name='heavy_branch_density'/>
+        <int32_t name='light_branch_density'/>
+        <int32_t name='max_trunk_height'/>
+        <int32_t name='heavy_branch_radius'/>
+        <int32_t name='light_branch_radius'/>
+        <int32_t name='trunk_branching'/>
+        <int32_t name='max_trunk_diameter'/>
+        <int32_t name='trunk_width_period'/>
+        <int32_t name='cap_period'/>
+        <int32_t name='cap_radius'/>
+        <int32_t name='root_density'/>
+        <int32_t name='root_radius'/>
+
+        <stl-vector name='stockpile_growths' type-name='int32_t' refers-to='$$._parent._parent.growths[$]' comment='indices of edible growths that are marked with STOCKPILE_PLANT_GROWTH'/>
+        <stl-vector name='stockpile_growth_flags' index-refers-to='$$._parent.stockpile_growths[$].refers-to'>
+            <bitfield base-type='uint32_t'> bay12: assuming RAS_CROP_FLAG_*; could also be RAS_EXTRACT_FLAG_* or RAS_POWDER_FLAG_*
+                <flag-bit name='EDIBLE_RAW'/>
+                <flag-bit name='EDIBLE_COOKED'/>
+                <flag-bit name='THREAD'/>
+                <flag-bit name='MILLABLE'/>
+                <flag-bit name='EXTRACTABLE_VIAL'/>
+                <flag-bit name='EXTRACTABLE_BARREL'/>
+                <flag-bit name='EXTRACTABLE_STILL_VIAL'/>
+                <flag-bit name='ORCHARD'/>
+                <flag-bit name='GARDEN'/>
+                <flag-bit name='FARMED'/>
+            </bitfield>
+        </stl-vector>
+    </struct-type>
+
+    -- Unused: plant_handling_informationst
+
+    <enum-type type-name='tree_leaf_tile_type' base-type='int32_t'> bay12: TreeLeafTileType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='TREE_TWIGS'/>
+        <enum-item name='TREE_TWIGS_FULL_1'/>
+        <enum-item name='TREE_TWIGS_FULL_2'/>
+        <enum-item name='TREE_TWIGS_FULL_3'/>
+        <enum-item name='TREE_TWIGS_FULL_4'/>
+        <enum-item name='TREE_TWIGS_FULL_N'/>
+        <enum-item name='TREE_TWIGS_FULL_S'/>
+        <enum-item name='TREE_TWIGS_FULL_W'/>
+        <enum-item name='TREE_TWIGS_FULL_E'/>
+        <enum-item name='TREE_TWIGS_FULL_NW'/>
+        <enum-item name='TREE_TWIGS_FULL_NE'/>
+        <enum-item name='TREE_TWIGS_FULL_SW'/>
+        <enum-item name='TREE_TWIGS_FULL_SE'/>
+        <enum-item name='TREE_TWIGS_N_S_W_E'/>
+        <enum-item name='TREE_TWIGS_S_W_E'/>
+        <enum-item name='TREE_TWIGS_N_W_E'/>
+        <enum-item name='TREE_TWIGS_N_S_E'/>
+        <enum-item name='TREE_TWIGS_N_S_W'/>
+        <enum-item name='TREE_TWIGS_N_S'/>
+        <enum-item name='TREE_TWIGS_N_W'/>
+        <enum-item name='TREE_TWIGS_N_E'/>
+        <enum-item name='TREE_TWIGS_S_W'/>
+        <enum-item name='TREE_TWIGS_S_E'/>
+        <enum-item name='TREE_TWIGS_W_E'/>
+        <enum-item name='TREE_TWIGS_N'/>
+        <enum-item name='TREE_TWIGS_S'/>
+        <enum-item name='TREE_TWIGS_W'/>
+        <enum-item name='TREE_TWIGS_E'/>
+        <enum-item name='OVERLEAVES_TRUNK_N_S_E'/>
+        <enum-item name='OVERLEAVES_TRUNK_N_S_W'/>
+        <enum-item name='OVERLEAVES_TRUNK_N_W_E'/>
+        <enum-item name='OVERLEAVES_TRUNK_S_W_E'/>
+        <enum-item name='OVERLEAVES_TRUNK_N_W'/>
+        <enum-item name='OVERLEAVES_TRUNK_N_E'/>
+        <enum-item name='OVERLEAVES_TRUNK_S_W'/>
+        <enum-item name='OVERLEAVES_TRUNK_S_E'/>
+        <enum-item name='OVERLEAVES_TRUNK_N_S'/>
+        <enum-item name='OVERLEAVES_TRUNK_E_W'/>
+        <enum-item name='OVERLEAVES_TRUNK_N'/>
+        <enum-item name='OVERLEAVES_TRUNK_S'/>
+        <enum-item name='OVERLEAVES_TRUNK_W'/>
+        <enum-item name='OVERLEAVES_TRUNK_E'/>
+        <enum-item name='OVERLEAVES_TRUNK_N_S_E_W'/>
+        <enum-item name='TREE_OVERLEAVES_HEAVY_BRANCH_N'/>
+        <enum-item name='TREE_OVERLEAVES_HEAVY_BRANCH_S'/>
+        <enum-item name='TREE_OVERLEAVES_HEAVY_BRANCH_W'/>
+        <enum-item name='TREE_OVERLEAVES_HEAVY_BRANCH_E'/>
+        <enum-item name='TREE_OVERLEAVES_HEAVY_BRANCH_NS'/>
+        <enum-item name='TREE_OVERLEAVES_HEAVY_BRANCH_EW'/>
+        <enum-item name='TREE_OVERLEAVES_HEAVY_BRANCH_NW'/>
+        <enum-item name='TREE_OVERLEAVES_HEAVY_BRANCH_NE'/>
+        <enum-item name='TREE_OVERLEAVES_HEAVY_BRANCH_SW'/>
+        <enum-item name='TREE_OVERLEAVES_HEAVY_BRANCH_SE'/>
+        <enum-item name='TREE_OVERLEAVES_HEAVY_BRANCH_NSE'/>
+        <enum-item name='TREE_OVERLEAVES_HEAVY_BRANCH_NSW'/>
+        <enum-item name='TREE_OVERLEAVES_HEAVY_BRANCH_NEW'/>
+        <enum-item name='TREE_OVERLEAVES_HEAVY_BRANCH_SEW'/>
+        <enum-item name='TREE_OVERLEAVES_HEAVY_BRANCH_NSEW'/>
+    </enum-type>
+
+    <bitfield-type type-name='tree_leaf_graphics_flag' base-type='int32_t'> bay12: TREE_LEAF_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+        <flag-bit name='tile' count='8' type-name='tree_leaf_tile_type'/>
+        <flag-bit name='growth' count='3' type-name='tree_leaf_graphics_flag_growth'/>
+        <flag-bit name='autumn' count='2' type-name='tree_leaf_graphics_flag_autumn'/>
+    </bitfield-type>
+
+    <enum-type type-name='tree_leaf_graphics_flag_growth' base-type='int32_t'> bay12: TREE_LEAF_GRAPHICS_FLAG_GROWTH_*
+        <enum-item name='FRUIT_1'/>
+        <enum-item name='FRUIT_2'/>
+        <enum-item name='FRUIT_3'/>
+        <enum-item name='FLOWER_2'/> yes, these are backwards
+        <enum-item name='FLOWER_1'/>
+    </enum-type>
+
+    <enum-type type-name='tree_leaf_graphics_flag_autumn' base-type='int32_t'> bay12: TREE_LEAF_GRAPHICS_FLAG_AUTUMN_*
+        <enum-item name='NONE'/>
+        <enum-item name='YELLOW'/>
+        <enum-item name='ORANGE'/>
+        <enum-item name='RED'/>
+    </enum-type>
+
+    <struct-type type-name='tree_leaf_graphics_infost'>
+        <bitfield name='flags' type-name='tree_leaf_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='tree_wood_graphics_flag' base-type='int32_t'> bay12: TREE_WOOD_GRAPHICS_FLAG_*
+        <flag-bit name='color_index' count='8'/>
+        <flag-bit name='tile' count='8' comment='TreePartTileType enum'/>
+    </bitfield-type>
+
+    <struct-type type-name='tree_wood_graphics_infost'>
+        <bitfield name='flags' type-name='tree_wood_graphics_flag' base-type='int32_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <struct-type type-name='plant_material_definition_handlerst'>
+        <stl-vector name='all' pointer-type='plant_raw'/>
+        <stl-vector name='bushes' pointer-type='plant_raw'/>
+        <stl-vector name='bushes_idx' index-refers-to='$$._parent.bushes[$]'>
+            <int32_t ref-target='plant_raw'/>
+        </stl-vector>
+        <stl-vector name='trees' pointer-type='plant_raw'/>
+        <stl-vector name='trees_idx' index-refers-to='$$._parent.trees[$]'>
+            <int32_t ref-target='plant_raw'/>
+        </stl-vector>
+        <stl-vector name='grasses' pointer-type='plant_raw'/>
+        <stl-vector name='grasses_idx' index-refers-to='$$._parent.grasses[$]'>
+            <int32_t ref-target='plant_raw'/>
+        </stl-vector>
+        <stl-vector name='tree_leaf_graphics_info' pointer-type='tree_leaf_graphics_infost'/>
+        <stl-vector name='tree_wood_graphics_info' pointer-type='tree_wood_graphics_infost'/>
+    </struct-type>
+</data-definition>
+
+<!--
+Local Variables:
+indent-tabs-mode: nil
+nxml-child-indent: 4
+End:
+-->

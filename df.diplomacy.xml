@@ -1,0 +1,121 @@
+<data-definition>
+    <enum-type type-name='meeting_topic' base-type='int16_t'> bay12: DiplomacyTopicType
+        <enum-item name="DiscussCurrent"/>
+        <enum-item name="RequestPeace"/>
+        <enum-item name="TreeQuota"/>
+        <enum-item name="BecomeLandHolder"/>
+        <enum-item name="PromoteLandHolder"/>
+        <enum-item name="ExportAgreement"/>
+        <enum-item name="ImportAgreement"/>
+        <enum-item name="PleasantPlace"/>
+        <enum-item name="WorldStatus"/>
+        <enum-item name="TributeAgreement"/>
+        <enum-item name="DemandSurrender"/>
+        <enum-item name="InduceWar"/>
+        <enum-item name="InducePeace"/>
+    </enum-type>
+
+    <bitfield-type type-name='diplomacy_flag' base-type='uint32_t'> bay12: DIPLOMACYFLAG_*
+        <flag-bit name='dynamic_load' comment='destroy dipscript_info in destructor'/>
+        <flag-bit name='failure'/>
+        <flag-bit name='success'/>
+    </bitfield-type>
+
+    <enum-type type-name='meeting_standard_type'> bay12: StandardDiplomacyTypes, no base type
+        <enum-item name="Standard"/>
+        <enum-item name="FirstContact"/>
+        <enum-item name="ActivePlot"/>
+    </enum-type>
+
+    <struct-type type-name='meeting_diplomat_info' original-name='diplomacy_eventst'>
+        <int32_t name='civ_id' ref-target='historical_entity'/>
+        <int16_t name='activeplotindex'/>
+        <enum name='standard_type' type-name='meeting_standard_type' base-type='int16_t'/>
+        <int32_t name='diplomat_id' ref-target='historical_figure'/>
+        <int32_t name='associate_id' ref-target='historical_figure'/>
+        <stl-vector name="topic_list">
+            <enum base-type='int32_t' type-name='meeting_topic'/>
+        </stl-vector>
+        <stl-vector type-name='int32_t' name='topic_parms'/>
+        <pointer type-name='entity_sell_requests' name='sell_requests'/>
+        <pointer type-name='entity_buy_requests' name='buy_requests'/>
+        <pointer name="dipscript" type-name="dipscript_info"/>
+        <int32_t name="cur_step"/>
+        <stl-vector name='active_script_vars' pointer-type='active_script_varst'/>
+        <stl-string name="outcome_varspace"/>
+        <stl-string name="outcome_varname"/>
+        <bitfield name='flags' base-type='uint32_t' type-name='diplomacy_flag'/>
+        <stl-vector pointer-type='meeting_event' name='events'/>
+        <stl-vector name='agreement_entity' type-name='int32_t' ref-target='historical_entity'/>
+        <stl-vector name='agreement_topic'><enum type-name='meeting_topic' base-type='int16_t'/></stl-vector>
+        <stl-vector name='agreement_year' type-name='int32_t'/>
+        <stl-vector name='agreement_tick' type-name='int32_t'/>
+        <stl-vector name='agreement_outcome' type-name='int16_t'/>
+        <stl-vector name='contact_entity' type-name='int32_t' ref-target='historical_entity'/>
+        <stl-vector name='contact_year' type-name='int32_t'/>
+        <stl-vector name='contact_tick' type-name='int32_t'/>
+    </struct-type>
+
+    <bitfield-type type-name='diplomacy_state_flag' base-type='uint32_t'> bay12: DIPLOMACY_STATE_FLAG_*
+        <flag-bit name='peace_offering_made'/>
+        <flag-bit name='peace_offering_received'/>
+        <flag-bit name='allies'/>
+    </bitfield-type>
+
+    <struct-type type-name='diplomacy_statest'>
+        <int32_t name='group_id' ref-target='historical_entity'/>
+        <enum name='relation' base-type='int16_t' type-name='diplomacy_state_type'/>
+        <int32_t name='war_event_collection' ref-target='history_event_collection'/>
+        <stl-vector name='historic_events' type-name='int32_t' ref-target='history_event'/>
+        <stl-vector name='historic_events_collection' type-name='int32_t' ref-target='history_event_collection' comment="seen with war_event_collection set"/>
+        <bitfield name='flags' base-type='uint32_t' type-name='diplomacy_state_flag'/>
+        <enum base-type='int32_t' type-name='season' name='tribute_season'/>
+    </struct-type>
+
+    <struct-type type-name='diplomacy_datast'>
+        <stl-vector name='state' pointer-type='diplomacy_statest'/> sorted by group_id
+    </struct-type>
+
+    <enum-type type-name='diplomatic_factor_type' base-type='int16_t'> bay12: DiplomaticFactorType
+        <enum-item name='GODLESS'/>
+        <enum-item name='RELIGION_OPPOSED_TO_RELIGION_SPHERE'/>
+        <enum-item name='RELIGION_OPPOSED_TO_LEADER_MPP_SPHERE'/>
+        <enum-item name='MPP_OPPOSED_TO_RELIGION_SPHERE'/>
+        <enum-item name='MPP_OPPOSED_TO_LEADER_MPP_SPHERE'/>
+        <enum-item name='HISTORICAL_EVENT'/>
+        <enum-item name='HISTORICAL_COLLECTION'/>
+        <enum-item name='ETHIC'/>
+        <enum-item name='CANNOT_COMMUNICATE'/>
+        <enum-item name='RELATIVES'/>
+        <enum-item name='POSSESS_CLAIMED_ARTIFACT'/>
+        <enum-item name='KILL_EVERYBODY'/>
+        <enum-item name='DISTURBING_ONCE_ETERNAL_REST'/>
+    </enum-type>
+
+    <struct-type type-name='diplomatic_evaluationst'>
+        <stl-vector name='personal_type' type-name='diplomatic_factor_type'/>
+        <stl-vector name='personal_hf' type-name='int32_t' ref-target='historical_figure'/>
+        <stl-vector name='personal_idx1' type-name='int32_t' comment="varies based on factor"/>
+        <stl-vector name='personal_idx2' type-name='int32_t' comment="varies based on factor"/>
+        <stl-vector name='personal_value' type-name='int32_t'/>
+        <int32_t name='total_personal'/>
+
+        <stl-vector name='general_type' type-name='diplomatic_factor_type'/>
+        <stl-vector name='general_idx1' type-name='int32_t' comment="varies based on factor"/>
+        <stl-vector name='general_idx2' type-name='int32_t' comment="varies based on factor"/>
+        <stl-vector name='general_value' type-name='int32_t'/>
+        <int32_t name='total_general'/>
+
+        <stl-vector name='historical_type' type-name='diplomatic_factor_type'/>
+        <stl-vector name='historical_id_idx' ref-target='history_event' type-name='int32_t'/>
+        <stl-vector name='historical_value' type-name='int32_t'/>
+        <int32_t name='total_historical'/>
+    </struct-type>
+</data-definition>
+
+<!--
+Local Variables:
+indent-tabs-mode: nil
+nxml-child-indent: 4
+End:
+-->

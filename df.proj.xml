@@ -1,0 +1,116 @@
+<data-definition>
+    <enum-type type-name='projectile_type'> bay12: Projectile
+        <enum-item name='Item'/>
+        <enum-item name='Unit'/>
+        <enum-item name='Magic'/>
+    </enum-type>
+
+    <bitfield-type type-name='projectile_flags' base-type='uint32_t'> bay12: PROJFLAG_*
+        <flag-bit name='no_impact_destroy' comment='LANDS'/>
+        <flag-bit name='has_hit_ground' comment='DELETE'/>
+        <flag-bit name='bouncing'/>
+        <flag-bit name='high_flying'/>
+
+        <flag-bit name='piercing'/>
+        <flag-bit name='to_be_deleted'/>
+        <flag-bit name='hits_friends'/>
+        <flag-bit name='trap_origin'/>
+
+        <flag-bit name='parabolic'/>
+        <flag-bit name='no_adv_pause'/>
+        <flag-bit name='vehicle_origin'/>
+        <flag-bit name='no_collide'/>
+        <flag-bit name='safe_landing'/>
+        <flag-bit name='struck'/>
+        <flag-bit name='auto_hit'/>
+        <flag-bit name='item_link_deleted'/>
+    </bitfield-type>
+
+    <df-linked-list-type type-name='proj_list_link' item-type='projectile'/>
+    <class-type type-name='projectile' original-name='projst' df-list-link-type='proj_list_link' df-list-link-field='link' key-field='id'>
+        <pointer name='link' type-name='proj_list_link'/>
+
+        <int32_t name='id'/>
+        <pointer name='firer' type-name='unit'/>
+
+        <compound name='origin_pos' type-name='coord'/>
+        <compound name='target_pos' type-name='coord'/>
+        <compound name='cur_pos' type-name='coord'/>
+        <compound name='prev_pos' type-name='coord'/>
+
+        <int32_t name='distance_flown'/>
+        <int32_t name='fall_threshold'/>
+        <int32_t name='min_hit_distance'/>
+        <int32_t name='min_ground_distance'/>
+
+        <bitfield name='flags' type-name='projectile_flags'/>
+
+        <int16_t name='fall_counter' comment='counts down from delay to 0, then it moves'/>
+        <int16_t name='fall_delay'/>
+
+        <int32_t name='hit_rating'/>
+        <int32_t name='total_z_dist'/>
+        <int32_t name='velocity'/>
+        <int32_t name='bow_id' ref-target='item'/>
+
+        -- Parabolic projectile info:
+        <int32_t name="last_knock_item" ref-target='item'/>
+        <int32_t name="last_knock_unit" ref-target='unit'/>
+        <int32_t name="spec_target_unit" ref-target='unit' since='v0.40.01' comment='uninitialized+saved'/>
+
+        <int32_t name="pos_x"/>
+        <int32_t name="pos_y"/>
+        <int32_t name="pos_z"/>
+        <int32_t name="speed_x"/>
+        <int32_t name="speed_y"/>
+        <int32_t name="speed_z"/>
+        <int32_t name="accel_x"/>
+        <int32_t name="accel_y"/>
+        <int32_t name="accel_z"/>
+
+        <virtual-methods>
+            <vmethod ret-type='projectile_type' name='getType'/>
+            <vmethod ret-type='bool' name='checkImpact'>
+                <bool name='noDamageFloor'/>
+            </vmethod>
+            <vmethod ret-type='bool' name='checkMovement'/>
+            <vmethod name='read_file'>
+                <pointer name='file' type-name='file_compressorst'/>
+                <enum name='loadversion' type-name='save_version'/>
+            </vmethod>
+            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
+            <vmethod name='print'><pointer type-name='map_viewport'/></vmethod>
+            <vmethod name='print_to_viewport'><pointer type-name='map_viewport'/></vmethod>
+            <vmethod ret-type='bool' name='isObjectLost'/>
+            <vmethod is-destructor='true'/>
+        </virtual-methods>
+    </class-type>
+
+    <class-type type-name='proj_itemst' inherits-from='projectile'>
+        <pointer name='item' type-name='item'/>
+    </class-type>
+
+    <class-type type-name='proj_unitst' inherits-from='projectile'>
+        <pointer name='unit' type-name='unit' comment='?'/>
+    </class-type>
+
+    <enum-type type-name='proj_magic_type'> bay12: ProjMagicType
+        <enum-item name='FIREBALL'/>
+    </enum-type>
+
+    <class-type type-name='proj_magicst' inherits-from='projectile'>
+        <enum name='type' type-name='proj_magic_type' base-type='int16_t'/>
+        <int16_t name='damage'/>
+    </class-type>
+
+    <struct-type type-name='proj_handlerst'>
+        <df-linked-list name='all' type-name='proj_list_link'/>
+    </struct-type>
+</data-definition>
+
+<!--
+Local Variables:
+indent-tabs-mode: nil
+nxml-child-indent: 4
+End:
+-->
