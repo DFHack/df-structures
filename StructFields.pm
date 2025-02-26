@@ -115,10 +115,18 @@ my %custom_primitive_handlers = (
     'stl-mutex' => sub { header_ref("mutex"); return "std::mutex"; },
     'stl-condition-variable' => sub { header_ref("condition_variable"); return "std::condition_variable"; },
     'stl-future' => sub { header_ref("future"); return "std::future<void>"; },
+    'stl-fs-path' => sub { header_ref("filesystem"); return "std::filesystem::path"; },
 );
 
 my %custom_primitive_inits = (
     'stl-string' => sub {
+        if (defined $cur_init_value) {
+            $cur_init_value =~ s/\\/\\\\/g;
+            $cur_init_value =~ s/\"/\\\"/g;
+            add_simple_init "\"$cur_init_value\"";
+        }
+    },
+    'stl-fs-path' => sub {
         if (defined $cur_init_value) {
             $cur_init_value =~ s/\\/\\\\/g;
             $cur_init_value =~ s/\"/\\\"/g;
