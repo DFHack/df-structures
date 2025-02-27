@@ -239,7 +239,15 @@ Primitive fields can be classified as following:
 
     These tags correspond to ``char[bytes]``, ``char*``, and ``std::string``.
 
-4)  File Stream::
+5)  Path::
+
+        <stl-fs-path name='id'.../>
+
+    This tag corresponds to ``std::filesystem::path`` and is used to
+    abstractly represent a path to a filesystem object in an
+    architecture-independent manner.
+
+6)  File Stream::
 
         <stl-fstream name='id'/>
 
