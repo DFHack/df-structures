@@ -1096,6 +1096,56 @@
         <int32_t name='fatigue'/>
     </struct-type>
 
+    <bitfield-type type-name='unit_move_load_ranged_weapon_flag' base-type='uint32_t'> bay12: UNIT_MOVE_LOAD_RANGED_WEAPON_FLAG_*
+        <flag-bit name='then_shoot'/>
+        <flag-bit name='playcombat'/>
+    </bitfield-type>
+
+    <struct-type type-name='unit_action_data_load_ranged_weapon' original-name='unit_move_load_ranged_weaponst'>
+        <int32_t name='movewait'/>
+        <int32_t name='shooter_itid' ref-target='item'/>
+        <int32_t name='ammo_itid' ref-target='item'/>
+        <bitfield name='flags' base-type='uint32_t' type-name='unit_move_load_ranged_weapon_flag'/>
+        <int32_t name='target_unid' ref-target='unit'/>
+        <int16_t name='target_lx'/>
+        <int16_t name='target_ly'/>
+        <int16_t name='target_lz'/>
+        <int16_t name='target_bp'/>
+        <int32_t name='target_bp_hit_chance_adjustment'/>
+    </struct-type>
+
+    <bitfield-type type-name='unit_move_shoot_ranged_weapon_flag' base-type='uint32_t'> bay12: UNIT_MOVE_SHOOT_RANGED_WEAPON_FLAG_*
+        <flag-bit name='playcombat'/>
+    </bitfield-type>
+
+    <struct-type type-name='unit_action_data_shoot_ranged_weapon' original-name='unit_move_shoot_ranged_weaponst'>
+        <int32_t name='movewait'/>
+        <int32_t name='shooter_itid' ref-target='item'/>
+        <int32_t name='ammo_itid' ref-target='item'/>
+        <bitfield name='flags' base-type='uint32_t' type-name='unit_move_shoot_ranged_weapon_flag'/>
+        <int32_t name='target_unid' ref-target='unit'/>
+        <int16_t name='target_lx'/>
+        <int16_t name='target_ly'/>
+        <int16_t name='target_lz'/>
+        <int16_t name='target_bp'/>
+        <int32_t name='target_bp_hit_chance_adjustment'/>
+    </struct-type>
+
+    <struct-type type-name='unit_action_data_throw_item' original-name='unit_move_throw_itemst'>
+        <int32_t name='movewait'/>
+        <int32_t name='thrown_itid' ref-target='item'/>
+        <int32_t name='target_unid' ref-target='unit'/>
+        <int16_t name='target_lx'/>
+        <int16_t name='target_ly'/>
+        <int16_t name='target_lz'/>
+        <int16_t name='target_bp'/>
+        <int32_t name='target_bp_hit_chance_adjustment'/>
+    </struct-type>
+
+    <struct-type type-name='unit_action_data_post_shoot_recovery' original-name='unit_move_post_shoot_recoveryst'>
+        <int32_t name='movewait'/>
+    </struct-type>
+
     <struct-type type-name='unit_action' original-name='unit_movest'>
         <enum name='type' type-name='unit_action_type' init-value='None'/>
 
@@ -1131,6 +1181,10 @@
             <compound name='dismount' type-name='unit_action_data_dismount'/>
             <compound name='leadanimal' type-name='unit_action_data_lead_animal'/>
             <compound name='stopleadanimal' type-name='unit_action_data_stop_lead_animal'/>
+            <compound name='loadrangedweapon' type-name='unit_action_data_load_ranged_weapon'/>
+            <compound name='shootrangedweapon' type-name='unit_action_data_shoot_ranged_weapon'/>
+            <compound name='throwitem' type-name='unit_action_data_throw_item'/>
+            <compound name='postshootrecovery' type-name='unit_action_data_post_shoot_recovery'/>
         </compound>
     </struct-type>
 
@@ -1215,6 +1269,7 @@
         <enum-item name='Pet' comment='Left shoulder, right shoulder, or head, selected randomly using pet_seed'/>
         <enum-item name='SewnInto'/>
         <enum-item name='Strapped'/>
+        <enum-item name='Nocked'/>
     </enum-type>
 
     <struct-type type-name='unit_inventory_item' original-name='invitemst'>
@@ -1228,7 +1283,7 @@
                  refers-to='$$._global._parent._global.body.body_plan.body_parts[$]'/>
 
         <int32_t name='pet_seed' comment='RNG seed for Pet mode'/>
-        <int32_t name='wound_id' init-value='-1' comment='-1 unless suture'/>
+        <int32_t name='wound_id' init-value='-1' comment='also nocked_in_itemid'/>
     </struct-type>
 
     <enum-type type-name='soldier_mood_type' base-type='int32_t'> bay12: SoldierMoodType
@@ -1311,7 +1366,7 @@
         <flag-bit name='trade_resolved' comment='(CIV_RESOLVED)'/>
         <flag-bit name='has_breaks' comment='(EVALUATE_LEAKS)'/>
         <flag-bit name='gutted' comment='(HEALTH_GUTTED)'/>
-        <flag-bit comment='(UNUSED_16)'/>
+        <flag-bit name='must_forget_completely_keep_rooms'/>
 
         <flag-bit name='locked_in_for_trading' comment="(TRADE_LOCKED) Locked in for trading"/>
         <flag-bit name='slaughter' comment='(BUTCHERABLE) marked for slaughter'/>
@@ -2744,7 +2799,6 @@
         <int32_t name='next_action_id'/>
 
         <compound name='counters'> not a compound:
-            <int32_t name='think_counter' comment='loaddelay'/>
             <int32_t name='job_counter' comment='movewait'/>
             <int32_t name='swap_counter'/>
 
