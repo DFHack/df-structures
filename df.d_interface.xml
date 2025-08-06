@@ -104,6 +104,7 @@
         <int32_t name='contains_reaction_index'/>
         <int32_t name='contains_reagent_index'/>
         <enum name='tool_use' type-name='tool_uses'/>
+        <int32_t name='dye_color' ref-target='descriptor_color'/>
 
         <stl-string name='display_string'/>
 
@@ -116,10 +117,13 @@
         <enum name='item_type' type-name='item_type' init-value='NONE'/>
         <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
         <int16_t name="mat_type" ref-target='material' aux-value='$$.mat_index'/>
-        <int32_t name="mat_index"/>
+        <int32_t name="mat_index" comment='union: mix_dye_desired_color_index'/>
         <compound name='specflag' type-name='job_spec_flags'/>
         <compound name='specdata' type-name='job_spec_data'/>
         <bitfield name="material_category" type-name='job_material_category'/>
+        <enum name='art_specifier' type-name='job_art_specifier_type'/>
+        <int32_t name='art_specifier_id1'/>
+        <int32_t name='art_specifier_id2'/>
         <int32_t name='match_value' init-value='1'/>
 
         <stl-string name='name'/>
@@ -222,6 +226,10 @@
         <enum-item name='OTHER'/>
         <enum-item name='METAL'/>
         <enum-item name='SELECT_MEMORIAL_UNIT'/>
+        <enum-item name='MIX_DYE_COLOR'/>
+        <enum-item name='DYE_CLOTH_COLOR'/>
+        <enum-item name='DYE_THREAD_COLOR'/>
+        <enum-item name='DYE_LEATHER_COLOR'/>
     </enum-type>
 
     <enum-type type-name='interface_category_construction'> bay12: InterfaceCategoryConstruction
@@ -247,6 +255,7 @@
         <bool name="leave_button"/>
         <bitfield name='flag' base-type='uint32_t' type-name='interface_button_flag'/>
         <stl-string name='filter_str'/>
+        <int32_t name='alpha_order'/>
 
         <virtual-methods>
             <vmethod name='print_info' comment='ghost, buried, memorialized'>
@@ -276,6 +285,7 @@
             <vmethod name='get_info_string'>
                 <ret-type><pointer type-name='stl-string'/></ret-type>
             </vmethod>
+            <vmethod name='get_swatch_color' ret-type='int32_t'/>
             <vmethod is-destructor='true'/>
         </virtual-methods>
     </class-type>
@@ -293,6 +303,14 @@
         <int8_t name="prepare_interface"/>
     </class-type>
 
+    <class-type type-name='interface_button_building_color_selectorst'
+                inherits-from='interface_button_buildingst'>
+        <enum name='job' type-name='job_type'/>
+        <int32_t name='color_index' ref-target='descriptor_color'/>
+        <int8_t name='prepare_interface'/>
+        <stl-string name='info'/>
+    </class-type>
+
     <class-type type-name='interface_button_building_category_selectorst'
                 inherits-from='interface_button_buildingst'>
         <enum type-name='interface_category_building' name='category'/>
@@ -306,12 +324,15 @@
         <enum name='itemtype' type-name='item_type'/>
         <int16_t name='subtype'/>
         <int16_t name='material' ref-target='material' aux-value='$$.matgloss'/>
-        <int32_t name='matgloss'/>
+        <int32_t name='matgloss' comment='union: mix_dye_desired_color_index'/>
         <compound name='specflag' type-name='job_spec_flags'/>
         <compound name='specdata' type-name='job_spec_data'/>
         <bitfield name='job_item_flag' type-name='job_material_category'/>
         <bool name='add_building_location'/>
         <bool name='show_help_instead'/>
+        <enum name='art_specifier' type-name='job_art_specifier_type'/>
+        <int32_t name='art_specifier_id1'/>
+        <int32_t name='art_specifier_id2'/>
 
         <stl-string name='objection'/>
         <stl-string name='info'/>
@@ -333,6 +354,8 @@
         <int16_t name='material' ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name='matgloss'/>
         <bitfield name='job_item_flag' type-name='job_material_category'/>
+        <enum name='job' type-name='job_type'/>
+        <int32_t name='color_index' ref-target='descriptor_color'/>
 
         <stl-string name='current_custom_category_token' since='v0.42.01'/>
         <compound name='current_tool_tip' type-name='curses_text_boxst'/>
@@ -556,6 +579,9 @@
         <enum-item name='IMAGE'/>
         <enum-item name='CLOTHING_SIZE'/>
         <enum-item name='IMPROVEMENT_TYPE'/>
+        <enum-item name='DYE_OBJECT_COLOR'/>
+        <enum-item name='MIX_DYE_COLOR'/>
+        <enum-item name='PLANT'/>
     </enum-type>
 
     <enum-type type-name='job_details_context_type' base-type='int32_t'> bay12: JobDetailsContextType
@@ -603,6 +629,60 @@
         <stl-vector name='improvement_type' type-name='improvement_type'/>
         <int32_t name='scroll_position_improvement'/>
         <bool name='scrolling_improvement'/>
+
+        <int32_t name='dye_object_job_type'/>
+        <stl-vector type-name='int32_t' name='dye_object_target_color'/>
+        <stl-vector type-name='int32_t' name='dye_object_target_color_available'/>
+        <stl-bit-vector name='dye_object_target_color_is_tint'/>
+        <stl-vector type-name='int32_t' name='dye_object_target_color_master'/>
+        <stl-vector type-name='int32_t' name='dye_object_target_color_available_master'/>
+        <stl-bit-vector name='dye_object_target_color_is_tint_master'/>
+        <int32_t name='scroll_position_dye_object'/>
+        <bool name='scrolling_dye_object'/>
+
+        <int32_t name='dye_object_tint_color'/>
+        <stl-vector type-name='int32_t' name='dye_object_tint_reagent_color1'/>
+        <stl-vector type-name='int32_t' name='dye_object_tint_reagent_color2'/>
+        <stl-vector type-name='int32_t' name='dye_object_tint_reagent_available'/>
+        <stl-vector type-name='int32_t' name='dye_object_tint_reagent_color1_master'/>
+        <stl-vector type-name='int32_t' name='dye_object_tint_reagent_color2_master'/>
+        <stl-vector type-name='int32_t' name='dye_object_tint_reagent_available_master'/>
+        <int32_t name='scroll_position_dye_object_reagents'/>
+        <bool name='scrolling_dye_object_reagents'/>
+
+        <stl-string name='dye_object_filter'/>
+        <bool name='dye_object_doing_filter'/>
+
+        <stl-vector type-name='int32_t' name='mix_dye_target_color'/>
+        <stl-vector type-name='int32_t' name='mix_dye_target_color_available'/>
+        <stl-vector type-name='int32_t' name='mix_dye_target_color_master'/>
+        <stl-vector type-name='int32_t' name='mix_dye_target_color_available_master'/>
+        <int32_t name='scroll_position_mix_dye'/>
+        <bool name='scrolling_mix_dye'/>
+
+        <int32_t name='mix_dye_chosen_target_color'/>
+        <stl-vector type-name='int32_t' name='mix_dye_reagent_color1'/>
+        <stl-vector type-name='int32_t' name='mix_dye_reagent_color2'/>
+        <stl-vector type-name='int32_t' name='mix_dye_reagent_available'/>
+        <stl-vector type-name='int32_t' name='mix_dye_reagent_color1_master'/>
+        <stl-vector type-name='int32_t' name='mix_dye_reagent_color2_master'/>
+        <stl-vector type-name='int32_t' name='mix_dye_reagent_available_master'/>
+        <int32_t name='scroll_position_mix_dye_reagents'/>
+        <bool name='scrolling_mix_dye_reagents'/>
+
+        <stl-string name='mix_dye_filter'/>
+        <bool name='mix_dye_doing_filter'/>
+
+        <stl-vector type-name='int16_t' name='plant_mat'/>
+        <stl-vector type-name='int32_t' name='plant_matgloss'/>
+        <stl-vector type-name='int32_t' name='plant_count'/>
+        <stl-vector type-name='int16_t' name='plant_mat_master'/>
+        <stl-vector type-name='int32_t' name='plant_matgloss_master'/>
+        <stl-vector type-name='int32_t' name='plant_count_master'/>
+        <int32_t name='scroll_position_plant'/>
+        <bool name='scrolling_plant'/>
+        <stl-string name='plant_filter'/>
+        <bool name='plant_doing_filter'/>
     </struct-type>
 
     <struct-type type-name='buildjob_interfacest'>
@@ -634,6 +714,8 @@
         <enum-item name='WEAPON_NON_USABLE'/>
         <enum-item name='ARMOR_USABLE'/>
         <enum-item name='ARMOR_NON_USABLE'/>
+        <enum-item name='UNDYED'/>
+        <enum-item name='DYED'/>
     </enum-type>
 
     <struct-type type-name='custom_stockpile_interfacest'>
