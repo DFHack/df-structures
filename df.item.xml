@@ -1,4 +1,6 @@
 <data-definition>
+    -- Unused: USE_DYE_*
+
     -- Unused: ArmorRole
 
     <bitfield-type type-name='item_body_component_flag' base-type='uint32_t'> bay12: ITEM_BODY_COMPONENT_FLAG_*
@@ -355,6 +357,7 @@
                   comment='at the moment of creation'/>
             <int32_t name='age_counter'/>
         </compound>
+        <compound name='dye_profile' type-name='entity_dye_descriptor_profilest'/>
     </class-type>
 
     <class-type type-name='itemimprovement_clothst' inherits-from='itemimprovement'/>
@@ -382,6 +385,7 @@
                   comment='at the moment of creation'/>
             <int32_t name='age_counter'/>
         </compound>
+        <compound name='dye_profile' type-name='entity_dye_descriptor_profilest'/>
     </class-type>
 
     <class-type type-name='itemimprovement_pagesst' inherits-from='itemimprovement'>
@@ -409,6 +413,17 @@
 
     <class-type type-name='itemimprovement_image_setst' inherits-from='itemimprovement'>
         <int32_t name='image_set_id' init-value='-1' ref-target='image_set'/>
+    </class-type>
+
+    <class-type type-name='itemimprovement_colorationst' inherits-from='itemimprovement'>
+        <int16_t name='dye_material' ref-target='material' aux-value='$$.dye_matgloss'/>
+        <int32_t name='dye_matgloss'/>
+        <int32_t name='dye_artist_hfid' ref-target='historical_figure'/>
+        <enum base-type='int16_t' name='dye_craftquality' type-name='item_quality'/>
+        <enum base-type='int16_t' name="dye_skill_at_time" type-name='skill_rating'
+              comment='at the moment of creation'/>
+        <int32_t name='dye_age_counter'/>
+        <compound name='dye_profile' type-name='entity_dye_descriptor_profilest'/>
     </class-type>
 
     <enum-type type-name='food_ingredient_type' base-type='int16_t'> bay12: FoodIngredient
@@ -765,6 +780,8 @@
             -- 120
 
             <vmethod ret-type='bool' name='isDye'/>
+            <vmethod ret-type='int32_t' name='getDyeAmount'/>
+            <vmethod ret-type='int32_t' name='isDyeColor'/>
             <vmethod ret-type='bool' name='isMilkable'><bool name='container_allowed'/><bool name='checkres'/></vmethod>
             <vmethod ret-type='bool' name='isSandBearing'/>
             <vmethod ret-type='bool' name='isLyeBearing'/>
@@ -978,6 +995,8 @@
                 <int32_t name='mat_index'/>
                 <pointer name='u' type-name='unit'/>
                 <pointer name='j' type-name='job'/>
+                <pointer name='eddp' type-name='entity_dye_descriptor_profilest'/>
+                <int32_t name='use_dye_degree'/>
             </vmethod>
             <vmethod name='addImprovement' comment='use_image'>
                 <int32_t name='art_chunk_id'/>
@@ -996,6 +1015,7 @@
 
             <vmethod name='copyImprovementsFrom'><pointer type-name='item'/></vmethod>
             <vmethod ret-type='int32_t' name='getThreadDyeValue'> <pointer type-name='caravan_state' name='caravan'/> </vmethod>
+            <vmethod ret-type='int32_t' name='getColorWhetherDyedOrNot'/>
             <vmethod name='getColorAndShape'>
                 <pointer name='colors'><stl-vector type-name='int16_t'/></pointer>
                 <pointer name='shapes'><stl-vector type-name='int16_t'/></pointer>
@@ -1273,6 +1293,7 @@
     <class-type type-name='item_powder_miscst' inherits-from='item_powder'>
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name='mat_index'/>
+        <compound name='dye_profile' type-name='entity_dye_descriptor_profilest'/>
     </class-type>
 
     <bitfield-type type-name='item_liquid_misc_flag' base-type='uint32_t'> bay12: LIQUID_MISC_FLAG_*
@@ -1408,6 +1429,16 @@
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name='mat_index'/>
         <int32_t name='rot_timer' comment='even though leather does not rot'/>
+
+        <int16_t name='dye_material' ref-target='material' aux-value='$$.dye_matgloss'/>
+        <int32_t name='dye_matgloss'/>
+        <int32_t name='dye_artist_hfid' ref-target='historical_figure'/>
+        <int16_t name='dye_craftquality'/>
+        <int16_t name='dye_skill_at_time'/>
+        <int32_t name='dye_age_counter'/>
+        <compound name='dye_profile' type-name='entity_dye_descriptor_profilest'/>
+
+        <int32_t name='dye_creation_heid' ref-target='history_event'/>
     </class-type>
 
     <class-type type-name='item_plant_growthst' inherits-from='item_actual'>
@@ -1433,13 +1464,16 @@
     <class-type type-name='item_threadst' inherits-from='item_actual'>
         <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name='mat_index'/>
+
         <int16_t name='dye_mat_type' ref-target='material' aux-value='$$.dye_mat_index'/>
         <int32_t name='dye_mat_index'/>
         <int32_t name='dyer' ref-target='historical_figure'/>
-        <int32_t name='dye_masterpiece_event' ref-target='history_event'/>
         <int16_t name='dye_quality'/>
         <int16_t name='dye_skill'/>
         <int32_t name='dye_age'/>
+        <compound name='dye_profile' type-name='entity_dye_descriptor_profilest'/>
+
+        <int32_t name='dye_masterpiece_event' ref-target='history_event'/>
         <bool name='is_thick'/>
         <int32_t name='dimension' init-value='15000'/>
     </class-type>
