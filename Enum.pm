@@ -90,8 +90,8 @@ sub render_enum_tables($$$$$$) {
 
     with_emit_traits {
         emit_block {
-            emit "static enum_identity identity;";
-            emit "static enum_identity *get() { return &identity; }";
+            emit "const static enum_identity identity;";
+            emit "const static enum_identity *get() { return &identity; }";
         } "template<> struct ${export_prefix}identity_$traits_name ", ";";
         header_ref("Export.h");
         header_ref("DataDefs.h");
@@ -175,7 +175,7 @@ sub render_enum_tables($$$$$$) {
                     for (my $i = 0; $i < @anames; $i++) {
                         emit "$atypes[$i] $anames[$i];";
                     }
-                    emit "static struct_identity _identity;";
+                    emit "const static struct_identity _identity;";
                 } "struct attr_entry_type ", ";";
                 emit "static const attr_entry_type attr_table[", $count, "+1];";
                 emit "static const attr_entry_type &attrs(enum_type value);";
@@ -296,7 +296,7 @@ sub render_enum_tables($$$$$$) {
                     @field_defs = @field_meta;
                 } $entry_type;
 
-                emit "struct_identity ${entry_type}::_identity(",
+                emit "const struct_identity ${entry_type}::_identity(",
                         "sizeof($entry_type), NULL, ",
                         type_identity_reference($tag), ', ',
                         "\"_attr_entry_type\", NULL, $ftable);";
@@ -306,7 +306,7 @@ sub render_enum_tables($$$$$$) {
             $atable_meta = "&${entry_type}::_identity";
         }
 
-        emit "enum_identity identity_${traits_name}::identity(",
+        emit "const enum_identity identity_${traits_name}::identity(",
                 "sizeof($full_name), ",
                 type_identity_reference($tag,-parent => 1), ', ',
                 "\"$name\", TID($base_type), $base, ",
