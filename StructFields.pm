@@ -671,14 +671,14 @@ sub emit_struct_fields($$;%) {
 
         with_emit_traits {
             emit_block {
-                emit "static $identity_type identity;";
-                emit "static $identity_type *get() { return &identity; }";
+                emit "static const $identity_type identity;";
+                emit "static const $identity_type *get() { return &identity; }";
             } "template<> struct ${export_prefix}$traits_name ", ";";
         };
 
         with_emit_static {
             my $ftable = render_field_metadata $tag, $full_name, @fields, %info;
-            emit "$identity_type ${traits_name}::identity(",
+            emit "const $identity_type ${traits_name}::identity(",
                     "sizeof($full_name), &allocator_fn<${full_name}>, ",
                     type_identity_reference($tag,-parent => 1), ', ',
                     "\"$name\", NULL, $ftable);";
@@ -707,13 +707,13 @@ sub emit_struct_fields($$;%) {
     my $inherits = $flags{-inherits};
     my $original_name = $tag->getAttribute('original-name');
 
-    emit "static $identity_type _identity;";
+    emit "static const $identity_type _identity;";
 
     with_emit_static {
         local @simple_inits;
         my @ctor_lines = with_emit {
             if ($flags{-class}) {
-                $ctor_args = "virtual_identity *_id";
+                $ctor_args = "const virtual_identity *_id";
                 $ctor_arg_init = " = &".$name."::_identity";
                 push @simple_inits, "$flags{-inherits}(_id)" if $flags{-inherits};
                 emit "_identity.adjust_vtable(this, _id);";
@@ -747,14 +747,14 @@ sub emit_struct_fields($$;%) {
         my $ftable = render_field_metadata $tag, $full_name, @fields, %info;
 
         if ($flags{-class}) {
-            emit "virtual_identity ${full_name}::_identity(",
+            emit "const virtual_identity ${full_name}::_identity(",
                     "sizeof($full_name), &${alloc_fn}<${full_name}>, ",
                     "\"$name\", ",
                     ($original_name ? "\"$original_name\"" : 'NULL'), ', ',
                     ($inherits ? "&${inherits}::_identity" : 'NULL'), ', ',
                     "$ftable);";
         } else {
-            emit "$identity_type ${full_name}::_identity(",
+            emit "const $identity_type ${full_name}::_identity(",
                     "sizeof($full_name), &allocator_fn<${full_name}>, ",
                     type_identity_reference($tag,-parent => 1), ', ',
                     "\"$name\", ",
