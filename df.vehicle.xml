@@ -1,10 +1,54 @@
 <data-definition>
+    <bitfield-type type-name='vehicle_ram_graphics_flag' base-type='int64_t'> bay12: VEHICLE_RAM_GRAPHICS_FLAG_*
+        <flag-bit name='wood_color_index' count='8'/>
+        <flag-bit name='bands_color_index' count='8'/>
+        <flag-bit name='head_color_index' count='8'/>
+        <flag-bit name='banded'/>
+        <flag-bit name='direction' count='3'/>
+        <flag-bit name='head_type' count='5'/>
+        <flag-bit name='segment_type' count='2'/>
+    </bitfield-type>
+
+    <struct-type type-name='vehicle_ram_graphics_infost'>
+        <bitfield name='flags' type-name='vehicle_ram_graphics_flag' base-type='int64_t'/>
+        <int32_t name='texpos'/>
+    </struct-type>
+
+    <bitfield-type type-name='vehicle_ram_info_flag' base-type='uint32_t'> bay12: VEHICLE_RAM_INFO_FLAG_*
+        <flag-bit name='ABANDONED'/>
+    </bitfield-type>
+
+    <struct-type type-name='vehicle_ram_infost'>
+        <enum name='head_type' type-name='ram_head_type'/>
+        <int16_t name='woodmat'/>
+        <int16_t name='bandmat'/>
+        <int16_t name='headmat'/>
+        <int32_t name='woodmatg'/>
+        <int32_t name='bandmatg'/>
+        <int32_t name='headmatg'/>
+        <uint8_t name='direction'/>
+        <int16_t name='midx'/>
+        <int16_t name='midy'/>
+        <int16_t name='z'/>
+
+        <int32_t name='move_delay'/>
+
+        <bitfield name='flag' type-name='vehicle_ram_info_flag' base-type='uint32_t'/>
+    </struct-type>
+
+    <enum-type type-name='vehicle_type' base-type='int32_t'> bay12: VehicleType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='ITEM'/>
+        <enum-item name='BATTERING_RAM'/>
+    </enum-type>
+
     <bitfield-type type-name='vehicle_flag' base-type='uint32_t'> bay12: VEHICLE_FLAG_*
         <flag-bit name='ON_TRACK'/>
     </bitfield-type>
 
     <struct-type type-name='vehicle' original-name='vehiclest'
                  instance-vector='$global.world.vehicles.all' key-field='id'>
+        <enum name='type' type-name='vehicle_type'/>
         <int32_t name='id'/>
         <int32_t name='item_id' ref-target='item'/>
 
@@ -26,12 +70,19 @@
         <compound name='last_dump' type-name='coord'/>
 
         <int32_t name='time_stopped' comment='bay12: zero_vel_count; frames, up to 1000'/>
+
+        <int32_t name='invasion_id' ref-target='plot_invasionst'/>
+        <int32_t name='invasion_section_index'/>
+
+        <pointer name='ram_info' type-name='vehicle_ram_infost'/>
     </struct-type>
 
     <struct-type type-name='vehicle_handlerst'>
         <stl-vector name='all' pointer-type='vehicle'/>
         <stl-vector name='active' pointer-type='vehicle'/>
         <stl-vector name='order_load' has-bad-pointers='true' pointer-type='vehicle'/>
+
+        <stl-vector name='ram_graphics_info' pointer-type='vehicle_ram_graphics_infost'/>
     </struct-type>
 </data-definition>
 

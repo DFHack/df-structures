@@ -209,7 +209,8 @@
         <enum-item name='ZonesLocationInfo'/>
     </enum-type>
 
-    <enum-type type-name='timed_event_type'> bay12: PlotEventTypes
+    <enum-type type-name='timed_event_type'> bay12: PlotEventType
+        <enum-item name='NONE' value='-1'/>
         <enum-item name='Caravan'/>
         <enum-item name='Migrants'/>
         <enum-item name='Diplomat'/>
@@ -275,6 +276,18 @@
         <enum-item name='TraderNone'/>
     </enum-type>
 
+    <struct-type type-name='plot_invasion_planst'>
+        <int32_t name='local_id'/>
+        <compound name='path' type-name='coord_path'/>
+        <int32_t name='created_year'/>
+        <int32_t name='created_season_count'/>
+        <int32_t name='liquid_check_year'/>
+        <int32_t name='liquid_check_season_count'/>
+        <int32_t name='target_bldid' ref-target='building'/>
+        <int32_t name='target_unid' ref-target='unit'/>
+        <int32_t name='vehicle_id' ref-target='vehicle'/>
+    </struct-type>
+
     <bitfield-type type-name='plot_invasion_flag' base-type='uint16_t'> bay12: PLOTFLAG_INVASION_*
         <flag-bit name='active'/>
         <flag-bit name='siege' comment='announced'/>
@@ -283,6 +296,9 @@
         <flag-bit name='want_parley'/>
         <flag-bit name='parley'/>
         <flag-bit name='created_parley'/>
+        <flag-bit name='death_caged_scrap_all_plans'/>
+        <flag-bit name='can_copy_heat_map'/>
+        <flag-bit name='planless'/>
     </bitfield-type>
 
     <enum-type type-name='mission_type' base-type='int16_t'> bay12: MissionType
@@ -301,11 +317,39 @@
         <int32_t name='duration_counter'/>
         <bitfield base-type='uint16_t' name='flags' type-name='plot_invasion_flag'/>
         <enum type-name='mission_type' name='mission'/>
+        <int32_t name='created_year'/>
+        <int32_t name='created_season_count'/>
         <int32_t name='parley_year' since='v0.44.01'/>
         <int32_t name='parley_season_count' since='v0.44.01'/>
         <int32_t name='refused_demand_start_year' since='v0.44.01'/>
         <int32_t name='refused_demand_start_season_count' since='v0.44.01'/>
         <int32_t name='origin_master_army_controller_id' ref-target='army_controller' since='v0.44.01'/>
+
+        <stl-vector name='plan' pointer-type='plot_invasion_planst'/>
+        <int32_t name='next_plan_id'/>
+        <compound name='entry' type-name='coord'/>
+
+        <compound name='map' type-name='plot_invasion_mapst'/>
+        <int32_t name='last_map_copy_year'/>
+        <int32_t name='last_map_copy_season_count'/>
+
+        <int32_t name='total_death_cage_number'/>
+
+        <static-array name='dig_progress' type-name='int32_t' count='300'/>
+        <static-array name='dig_progress_x' type-name='int16_t' count='300'/>
+        <static-array name='dig_progress_y' type-name='int16_t' count='300'/>
+        <static-array name='dig_progress_z' type-name='int16_t' count='300'/>
+        <int32_t name='next_dig_progress_ind'/>
+
+        <static-array name='cage_spring_unid' type-name='int32_t' ref-target='unit' count='100'/>
+        <static-array name='cage_spring_x' type-name='int16_t' count='100'/>
+        <static-array name='cage_spring_y' type-name='int16_t' count='100'/>
+        <static-array name='cage_spring_z' type-name='int16_t' count='100'/>
+        <int32_t name='next_cage_spring_ind'/>
+
+        <stl-vector name='uninteresting_bldid' type-name='int32_t' ref-target='building'/>
+
+        <stl-vector name='vehicle_id' type-name='int32_t' ref-target='vehicle'/>
     </struct-type>
 
     <struct-type type-name='plot_invasion_infost'>
@@ -510,6 +554,7 @@
         <enum-item name='CUSTOM_6'/>
         <enum-item name='CUSTOM_7'/>
         <enum-item name='CUSTOM_8'/>
+        <enum-item name='SIEGE_OPERATORS'/>
     </enum-type>
 
     <bitfield-type type-name='work_detail_flags' base-type='uint32_t'> bay12: WORK_DETAIL_FLAG_*
@@ -644,6 +689,10 @@
         <flag-bit name='megabeasts'/>
         <flag-bit name='werebeasts'/>
         <flag-bit name='curiousbeasts'/>
+        <flag-bit name='no_digging_invaders'/>
+        <flag-bit name='no_deconstructing_invaders'/>
+        <flag-bit name='no_building_invaders'/>
+        <flag-bit name='no_freeing_invaders'/>
     </bitfield-type>
 
     <enum-type type-name='setting_difficulty_economy_type' base-type='int32_t'> bay12: SettingDifficultyEconomyType
@@ -678,6 +727,16 @@
         <int32_t name='tree_fell_count_savage'/>
         <int32_t name='tree_fell_count'/>
         <bitfield name='flags' base-type='uint32_t' type-name='difficulty_enemy_flag'/>
+        <int32_t name='invader_deconstruct_speed'/>
+        <int32_t name='invader_deconstruct_path_weight'/>
+        <int32_t name='invader_dig_speed'/>
+        <int32_t name='invader_dig_path_weight_horizontal'/>
+        <int32_t name='invader_dig_path_weight_vertical'/>
+        <int32_t name='invader_vertical_dig_day_delay'/>
+        <static-array type-name='int32_t' count='10' name='invader_death_path_weight'/>
+        <int32_t name='invader_construct_speed'/>
+        <int32_t name='invader_construct_path_weight'/>
+
         <static-array type-name='int32_t' count='5' name='economy_pop_trigger'/>
         <static-array type-name='int32_t' count='5' name='economy_prod_trigger'/>
         <static-array type-name='int32_t' count='5' name='economy_trade_trigger'/>
@@ -938,6 +997,22 @@
 
         <int32_t name='food_warn_year'/>
         <int32_t name='food_warn_year_tick'/>
+
+        <static-array name='game_loop_animation_type' count='10' type-name='combat_animation_swish_type'/>
+        <static-array name='game_loop_animation_dir' count='10' type-name='combat_animation_swish_direction_type'/>
+        <static-array name='game_loop_animation_color' count='10' type-name='int32_t'/>
+        <static-array name='game_loop_animation_mx' count='10' type-name='int16_t'/>
+        <static-array name='game_loop_animation_my' count='10' type-name='int16_t'/>
+        <static-array name='game_loop_animation_mz' count='10' type-name='int16_t'/>
+        <static-array name='game_loop_animation_step' count='10' type-name='int32_t'/>
+        <int32_t name='game_loop_animation_num'/>
+
+        <static-array name='game_loop_ram_animation_type' count='10' type-name='combat_animation_ram_direction_type'/>
+        <static-array name='game_loop_ram_animation_mx' count='10' type-name='int16_t'/>
+        <static-array name='game_loop_ram_animation_my' count='10' type-name='int16_t'/>
+        <static-array name='game_loop_ram_animation_mz' count='10' type-name='int16_t'/>
+        <static-array name='game_loop_ram_animation_step' count='10' type-name='int32_t'/>
+        <int32_t name='game_loop_ram_animation_num'/>
 
         <compound name='main'> not a compound
             <static-array name='hotkeys' type-name='ui_hotkey' count='16'/>

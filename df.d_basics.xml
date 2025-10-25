@@ -10,7 +10,43 @@
         <stl-vector type-name='int32_t' name='dye_matg' comment='NOT matgloss_type'/>
         <stl-vector type-name='int8_t' name='degree'/>
         <stl-vector type-name='int32_t' name='target_index'/>
-   </struct-type>
+    </struct-type>
+
+    <enum-type type-name='army_controller_section_type' base-type='int32_t'> bay12: ArmyControllerSectionType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='SCOUTS'/>
+        <enum-item name='INFANTRY'/>
+        <enum-item name='ARCHERS'/>
+        <enum-item name='CAVALRY'/>
+        <enum-item name='RAM'/>
+        <enum-item name='LEADER'/>
+        <enum-item name='LEADER_GROUP'/>
+        <enum-item name='MOUNTS'/>
+        <enum-item name='MONSTERS_SMALL'/>
+        <enum-item name='MONSTERS_LARGE'/>
+        <enum-item name='MONSTERS_APEX'/>
+        <enum-item name='MONSTER_ENGINEERS'/>
+        <enum-item name='ENGINEERS'/>
+        <enum-item name='PACK_ANIMALS'/>
+    </enum-type>
+
+    <enum-type type-name='army_controller_section_role_type' base-type='int32_t'> bay12: ArmyControllerSectionRoleType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='AMBUSHER'/>
+        <enum-item name='ASSAULT'/>
+        <enum-item name='SCOUT'/>
+        <enum-item name='SCREEN'/>
+        <enum-item name='MAIN_FORCE'/>
+        <enum-item name='SUPPORT'/>
+        <enum-item name='FLANKERS'/>
+        <enum-item name='HEAVY'/>
+        <enum-item name='LEADER'/>
+        <enum-item name='LEADER_GUARD'/>
+        <enum-item name='RAM'/>
+        <enum-item name='ENGINEER'/>
+        <enum-item name='MOUNTS'/>
+        <enum-item name='PACK_ANIMALS'/>
+    </enum-type>
 
     <enum-type type-name='civzone_type' base-type='int32_t'> bay12: BuildingCivzoneType
         <enum-item name="Home"/>
@@ -1818,7 +1854,7 @@
         <enum-item name='LEAVE_THROUGH_BORDER'/>
         <enum-item name='WILDERNESS_STEAL_ITEM'/>
         <enum-item name='SET_AND_SEEK_STATION'/>
-        <enum-item name='INVADER_SIEGER'/>
+        <enum-item name='INVADER_WAITING_FOR_PARLEY'/>
         <enum-item name='INVADER_AMBUSHER'/>
         <enum-item name='GREMLIN'/>
         <enum-item name='INITIATE_KIDNAP'/>
@@ -1877,6 +1913,8 @@
         <enum-item name='MOUNT'/>
         <enum-item name='DISMOUNT'/>
         <enum-item name='HIGH_PRIORITY_HEIST_ITEM'/>
+        <enum-item name='BUILD_SIEGE_CONSTRUCTION'/>
+        <enum-item name='OPERATE_BATTERING_RAM'/>
     </enum-type>
 
     -- Unused: TalkFactType
@@ -2368,6 +2406,11 @@
         <flag-bit name='ZeroWalkTag' comment='bay12: ENTERING_FROM_LEVEL_MAPLESS'/>
         <flag-bit name='LevelMapless'/>
         <flag-bit name='Ghostly'/>
+        <flag-bit name='ConstructedWallIgnore'/>
+        <flag-bit name='HorizontalNaturalWallPass'/>
+        <flag-bit name='HorizontalAir'/>
+        <flag-bit name='VerticalNaturalWallPass'/>
+        <flag-bit name='VerticalAir'/>
     </bitfield-type>
 
     <enum-type type-name='pronoun_type' base-type='int8_t'> bay12: Gender
@@ -3841,7 +3884,7 @@
         <enum-item name='DungeonCommander'/>
         <enum-item name='InsaneMood'/>
         <enum-item name='UndeadHunt'/>
-        <enum-item/>
+        <enum-item name='MaraudeWaypoint'/>
         <enum-item name='MaraudeTarget'/>
         <enum-item name='SiegerBasepoint'/>
         <enum-item name='SiegerMill'/>
@@ -3860,7 +3903,7 @@
         <enum-item name='Depot'/>
         <enum-item name='VerminHunting'/>
         <enum-item name='SeekCommander'/>
-        <enum-item name='ReturnToBase'/>
+        <enum-item/>
         <enum-item name='MillAnywhere'/>
         <enum-item name='Wagon'/>
         <enum-item name='MillBuilding'/>
@@ -4100,6 +4143,7 @@
         <enum-item name='AdventureAutomove'/>
         <enum-item name='AdventureAutomoveAcrobatic'/>
         <enum-item name='ArcherReposition'/>
+        <enum-item name='BatteringRamPosition'/>
     </enum-type>
 
     -- Unused: BuildPathResult
@@ -5933,6 +5977,9 @@
         </enum-item>
         <enum-item name='SMOOTH_DEAD'>
             <item-attr name='caption' value='smooth dead leaves, a unique combination'/>
+        </enum-item>
+        <enum-item name='SHODDY'>
+            <item-attr name='caption' value='shoddy constructions built by siegers'/>
         </enum-item>
     </enum-type>
 
@@ -8938,13 +8985,52 @@
             <item-attr name='material' value='RIVER'/>
             <item-attr name='direction' value='SE'/>
         </enum-item>
-        <enum-item name='Unused473' comment='MAPTILE_UNUSED_473'/>
-        <enum-item name='Unused474' comment='MAPTILE_UNUSED_474'/>
-        <enum-item name='Unused475' comment='MAPTILE_UNUSED_475'/>
-        <enum-item name='Unused476' comment='MAPTILE_UNUSED_476'/>
-        <enum-item name='Unused477' comment='MAPTILE_UNUSED_477'/>
-        <enum-item name='Unused478' comment='MAPTILE_UNUSED_478'/>
-        <enum-item name='Unused479' comment='MAPTILE_UNUSED_479'/>
+        <enum-item name='ShoddyConstructedFloor1' comment='MAPTILE_CONSTRUCTED_FLOOR_SHODDY_1'>
+            <item-attr name='caption' value='shoddy constructed floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+            <item-attr name='special' value='SHODDY'/>
+            <item-attr name='variant' value='VAR_1'/>
+        </enum-item>
+        <enum-item name='ShoddyConstructedFloor2' comment='MAPTILE_CONSTRUCTED_FLOOR_SHODDY_2'>
+            <item-attr name='caption' value='shoddy constructed floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+            <item-attr name='special' value='SHODDY'/>
+            <item-attr name='variant' value='VAR_2'/>
+        </enum-item>
+        <enum-item name='ShoddyConstructedFloor3' comment='MAPTILE_CONSTRUCTED_FLOOR_SHODDY_3'>
+            <item-attr name='caption' value='shoddy constructed floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+            <item-attr name='special' value='SHODDY'/>
+            <item-attr name='variant' value='VAR_3'/>
+        </enum-item>
+        <enum-item name='ShoddyConstructedFloor4' comment='MAPTILE_CONSTRUCTED_FLOOR_SHODDY_4'>
+            <item-attr name='caption' value='shoddy constructed floor'/>
+            <item-attr name='shape' value='FLOOR'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+            <item-attr name='special' value='SHODDY'/>
+            <item-attr name='variant' value='VAR_4'/>
+        </enum-item>
+        <enum-item name='ShoddyConstructedStairUD' comment='MAPTILE_STAIR_UPDOWN_CONSTRUCTED_SHODDY'>
+            <item-attr name='caption' value='shoddy constructed stair up/down'/>
+            <item-attr name='shape' value='STAIR_UPDOWN'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+            <item-attr name='special' value='SHODDY'/>
+        </enum-item>
+        <enum-item name='ShoddyConstructedStairD' comment='MAPTILE_STAIR_DOWN_CONSTRUCTED_SHODDY'>
+            <item-attr name='caption' value='shoddy constructed stair down'/>
+            <item-attr name='shape' value='STAIR_DOWN'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+            <item-attr name='special' value='SHODDY'/>
+        </enum-item>
+        <enum-item name='ShoddyConstructedStairU' comment='MAPTILE_STAIR_UP_CONSTRUCTED_SHODDY'>
+            <item-attr name='caption' value='shoddy constructed stair up'/>
+            <item-attr name='shape' value='STAIR_UP'/>
+            <item-attr name='material' value='CONSTRUCTION'/>
+            <item-attr name='special' value='SHODDY'/>
+        </enum-item>
 
         -- 0x1E0
 
@@ -10826,6 +10912,7 @@
         <flag-bit name='dig_auto'/>
         <flag-bit name='heavy_aquifer' since='v0.47.01' comment="Light/Heavy aquifer flag"/>
         <flag-bit name='temp_value' comment='bay12: currently used by location calcs'/>
+        <flag-bit name='vehicle' comment='bay12: not minecarts or other item-sized vehicles, those use ITEM'/>
     </bitfield-type>
 
     <enum-type type-name='tile_building_occ' base-type='uint32_t'> bay12: BUILDING_OCCUPANCY_*
@@ -11696,6 +11783,10 @@
         <enum-item name='BRANCH' comment='Tree branches'>
             <item-attr name='caption' value='branch'/>
             <item-attr name='classname' value='item_branchst'/>
+        </enum-item>
+        <enum-item name='BOLT_THROWER_PARTS' comment='Bolt thrower parts'>
+            <item-attr name='caption' value='bolt thrower parts'/>
+            <item-attr name='classname' value='item_bolt_thrower_partsst'/>
         </enum-item>
     </enum-type>
 
