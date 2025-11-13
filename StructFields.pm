@@ -73,6 +73,18 @@ sub get_container_item_type($;%) {
     }
 }
 
+sub get_internal_item_type($;$;%) {
+    my ($tag, $type, %flags) = @_;
+    my @items = $tag->findnodes($type);
+    if (@items) {
+        return get_struct_field_type($items[0], -local => $in_struct_body, %container_flags, %flags);
+    } elsif ($flags{-void}) {
+        return $flags{-void};
+    } else {
+        die "Container without $type: $tag\n";
+    }
+}
+
 sub get_variant_item_type($;%) {
     my ($tag, %flags) = @_;
     my ($rawtype) = $tag->getAttribute('raw-type');
@@ -163,18 +175,16 @@ my %custom_container_handlers = (
         return "std::array<$item, $count>";
     },
     'stl-map' => sub {
-        # TODO: implement get_container_key_type?
-        my $key  = 'void*';
-        my $item = get_container_item_type($_, -void => 'void*');
+        my $key = get_internal_item_type($_, "key-type", -void => 'void*');
+        my $value = get_internal_item_type($_, "value-type", -void => 'void*');
         header_ref("map");
-        return "std::map<$key, $item>";
+        return "std::map<$key, $value>";
     },
     'stl-unordered-map' => sub {
-        # TODO: implement get_container_key_type?
-        my $key  = 'void*';
-        my $item = get_container_item_type($_, -void => 'void*');
+        my $key = get_internal_item_type($_, "key-type", -void => 'void*');
+        my $value = get_internal_item_type($_, "value-type", -void => 'void*');
         header_ref("unordered_map");
-        return "std::unordered_map<$key, $item>";
+        return "std::unordered_map<$key, $value>";
     },
     'stl-function' => sub {
         my $item = get_container_item_type($_, -void => 'void');

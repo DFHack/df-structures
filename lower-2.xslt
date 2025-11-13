@@ -69,6 +69,18 @@
             <xsl:with-param name='tag' select="'ret-type'"/>
         </xsl:apply-templates>
     </xsl:template>
+
+    <xsl:template match='key-type[count(ld:field)=1]'>
+        <xsl:apply-templates select='ld:field'>
+            <xsl:with-param name='tag' select="'key-type'"/>
+        </xsl:apply-templates>
+    </xsl:template>
+
+    <xsl:template match='value-type[count(ld:field)=1]'>
+        <xsl:apply-templates select='ld:field'>
+            <xsl:with-param name='tag' select="'value-type'"/>
+        </xsl:apply-templates>
+    </xsl:template>
 </xsl:stylesheet>
 
 <!--
