@@ -340,7 +340,7 @@ Error: field <xsl:value-of select='$enum-key'/> corresponds to an enum value of 
     </xsl:template>
 
     <!-- Misc containers: meta='container' subtype='$tag' -->
-    <xsl:template match='stl-vector|stl-deque|stl-set|stl-bit-vector|stl-array|stl-optional|stl-variant|stl-shared-ptr|stl-weak-ptr|stl-function|df-flagarray|df-static-flagarray|df-array|df-linked-list'>
+    <xsl:template match='stl-vector|stl-deque|stl-set|stl-unordered-set|stl-bit-vector|stl-array|stl-optional|stl-variant|stl-shared-ptr|stl-weak-ptr|stl-function|df-flagarray|df-static-flagarray|df-array|df-linked-list'>
         <xsl:param name='level' select='-1'/>
         <ld:field ld:meta='container'>
             <xsl:attribute name='ld:level'><xsl:value-of select='$level'/></xsl:attribute>

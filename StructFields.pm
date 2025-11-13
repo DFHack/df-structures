@@ -164,6 +164,11 @@ my %custom_container_handlers = (
         header_ref("set");
         return "std::set<$item >";
     },
+    'stl-unordered-set' => sub {
+        my $item = get_container_item_type($_, -void => 'void*');
+        header_ref("unordered_set");
+        return "std::unordered_set<$item >";
+    },
     'stl-bit-vector' => sub {
         header_ref("vector");
         return "std::vector<bool>";
