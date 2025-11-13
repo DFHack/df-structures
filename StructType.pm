@@ -316,7 +316,9 @@ sub render_struct_type {
                 emit 'friend struct ' . fully_qualified_name($types{$backref}, $backref) . ';';
             }
         }
+
     } $tag, "$typename$ispec", -export => 1;
+
 }
 
 1;
