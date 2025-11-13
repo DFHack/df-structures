@@ -340,7 +340,7 @@ Error: field <xsl:value-of select='$enum-key'/> corresponds to an enum value of 
     </xsl:template>
 
     <!-- Misc containers: meta='container' subtype='$tag' -->
-    <xsl:template match='stl-vector|stl-deque|stl-set|stl-bit-vector|stl-array|stl-map|stl-unordered-map|stl-optional|stl-variant|stl-shared-ptr|stl-weak-ptr|stl-function|df-flagarray|df-static-flagarray|df-array|df-linked-list'>
+    <xsl:template match='stl-vector|stl-deque|stl-set|stl-unordered-set|stl-bit-vector|stl-array|stl-optional|stl-variant|stl-shared-ptr|stl-weak-ptr|stl-function|df-flagarray|df-static-flagarray|df-array|df-linked-list'>
         <xsl:param name='level' select='-1'/>
         <ld:field ld:meta='container'>
             <xsl:attribute name='ld:level'><xsl:value-of select='$level'/></xsl:attribute>
@@ -350,6 +350,48 @@ Error: field <xsl:value-of select='$enum-key'/> corresponds to an enum value of 
                 <xsl:with-param name='level' select="$level+1"/>
             </xsl:call-template>
         </ld:field>
+    </xsl:template>
+
+    <!-- Assoc containers: meta='container' keytype='$tag' subtype='$tag' -->
+    <xsl:template match='stl-map|stl-unordered-map'>
+        <xsl:param name='level' select='-1'/>
+        <ld:field ld:meta='container'>
+            <xsl:attribute name='ld:level'><xsl:value-of select='$level'/></xsl:attribute>
+            <xsl:attribute name='ld:subtype'><xsl:value-of select='name(.)'/></xsl:attribute>
+            <xsl:apply-templates select='@*'/>
+            <!--
+            <xsl:if test='@key-type'>
+                <xsl:copy-of select='text()[1]'/>
+                <key-type>
+                    <xsl:call-template name='lookup-type-ref'>
+                        <xsl:with-param name='name' select="@key-type"/>
+                        <xsl:with-param name="level" select="$level+1"/>
+                    </xsl:call-template>
+                </key-type>
+            </xsl:if>
+            -->
+            <xsl:call-template name='container'>
+                <xsl:with-param name='level' select="$level+1"/>
+            </xsl:call-template>
+        </ld:field>
+    </xsl:template>
+
+    <xsl:template match='key-type'>
+        <xsl:param name='level' select='-1'/>
+        <xsl:copy>
+            <xsl:call-template name='compound'>
+                <xsl:with-param name='level' select="$level"/>
+            </xsl:call-template>
+        </xsl:copy>
+    </xsl:template>
+
+    <xsl:template match='value-type'>
+        <xsl:param name='level' select='-1'/>
+        <xsl:copy>
+            <xsl:call-template name='compound'>
+                <xsl:with-param name='level' select="$level"/>
+            </xsl:call-template>
+        </xsl:copy>
     </xsl:template>
 
     <!-- Virtual methods -->
