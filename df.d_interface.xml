@@ -1975,7 +1975,7 @@
         <enum-item name='OTHER'/>
     </enum-type>
 
-    <struct-type type-name='labor_kitchen_interface_food_key'>
+    <struct-type type-name='labor_kitchen_interface_food_key' custom-methods='true'>
         <enum name='type' type-name='item_type'/>
         <int16_t name='subtype'/>
         <int16_t name='mat'/>
@@ -1989,11 +1989,14 @@
     </struct-type>
 
     <struct-type type-name='labor_kitchen_interface_food_entry'>
+        <extra-include filename="custom/hash/labor_kitchen_interface_food_key.h"/>
         <compound type-name='labor_kitchen_interface_food_key' name='first'/>
         <compound type-name='labor_kitchen_interface_food_value' name='second'/>
     </struct-type>
 
-    <struct-type type-name='labor_kitchen_interface_food_sort_entry' inherits-from='sort_entry'/>
+    <struct-type type-name='labor_kitchen_interface_food_sort_entry' inherits-from='sort_entry'>
+        <extra-include filename="custom/hash/labor_kitchen_interface_food_key.h"/>
+    </struct-type>
 
     <enum-type type-name='labor_kitchen_interface_type_filter' base-type='int8_t'> bay12: labor_kitchen_interface_type_filter
         <enum-item name='ALL' value='-1'/>
@@ -2005,9 +2008,15 @@
 
     <class-type type-name='labor_kitchen_interfacest' inherits-from='widget_container'>
         <enum type-name='kitchen_pref_category_type' name='current_category'/>
-        <stl-unordered-map type-name='labor_kitchen_interface_food_value' name='known' comment='std::unordered_map&lt;labor_kitchen_interface_food_key,labor_kitchen_interface_food_value&gt;'/>
+        <stl-unordered-map name='known'>
+            <key-type type-name='labor_kitchen_interface_food_key'/>
+            <value-type type-name='labor_kitchen_interface_food_value'/>
+        </stl-unordered-map>
         <stl-vector type-name='labor_kitchen_interface_food_sort_entry' name='sorting_by'/>
-        <stl-unordered-map type-name='int8_t' name='ascending_sort' comment='std::unordered_map&lt;std::string,bool&gt;'/>
+        <stl-unordered-map name='ascending_sort'>
+            <key-type type-name='stl-string'/>
+            <value-type type-name='int8_t'/>
+        </stl-unordered-map>
         <stl-vector name='filter_func'>
             <stl-function comment='std::function&lt;bool(labor_kitchen_interface_food_entry)&gt;'/>
         </stl-vector>
@@ -2370,9 +2379,18 @@
         <stl-vector pointer-type='organization_entryst' name='organization_entry'/>
         <stl-vector pointer-type='plot_entryst' name='plot_entry'/>
 
-        <stl-unordered-map type-name='int32_t' name='crimevals' comment='std::unordered_map&lt;unitst *,int32_t&gt;'/>
-        <stl-unordered-map type-name='justice_screen_interrogation_list_flag' name='crimeflag' comment='std::unordered_map&lt;unitst *,int32_t&gt;'/>
-        <stl-unordered-map type-name='int32_t' name='guardvals' comment='std::unordered_map&lt;unitst *,int32_t&gt;'/>
+        <stl-unordered-map name='crimevals'>
+            <key-type><pointer type-name='unit'/></key-type>
+            <value-type type-name='int32_t'/>
+        </stl-unordered-map>
+        <stl-unordered-map name='crimeflag'>
+            <key-type><pointer type-name='unit'/></key-type>
+            <value-type type-name='justice_screen_interrogation_list_flag'/>
+        </stl-unordered-map>
+        <stl-unordered-map name='guardvals'>
+            <key-type><pointer type-name='unit'/></key-type>
+            <value-type type-name='int32_t'/>
+        </stl-unordered-map>
 
         <bool name='do_init'/>
     </class-type>

@@ -36,14 +36,17 @@ our $script_root;
 my $parser = XML::LibXML->new();
 my $xslt = XML::LibXSLT->new();
 my @transforms =
-    map { $xslt->parse_stylesheet_file("$script_root/$_"); }
+    map { [ $_, $xslt->parse_stylesheet_file("$script_root/$_") ]; }
     ('lower-1.xslt', 'lower-2.xslt');
 my @documents;
 
 for my $fn (sort { $a cmp $b } bsd_glob "$input_dir/df.*.xml") {
     local $filename = $fn;
     my $doc = $parser->parse_file($filename);
-    $doc = $_->transform($doc) for @transforms;
+    for my $t (@transforms) {
+#        print "Applying transform ", $t->[0], " to $filename\n";
+        $doc = $t->[1]->transform($doc);
+    }
 
     push @documents, $doc;
     add_type_to_hash $_ foreach $doc->findnodes('/ld:data-definition/ld:global-type');
