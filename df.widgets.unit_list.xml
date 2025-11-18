@@ -50,17 +50,18 @@
     </class-type>
 
     <struct-type type-name='item_or_unit'>
-        <pointer/>
-        <bool/>
+        <!--
+        Can't use this right now due to lack of identity_traits for std::variant
+        <stl-variant raw-type='df::unit *, df::item *'/>
+        -->
+        <compound is-union='true'>
+            <pointer type-name='unit' name='u'/>
+            <pointer type-name='item' name='i'/>
+        </compound>
+        <int8_t name='t'/>
     </struct-type>
 
     <class-type type-name='widget_unit_list' original-name='widgets::unit_list' inherits-from='widget_container'>
-        <stl-vector name='deferred_units_builds'>
-            <stl-weak-ptr type-name='widget_container'/>
-            <pointer/>
-            <bool/>
-        </stl-vector>
-        <stl-shared-ptr type-name='widget' name='no_unit_entry'/>
         <stl-vector type-name='sort_entry' name='sorting_by' comment='std::vector&lt;sort_entry&lt;item_or_unit&gt;&gt;'/>
         <stl-vector name='always_sorting_by'> <stl-function type-name='bool'/> </stl-vector>
         <stl-vector name='partitions'> <stl-function type-name='bool'/> </stl-vector>
@@ -84,8 +85,14 @@
         </stl-vector>
         <enum type-name='unit_list_options' name='skill_type'/>
         <stl-mutex name='mtx'/>
-        <static-array type-name='int32_t' count='149' index-enum='job_skill' name='skills'/>
+        <static-array type-name='int32_t' index-enum='job_skill' name='skills'/>
         <stl-string name='filter_str'/>
+
+        <stl-vector name='deferred_units_builds'>
+            <stl-weak-ptr type-name='widget_container'/>
+            <compound type-name='item_or_unit'/>
+        </stl-vector>
+        <stl-shared-ptr type-name='widget' name='no_unit_entry'/>
     </class-type>
 
     <class-type type-name='widget_unit_sort_widget' inherits-from='widget_sort_widget' comment='template specialization using unit_list + unit_list::item_or_unit'/>
