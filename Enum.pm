@@ -155,8 +155,8 @@ sub render_enum_tables($$$$$$) {
     with_emit_traits {
         emit_block {
             emit "static constexpr bool is_complex = " . ($complex ? 'true' : 'false') . ";";
-            emit "typedef $base_type base_type;";
-            emit "typedef $full_name enum_type;";
+            emit "using base_type = $base_type;";
+            emit "using enum_type = $full_name;";
             emit "static constexpr base_type first_item_value = $base;";
             emit "static constexpr base_type last_item_value = $last_value;";
             # Cast the enum to integer in order to avoid GCC <= 4.5 assuming the value range is correct.
