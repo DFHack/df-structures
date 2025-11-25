@@ -154,18 +154,18 @@ sub render_enum_tables($$$$$$) {
 
     with_emit_traits {
         emit_block {
-            emit "static const bool is_complex = " . ($complex ? 'true' : 'false') . ";";
-            emit "typedef $base_type base_type;";
-            emit "typedef $full_name enum_type;";
-            emit "static const base_type first_item_value = $base;";
-            emit "static const base_type last_item_value = $last_value;";
+            emit "static constexpr bool is_complex = " . ($complex ? 'true' : 'false') . ";";
+            emit "using base_type = $base_type;";
+            emit "using enum_type = $full_name;";
+            emit "static constexpr base_type first_item_value = $base;";
+            emit "static constexpr base_type last_item_value = $last_value;";
             # Cast the enum to integer in order to avoid GCC <= 4.5 assuming the value range is correct.
             emit_block {
                 emit "return (value >= first_item_value && ",
                              "value <= last_item_value);";
             } "static inline bool is_valid(base_type value) ";
-            emit "static const enum_type first_item = (enum_type)first_item_value;";
-            emit "static const enum_type last_item = (enum_type)last_item_value;";
+            emit "static constexpr enum_type first_item = (enum_type)first_item_value;";
+            emit "static constexpr enum_type last_item = (enum_type)last_item_value;";
             emit "static const char *const key_table[", $count, "];";
             if ($complex) {
                 emit "static const DFHack::enum_identity::ComplexData complex;";
