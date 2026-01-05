@@ -32,5 +32,3 @@ if(BUILD_XMLDUMP)
         install(TARGETS xml-dump-type-sizes DESTINATION .)
     endif()
 endif()
-
-
