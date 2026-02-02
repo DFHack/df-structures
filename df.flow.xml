@@ -1,19 +1,20 @@
 <data-definition>
     <enum-type type-name='flow_type'> bay12: FlowTypes, no base type
-        <enum-item name='Miasma'/>
-        <enum-item name='Steam' comment='bay12: MIST_WATER'/>
-        <enum-item name='Mist' comment='bay12: MIST_WATERFALL'/>
-        <enum-item name='MaterialDust'/>
-        <enum-item name='MagmaMist'/>
-        <enum-item name='Smoke'/>
-        <enum-item name='Dragonfire'/>
-        <enum-item name='Fire'/>
-        <enum-item name='Web'/>
-        <enum-item name='MaterialGas'/>
-        <enum-item name='MaterialVapor'/>
-        <enum-item name='OceanWave'/>
-        <enum-item name='SeaFoam'/>
-        <enum-item name='ItemCloud'/>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='Miasma' original-name='MIASMA'/>
+        <enum-item name='Steam' original-name='MIST_WATER'/>
+        <enum-item name='Mist' original-name='MIST_WATERFALL'/>
+        <enum-item name='MaterialDust' original-name='DUST_MATERIAL'/>
+        <enum-item name='MagmaMist' original-name='MIST_LAVA'/>
+        <enum-item name='Smoke' original-name='SMOKE'/>
+        <enum-item name='Dragonfire' original-name='DRAGONFIRE'/>
+        <enum-item name='Fire' original-name='FIRE'/>
+        <enum-item name='Web' original-name='WEB'/>
+        <enum-item name='MaterialGas' original-name='BOILING_MATERIAL'/>
+        <enum-item name='MaterialVapor' original-name='VAPOR_MATERIAL'/>
+        <enum-item name='OceanWave' original-name='OCEAN_WAVE'/>
+        <enum-item name='SeaFoam' original-name='OCEAN_FOAM'/>
+        <enum-item name='ItemCloud' original-name='ITEM_CLOUD'/>
     </enum-type>
 
     <bitfield-type type-name='event_flow_flag' base-type='uint8_t'> bay12: EVENTFLOW_FLAG_*
@@ -24,43 +25,45 @@
 
     <struct-type type-name='flow_info' original-name='event_flowst'>
         <enum type-name='flow_type' base-type='int16_t' name='type'/>
-        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
-        <int32_t name='mat_index' init-value='-1'/>
-        <int16_t name='density'/>
+        <int16_t name='mat_type' original-name='subtype' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index' original-name='ssubtype' init-value='-1'/>
+        <int16_t name='density' original-name='level'/>
         <compound name='pos' type-name='coord'/>
-        <compound name='dest' type-name='coord'/>
-        <bool name='expanding' init-value='1'/>
-        <bitfield name='flags' base-type='uint8_t' type-name='event_flow_flag'/>
+        <compound name='dest' original-name='g' type-name='coord'/>
+        <bool name='expanding' original-name='canspread' init-value='1'/>
+        <bitfield name='flags' original-name='flag' base-type='uint8_t' type-name='event_flow_flag'/>
         <int32_t name='guide_id' ref-target='flow_guide'/>
     </struct-type>
 
     <bitfield-type type-name='flow_tracker_flag' base-type='uint32_t'> bay12: FLOWTRACKER_FLAG_*
-        <flag-bit name='active' comment='SOMETHINGDIED'/>
+        <flag-bit name='active' original-name='SOMETHINGDIED'/>
     </bitfield-type>
 
     <struct-type type-name='flow_reuse_pool' original-name='flow_trackerst'>
-        <int32_t name='reuse_idx' init-value='-1'/>
-        <bitfield name='flags' base-type='uint32_t' type-name='flow_tracker_flag'/>
+        <int32_t name='reuse_idx' original-name='first_free_flow' init-value='-1'/>
+        <bitfield name='flags' original-name='flow_flag' base-type='uint32_t' type-name='flow_tracker_flag'/>
     </struct-type>
 
     <enum-type type-name='flow_guide_type' base-type='int16_t'> bay12: FlowGuideType
-        <enum-item name='TrailingFlow'/>
-        <enum-item name='ItemCloud'/>
+        <enum-item name='TrailingFlow' original-name='TRAILING_FLOW'/>
+        <enum-item name='ItemCloud' original-name='ITEM_CLOUD'/>
     </enum-type>
 
     <class-type type-name='flow_guide' original-name='flow_guidest'
                 key-field='id' instance-vector='$global.world.flow_guides.all'>
-        <int32_t name='id'/>
+        <int32_t name='id' original-name='global_id'/>
+
         <bool name='tagged' comment='for culling'/>
+
         <virtual-methods>
-            <vmethod ret-type='flow_guide_type' name='getType'/>
-            <vmethod name='shiftCoords'><int16_t name='x'/><int16_t name='y'/><int16_t name='z'/></vmethod>
-            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
+            <vmethod ret-type='flow_guide_type' name='getType' original-name='type'/>
+            <vmethod name='shiftCoords' original-name='shift_locations'><int16_t name='shiftx'/><int16_t name='shifty'/><int16_t name='shiftz'/></vmethod>
+            <vmethod name='write_file'> <pointer name='filecomp' type-name='file_compressorst'/> </vmethod>
             <vmethod name='read_file'>
-                <pointer name='file' type-name='file_compressorst'/>
+                <pointer name='filecomp' type-name='file_compressorst'/>
                 <enum name='loadversion' type-name='save_version'/>
             </vmethod>
-            <vmethod name='advance_flow'><pointer type-name='flow_info'/></vmethod>
+            <vmethod name='advance_flow'><pointer type-name='flow_info' name='ef'/></vmethod>
             <vmethod is-destructor='true'/>
         </virtual-methods>
     </class-type>
@@ -70,22 +73,22 @@
     </class-type>
 
     <bitfield-type type-name='flow_guide_item_cloud_flag' base-type='uint32_t'> bay12: FLOW_GUIDE_ITEM_CLOUD_FLAG_*
-        <flag-bit name='undirected'/>
-        <flag-bit name='trailing'/>
+        <flag-bit name='undirected' original-name='UNDIRECTED'/>
+        <flag-bit name='trailing' original-name='TRAILING'/>
     </bitfield-type>
 
     <class-type type-name='flow_guide_item_cloudst' inherits-from='flow_guide'>
-        <enum name='item_type' type-name='item_type'/>
-        <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
-        <int16_t name='mattype' ref-target='material' aux-value='$$.matindex'/>
-        <int32_t name='matindex'/>
+        <enum name='item_type' original-name='i_type' type-name='item_type'/>
+        <int16_t name='item_subtype' original-name='i_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
+        <int16_t name='mattype' original-name='i_subcat1' ref-target='material' aux-value='$$.matindex'/>
+        <int32_t name='matindex' original-name='i_subcat2'/>
         <int32_t name="print_variant"/>
-        <bitfield name='flags' base-type='uint32_t' type-name='flow_guide_item_cloud_flag'/>
+        <bitfield name='flags' original-name='flag' base-type='uint32_t' type-name='flow_guide_item_cloud_flag'/>
         <static-array name='line' type-name='coord' count='15'/>
     </class-type>
 
     <struct-type type-name='flow_guide_handlerst'>
-        <stl-vector name='all' pointer-type='flow_guide'/>
+        <stl-vector name='all' original-name='global' pointer-type='flow_guide'/>
         <stl-vector name='temp_save' pointer-type='flow_guide' has-bad-pointers='true'/>
     </struct-type>
 </data-definition>

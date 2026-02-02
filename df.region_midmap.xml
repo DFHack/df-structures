@@ -16,19 +16,19 @@
     </struct-type>
 
     <enum-type type-name='feature_square_flag_river_type'> bay12: FeatureSquareFlagRiverType
-        <enum-item name='source'/>
-        <enum-item name='sink'/>
+        <enum-item name='source' original-name='SOURCE'/>
+        <enum-item name='sink' original-name='SINK'/>
     </enum-type>
 
     <enum-type type-name='feature_square_flag_layer_type'> bay12: FeatureSquareFlagLayerType
-        <enum-item name='liquid_u'/>
-        <enum-item name='liquid_d'/>
-        <enum-item name='liquid_l'/>
-        <enum-item name='liquid_r'/>
+        <enum-item name='liquid_u' original-name='LIQUID_U'/>
+        <enum-item name='liquid_d' original-name='LIQUID_D'/>
+        <enum-item name='liquid_l' original-name='LIQUID_L'/>
+        <enum-item name='liquid_r' original-name='LIQUID_R'/>
     </enum-type>
 
     <struct-type type-name='world_region_feature' original-name='feature_square_infost'>
-        <int16_t name='feature_idx'>
+        <int16_t name='feature_idx' original-name='feature_ind'>
             <code-helper name='refers-to'>
                 (let* ((info $$._parent._parent._global)
                        (wdata $global.world.world_data)
@@ -40,8 +40,8 @@
                       $flst[$])))
             </code-helper>
         </int16_t>
-        <int32_t name="layer" ref-target='world_underground_region'/>
-        <int32_t name="region_tile_idx">
+        <int32_t name="layer" original-name='feature_layer' ref-target='world_underground_region'/>
+        <int32_t name="region_tile_idx" original-name='feature_layer_sq'>
             <code-helper name='describe'>
                 (let ((l $$._parent.layer.ref-target))
                   (when l
@@ -76,36 +76,36 @@
         <uint32_t name="seed"/>
         <df-flagarray name="flag" comment='feature_square_flag_river_type OR feature_square_flag_layer_type'/>
 
-        <int16_t name='left_z_min'/>
-        <int16_t name='left_z_max'/>
-        <int16_t name='right_z_min'/>
-        <int16_t name='right_z_max'/>
+        <int16_t name='left_z_min' original-name='left_z_min_perc'/>
+        <int16_t name='left_z_max' original-name='left_z_max_perc'/>
+        <int16_t name='right_z_min' original-name='right_z_min_perc'/>
+        <int16_t name='right_z_max' original-name='right_z_max_perc'/>
 
-        <int16_t name='up_z_min'/>
-        <int16_t name='up_z_max'/>
-        <int16_t name='down_z_min'/>
-        <int16_t name='down_z_max'/>
+        <int16_t name='up_z_min' original-name='up_z_min_perc'/>
+        <int16_t name='up_z_max' original-name='up_z_max_perc'/>
+        <int16_t name='down_z_min' original-name='down_z_min_perc'/>
+        <int16_t name='down_z_max' original-name='down_z_max_perc'/>
 
         <enum type-name='tile_liquid' name='liquid_type'/>
         <int16_t name='liquid_upper_filled_z'/>
-        <int16_t name='openness'/>
-        <int16_t name='passage_density'/>
+        <int16_t name='openness' original-name='open_perc'/>
+        <int16_t name='passage_density' original-name='passage_density_perc'/>
         <static-array count='2' type-name='int16_t' name='vertical_connection'/>
 
-        <enum name="top_layer_idx" type-name='layer_type' base-type='int16_t'
+        <enum name="top_layer_idx" original-name='layer_depth' type-name='layer_type' base-type='int16_t'
                     comment='topmost cave layer the feature reaches'/>
     </struct-type>
 
     -- Unused: midmap_gen_el_restrictionst
 
     <bitfield-type type-name='midmap_square_flag' base-type='uint8_t'> bay12: MIDMAP_SQUARE_FLAG_*
-        <flag-bit name='construction' comment="the MLTs of world_data.constructions.all"/>
-        <flag-bit name='minor_site_footprint' comment="MLTs with sites other than MountainHall, DarkFortress, ForestRetreat, Town"/>
-        <flag-bit name='river' comment="Only a very small subset (selection criteria unknown), but the MLTs marked match up with Rivers* tiles plus implicit River tiles interpolated from that"/>
+        <flag-bit name='construction' original-name='HAS_CONSTRUCTION' comment="the MLTs of world_data.constructions.all"/>
+        <flag-bit name='minor_site_footprint' original-name='HAS_CONSTRUCTION_BLOCKER' comment="MLTs with sites other than MountainHall, DarkFortress, ForestRetreat, Town"/>
+        <flag-bit name='river' original-name='DEEP_RIVER' comment="Only a very small subset (selection criteria unknown), but the MLTs marked match up with Rivers* tiles plus implicit River tiles interpolated from that"/>
     </bitfield-type>
 
     <struct-type type-name='world_region_details' original-name='region_midmapst'>
-        <static-array count='17' name='biome'>
+        <static-array count='17' name='biome' original-name='map'>
             <static-array type-name='int8_t' count='17'
                           comment='lower 4 bits: biome 1..9; |=0x30 if fort'/>
             <comment>biome field reference:
@@ -114,15 +114,15 @@
                 123
                 as directions, with 5 = own world tile, 1 = SW, 9 = NE, etc.</comment>
         </static-array>
-        <static-array count='17' name='elevation'>
+        <static-array count='17' name='elevation' original-name='el_map'>
             <static-array type-name='int16_t' count='17'/>
         </static-array>
 
-        <static-array count='16' name='seed' comment='looks random'>
+        <static-array count='16' name='seed' original-name='local_seed'>
             <static-array type-name='uint32_t' count='16'/>
         </static-array>
 
-        <compound name='edges'>
+        <compound name='edges'> not a compound
             <comment>
                 In order to determine how biomes cross embark tile edges,
                 the rectangle framing an embark tile is split into 4 corners,
@@ -165,16 +165,16 @@
                 used, with the exception of a northern row selection of NW (0),
                 where the home corner (3) is selected.
             </comment>
-            <static-array count='16' name='split_x'
+            <static-array count='16' name='split_x' original-name='local_ud_edge_data'
                           comment='splits for horizontal edges, x=min y=max'>
                 <static-array type-name='local_edge_datast' count='17'/>
             </static-array>
-            <static-array count='17' name='split_y'
+            <static-array count='17' name='split_y' original-name='local_lr_edge_data'
                           comment='splits for vertical edges, x=min y=max'>
                 <static-array type-name='local_edge_datast' count='16'/>
-           </static-array>
+            </static-array>
 
-            <static-array name='biome_corner' count='16'
+            <static-array name='biome_corner' original-name='local_ul_corner' count='16'
                           comment='0=Reference is NW, 1=Reference is N, 2=Reference is W, 3=Reference is current tile'>
                 <static-array type-name='int8_t' count='16'/>
                 <comment>
@@ -184,86 +184,86 @@
                     tile, as directed by the biome_corner value.
                 </comment>
             </static-array>
-            <static-array name='biome_x' count='16' comment='0=Reference is N, 1=Reference is current tile (adopted by S edge to the N)'>
+            <static-array name='biome_x' original-name='local_u_edge' count='16' comment='0=Reference is N, 1=Reference is current tile (adopted by S edge to the N)'>
                 <static-array type-name='int8_t' count='16'/>
             </static-array>
-            <static-array name='biome_y' count='16' comment='0=Reference is W, 1=Reference is current tile (Adopted by E edge to the W)'>
+            <static-array name='biome_y' original-name='local_l_edge' count='16' comment='0=Reference is W, 1=Reference is current tile (Adopted by E edge to the W)'>
                 <static-array type-name='int8_t' count='16'/>
             </static-array>
         </compound>
 
         <code-helper name='describe'> (describe-obj $.pos) </code-helper>
 
-        <compound name='pos' type-name='coord2d'/>
+        <compound name='pos' original-name='a' type-name='coord2d'/>
         <compound name='ocean_beach_comp' type-name='ocean_beach_compst'/>
 
         -- Rivers crossing embark tile edges
-        <compound name='rivers_vertical'>
-            <static-array name='x_min' count='16'>
+        <compound name='rivers_vertical'> not a compound
+            <static-array name='x_min' original-name='river_data_ud_b1' count='16'>
                 <static-array type-name='int16_t' count='17'/>
             </static-array>
-            <static-array name='x_max' count='16'>
+            <static-array name='x_max' original-name='river_data_ud_b2' count='16'>
                 <static-array type-name='int16_t' count='17'/>
             </static-array>
-            <static-array name='active' count='16'>
+            <static-array name='active' original-name='river_data_ud_flow' count='16'>
                 <static-array type-name='int8_t' count='17'/>
             </static-array>
-            <static-array name='elevation' count='16'>
+            <static-array name='elevation' original-name='river_data_ud_elevation' count='16'>
                 <static-array type-name='int16_t' count='17'/>
             </static-array>
         </compound>
 
-        <compound name='rivers_horizontal'>
-            <static-array name='y_min' count='17'>
+        <compound name='rivers_horizontal'> not a compound
+            <static-array name='y_min' original-name='river_data_lr_b1' count='17'>
                 <static-array type-name='int16_t' count='16'/>
             </static-array>
-            <static-array name='y_max' count='17'>
+            <static-array name='y_max' original-name='river_data_lr_b2' count='17'>
                 <static-array type-name='int16_t' count='16'/>
             </static-array>
-            <static-array name='active' count='17'>
+            <static-array name='active' original-name='river_data_lr_flow' count='17'>
                 <static-array type-name='int8_t' count='16'/>
             </static-array>
-            <static-array name='elevation' count='17'>
+            <static-array name='elevation' original-name='river_data_lr_elevation' count='17'>
                 <static-array type-name='int16_t' count='16'/>
             </static-array>
         </compound>
 
-        <static-array name='other_features' count='16'>
+        <static-array name='other_features' original-name='square_flag' count='16'>
             <static-array count='16'>
                 <bitfield name='flags' base-type='uint8_t' type-name='midmap_square_flag'/>
             </static-array>
         </static-array>
 
-        <static-array count='16' name='features'>
+        <static-array count='16' name='features' original-name='feature_square'>
             <static-array count='16'>
                 <stl-vector pointer-type='world_region_feature'/>
             </static-array>
         </static-array>
 
-        <int16_t name='lava_stone' ref-target='inorganic_raw'/>
+        <int16_t name='lava_stone' original-name='default_lava_stone' ref-target='inorganic_raw'/>
 
         <static-array count='48' name='site_map_travel_dir' since='v0.40.01'><static-array count='48' type-name='uint8_t'/></static-array>
 
-        <static-array count='16' name='temp_elevation'>
+        <static-array count='16' name='temp_elevation' original-name='temp_el_map'>
             <static-array type-name='int16_t' count='16'/>
         </static-array>
-        <static-array count='16' name='temp_path_map'>
+        <static-array count='16' name='temp_path_map' original-name='path_map'>
             <static-array type-name='int32_t' count='16'/>
         </static-array>
 
-        <int16_t name='site_finder_x1'/>
-        <int16_t name='site_finder_x2'/>
-        <int16_t name='site_finder_y1'/>
-        <int16_t name='site_finder_y2'/>
+        <int16_t name='site_finder_x1' original-name='site_finder_sx'/>
+        <int16_t name='site_finder_x2' original-name='site_finder_ex'/>
+        <int16_t name='site_finder_y1' original-name='site_finder_sy'/>
+        <int16_t name='site_finder_y2' original-name='site_finder_ey'/>
     </struct-type>
 
     <struct-type type-name='region_midmap_datast'>
-        <stl-vector name='region_details' pointer-type='world_region_details'/>
+        <stl-vector name='region_details' original-name='map' pointer-type='world_region_details'/>
 
-        <int32_t name="adv_region_x"/>
-        <int32_t name="adv_region_y"/>
-        <int32_t name="adv_emb_x"/>
-        <int32_t name="adv_emb_y"/>
+        <int32_t name="adv_region_x" original-name='ax'/>
+        <int32_t name="adv_region_y" original-name='ay'/>
+        <int32_t name="adv_emb_x" original-name='mx'/>
+        <int32_t name="adv_emb_y" original-name='my'/>
 
         <int16_t name="loadarea_sx"/>
         <int16_t name="loadarea_sy"/>

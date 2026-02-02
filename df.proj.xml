@@ -1,101 +1,102 @@
 <data-definition>
     <enum-type type-name='projectile_type'> bay12: Projectile
-        <enum-item name='Item'/>
-        <enum-item name='Unit'/>
-        <enum-item name='Magic'/>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='Item' original-name='ITEM'/>
+        <enum-item name='Unit' original-name='UNIT'/>
+        <enum-item name='Magic' original-name='MAGIC'/>
     </enum-type>
 
-    <bitfield-type type-name='projectile_flags' base-type='uint32_t'> bay12: PROJFLAG_*
-        <flag-bit name='no_impact_destroy' comment='LANDS'/>
-        <flag-bit name='has_hit_ground' comment='DELETE'/>
-        <flag-bit name='bouncing'/>
-        <flag-bit name='high_flying'/>
-        <flag-bit name='piercing'/>
-        <flag-bit name='to_be_deleted'/>
-        <flag-bit name='hits_friends'/>
-        <flag-bit name='trap_origin'/>
+    <bitfield-type type-name='projectile_flags' original-name='proj_flag' base-type='uint32_t'> bay12: PROJFLAG_*
+        <flag-bit name='no_impact_destroy' original-name='LANDS'/>
+        <flag-bit name='has_hit_ground' original-name='DELETE'/>
+        <flag-bit name='bouncing' original-name='BOUNCES'/>
+        <flag-bit name='high_flying' original-name='AVOIDS'/>
+        <flag-bit name='piercing' original-name='PUSHTHROUGH'/>
+        <flag-bit name='to_be_deleted' original-name='MUST_REMOVE'/>
+        <flag-bit name='hits_friends' original-name='HITS_FRIENDS'/>
+        <flag-bit name='trap_origin' original-name='TRAP_ORIGIN'/>
 
-        <flag-bit name='parabolic'/>
-        <flag-bit name='no_adv_pause'/>
-        <flag-bit name='vehicle_origin'/>
-        <flag-bit name='no_collide'/>
-        <flag-bit name='safe_landing'/>
-        <flag-bit name='struck'/>
-        <flag-bit name='auto_hit'/>
-        <flag-bit name='item_link_deleted'/>
+        <flag-bit name='parabolic' original-name='USE_PHYSICS'/>
+        <flag-bit name='no_adv_pause' original-name='NO_ADV_PAUSE'/>
+        <flag-bit name='vehicle_origin' original-name='VEHICLE_ORIGIN'/>
+        <flag-bit name='no_collide' original-name='AVOIDS_ITEM'/>
+        <flag-bit name='safe_landing' original-name='CONTROLLED_JUMP'/>
+        <flag-bit name='struck' original-name='STRUCK'/>
+        <flag-bit name='auto_hit' original-name='AUTO_HIT'/>
+        <flag-bit name='item_link_deleted' original-name='ITEM_LINK_DELETED'/>
 
-        <flag-bit name='small_aim_minus'/>
-        <flag-bit name='created_in_tantrum'/>
+        <flag-bit name='small_aim_minus' original-name='SMALL_AIM_MINUS'/>
+        <flag-bit name='created_in_tantrum' original-name='CREATED_IN_TANTRUM'/>
     </bitfield-type>
 
     <df-linked-list-type type-name='proj_list_link' item-type='projectile'/>
     <class-type type-name='projectile' original-name='projst' df-list-link-type='proj_list_link' df-list-link-field='link' key-field='id'>
-        <pointer name='link' type-name='proj_list_link'/>
+        <pointer name='link' original-name='my_link' type-name='proj_list_link'/>
 
-        <int32_t name='id'/>
-        <pointer name='firer' type-name='unit'/>
+        <int32_t name='id' original-name='global_id'/>
+        <pointer name='firer' original-name='archer' type-name='unit'/>
 
-        <compound name='origin_pos' type-name='coord'/>
-        <compound name='target_pos' type-name='coord'/>
-        <compound name='cur_pos' type-name='coord'/>
-        <compound name='prev_pos' type-name='coord'/>
+        <compound name='origin_pos' original-name='s' type-name='coord'/>
+        <compound name='target_pos' original-name='e' type-name='coord'/>
+        <compound name='cur_pos' original-name='pos' type-name='coord'/>
+        <compound name='prev_pos' original-name='o' type-name='coord'/>
 
-        <int32_t name='distance_flown'/>
-        <int32_t name='fall_threshold'/>
-        <int32_t name='min_hit_distance'/>
-        <int32_t name='min_ground_distance'/>
+        <int32_t name='distance_flown' original-name='step'/>
+        <int32_t name='fall_threshold' original-name='maxstep'/>
+        <int32_t name='min_hit_distance' original-name='effstep'/>
+        <int32_t name='min_ground_distance' original-name='effstep_ground'/>
 
-        <bitfield name='flags' type-name='projectile_flags'/>
+        <bitfield name='flags' original-name='flag' type-name='projectile_flags'/>
 
-        <int16_t name='fall_counter' comment='counts down from delay to 0, then it moves'/>
-        <int16_t name='fall_delay'/>
+        <int16_t name='fall_counter' original-name='flydelay' comment='counts down from delay to 0, then it moves'/>
+        <int16_t name='fall_delay' original-name='flydelaymax'/>
 
-        <int32_t name='hit_rating'/>
+        <int32_t name='hit_rating' original-name='hitroll'/>
         <int32_t name='total_z_dist'/>
         <int32_t name='velocity'/>
-        <int32_t name='bow_id' ref-target='item'/>
+        <int32_t name='bow_id' original-name='shooter_item_id' ref-target='item'/>
 
-        -- Parabolic projectile info:
-        <int32_t name="last_knock_item" ref-target='item'/>
-        <int32_t name="last_knock_unit" ref-target='unit'/>
-        <int32_t name="spec_target_unit" ref-target='unit' since='v0.40.01' comment='uninitialized+saved'/>
+        <int32_t name="last_knock_item" original-name='last_knock_item_id' ref-target='item'/>
+        <int32_t name="last_knock_unit" original-name='last_knock_unit_id' ref-target='unit'/>
+        <int32_t name="spec_target_unit" original-name='specified_target_unid' ref-target='unit' since='v0.40.01' comment='uninitialized+saved'/>
         <int16_t name='target_bp'/>
         <int32_t name='hit_chance_modifier'/>
 
-        <int32_t name="pos_x"/>
-        <int32_t name="pos_y"/>
-        <int32_t name="pos_z"/>
-        <int32_t name="speed_x"/>
-        <int32_t name="speed_y"/>
-        <int32_t name="speed_z"/>
-        <int32_t name="accel_x"/>
-        <int32_t name="accel_y"/>
-        <int32_t name="accel_z"/>
+        -- Parabolic projectile info:
+        <int32_t name="pos_x" original-name='fine_x_adj'/>
+        <int32_t name="pos_y" original-name='fine_y_adj'/>
+        <int32_t name="pos_z" original-name='fine_z_adj'/>
+        <int32_t name="speed_x" original-name='fine_x_vel'/>
+        <int32_t name="speed_y" original-name='fine_y_vel'/>
+        <int32_t name="speed_z" original-name='fine_z_vel'/>
+        <int32_t name="accel_x" original-name='fine_x_gain_vel'/>
+        <int32_t name="accel_y" original-name='fine_y_gain_vel'/>
+        <int32_t name="accel_z" original-name='fine_z_gain_vel'/>
 
         <virtual-methods>
-            <vmethod ret-type='projectile_type' name='getType'/>
-            <vmethod ret-type='bool' name='checkImpact'>
-                <bool name='noDamageFloor'/>
+            <vmethod ret-type='projectile_type' name='getType' original-name='type'/>
+            <vmethod ret-type='bool' name='checkImpact' original-name='landproj'>
+                <bool name='goingoutofbounds'/>
             </vmethod>
-            <vmethod ret-type='bool' name='checkMovement'/>
+            <vmethod ret-type='bool' name='checkMovement' original-name='advance'/>
             <vmethod name='read_file'>
-                <pointer name='file' type-name='file_compressorst'/>
+                <pointer name='filecomp' type-name='file_compressorst'/>
                 <enum name='loadversion' type-name='save_version'/>
             </vmethod>
-            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
-            <vmethod name='print'><pointer type-name='map_viewport'/></vmethod>
-            <vmethod name='print_to_viewport'><pointer type-name='map_viewport'/></vmethod>
-            <vmethod ret-type='bool' name='isObjectLost'/>
+            <vmethod name='write_file'> <pointer name='filecomp' type-name='file_compressorst'/> </vmethod>
+            <vmethod name='print'><pointer type-name='map_viewport' name='rparam'/></vmethod>
+            <vmethod name='print_to_viewport'><pointer type-name='map_viewport' name='rparam'/></vmethod>
+            <vmethod ret-type='bool' name='isObjectLost' original-name='invalid_pointer'/>
             <vmethod is-destructor='true'/>
         </virtual-methods>
     </class-type>
 
     <class-type type-name='proj_itemst' inherits-from='projectile'>
-        <pointer name='item' type-name='item'/>
+        <pointer name='item' original-name='it' type-name='item'/>
     </class-type>
 
     <class-type type-name='proj_unitst' inherits-from='projectile'>
-        <pointer name='unit' type-name='unit' comment='?'/>
+        <pointer name='unit' original-name='un' type-name='unit'/>
     </class-type>
 
     <enum-type type-name='proj_magic_type'> bay12: ProjMagicType
@@ -103,12 +104,12 @@
     </enum-type>
 
     <class-type type-name='proj_magicst' inherits-from='projectile'>
-        <enum name='type' type-name='proj_magic_type' base-type='int16_t'/>
-        <int16_t name='damage'/>
+        <enum name='type' original-name='mtype' type-name='proj_magic_type' base-type='int16_t'/>
+        <int16_t name='damage' original-name='power'/>
     </class-type>
 
     <struct-type type-name='proj_handlerst'>
-        <df-linked-list name='all' type-name='proj_list_link'/>
+        <df-linked-list name='all' original-name='global' type-name='proj_list_link'/>
     </struct-type>
 </data-definition>
 

@@ -2,26 +2,26 @@
     -- Unused: ScriptTypes
 
     <class-type type-name='active_script_varst'>
-        <stl-string name='name'/>
+        <stl-string name='name' original-name='token'/>
         <virtual-methods>
-            <vmethod name='setColor'/>
-            <vmethod name='formatString'>
-                <pointer type-name='static-string' name='output'/>
-                <pointer type-name='stl-string' name='format'/>
+            <vmethod name='setColor' original-name='set_color'/>
+            <vmethod name='formatString' original-name='append_ref'>
+                <pointer type-name='static-string' name='curword'/>
+                <pointer type-name='stl-string' name='printtype'/>
             </vmethod>
-            <vmethod name='getValue'>
-                <pointer name='int_value' type-name='int32_t'/>
-                <pointer name='ref_value' type-name='specific_ref'/>
+            <vmethod name='getValue' original-name='get_valref'>
+                <pointer name='val' type-name='int32_t'/>
+                <pointer name='ref' type-name='specific_ref'/>
             </vmethod>
-            <vmethod name='setValue'>
-                <pointer name='var' type-name='meeting_variable'/>
+            <vmethod name='setValue' original-name='set_value'>
+                <pointer name='vvr' type-name='meeting_variable'/>
             </vmethod>
-            <vmethod name='removeUnit'>
-                <pointer name='ref_value' type-name='specific_ref'/>
+            <vmethod name='removeUnit' original-name='clear_ref'>
+                <pointer name='ref' type-name='specific_ref'/>
             </vmethod>
-            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
+            <vmethod name='write_file'> <pointer name='filecomp' type-name='file_compressorst'/> </vmethod>
             <vmethod name='read_file'>
-                <pointer name='file' type-name='file_compressorst'/>
+                <pointer name='filecomp' type-name='file_compressorst'/>
                 <enum name='loadversion' type-name='save_version'/>
             </vmethod>
             <vmethod is-destructor='true'/>
@@ -29,7 +29,7 @@
     </class-type>
 
     <class-type type-name='active_script_var_unitst' inherits-from='active_script_varst'>
-        <pointer name='unit' type-name='unit'/>
+        <pointer name='unit' original-name='value' type-name='unit'/>
     </class-type>
 
     <class-type type-name='active_script_var_longst' inherits-from='active_script_varst'>
@@ -37,9 +37,9 @@
     </class-type>
 
     <class-type type-name='script_varst'>
-        <stl-string name='name'/>
+        <stl-string name='name' original-name='token'/>
         <virtual-methods>
-            <vmethod name='instantiate'>
+            <vmethod name='instantiate' original-name='create_active'>
                 <ret-type><pointer type-name='active_script_varst'/></ret-type>
             </vmethod>
             <vmethod is-destructor='true'/>
@@ -51,9 +51,9 @@
     <class-type type-name='script_var_longst' inherits-from='script_varst'/>
 
     <struct-type type-name='meeting_variable' original-name='valvarrefst'>
-        <int32_t name='value'/>
+        <int32_t name='value' original-name='val'/>
         <compound name='ref' type-name='specific_ref'/>
-        <pointer name='active_var' type-name='active_script_varst'/>
+        <pointer name='active_var' original-name='var' type-name='active_script_varst'/>
     </struct-type>
 
     <struct-type type-name='script_environmentst'>
@@ -64,44 +64,44 @@
     </struct-type>
 
     <class-type type-name='script_stepst'>
-        <int32_t name='next_step_idx'/>
+        <int32_t name='next_step_idx' original-name='next_step'/>
         <virtual-methods>
-            <vmethod name='setNextStep' ret-type='bool'>
-                <int32_t name='idx'/>
+            <vmethod name='setNextStep' original-name='connectnewstep' ret-type='bool'>
+                <int32_t name='newst'/>
             </vmethod>
-            <vmethod name='execute' ret-type='int32_t'>
-                <pointer name='context' type-name='script_environmentst'/>
+            <vmethod name='execute' original-name='execute_step' ret-type='int32_t'>
+                <pointer name='env' type-name='script_environmentst'/>
             </vmethod>
-            <vmethod name='skip' ret-type='int32_t'>
-                <pointer name='context' type-name='script_environmentst'/>
+            <vmethod name='skip' original-name='realize_step' ret-type='int32_t'>
+                <pointer name='env' type-name='script_environmentst'/>
             </vmethod>
             <vmethod is-destructor='true'/>
         </virtual-methods>
     </class-type>
 
     <struct-type type-name='conditionalst'>
-        <stl-string name='var1_type'/>
-        <stl-string name='var1_name'/>
-        <stl-string name='comparison'/>
-        <stl-string name='var2_type'/>
-        <stl-string name='var2_name'/>
+        <stl-string name='var1_type' original-name='cond1_space'/>
+        <stl-string name='var1_name' original-name='cond1_name'/>
+        <stl-string name='comparison' original-name='comp'/>
+        <stl-string name='var2_type' original-name='cond2_space'/>
+        <stl-string name='var2_name' original-name='cond2_name'/>
     </struct-type>
 
     <class-type type-name='script_step_conditionalst' inherits-from='script_stepst'>
-        <compound name='condition' type-name='conditionalst'/>
-        <int32_t name='conditional_next_step_idx'/>
+        <compound name='condition' original-name='cond' type-name='conditionalst'/>
+        <int32_t name='conditional_next_step_idx' original-name='success_step'/>
     </class-type>
 
     <class-type type-name='script_step_simpleactionst' inherits-from='script_stepst'>
-        <stl-string name='type'/>
-        <stl-string name='subtype'/>
+        <stl-string name='type' original-name='action_token'/>
+        <stl-string name='subtype' original-name='action_subtoken'/>
     </class-type>
 
     <class-type type-name='script_step_setvarst' inherits-from='script_stepst'>
-        <stl-string name='dest_type'/>
-        <stl-string name='dest_name'/>
-        <stl-string name='src_type'/>
-        <stl-string name='src_name'/>
+        <stl-string name='dest_type' original-name='varspace'/>
+        <stl-string name='dest_name' original-name='varname'/>
+        <stl-string name='src_type' original-name='valuespace'/>
+        <stl-string name='src_name' original-name='valuename'/>
     </class-type>
 
     <class-type type-name='script_step_topicdiscussionst' inherits-from='script_stepst'/>
@@ -113,8 +113,8 @@
     </class-type>
 
     <class-type type-name='script_step_textviewerst' inherits-from='script_stepst'>
-        <stl-string name='filename'/>
-        <stl-string name='outvar_name'/>
+        <stl-string name='filename' original-name='text_token'/>
+        <stl-string name='outvar_name' original-name='choicevar'/>
     </class-type>
 
     <class-type type-name='script_step_diphistoryst' inherits-from='script_stepst'>
@@ -124,11 +124,11 @@
     <class-type type-name='script_step_eventst' inherits-from='script_stepst'/>
 
     <class-type type-name='script_step_dipeventst' inherits-from='script_step_eventst'>
-        <stl-string name='unit_type'/>
-        <stl-string name='unit_name'/>
+        <stl-string name='unit_type' original-name='unitspace'/>
+        <stl-string name='unit_name' original-name='unitname'/>
         <stl-string name='dipscript'/>
-        <stl-string name='dest_type'/>
-        <stl-string name='dest_name'/>
+        <stl-string name='dest_type' original-name='outcome_varspace'/>
+        <stl-string name='dest_name' original-name='outcome_varname'/>
     </class-type>
 
     <class-type type-name='script_step_invasionst' inherits-from='script_step_eventst'>
@@ -136,8 +136,8 @@
     </class-type>
 
     <struct-type type-name='scriptst'>
-        <stl-vector name='steps' pointer-type='script_stepst'/>
-        <stl-vector name='vars' pointer-type='script_varst'/>
+        <stl-vector name='steps' original-name='step' pointer-type='script_stepst'/>
+        <stl-vector name='vars' original-name='var' pointer-type='script_varst'/>
     </struct-type>
 </data-definition>
 

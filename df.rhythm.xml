@@ -1,54 +1,56 @@
 <data-definition>
-    <bitfield-type type-name='beat_flag' base-type='uint32_t'> bay12: RHYTHM_BEAT_FLAG_*
-        <flag-bit name='Accent'/>
-        <flag-bit name='Regular'/>
-        <flag-bit name='Early'/>
-        <flag-bit name='Late'/>
+    <bitfield-type type-name='beat_flag' original-name='rhythm_beat_flag' base-type='uint32_t'> bay12: RHYTHM_BEAT_FLAG_*
+        <flag-bit name='Accent' original-name='ACCENT'/>
+        <flag-bit name='Regular' original-name='REGULAR'/>
+        <flag-bit name='Early' original-name='EARLY'/>
+        <flag-bit name='Late' original-name='LATE'/>
     </bitfield-type>
 
     <struct-type type-name='rhythm_barst'>
-        <pointer name='beat' is-array='true' type-name='beat_flag' comment="Length as per length field"/>
-        <int32_t name='length'/>
+        <pointer name='beat' original-name='beat_flag' is-array='true' type-name='beat_flag' comment="Length as per length field"/>
+        <int32_t name='length' original-name='beat_num'/>
     </struct-type>
 
     <struct-type type-name='rhythm_pattern' original-name='rhythm_patternst'>
         <stl-string name='name'/>
-        <stl-vector name='bars' pointer-type='rhythm_barst'/>
+        <stl-vector name='bars' original-name='bar' pointer-type='rhythm_barst'/>
         <pointer name='beat_name' type-name='stl-string' is-array='true' comment="length as per length field"/>
         <pointer name='beat_abbreviation' type-name='stl-string' is-array='true' comment="length as per length field"/>
-        <int32_t name='length'/>
+        <int32_t name='length' original-name='beat_name_num'/>
     </struct-type>
 
     <bitfield-type type-name='rhythm_construction_pattern_flag' base-type='uint32_t'> bay12: RHYTHM_CONSTRUCTION_PATTERN_FLAG_*
-        <flag-bit name='Primary'/>
-        <flag-bit name='Secondary'/>
+        <flag-bit name='Primary' original-name='PRIMARY'/>
+        <flag-bit name='Secondary' original-name='SECONDARY'/>
     </bitfield-type>
 
     <bitfield-type type-name='rhythm_construction_flag' base-type='uint32_t'> bay12: RHYTHM_CONSTRUCTION_FLAG_*
-        <flag-bit name='polymetric'/>
+        <flag-bit name='polymetric' original-name='POLYMETRIC'/>
     </bitfield-type>
 
     <struct-type type-name='sub_rhythm' original-name='rhythm_constructionst'>
         <stl-string name='name'/>
-        <stl-vector name='patterns' type-name='int32_t' comment="indices into patterns"/>
-        <stl-vector name='pattern_flags' type-name='rhythm_construction_pattern_flag' comment="Same length as patterns"/>
-        <bitfield name='flags' base-type='uint32_t' type-name='rhythm_construction_flag'/>
+        <stl-vector name='patterns' original-name='rhythm_construction_pattern_index' type-name='int32_t' comment="indices into patterns"/>
+        <stl-vector name='pattern_flags' original-name='rhythm_construction_pattern_flag' type-name='rhythm_construction_pattern_flag' comment="Same length as patterns"/>
+        <bitfield name='flags' original-name='flag' base-type='uint32_t' type-name='rhythm_construction_flag'/>
     </struct-type>
 
     <bitfield-type type-name='rhythm_flag' base-type='uint32_t'> bay12: RHYTHM_FLAG_*
-        <flag-bit name='fundamental_polyrhythm'/>
-        <flag-bit name='fundamental_polymeter'/>
+        <flag-bit name='fundamental_polyrhythm' original-name='FUNDAMENTAL_POLYRHYTHM'/>
+        <flag-bit name='fundamental_polymeter' original-name='FUNDAMENTAL_POLYMETER'/>
     </bitfield-type>
 
     <struct-type type-name='rhythm' original-name='rhythmst' instance-vector='$global.world.rhythms.all' key-field='id'>
-        <int32_t name='id'/>
-        <stl-vector name='patterns' pointer-type='rhythm_pattern'/>
-        <stl-vector name='sub_rhythms' pointer-type='sub_rhythm'/>
-        <bitfield name='flags' base-type='uint32_t' type-name='rhythm_flag'/>
+        <int32_t name='id' original-name='global_id'/>
+
+        <stl-vector name='patterns' original-name='pattern' pointer-type='rhythm_pattern'/>
+        <stl-vector name='sub_rhythms' original-name='construction' pointer-type='sub_rhythm'/>
+        <bitfield name='flags' original-name='flag' base-type='uint32_t' type-name='rhythm_flag'/>
     </struct-type>
 
     <struct-type type-name='rhythm_handlerst'>
-        <stl-vector name='all' pointer-type='rhythm'/>
+        <stl-vector name='all' original-name='global' pointer-type='rhythm'/>
+
         <stl-vector name='order_load' pointer-type='rhythm' has-bad-pointers='true'/>
     </struct-type>
 </data-definition>

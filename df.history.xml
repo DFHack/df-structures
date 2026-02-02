@@ -1,64 +1,75 @@
 <data-definition>
+    <bitfield-type type-name='intrigue_corruption_result_flag' base-type='uint32_t'> bay12: INTRIGUE_CORRUPTION_RESULT_FLAG_*
+        <flag-bit name='succeeded' original-name='SUCCESSFUL'/>
+        <flag-bit name='misread_target' original-name='FAILED_JUDGMENT_TEST'/>
+    </bitfield-type>
+
     <enum-type type-name='intrigue_corruption_result_rel_factor_type' base-type='int32_t'> bay12: IntrigueCorruptionResultRelFactorType
-        <enum-item name='None' value='-1'/>
-        <enum-item name='Trust'/>
-        <enum-item name='Loyalty'/>
-        <enum-item name='Love'/>
-        <enum-item name='Fear'/>
-        <enum-item name='Respect'/>
+        <enum-item name='None' original-name='NONE' value='-1'/>
+        <enum-item name='Trust' original-name='TRUST'/>
+        <enum-item name='Loyalty' original-name='LOYALTY'/>
+        <enum-item name='Love' original-name='LOVE'/>
+        <enum-item name='Fear' original-name='FEAR'/>
+        <enum-item name='Respect' original-name='RESPECT'/>
     </enum-type>
 
     <struct-type type-name='intrigue_corruption' original-name='intrigue_corruption_resultst'>
         <enum name='action' type-name='intrigue_corruption_action_type'/>
-        <int32_t name='corruptor_id' ref-target='historical_figure'/>
-        <int32_t name='target_id' ref-target='historical_figure'/>
-        <enum name='target_relationship' type-name='vague_relationship_type' comment="set if and only if action = BringIntoNetwork"/>
-        <int32_t name='target_relationship_entity_id' ref-target='historical_entity' comment="Only set when relation = CommonEntity. Common Religion/PerformanceTroupe/MerchantCompany/Guild seen."/>
-        <int32_t name='lurer_id' ref-target='historical_figure' comment="Can be set with action = CorruptInPlace, not otherwise"/>
 
-        <enum name='manipulation_type' base-type='int32_t' type-name='intrigue_corruption_method_type'/>
+        <int32_t name='corruptor_id' original-name='corruptor_hfid' ref-target='historical_figure'/>
+        <int32_t name='target_id' original-name='target_hfid' ref-target='historical_figure'/>
+        <enum name='target_relationship' original-name='relationship_to_corruptor' type-name='vague_relationship_type' comment="set if and only if action = BringIntoNetwork"/>
+        <int32_t name='target_relationship_entity_id' original-name='relationship_to_corruptor_enid' ref-target='historical_entity' comment="Only set when relation = CommonEntity. Common Religion/PerformanceTroupe/MerchantCompany/Guild seen."/>
+
+        <int32_t name='lurer_id' original-name='lure_hfid' ref-target='historical_figure' comment="Can be set with action = CorruptInPlace, not otherwise"/>
+
+        <enum name='manipulation_type' original-name='method' base-type='int32_t' type-name='intrigue_corruption_method_type'/>
         <int32_t name='method_perceived_modifier' comment="-16 to 315 seen"/>
         <int32_t name='method_modifier' comment="-141 to 351 seen"/>
 
-        <enum name='manipulated_facet' type-name='personality_facet_type'/>
+        <enum name='manipulated_facet' original-name='facet' type-name='personality_facet_type'/>
         <int32_t name='facet_rating'/>
-        <int32_t name='facet_roll'/>
+        <int32_t name='facet_roll' original-name='facet_modifier'/>
 
-        <enum name='manipulated_value' type-name='value_type'/>
+        <enum name='manipulated_value' original-name='value' type-name='value_type'/>
         <int32_t name='value_rating'/>
-        <int32_t name='value_roll'/>
+        <int32_t name='value_roll' original-name='value_modifier'/>
 
-        <enum name='manipulated_emotion' type-name='intrigue_corruption_result_rel_factor_type'/>
-        <int32_t name='emotion_rating' comment="-100 to 125 seen"/>
-        <int32_t name='emotion_roll' comment="-10 to 12 seen"/>
+        <enum name='manipulated_emotion' original-name='relationship_factor' type-name='intrigue_corruption_result_rel_factor_type'/>
+        <int32_t name='emotion_rating' original-name='relationship_rating' comment="-100 to 125 seen"/>
+        <int32_t name='emotion_roll' original-name='relationship_modifier' comment="-10 to 12 seen"/>
 
-        <bitfield name='flags' base-type='uint32_t'> bay12: INTRIGUE_CORRUPTION_RESULT_FLAG_*
-            <flag-bit name='succeeded'/>
-            <flag-bit name='misread_target'/>
-        </bitfield>
+        <bitfield name='flags' original-name='flag' type-name='intrigue_corruption_result_flag' base-type='uint32_t'/>
 
-        <int32_t name='position_entity_id' ref-target='historical_entity' comment="Used to pull rank"/>
-        <int32_t name='position_assignment_id' ref-target='entity_position_assignment' aux-value='$$.position_entity_id'/>
+        <int32_t name='position_entity_id' original-name='position_enid' ref-target='historical_entity' comment="Used to pull rank"/>
+        <int32_t name='position_assignment_id' original-name='position_eppid' ref-target='entity_position_assignment' aux-value='$$.position_entity_id'/>
 
-        <int32_t name='offered_id' ref-target='historical_figure' comment='deity or revenge target'/>
-        <enum name='offered_relationship' type-name='vague_relationship_type' base-type='int32_t'/>
+        <int32_t name='offered_id' original-name='relevant_id' ref-target='historical_figure' comment='deity or revenge target'/>
+        <enum name='offered_relationship' original-name='relevant_hf_wg_relationship' type-name='vague_relationship_type' base-type='int32_t'/>
 
-        <int32_t name='corruptor_ally_roll'/>
-        <int32_t name='target_ally_roll'/>
+        <int32_t name='corruptor_ally_roll' original-name='assistance_mod'/>
+        <int32_t name='target_ally_roll' original-name='resistance_mod'/>
     </struct-type>
 
     <bitfield-type type-name='interrogation_result_flag' base-type='uint32_t'> bay12: INTERROGATION_RESULT_FLAG_*
-        <flag-bit name='successful'/>
-        <flag-bit name='failed_judgment_test'/>
+        <flag-bit name='successful' original-name='SUCCESSFUL'/>
+        <flag-bit name='failed_judgment_test' original-name='FAILED_JUDGMENT_TEST'/>
     </bitfield-type>
 
-    -- Unused: InterrogationResultRelFactor
+    <enum-type type-name='interrogation_result_rel_factor_type' base-type='int32_t'> bay12: InterrogationResultRelFactorType
+        <enum-item name='None' original-name='NONE' value='-1'/>
+        <enum-item name='Trust' original-name='TRUST'/>
+        <enum-item name='Loyalty' original-name='LOYALTY'/>
+        <enum-item name='Love' original-name='LOVE'/>
+        <enum-item name='Fear' original-name='FEAR'/>
+        <enum-item name='Respect' original-name='RESPECT'/>
+    </enum-type>
 
     <struct-type type-name='interrogation_resultst'>
-        <int32_t name='officer_hf' ref-target='historical_figure' comment='appears identical to officer_hf'/>
-        <int32_t name='subject_hf' ref-target='historical_figure' comment='appears identical to subject_hf'/>
-        <enum name='relationship_to_corruptor' type-name='vague_relationship_type'/>
-        <int32_t name='relationship_civ' ref-target='historical_entity'/>
+        <int32_t name='officer_hf' original-name='interrogator_hfid' ref-target='historical_figure' comment='appears identical to officer_hf'/>
+        <int32_t name='subject_hf' original-name='target_hfid' ref-target='historical_figure' comment='appears identical to subject_hf'/>
+        <enum name='relationship_to_corruptor' original-name='relationship_to_interrogator' type-name='vague_relationship_type'/>
+        <int32_t name='relationship_civ' original-name='relationship_to_interrogator_enid' ref-target='historical_entity'/>
 
         <enum name='method' type-name='interrogation_method_type'/>
         <int32_t name='method_perceived_modifier' init-value='-1000000'/>
@@ -72,11 +83,11 @@
         <int32_t name='value_rating'/>
         <int32_t name='value_modifier'/>
 
-        <enum name='relationship_factor' type-name='intrigue_corruption_result_rel_factor_type'/>
+        <enum name='relationship_factor' type-name='interrogation_result_rel_factor_type'/>
         <int32_t name='relationship_rating'/>
         <int32_t name='relationship_modifier'/>
 
-        <bitfield name='flags' base-type='uint32_t' type-name='interrogation_result_flag'/>
+        <bitfield name='flags' original-name='flag' base-type='uint32_t' type-name='interrogation_result_flag'/>
 
         <int32_t name='position_enid' ref-target='historical_entity'/>
         <int32_t name='position_eppid' ref-target='entity_position_assignment'/>
@@ -86,163 +97,165 @@
     </struct-type>
 
     <bitfield-type type-name='interrogation_report_flag' base-type='uint32_t'> bay12: INTERROGATION_REPORT_FLAG_*
-        <flag-bit name='viewed'/>
-        <flag-bit name='current_id_is_newly_revealed'/>
+        <flag-bit name='viewed' original-name='VIEWED'/>
+        <flag-bit name='current_id_is_newly_revealed' original-name='CURRENT_ID_IS_NEWLY_REVEALED'/>
     </bitfield-type>
 
     <struct-type type-name='interrogation_report' original-name='interrogation_reportst'>
         <stl-string name='title'/>
-        <int32_t name='officer_hf' ref-target='historical_figure'/>
-        <int32_t name='subject_hf' ref-target='historical_figure'/>
-        <stl-string name='officer_name'/>
-        <bitfield name='flags' base-type='uint32_t' type-name='interrogation_report_flag'/>
+        <int32_t name='officer_hf' original-name='interrogator_hfid' ref-target='historical_figure'/>
+        <int32_t name='subject_hf' original-name='target_hfid' ref-target='historical_figure'/>
+        <stl-string name='officer_name' original-name='interrogator_name'/>
+        <bitfield name='flags' original-name='flag' base-type='uint32_t' type-name='interrogation_report_flag'/>
         <int32_t name='year'/>
-        <int32_t name='tick'/>
+        <int32_t name='tick' original-name='season_count'/>
         <compound name='intcr' type-name='interrogation_resultst'/>
-
-        <stl-vector name='confessed_target_crime_id' type-name='int32_t' ref-target='crime'/>
-
-        <int32_t name='subject_identity_id' ref-target='identity'/>
-
-        <stl-vector name='confessed_identity_id' type-name='int32_t' ref-target='identity'/>
-        <stl-vector name='revealed_agreement_id' type-name='int32_t' ref-target='agreement'/>
-        <stl-vector name='revealed_event_id' type-name='int32_t' ref-target='history_event' comment='seen hfs_formed_intrigue_relationship'/>
-        <stl-vector name='details' pointer-type='stl-string'/>
+        <stl-vector name='confessed_target_crime_id' type-name='int32_t' ref-target='crime' comment='binary'/>
+        <int32_t name='subject_identity_id' original-name='identity_id_when_interrogated' ref-target='identity'/>
+        <stl-vector name='confessed_identity_id' type-name='int32_t' ref-target='identity' comment='binary'/>
+        <stl-vector name='revealed_agreement_id' type-name='int32_t' ref-target='agreement' comment='binary'/>
+        <stl-vector name='revealed_event_id' type-name='int32_t' ref-target='history_event' comment='binary, seen hfs_formed_intrigue_relationship'/>
+        <stl-vector name='details' original-name='report_str' pointer-type='stl-string'/>
     </struct-type>
 
     <struct-type type-name='relationship_event_supplement' original-name='history_relationship_eventst'>
-        <int32_t name='event' comment="bay12: global_id; can be found in the relationship_events"/>
-        <int32_t name='occasion_type' comment="bay12: Circumstance circumstance; only 245/246 seen. 245:scholarly lecture, 246: performance"/>
-        <int32_t name='site' ref-target='world_site' comment='bay12: circumstance_id'/>
-        <enum name='reason' type-name='history_event_reason' comment="only 81 seen"/>
-        <enum name='profession' type-name='profession' comment='bay12: reason_id'/>
+        <int32_t name='event' original-name='global_id' comment="can be found in the relationship_events"/>
+        <enum name='circumstance' type-name='unit_thought_type'/>
+        <compound name='circumstance_id' type-name='circumstance_id'/>
+        <enum name='reason' type-name='history_event_reason'/>
+        <compound name='reason_id' type-name='history_event_reason_id'/>
     </struct-type>
 
     <struct-type type-name='relationship_event' original-name='history_relationship_event_blockst'>
-        <static-array name='event' type-name='int32_t' count='1024' comment="not included in the main list"/>
+        <static-array name='event' original-name='event_id' type-name='int32_t' count='1024' comment="not included in the main list"/>
         <static-array name='relationship' type-name='vague_relationship_type' count='1024'/>
-        <static-array name='source_hf' type-name='int32_t' count='1024' ref-target='historical_figure' comment='bay12: hfid_1'/>
-        <static-array name='target_hf' type-name='int32_t' count='1024' ref-target='historical_figure' comment='bay12: hfid_2'/>
+        <static-array name='source_hf' original-name='hfid_1' type-name='int32_t' count='1024' ref-target='historical_figure'/>
+        <static-array name='target_hf' original-name='hfid_2' type-name='int32_t' count='1024' ref-target='historical_figure'/>
         <static-array name='year' type-name='int32_t' count='1024'/>
-        <int32_t name='next_element' comment="bay12: number; 1024 for all vectors except the last one"/>
+        <int32_t name='next_element' original-name='number' comment="1024 for all vectors except the last one"/>
         <int32_t name='start_year' comment="first year of the events contained in the element"/>
     </struct-type>
 
     <struct-type type-name='intrigue' instance-vector='$global.world.history.intrigues' key-field='event_id' original-name='history_support_eventst'>
-        <int32_t name='event_id' ref-target='history_event' comment="NOTE: can be culled. Seen: failed_intrigue_corruption, event_agreement_formed, hfs_formed_intrigue_relationship"/>
-        <pointer name='corruption' type-name='intrigue_corruption' comment="Mutually exclusive with circumstance. Exactly one is present. Presumably 'bring into network' action doesn't provide membership"/>
+        <int32_t name='event_id' original-name='global_id' ref-target='history_event' comment="NOTE: can be culled. Seen: failed_intrigue_corruption, event_agreement_formed, hfs_formed_intrigue_relationship"/>
+        <pointer name='corruption' original-name='intcr' type-name='intrigue_corruption' comment="Mutually exclusive with circumstance. Exactly one is present. Presumably 'bring into network' action doesn't provide membership"/>
         <compound name='reason'> not a compound
-            <enum name='type' type-name='history_event_reason' base-type='int32_t'/>
-            <compound name='data' type-name='history_event_reason_id'/>
+            <enum name='type' original-name='reason' type-name='history_event_reason' base-type='int32_t'/>
+            <compound name='data' original-name='reason_id' type-name='history_event_reason_id'/>
         </compound>
         <compound name='circumstance'> not a compound
-            <enum name='type' type-name='unit_thought_type' base-type='int32_t'/>
-            <compound name='data' type-name='circumstance_id'/>
+            <enum name='type' original-name='circumstance' type-name='unit_thought_type' base-type='int32_t'/>
+            <compound name='data' original-name='circumstance_id' type-name='circumstance_id'/>
         </compound>
     </struct-type>
 
     <enum-type type-name='era_type' base-type='int16_t'> bay12: EraType
-        <enum-item name='ThreePowers'/>
-        <enum-item name='TwoPowers'/>
-        <enum-item name='OnePower'/>
-        <enum-item name='Myth'/>
-        <enum-item name='Legends'/>
-        <enum-item name='Twilight'/>
-        <enum-item name='FairyTales'/>
-        <enum-item name='Race'/>
-        <enum-item name='Heroes'/>
-        <enum-item name='Golden'/>
-        <enum-item name='Death'/>
-        <enum-item name='Civilization'/>
-        <enum-item name='Emptiness'/>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='ThreePowers' original-name='THREE_POWERS'/>
+        <enum-item name='TwoPowers' original-name='TWO_POWERS'/>
+        <enum-item name='OnePower' original-name='ONE_POWER'/>
+        <enum-item name='Myth' original-name='MYTH'/>
+        <enum-item name='Legends' original-name='LEGENDS'/>
+        <enum-item name='Twilight' original-name='TWILIGHT'/>
+        <enum-item name='FairyTales' original-name='FAIRY_TALES'/>
+        <enum-item name='Race' original-name='RACE_DOMINANT'/>
+        <enum-item name='Heroes' original-name='HEROES'/>
+        <enum-item name='Golden' original-name='GOLDEN'/>
+        <enum-item name='Death' original-name='DEATH'/>
+        <enum-item name='Civilization' original-name='CIVILIZATION'/>
+        <enum-item name='Emptiness' original-name='EMPTINESS'/>
     </enum-type>
 
     <struct-type type-name='era_infost'>
-        <enum type-name='era_type' name='type'/>
-        <int32_t name='histfig_1' ref-target='historical_figure' comment='or race'/>
-        <int32_t name='histfig_2' ref-target='historical_figure' comment='or race'/>
-        <int32_t name='ordinal'/>
-        <stl-string name='name'/>
-        <int32_t name='percent' comment='either percentage of single race or percentage of mundane'/>
+        <enum type-name='era_type' name='type' original-name='era'/>
+        <int32_t name='histfig_1' original-name='era_index1' ref-target='historical_figure' comment='or race'/>
+        <int32_t name='histfig_2' original-name='era_index2' ref-target='historical_figure' comment='or race'/>
+        <int32_t name='ordinal' original-name='era_number'/>
+        <stl-string name='name' original-name='translated_name'/>
+        <int32_t name='percent' original-name='max_race_perc' comment='either percentage of single race or percentage of mundane'/>
     </struct-type>
 
     <struct-type type-name='era_determinerst'>
-        <int32_t name='living_powers'/>
-        <int32_t name='living_megabeasts'/>
-        <int32_t name='living_semimegabeasts'/>
-        <static-array name='power_hf' count='3' type-name='int32_t' ref-target='historical_figure'/>
-        <stl-vector name='civilized_races' type-name='int32_t' index-refers-to='(find-creature $)'/>
-        <int32_t name='civilized_total'/>
-        <int32_t name='civilized_mundane'/>
+        <int32_t name='living_powers' original-name='living_power_num'/>
+        <int32_t name='living_megabeasts' original-name='living_mega_num'/>
+        <int32_t name='living_semimegabeasts' original-name='living_semi_num'/>
+        <static-array name='power_hf' original-name='mega_hfid' count='3' type-name='int32_t' ref-target='historical_figure'/>
+        <stl-vector name='civilized_races' original-name='race_count' type-name='int32_t' index-refers-to='(find-creature $)'/>
+        <int32_t name='civilized_total' original-name='race_total'/>
+        <int32_t name='civilized_mundane' original-name='mundane_total'/>
     </struct-type>
 
     <struct-type type-name='history_era' original-name='erast'>
-        <int32_t name='year'/>
-        <compound name='title' type-name='era_infost'/>
-        <compound name='details' type-name='era_determinerst'/>
+        <int32_t name='year' original-name='start_year'/>
+        <compound name='title' original-name='info' type-name='era_infost'/>
+        <compound name='details' original-name='determiner' type-name='era_determinerst'/>
     </struct-type>
 
     <struct-type type-name='world_history' original-name='historyst'>
         dtor 8532fa0
 
-        <stl-vector name='events' pointer-type='history_event'/>
-        <stl-vector name='events_death' pointer-type='history_event'/>
+        <stl-vector name='events' original-name='event' pointer-type='history_event'/>
+        <stl-vector name='events_death' original-name='event_death_implier' pointer-type='history_event'/>
 
-        <stl-vector name='relationship_events' pointer-type='relationship_event' since='v0.47.01'/>
-        <stl-vector name='relationship_event_supplements' pointer-type='relationship_event_supplement' since='v0.47.01' comment="supplemental info for artistic/scholar buddies"/>
+        <stl-vector name='relationship_events' original-name='relationship_event_block' pointer-type='relationship_event' since='v0.47.01'/>
+        <stl-vector name='relationship_event_supplements' original-name='relationship_event' pointer-type='relationship_event_supplement' since='v0.47.01' comment="supplemental info for artistic/scholar buddies"/>
 
-        <stl-vector name='figures' pointer-type='historical_figure'/>
+        <stl-vector name='figures' original-name='figure' pointer-type='historical_figure'/>
 
-        <compound name='event_collections'>
-            <stl-vector name='all' pointer-type='history_event_collection'/>
-            <static-array name='other' count='18' index-enum='history_event_collection_type'>
+        <compound name='event_collections'> not a compound
+            <stl-vector name='all' original-name='event_collection' pointer-type='history_event_collection'/>
+            <static-array name='other' count='18' index-enum='history_event_collection_type'> not an array
                 <stl-vector pointer-type='history_event_collection'/>
             </static-array>
         </compound>
 
-        <stl-vector name='eras' pointer-type='history_era'/>
-        <stl-vector name='discovered_art_image_id' type-name='int32_t' ref-target='art_image_chunk'/>
-        <stl-vector name='discovered_art_image_subid' type-name='int16_t' ref-target='art_image' aux-value='$$.discovered_art_image_id[$._key]'/>
+        <stl-vector name='eras' original-name='era' pointer-type='history_era'/>
+
+        <stl-vector name='discovered_art_image_id' original-name='viewable_art_image_chunk' type-name='int32_t' ref-target='art_image_chunk'/>
+        <stl-vector name='discovered_art_image_subid' original-name='viewable_art_image_member' type-name='int16_t' ref-target='art_image' aux-value='$$.discovered_art_image_id[$._key]'/>
 
         <int32_t name='total_art'/> some value during worldgen, and at the end equals to the number of entities plus that value
-        <int32_t name='total_powers' comment='also includes megabeasts'/>
-        <int32_t name='total_megabeasts'/>
-        <int32_t name='total_semimegabeasts'/>
-        <stl-vector name='secret_heid' type-name='int32_t' ref-target='history_event'/>
-        <uint32_t name='first_philosophy_flag'/>
-        <uint32_t name='first_philosophy_flag2'/>
-        <uint32_t name='first_mathematics_flag'/>
-        <uint32_t name='first_mathematics_flag2'/>
-        <uint32_t name='first_history_flag'/>
-        <uint32_t name='first_astronomy_flag'/>
-        <uint32_t name='first_naturalist_flag'/>
-        <uint32_t name='first_chemistry_flag'/>
-        <uint32_t name='first_geography_flag'/>
-        <uint32_t name='first_medicine_flag'/>
-        <uint32_t name='first_medicine_flag2'/>
-        <uint32_t name='first_medicine_flag3'/>
-        <uint32_t name='first_engineering_flag'/>
-        <uint32_t name='first_engineering_flag2'/>
+        <int32_t name='total_powers' original-name='initial_mega_power_sum' comment='also includes megabeasts'/>
+        <int32_t name='total_megabeasts' original-name='initial_mega_count'/>
+        <int32_t name='total_semimegabeasts' original-name='initial_semi_count'/>
 
-        <stl-vector name='intrigues' since='v0.47.01' pointer-type='intrigue' comment='bay12: history_support_event'/>
-        <stl-vector name='live_megabeasts' pointer-type='historical_figure'/>
-        <stl-vector name='live_semimegabeasts' pointer-type='historical_figure'/>
-        <stl-vector name='hf_allbeasts' pointer-type='historical_figure' comment='megabeasts AND semimegabeasts'/>
-        <stl-vector name='hf_beast_actors' pointer-type='historical_figure'/>
-        <stl-vector name='hf_civ_actors' pointer-type='historical_figure'/>
-        <stl-vector name='hf_plotters' pointer-type='historical_figure'/>
+        <stl-vector name='secret_heid' type-name='int32_t' ref-target='history_event'/>
+
+        <bitfield type-name='knowledge_scholar_flags_0' name='first_philosophy_flag'/>
+        <bitfield type-name='knowledge_scholar_flags_1' name='first_philosophy_flag2'/>
+        <bitfield type-name='knowledge_scholar_flags_2' name='first_mathematics_flag'/>
+        <bitfield type-name='knowledge_scholar_flags_3' name='first_mathematics_flag2'/>
+        <bitfield type-name='knowledge_scholar_flags_4' name='first_history_flag'/>
+        <bitfield type-name='knowledge_scholar_flags_5' name='first_astronomy_flag'/>
+        <bitfield type-name='knowledge_scholar_flags_6' name='first_naturalist_flag'/>
+        <bitfield type-name='knowledge_scholar_flags_7' name='first_chemistry_flag'/>
+        <bitfield type-name='knowledge_scholar_flags_8' name='first_geography_flag'/>
+        <bitfield type-name='knowledge_scholar_flags_9' name='first_medicine_flag'/>
+        <bitfield type-name='knowledge_scholar_flags_10' name='first_medicine_flag2'/>
+        <bitfield type-name='knowledge_scholar_flags_11' name='first_medicine_flag3'/>
+        <bitfield type-name='knowledge_scholar_flags_12' name='first_engineering_flag'/>
+        <bitfield type-name='knowledge_scholar_flags_13' name='first_engineering_flag2'/>
+
+        <stl-vector name='intrigues' original-name='history_support_event' since='v0.47.01' pointer-type='intrigue'/>
+
+        <stl-vector name='live_megabeasts' original-name='hf_mega' pointer-type='historical_figure'/>
+        <stl-vector name='live_semimegabeasts' original-name='hf_semi' pointer-type='historical_figure'/>
+        <stl-vector name='hf_allbeasts' original-name='hf_megasemi' pointer-type='historical_figure' comment='megabeasts AND semimegabeasts'/>
+        <stl-vector name='hf_beast_actors' original-name='hf_beast_actor' pointer-type='historical_figure'/>
+        <stl-vector name='hf_civ_actors' original-name='hf_civilized_actor' pointer-type='historical_figure'/>
+        <stl-vector name='hf_plotters' original-name='hf_plotter_actor' pointer-type='historical_figure'/>
 
         11 - necromancers
-        <static-array name='hf_teachers' since='v0.40.01' index-enum='goal_type'>
+        <static-array name='hf_teachers' original-name='hf_teacher' since='v0.40.01' index-enum='goal_type'>
             <stl-vector pointer-type='historical_figure'/>
         </static-array>
 
-        <stl-vector name='hf_artists' since='v0.42.01' pointer-type='historical_figure'/>
-        <stl-vector name='hf_poets' since='v0.42.01' pointer-type='historical_figure'/>
-        <stl-vector name='hf_bards' since='v0.42.01' pointer-type='historical_figure'/>
-        <stl-vector name='hf_dancers' since='v0.42.01' pointer-type='historical_figure'/>
-        <stl-vector name='hf_scholars' since='v0.42.01' pointer-type='historical_figure'/>
-        <stl-vector name='hf_heros' since='v0.40.01' pointer-type='historical_figure'/>
+        <stl-vector name='hf_artists' original-name='hf_artist' since='v0.42.01' pointer-type='historical_figure'/>
+        <stl-vector name='hf_poets' original-name='hf_poet' since='v0.42.01' pointer-type='historical_figure'/>
+        <stl-vector name='hf_bards' original-name='hf_bard' since='v0.42.01' pointer-type='historical_figure'/>
+        <stl-vector name='hf_dancers' original-name='hf_dancer' since='v0.42.01' pointer-type='historical_figure'/>
+        <stl-vector name='hf_scholars' original-name='hf_scholar' since='v0.42.01' pointer-type='historical_figure'/>
+        <stl-vector name='hf_heros' original-name='hf_hero' since='v0.40.01' pointer-type='historical_figure'/>
         <stl-vector name='hf_underbelly' since='v0.44.01' pointer-type='historical_figure'/>
         <stl-vector name='hf_religious' since='v0.44.01' pointer-type='historical_figure'/>
         <stl-vector name='hf_merchant' since='v0.44.01' pointer-type='historical_figure'/>
@@ -252,11 +265,11 @@
         <stl-vector type-name='int32_t' name='deleted_hfid' since='v0.47.01'/>
 
         <bool name='do_not_remove_from_vector'/>
-        <stl-vector name='active_event_collections' pointer-type='history_event_collection'/>
+        <stl-vector name='active_event_collections' original-name='active_collection' pointer-type='history_event_collection'/>
         <bool name='hf_temp_var_clear'/>
         <int32_t name='hf_temp_var_start'/>
         <int32_t name='hf_temp_var_last_advance'/>
-        <pointer name='active_mission' type-name='mission_report'/>
+        <pointer name='active_mission' original-name='active_mission_report' type-name='mission_report'/>
     </struct-type>
 </data-definition>
 

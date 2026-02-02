@@ -1,77 +1,78 @@
 <data-definition>
-    <bitfield-type type-name='block_flags' base-type='uint32_t'> bay12: BLOCKFLAG_*
-        <flag-bit name='designated' comment='for jobs etc'/>
-        <flag-bit name='update_temperature'/>
-        <flag-bit name='update_liquid'/>
-        <flag-bit name='update_liquid_twice'
+    <bitfield-type type-name='block_flags' original-name='block_flag' base-type='uint32_t'> bay12: BLOCKFLAG_*
+        <flag-bit name='designated' original-name='HAS_DESJOB' comment='for jobs etc'/>
+        <flag-bit name='update_temperature' original-name='TEMPERATURE_ADJUST'/>
+        <flag-bit name='update_liquid' original-name='FLOW_ADJUST'/>
+        <flag-bit name='update_liquid_twice' original-name='FLOW_MAINTAIN_ADJUST'
                   comment='Protects UpdateLiquid from being cleared the first time.'/>
-        <flag-bit name='repath_on_freeze'
+        <flag-bit name='repath_on_freeze' original-name='STALE_ON_FREEZE'
                   comment='reindex_pathfinding set and flag cleared if temperature below 10000'/>
-        <flag-bit name='repath_on_melt'
+        <flag-bit name='repath_on_melt' original-name='STALE_ON_MELT'
                   comment='reindex_pathfinding set and flag cleared if temperature above 10000'/>
-        <flag-bit name='has_aquifer'
+        <flag-bit name='has_aquifer' original-name='HAS_WATER_TABLE'
                   comment='has at least one "water_table" designation flag'/>
-        <flag-bit name='check_aquifer'
-                  comment='bay12: NEARBY_WATER_TABLE; has tiles that may get flooded by an adjacent aquifer'/>
-        <flag-bit name='may_have_item_spatter'/>
-        <flag-bit name='may_have_material_spatter' comment="usually mud"/>
-        <flag-bit name='has_magma_close'/>
-        <flag-bit name='has_magma_far'/>
-        <flag-bit name='mas_magma_low'/>
-        <flag-bit name='has_river_high'/>
-        <flag-bit name='has_river_medium'/>
-        <flag-bit name='has_river_low'/>
+        <flag-bit name='check_aquifer' original-name='NEARBY_WATER_TABLE'
+                  comment='has tiles that may get flooded by an adjacent aquifer'/>
+        <flag-bit name='may_have_item_spatter' original-name='MAY_HAVE_ITEM_SPATTER'/>
+        <flag-bit name='may_have_material_spatter' original-name='MAY_HAVE_MATERIAL_SPATTER' comment="usually mud"/>
+        <flag-bit name='has_magma_close' original-name='HAS_MAGMA_CLOSE'/>
+        <flag-bit name='has_magma_far' original-name='HAS_MAGMA_FAR'/>
+        <flag-bit name='mas_magma_low' original-name='HAS_MAGMA_LOW'/>
+        <flag-bit name='has_river_high' original-name='HAS_RIVER_HIGH'/>
+        <flag-bit name='has_river_medium' original-name='HAS_RIVER_MEDIUM'/>
+        <flag-bit name='has_river_low' original-name='HAS_RIVER_LOW'/>
     </bitfield-type>
 
     <enum-type type-name='block_square_event_type' base-type='int16_t'> bay12: BlockSquareEventType
-        <enum-item name='mineral'/>
-        <enum-item name='frozen_liquid'/>
-        <enum-item name='world_construction'/>
-        <enum-item name='material_spatter'/>
-        <enum-item name='grass'/>
-        <enum-item name='spoor'/>
-        <enum-item name='item_spatter'/>
-        <enum-item name='designation_priority'/>
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='mineral' original-name='MINERAL'/>
+        <enum-item name='frozen_liquid' original-name='FROZEN_LIQUID'/>
+        <enum-item name='world_construction' original-name='WORLD_CONSTRUCTION'/>
+        <enum-item name='material_spatter' original-name='MATERIAL_SPATTER'/>
+        <enum-item name='grass' original-name='GRASS'/>
+        <enum-item name='spoor' original-name='SPOOR'/>
+        <enum-item name='item_spatter' original-name='ITEM_SPATTER'/>
+        <enum-item name='designation_priority' original-name='DESIGNATION_PRIORITY'/>
     </enum-type>
 
     <class-type type-name='block_square_event' original-name='block_square_eventst'>
         <virtual-methods>
-            <vmethod ret-type='block_square_event_type' name='getType'/>
-            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
+            <vmethod ret-type='block_square_event_type' name='getType' original-name='type'/>
+            <vmethod name='write_file'> <pointer name='filecomp' type-name='file_compressorst'/> </vmethod>
             <vmethod name='read_file'>
-                <pointer name='file' type-name='file_compressorst'/>
+                <pointer name='filecomp' type-name='file_compressorst'/>
                 <enum name='loadversion' type-name='save_version'/>
             </vmethod>
-            <vmethod ret-type='bool' name='isEmpty'/>
+            <vmethod ret-type='bool' name='isEmpty' original-name='is_empty'/>
             <vmethod is-destructor='true'/>
 
-            <vmethod name='checkTemperature'>
+            <vmethod name='checkTemperature' original-name='temperature_advance'>
                 <int16_t name='x'/>
                 <int16_t name='y'/>
-                <uint16_t name='temperature'/>
+                <uint16_t name='ct'/>
             </vmethod>
         </virtual-methods>
     </class-type>
 
     <bitfield-type type-name='mineral_event_flag'> bay12: MINERAL_EVENT_FLAG_*
-        <flag-bit name='discovered'/>
-        <flag-bit name='cluster'/>
-        <flag-bit name='vein'/>
-        <flag-bit name='cluster_small'/>
-        <flag-bit name='cluster_one'/>
+        <flag-bit name='discovered' original-name='DISCOVERED'/>
+        <flag-bit name='cluster' original-name='CLUSTER'/>
+        <flag-bit name='vein' original-name='VEIN'/>
+        <flag-bit name='cluster_small' original-name='SMALL_CLUSTER'/>
+        <flag-bit name='cluster_one' original-name='RARE'/>
     </bitfield-type>
 
     <class-type type-name='block_square_event_mineralst' inherits-from='block_square_event' custom-methods='true'>
-        <int32_t name='inorganic_mat' ref-target='inorganic_raw'/>
-        <compound name='tile_bitmask' type-name='tile_bitmask'/>
-        <bitfield name='flags' base-type='uint32_t' type-name='mineral_event_flag'/>
+        <int32_t name='inorganic_mat' original-name='stone_index' ref-target='inorganic_raw'/>
+        <compound name='tile_bitmask' original-name='mask' type-name='tile_bitmask'/>
+        <bitfield name='flags' original-name='flag' base-type='uint32_t' type-name='mineral_event_flag'/>
         <custom-methods>
             <cmethod name='has_assignments'/>
         </custom-methods>
     </class-type>
 
     <class-type type-name='block_square_event_frozen_liquidst' inherits-from='block_square_event'>
-        <static-array name='tiles' count='16'>
+        <static-array name='tiles' original-name='covered_map_tile' count='16'>
             <static-array count='16'>
                 <enum base-type='uint16_t' type-name='tiletype'/>
             </static-array>
@@ -84,25 +85,25 @@
     </class-type>
 
     <class-type type-name='block_square_event_material_spatterst' inherits-from='block_square_event'>
-        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
-        <int32_t name='mat_index'/>
-        <enum name='mat_state' type-name='matter_state'/>
+        <int16_t name='mat_type' original-name='mat' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index' original-name='matg'/>
+        <enum name='mat_state' original-name='state' type-name='matter_state'/>
         <static-array name='amount' count='16'>
             <static-array count='16' type-name='uint8_t'/>
         </static-array>
-        <uint16_t name='min_temperature'/>
-        <uint16_t name='max_temperature'/>
+        <uint16_t name='min_temperature' original-name='danger_low_temp'/>
+        <uint16_t name='max_temperature' original-name='danger_high_temp'/>
     </class-type>
 
-    <bitfield-type type-name='item_spatter_flag' base-type='uint8_t'> bay12: BLOCK_SQUARE_EVENT_ITEM_SPATTER_FLAG_*
-        <flag-bit name='season_full_timer' count='3'/>
+    <bitfield-type type-name='item_spatter_flag' original-name='block_square_event_item_spatter_flag' base-type='uint8_t'> bay12: BLOCK_SQUARE_EVENT_ITEM_SPATTER_FLAG_*
+        <flag-bit name='season_full_timer' original-name='SEASON_FULL_TIMER' count='3'/>
     </bitfield-type>
 
     <class-type type-name='block_square_event_item_spatterst' inherits-from='block_square_event'>
-        <enum name='item_type' type-name='item_type'/>
-        <int16_t name='item_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
-        <int16_t name='mattype' ref-target='material' aux-value='$$.matindex'/>
-        <int32_t name='matindex'/>
+        <enum name='item_type' original-name='i_type' type-name='item_type'/>
+        <int16_t name='item_subtype' original-name='i_subtype' refers-to='(item-subtype-target $$._parent.item_type $)'/>
+        <int16_t name='mattype' original-name='i_subcat1' ref-target='material' aux-value='$$.matindex'/>
+        <int32_t name='matindex' original-name='i_subcat2'/>
 
         <int32_t name='print_variant'/>
         <static-array name='amount' count='16'>
@@ -112,18 +113,18 @@
             <static-array count='16' type-name='item_spatter_flag'/>
         </static-array>
 
-        <uint16_t name='min_temperature'/>
-        <uint16_t name='max_temperature'/>
+        <uint16_t name='min_temperature' original-name='danger_low_temp'/>
+        <uint16_t name='max_temperature' original-name='danger_high_temp'/>
     </class-type>
 
     <class-type type-name='block_square_event_grassst' inherits-from='block_square_event'>
-        <int32_t name='plant_index' ref-target='plant_raw' />
+        <int32_t name='plant_index' original-name='race' ref-target='plant_raw' />
         <static-array name='amount' count='16'>
             <static-array count='16' type-name='uint8_t'/>
         </static-array>
     </class-type>
 
-    <enum-type type-name='spoor_type' base-type='int8_t'> bay12: BSESpoorType, defined as uint8_t but that won't work here because of NONE
+    <enum-type type-name='spoor_type' original-name='bse_spoor_type' base-type='int8_t'> bay12: BSESpoorType, defined as uint8_t but that won't work here because of NONE
         <enum-item name='NONE' value='-1'/>
         <enum-item name='BROKEN_VEGETATION'/>
         <enum-item name='HFID_COMBINEDCASTE_BP'/>
@@ -131,31 +132,31 @@
         <enum-item name='MESS'/>
     </enum-type>
 
-    <bitfield-type type-name='spoor_flag' base-type='uint16_t'> bay12: BSE_SPOOR_FLAG_*
-        <flag-bit name='present'/>
-        <flag-bit name='has_direction'/>
-        <flag-bit name='direction' count='3' type-name='spoor_flag_dir'/>
-        <flag-bit name='yours'/>
-        <flag-bit name='liquid_print'/>
-        <flag-bit name='level' count='2' type-name='spoor_flag_level'/>
+    <bitfield-type type-name='spoor_flag' original-name='bse_spoor_flag' base-type='uint16_t'> bay12: BSE_SPOOR_FLAG_*
+        <flag-bit name='present' original-name='PRESENT'/>
+        <flag-bit name='has_direction' original-name='HAS_DIRECTION'/>
+        <flag-bit name='direction' original-name='DIR' count='3' type-name='spoor_flag_dir'/>
+        <flag-bit name='yours' original-name='YOURS'/>
+        <flag-bit name='liquid_print' original-name='LIQUID_PRINT'/>
+        <flag-bit name='level' original-name='LEVEL' count='2' type-name='spoor_flag_level'/>
     </bitfield-type>
 
     <enum-type type-name='spoor_flag_dir' base-type='uint16_t'> bay12: BSE_SPOOR_FLAG_DIR_*
-        <enum-item name='north'/>
-        <enum-item name='south'/>
-        <enum-item name='east'/>
-        <enum-item name='northeast'/>
-        <enum-item name='west'/>
-        <enum-item name='northwest'/>
-        <enum-item name='southeast'/>
-        <enum-item name='southwest'/>
+        <enum-item name='north' original-name='N'/>
+        <enum-item name='south' original-name='S'/>
+        <enum-item name='east' original-name='E'/>
+        <enum-item name='northeast' original-name='NE'/>
+        <enum-item name='west' original-name='W'/>
+        <enum-item name='northwest' original-name='NW'/>
+        <enum-item name='southeast' original-name='SE'/>
+        <enum-item name='southwest' original-name='SW'/>
     </enum-type>
 
     <enum-type type-name='spoor_flag_level' base-type='uint16_t'> bay12: BSE_SPOOR_FLAG_LEVEL_*
-        <enum-item name='normal'/>
-        <enum-item name='vague'/>
-        <enum-item name='light'/>
-        <enum-item name='heavy'/>
+        <enum-item name='normal' original-name='NORMAL'/>
+        <enum-item name='vague' original-name='VAGUE'/>
+        <enum-item name='light' original-name='LIGHT'/>
+        <enum-item name='heavy' original-name='HEAVY'/>
     </enum-type>
 
     <struct-type type-name='bse_spoor_datast'>
@@ -167,7 +168,7 @@
     </struct-type>
 
     <struct-type type-name='block_square_event_spoor_infost'>
-        <static-array name='flags' count='16'>
+        <static-array name='flags' original-name='flag' count='16'>
             <static-array count='16' type-name='spoor_flag'/>
         </static-array>
         <static-array name='type' count='16'>
@@ -176,21 +177,21 @@
         <static-array name='id1' count='16'>
             <static-array count='16' type-name='int32_t'/>
         </static-array>
-        <static-array name='race' count='16' comment='bay12: id2, varies based on type'>
+        <static-array name='race' original-name='id2' count='16' comment='varies based on type'>
             <static-array count='16'>
                 <int32_t ref-target='creature_raw'/>
             </static-array>
         </static-array>
-        <static-array name='caste' count='16' comment='bay12: id3, varies based on type'>
+        <static-array name='caste' original-name='id3' count='16' comment='varies based on type'>
             <static-array count='16'>
                 <int32_t ref-target='caste_raw'/>
             </static-array>
         </static-array>
-        <static-array name='age' count='16' comment='in half-seconds'>
+        <static-array name='age' original-name='rel_sec_since_base_time' count='16' comment='in half-seconds'>
             <static-array count='16' type-name='int32_t'/>
         </static-array>
-        <int32_t name='year' init-value='-1'/>
-        <int32_t name='year_tick' init-value='-1'/>
+        <int32_t name='year' original-name='base_year' init-value='-1'/>
+        <int32_t name='year_tick' original-name='base_season_count' init-value='-1'/>
     </struct-type>
 
     <class-type type-name='block_square_event_spoorst' inherits-from='block_square_event'>
@@ -198,8 +199,8 @@
     </class-type>
 
     <class-type type-name='block_square_event_world_constructionst' inherits-from='block_square_event'>
-        <int32_t name='construction_id' ref-target='world_construction'/>
-        <compound name='tile_bitmask' type-name='tile_bitmask'/>
+        <int32_t name='construction_id' original-name='wcid' ref-target='world_construction'/>
+        <compound name='tile_bitmask' original-name='mask' type-name='tile_bitmask'/>
     </class-type>
 
     <class-type type-name='block_square_event_designation_priorityst' inherits-from='block_square_event'>
@@ -211,11 +212,11 @@
     <df-linked-list-type type-name='block_burrow_link' item-type='block_burrow'/> bay12: tlink{burrow_blockst}
 
     <struct-type type-name='block_burrow' original-name='burrow_blockst' df-list-link-type='block_burrow_link' df-list-link-field='link' custom-methods='true'>
-        <int32_t name='id' ref-target='burrow'/>
+        <int32_t name='id' original-name='burrow_id' ref-target='burrow'/>
 
-        <compound name='tile_bitmask' type-name='tile_bitmask'/>
+        <compound name='tile_bitmask' original-name='mask' type-name='tile_bitmask'/>
 
-        <pointer name="link" type-name='block_burrow_link'/>
+        <pointer name="link" original-name='my_link' type-name='block_burrow_link'/>
 
         <custom-methods>
             <cmethod name='has_assignments'/>
@@ -223,34 +224,34 @@
     </struct-type>
 
     <struct-type type-name='map_block' original-name='blockst'>
-        <bitfield name='flags' type-name='block_flags'/>
+        <bitfield name='flags' original-name='flag' type-name='block_flags'/>
 
-        <stl-vector name='block_events' pointer-type='block_square_event'/>
+        <stl-vector name='block_events' original-name='block_square_event' pointer-type='block_square_event'/>
 
-        <df-linked-list name='block_burrows' type-name='block_burrow_link'/>
+        <df-linked-list name='block_burrows' original-name='burrow' type-name='block_burrow_link'/>
 
-        <int32_t name='local_feature' init-value='-1' comment='index into world_data.region_map'/>
-        <int32_t name='global_feature' ref-target='world_underground_region'/>
-        <int32_t name='global_feature_sq' init-value='-1'/>
+        <int32_t name='local_feature' original-name='feature_ind' init-value='-1' comment='index into world_data.region_map'/>
+        <int32_t name='global_feature' original-name='feature_layer' ref-target='world_underground_region'/>
+        <int32_t name='global_feature_sq' original-name='feature_layer_sq' init-value='-1'/>
 
         This is compared to unit.animal.population.depth when a revealed
         necromancer searches for a map edge tile to run away to:
         <int16_t name='layer_depth' comment='uninitialized'/>
 
-        <int32_t name='dsgn_check_cooldown'/>
-        <bitfield type-name='tile_designation' name='default_liquid'/>
+        <int32_t name='dsgn_check_cooldown' original-name='des_timer'/>
+        <bitfield type-name='tile_designation' name='default_liquid' original-name='edge_liquid_type'/>
 
-        <stl-vector name='items' type-name='int32_t' ref-target='item'/>
-        <stl-vector name='flows' pointer-type='flow_info'/>
+        <stl-vector name='items' original-name='ground_item_id' type-name='int32_t' ref-target='item'/>
+        <stl-vector name='flows' original-name='flow' pointer-type='flow_info'/>
 
         <compound name='flow_pool' type-name='flow_reuse_pool' comment='actually inline'/>
 
-        <compound name='map_pos' type-name='coord'/>
-        <compound name='region_pos' type-name='coord2d'/>
+        <compound name='map_pos' original-name='start' type-name='coord'/>
+        <compound name='region_pos' original-name='a' type-name='coord2d'/>
 
         <size_t name='pool_id'/>
 
-        <static-array name='tiletype' count='16'>
+        <static-array name='tiletype' original-name='map_tile' count='16'>
             <static-array count='16'>
                 <enum base-type='uint16_t' type-name='tiletype' init-value='OpenSpace'/>
             </static-array>
@@ -266,41 +267,41 @@
             </static-array>
         </static-array>
 
-        <static-array name='fog_of_war' count='16' comment='bay12: memmap; for adventure mode'>
+        <static-array name='fog_of_war' original-name='memmap' count='16' comment='for adventure mode'>
             <static-array count='16' type-name='uint8_t'/>
         </static-array>
 
-        <static-array name='path_cost' count='16' comment='bay12: pmap'>
+        <static-array name='path_cost' original-name='pmap' count='16'>
             <comment>flood; 256*cost for straight, 362*cost for diagonal</comment>
             <static-array count='16'>
                 <int32_t/>
             </static-array>
         </static-array>
-        <static-array name='path_tag' count='16' comment='bay12: dirmap'>
+        <static-array name='path_tag' original-name='dirmap' count='16'>
             <comment>flood; sync to path_distance; same value; inc per run; reset to 0 on wraparound</comment>
             <static-array count='16'>
                 <uint16_t/>
             </static-array>
         </static-array>
-        <static-array name='walkable' count='16' comment='bay12: levelmap'>
+        <static-array name='walkable' original-name='levelmap' count='16'>
             <comment>0 = non-walkable; same nonzero at A and B = walkable from A to B</comment>
             <static-array count='16'>
                 <int32_t/>
             </static-array>
         </static-array>
-        <static-array name='map_edge_distance' count='16' comment='bay12: dlevelmap'>
+        <static-array name='map_edge_distance' original-name='dlevelmap' count='16'>
             <comment>1 at walkable map edge; then +1 per 10 tiles it seems; 0 in dug tunnels</comment>
             <static-array count='16'>
                 <int16_t/>
             </static-array>
         </static-array>
 
-        <static-array name='temperature_1' count='16' comment='bay12: current_temperature'>
+        <static-array name='temperature_1' original-name='current_temperature' count='16'>
             <static-array count='16'>
                 <uint16_t/>
             </static-array>
         </static-array>
-        <static-array name='temperature_2' count='16' comment='bay12: normal_temperature'>
+        <static-array name='temperature_2' original-name='normal_temperature' count='16'>
             <static-array count='16'>
                 <uint16_t/>
             </static-array>
@@ -311,13 +312,13 @@
                 <uint16_t/>
             </static-array>
         </static-array>
-        <static-array name='liquid_flow' count='16'>
+        <static-array name='liquid_flow' original-name='flow_dir' count='16'>
             <static-array count='16'>
                 <bitfield type-name='tile_liquid_flow' base-type='uint16_t'/>
             </static-array>
         </static-array>
 
-        <static-array name='region_offset' count='9'>
+        <static-array name='region_offset' original-name='world_shift' count='9'>
             <int8_t/>
         </static-array>
     </struct-type>
@@ -328,16 +329,17 @@
     </bitfield-type>
 
     <df-linked-list-type type-name='cave_column_link' item-type='cave_column'/>
+
     <class-type type-name='cave_column' df-list-link-type='cave_column_link' df-list-link-field='' original-name='cave_columnst'>
         <int16_t name='base_z'/>
         <int16_t name='top_z'/>
         <uint16_t name='rect_index' init-value='30000'/>
-        <bitfield name='flags' base-type='uint8_t' type-name='cave_column_flag'/>
+        <bitfield name='flags' original-name='flag' base-type='uint8_t' type-name='cave_column_flag'/>
 
         <virtual-methods>
-            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
+            <vmethod name='write_file'> <pointer name='filecomp' type-name='file_compressorst'/> </vmethod>
             <vmethod name='read_file'>
-                <pointer name='file' type-name='file_compressorst'/>
+                <pointer name='filecomp' type-name='file_compressorst'/>
                 <enum name='loadversion' type-name='save_version'/>
             </vmethod>
         </virtual-methods>
@@ -359,12 +361,12 @@
         <stl-vector type-name='int16_t' name='neighbor_bx'/>
         <stl-vector type-name='int16_t' name='neighbor_by'/>
         <stl-vector type-name='uint16_t' name='neighbor_index'/>
-        <bitfield name='flags' base-type='uint32_t' type-name='cave_column_rectangle_flag'/>
+        <bitfield name='flags' original-name='flag' base-type='uint32_t' type-name='cave_column_rectangle_flag'/>
 
         <virtual-methods>
-            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
+            <vmethod name='write_file'> <pointer name='filecomp' type-name='file_compressorst'/> </vmethod>
             <vmethod name='read_file'>
-                <pointer name='file' type-name='file_compressorst'/>
+                <pointer name='filecomp' type-name='file_compressorst'/>
                 <enum name='loadversion' type-name='save_version'/>
             </vmethod>
         </virtual-methods>
@@ -373,45 +375,44 @@
     <struct-type type-name='block_column_print_infost'>
         <static-array name='x' count='4' type-name='int16_t'/>
         <static-array name='y' count='4' type-name='int16_t'/>
-        <static-array name='tile' count='4' type-name='uint8_t'/>
+        <static-array name='tile' original-name='character' count='4' type-name='uint8_t'/>
     </struct-type>
 
-    <enum-type type-name='map_block_column_flags'> bay12: BlockColumnFlagType
+    <enum-type type-name='map_block_column_flags' original-name='block_column_flag_type'> bay12: BlockColumnFlagType
         <enum-item name='UPDATE_CAVE_COLUMNS'/>
     </enum-type>
 
     <struct-type type-name='map_block_column' original-name='block_columnst'>
-        <int16_t name="sink_level" comment='bay12: water_el_table_block; water at or above this level sinks into aquifer tiles'/>
-        <int16_t name="beach_level" comment='bay12: water_el_sink_height; water at this level disappears if above more water'/>
+        <int16_t name="sink_level" original-name='water_el_table_block' comment='water at or above this level sinks into aquifer tiles'/>
+        <int16_t name="beach_level" original-name='water_el_sink_height' comment='water at this level disappears if above more water'/>
 
-        <int16_t name='ground_level' comment='bay12: central_el_z; for coloring unallocated blocks'/>
+        <int16_t name='ground_level' original-name='central_el_z' comment='for coloring unallocated blocks'/>
 
-        <stl-vector name='unmined_glyphs' pointer-type='block_column_print_infost'/>
+        <stl-vector name='unmined_glyphs' original-name='print_info' pointer-type='block_column_print_infost'/>
+        <int16_t name="z_base" original-name='print_info_start_el_z'/>
 
-        <int16_t name="z_base"/>
-
-        <static-array name='cave_columns' count='16'>
+        <static-array name='cave_columns' original-name='cave_column' count='16'>
             <static-array count='16'>
                 <df-linked-list type-name='cave_column_link'/>
             </static-array>
         </static-array>
 
-        <stl-vector name='column_rectangles' pointer-type='cave_column_rectangle'/>
+        <stl-vector name='column_rectangles' original-name='cave_column_rectangle' pointer-type='cave_column_rectangle'/>
 
-        <int16_t name='z_shift' comment='seems to be 0 originally, but updated when map is shifted'/>
+        <int16_t name='z_shift' original-name='base_z' comment='seems to be 0 originally, but updated when map is shifted'/>
 
-        <df-flagarray name='flags' index-enum='map_block_column_flags'/>
+        <df-flagarray name='flags' original-name='flag' index-enum='map_block_column_flags'/>
 
-        <static-array name='elevation' count='16' since='v0.40.01'>
+        <static-array name='elevation' original-name='abs_el_z' count='16' since='v0.40.01'>
             <static-array count='16' type-name='int16_t' init-value='100'/>
         </static-array>
 
         <int16_t name='minimum_river_z'/>
 
-        <compound name='map_pos' type-name='coord' comment='top left in tiles'/>
-        <compound name='region_pos' type-name='coord2d'/>
+        <compound name='map_pos' original-name='start' type-name='coord' comment='top left in tiles'/>
+        <compound name='region_pos' original-name='a' type-name='coord2d'/>
 
-        <stl-vector name='plants' pointer-type='plant' comment="Only populated for the top left column in each mid level tile"/>
+        <stl-vector name='plants' original-name='veg' pointer-type='plant' comment="Only populated for the top left column in each mid level tile"/>
     </struct-type>
 </data-definition>
 

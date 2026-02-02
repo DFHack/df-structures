@@ -1,10 +1,10 @@
 <data-definition>
-    <enum-type type-name='specific_ref_type' base-type='int16_t'> bay12: ReferenceType
+    <enum-type type-name='specific_ref_type' original-name='reference_type' base-type='int16_t'> bay12: ReferenceType
         <enum-attr name='union_field'/>
 
         <enum-item name='NONE' value='-1'/>
-        <enum-item name='BUILDING'/>
-        <enum-item name='UNIT'>
+        <enum-item name='BUILDING' original-name='BUILDING_GENERAL'/>
+        <enum-item name='UNIT' original-name='UNIT_GENERAL'>
             <item-attr name='union_field' value='unit'/>
         </enum-item>
         <enum-item name='JOB'>
@@ -14,29 +14,29 @@
             <item-attr name='union_field' value='activity'/>
         </enum-item>
 
-        <enum-item name='ITEM_GENERAL'>
+        <enum-item name='ITEM_GENERAL' original-name='ITEM'>
             <item-attr name='union_field' value='item'/>
         </enum-item>
         <enum-item name='EFFECT'>
             <item-attr name='union_field' value='effect'/>
         </enum-item>
-        <enum-item name='VERMIN_EVENT'/>
+        <enum-item name='VERMIN_EVENT' original-name='EVENT_VERMIN'/>
 
-        <enum-item name='VERMIN_ESCAPED_PET'>
+        <enum-item name='VERMIN_ESCAPED_PET' original-name='VERMIN_ESCAPEDPET'>
             <item-attr name='union_field' value='vermin'/>
         </enum-item>
         <enum-item name='ENTITY'>
             <item-attr name='union_field' value='entity'/>
         </enum-item>
-        <enum-item name='PLOT_INFO'/>
+        <enum-item name='PLOT_INFO' original-name='PLOTINFO'/>
         <enum-item name='VIEWSCREEN'>
             <item-attr name='union_field' value='screen'/>
         </enum-item>
-        <enum-item name='UNIT_ITEM_WRESTLE'>
+        <enum-item name='UNIT_ITEM_WRESTLE' original-name='UNIT_ITEMWRESTLE'>
             <item-attr name='union_field' value='wrestle'/>
         </enum-item>
 
-        <enum-item name='NULL_REF'>
+        <enum-item name='NULL_REF' original-name='NULL'>
             <item-attr name='union_field' value='object'/>
         </enum-item>
         <enum-item name='HIST_FIG'>
@@ -48,13 +48,13 @@
 
         <enum-item name='COIN_FRONT'/>
         <enum-item name='COIN_BACK'/>
-        <enum-item name='DETAIL_EVENT'/>
+        <enum-item name='DETAIL_EVENT' original-name='EVENT_DETAIL'/>
         <enum-item name='SUBREGION'/>
         <enum-item name='FEATURE_LAYER'/>
 
         <enum-item name='ART_IMAGE'/>
         <enum-item name='CREATURE_DEF'/>
-        <enum-item name='ENTITY_ART_IMAGE' comment='unused?'/>
+        <enum-item name='ENTITY_ART_IMAGE'/>
         <enum-item name='ABSTRACT_BUILDING'/>
         <enum-item name='ENTITY_POPULATION'/>
         <enum-item name='BREED'/>
@@ -63,7 +63,7 @@
     <struct-type type-name='specific_ref' original-name='referencest'>
         <enum name='type' base-type='int32_t' type-name='specific_ref_type'/>
 
-        <compound is-union='true' name='data' union-tag-attr='union_field'>
+        <compound is-union='true' name='data' original-name='user' union-tag-attr='union_field'>
             <pointer name='object' comment='raw pointer'/>
             <pointer name='unit' type-name='unit'/>
             <pointer name='activity' type-name='activity_info'/>
@@ -73,9 +73,9 @@
             <pointer name='job' type-name='job'/>
             <pointer name='histfig' type-name='historical_figure'/>
             <pointer name='entity' type-name='historical_entity'/>
-            <compound name='wrestle'>
+            <compound name='wrestle'> not actually like this - second pointer should be outside this union
                 <pointer name='unit' type-name='unit'/>
-                <pointer name='item' type-name='unit_item_wrestle'/>
+                <pointer name='item' original-name='subuser' type-name='unit_item_wrestle'/>
             </compound>
         </compound>
     </struct-type>
@@ -161,68 +161,68 @@
     <class-type type-name='general_ref' original-name='general_refst'>
         <virtual-methods>
             -- 0 --
-            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
+            <vmethod name='write_file'> <pointer name='filecomp' type-name='file_compressorst'/> </vmethod>
             <vmethod name='read_file'>
-                <pointer name='file' type-name='file_compressorst'/>
+                <pointer name='filecomp' type-name='file_compressorst'/>
                 <enum name='loadversion' type-name='save_version'/>
             </vmethod>
-            <vmethod ret-type='general_ref_type' name='getType'/>
-            <vmethod name='getItem'>
+            <vmethod ret-type='general_ref_type' name='getType' original-name='type'/>
+            <vmethod name='getItem' original-name='get_item'>
                 <ret-type><pointer type-name='item'/></ret-type>
             </vmethod>
-            <vmethod name='getUnit'>
+            <vmethod name='getUnit' original-name='get_unit'>
                 <ret-type><pointer type-name='unit'/></ret-type>
             </vmethod>
             -- 5 --
-            <vmethod name='getProjectile'>
+            <vmethod name='getProjectile' original-name='get_proj'>
                 <ret-type><pointer type-name='projectile'/></ret-type>
             </vmethod>
-            <vmethod name='getBuilding'>
+            <vmethod name='getBuilding' original-name='get_building'>
                 <ret-type><pointer type-name='building'/></ret-type>
             </vmethod>
-            <vmethod name='getEntity'>
+            <vmethod name='getEntity' original-name='get_entity'>
                 <ret-type><pointer type-name='historical_entity'/></ret-type>
             </vmethod>
-            <vmethod name='getArtifact'>
+            <vmethod name='getArtifact' original-name='get_artifact'>
                 <ret-type><pointer type-name='artifact_record'/></ret-type>
             </vmethod>
-            <vmethod name='getNemesis'>
+            <vmethod name='getNemesis' original-name='get_nemesis'>
                 <ret-type><pointer type-name='nemesis_record'/></ret-type>
             </vmethod>
             -- 10 --
-            <vmethod name='getEvent'>
+            <vmethod name='getEvent' original-name='get_activity_event'>
                 <ret-type><pointer type-name='activity_event'/></ret-type>
             </vmethod>
-            <vmethod name='setID'> <int32_t/> </vmethod>
-            <vmethod ret-type='int32_t' name='getID'/>
-            <vmethod name='setLocation'>
-                <int32_t name='x'/>
-                <int32_t name='y'/>
-                <int32_t name='z'/>
+            <vmethod name='setID' original-name='set_id'> <int32_t name='new_id'/> </vmethod>
+            <vmethod ret-type='int32_t' name='getID' original-name='get_id'/>
+            <vmethod name='setLocation' original-name='set_abs_location'>
+                <int32_t name='ax'/>
+                <int32_t name='ay'/>
+                <int32_t name='az'/>
             </vmethod>
-            <vmethod name='getLocation'>
-                <pointer type-name='int32_t' name='out_x'/>
-                <pointer type-name='int32_t' name='out_y'/>
-                <pointer type-name='int32_t' name='out_z'/>
+            <vmethod name='getLocation' original-name='get_abs_location'>
+                <pointer type-name='int32_t' name='ax'/>
+                <pointer type-name='int32_t' name='ay'/>
+                <pointer type-name='int32_t' name='az'/>
             </vmethod>
             -- 15 --
             <vmethod is-destructor='true'/>
-            <vmethod name='clone' comment='bay12: copy'>
+            <vmethod name='clone' original-name='copy'>
                 <ret-type><pointer type-name='general_ref'/></ret-type>
             </vmethod>
-            <vmethod name='generateTitle' comment='bay12: generate_title'>
+            <vmethod name='generateTitle' original-name='generate_title'>
                 <enum type-name='written_content_type' name='form'/>
                 <pointer type-name='stl-string' name='title'/>
             </vmethod>
-            <vmethod name='getDescription' comment='bay12: descriptive_string'>
+            <vmethod name='getDescription' original-name='descriptive_string'>
                 <pointer name='str' type-name='stl-string'/>
                 <uint32_t name='context_flag'/>
             </vmethod>
-            <vmethod name='getDescription2' comment='bay12: short_name'>
+            <vmethod name='getDescription2' original-name='short_name'>
                 <pointer name='str' type-name='stl-string'/>
             </vmethod>
             -- 20 --
-            <vmethod name='getDescription3' comment='bay12: unique_xml_name'>
+            <vmethod name='getDescription3' original-name='unique_xml_name'>
                 <pointer name='str' type-name='stl-string'/>
             </vmethod>
         </virtual-methods>
@@ -243,125 +243,125 @@
     <class-type type-name='general_ref_is_nemesisst' inherits-from='general_ref_nemesis'/>
 
     <class-type type-name='general_ref_interactionst' inherits-from='general_ref'>
-        <int32_t name='interaction_id' ref-target='interaction'/>
-        <int32_t name='source_idx' ref-target='interaction_source' aux-value='$$.interaction_id'/>
-        <int32_t name='target_idx' ref-target='interaction_target'/>
-        <int32_t name='effect_idx' ref-target='interaction_effect'/>
+        <int32_t name='interaction_id' original-name='interaction_index' ref-target='interaction'/>
+        <int32_t name='source_idx' original-name='interaction_source_index' ref-target='interaction_source' aux-value='$$.interaction_id'/>
+        <int32_t name='target_idx' original-name='interaction_target_index' ref-target='interaction_target'/>
+        <int32_t name='effect_idx' original-name='interaction_effect_index' ref-target='interaction_effect'/>
     </class-type>
 
     <class-type type-name='general_ref_knowledge_scholar_flagst' inherits-from='general_ref'>
-        <compound name='knowledge' type-name='knowledge_scholar_category_flag'/>
+        <compound name='knowledge' type-name='knowledge_scholar_category_flag'/> actually inline
     </class-type>
 
     <class-type type-name='general_ref_value_levelst' inherits-from='general_ref'>
-        <enum name='value' type-name='value_type'/>
-        <int32_t name='level'/>
+        <enum name='value' original-name='value_type' type-name='value_type'/>
+        <int32_t name='level' original-name='value_level'/>
     </class-type>
 
     <class-type type-name='general_ref_languagest' inherits-from='general_ref'>
-        <int32_t name='language_idx'/>
+        <int32_t name='language_idx' original-name='language_index'/>
     </class-type>
 
     <class-type type-name='general_ref_written_contentst' inherits-from='general_ref'>
-        <int32_t name='written_content_id' ref-target='written_content'/>
+        <int32_t name='written_content_id' original-name='wc_id' ref-target='written_content'/>
     </class-type>
 
     <class-type type-name='general_ref_poetic_formst' inherits-from='general_ref'>
-        <int32_t name='poetic_form_id' ref-target='poetic_form'/>
+        <int32_t name='poetic_form_id' original-name='form_id' ref-target='poetic_form'/>
     </class-type>
 
     <class-type type-name='general_ref_musical_formst' inherits-from='general_ref'>
-        <int32_t name='musical_form_id' ref-target='musical_form'/>
+        <int32_t name='musical_form_id' original-name='form_id' ref-target='musical_form'/>
     </class-type>
 
     <class-type type-name='general_ref_dance_formst' inherits-from='general_ref'>
-        <int32_t name='dance_form_id' ref-target='dance_form'/>
+        <int32_t name='dance_form_id' original-name='form_id' ref-target='dance_form'/>
     </class-type>
 
     <class-type type-name='general_ref_abstract_buildingst' inherits-from='general_ref'>
-        <int32_t name='site_id' ref-target='world_site'/>
-        <int32_t name='building_id' ref-target='abstract_building' aux-value='$$.site_id'/>
+        <int32_t name='site_id' original-name='stid' ref-target='world_site'/>
+        <int32_t name='building_id' original-name='abid' ref-target='abstract_building' aux-value='$$.site_id'/>
     </class-type>
 
     <class-type type-name='general_ref_historical_eventst' inherits-from='general_ref'>
-        <int32_t name='event_id' ref-target='history_event'/>
+        <int32_t name='event_id' original-name='heid' ref-target='history_event'/>
     </class-type>
 
     <class-type type-name='general_ref_spherest' inherits-from='general_ref'>
-        <enum name='sphere_type' type-name='sphere_type'/>
+        <enum name='sphere_type' original-name='sphere' type-name='sphere_type'/>
     </class-type>
 
     <class-type type-name='general_ref_sitest' inherits-from='general_ref'>
-        <int32_t name='site_id' ref-target='world_site'/>
+        <int32_t name='site_id' original-name='stid' ref-target='world_site'/>
     </class-type>
 
     <class-type type-name='general_ref_subregionst' inherits-from='general_ref'>
-        <int32_t name='region_id' ref-target='world_region'/>
+        <int32_t name='region_id' original-name='srid' ref-target='world_region'/>
     </class-type>
 
     <class-type type-name='general_ref_feature_layerst' inherits-from='general_ref'>
-        <int32_t name='underground_region_id' ref-target='world_underground_region'/>
+        <int32_t name='underground_region_id' original-name='flid' ref-target='world_underground_region'/>
     </class-type>
 
     <class-type type-name='general_ref_historical_figurest' inherits-from='general_ref'>
-        <int32_t name='hist_figure_id' ref-target='historical_figure'/>
+        <int32_t name='hist_figure_id' original-name='hfid' ref-target='historical_figure'/>
     </class-type>
 
     <bitfield-type type-name='general_ref_entity_population_flag' base-type='uint32_t'> bay12: GEN_REF_EPOP_FLAG_*
-        <flag-bit name='zombie'/>
-        <flag-bit name='ghostly'/>
+        <flag-bit name='zombie' original-name='ANIMATED'/>
+        <flag-bit name='ghostly' original-name='GHOST'/>
     </bitfield-type>
 
     <class-type type-name='general_ref_entity_popst' inherits-from='general_ref'>
-        <int32_t name='pop_id' ref-target='entity_population'/>
+        <int32_t name='pop_id' original-name='epid' ref-target='entity_population'/>
         <int32_t name='race' ref-target='creature_raw'/>
         <int32_t name='num'/>
-        <bitfield name='flags' type-name='general_ref_entity_population_flag' base-type='uint32_t'/>
+        <bitfield name='flags' original-name='grep_flag' type-name='general_ref_entity_population_flag' base-type='uint32_t'/>
     </class-type>
 
     <bitfield-type type-name='general_ref_creature_flag' base-type='uint32_t'> bay12: GEN_REF_CREATURE_FLAG_*
-        <flag-bit name='zombie'/>
-        <flag-bit name='ghostly'/>
+        <flag-bit name='zombie' original-name='ANIMATED'/>
+        <flag-bit name='ghostly' original-name='GHOST'/>
     </bitfield-type>
 
     <class-type type-name='general_ref_creaturest' inherits-from='general_ref'>
         <int32_t name='race' ref-target='creature_raw'/>
         <int32_t name='caste' ref-target='caste_raw' aux-value='$$.race'/>
-        <int32_t name='pop_id' ref-target='entity_population'/>
+        <int32_t name='pop_id' original-name='epid' ref-target='entity_population'/>
         <int32_t name='num'/>
-        <bitfield name='flags' type-name='general_ref_creature_flag' base-type='uint32_t'/>
+        <bitfield name='flags' original-name='grc_flag' type-name='general_ref_creature_flag' base-type='uint32_t'/>
     </class-type>
 
     <class-type type-name='general_ref_item_type' inherits-from='general_ref'
                 original-name='general_ref_item_typest'>
-        <enum base-type='int32_t' name='type' type-name='item_type'/>
-        <int32_t name='subtype' refers-to='(item-subtype-target $$._parent.type $)'/>
-        <int16_t name="mat_type" ref-target='material' aux-value='$$.mat_index'/>
-        <int16_t name="mat_index" init-value='-1'/>
+        <enum base-type='int32_t' name='type' original-name='item_type' type-name='item_type'/>
+        <int32_t name='subtype' original-name='item_subtype' refers-to='(item-subtype-target $$._parent.type $)'/>
+        <int16_t name="mat_type" original-name='item_subcat1' ref-target='material' aux-value='$$.mat_index'/>
+        <int16_t name="mat_index" original-name='item_subcat2' init-value='-1' comment='NOT 32-bit'/>
     </class-type>
 
     <class-type type-name='general_ref_coinbatch' inherits-from='general_ref'
                 original-name='general_ref_coinbatchst'>
-        <int32_t name='batch'/>
+        <int32_t name='batch' original-name='cb_index' ref-target='coin_batch'/>
     </class-type>
 
     <class-type type-name='general_ref_mapsquare' inherits-from='general_ref'
                 original-name='general_ref_mapsquarest'>
-        <enum base-type='uint16_t' name='tiletype' type-name='tiletype'/>
-        <int16_t name="mat_type" ref-target='material' aux-value='$$.mat_index'/>
-        <int32_t name="mat_index" init-value='-1'/>
+        <enum base-type='uint16_t' name='tiletype' original-name='tile' type-name='tiletype'/>
+        <int16_t name="mat_type" original-name='mat' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name="mat_index" original-name='matg' init-value='-1'/>
     </class-type>
 
     <class-type type-name='general_ref_locationst' inherits-from='general_ref'>
-        <int32_t name='x'/>
-        <int32_t name='y'/>
-        <int32_t name='z'/>
+        <int32_t name='x' original-name='abs_x'/>
+        <int32_t name='y' original-name='abs_y'/>
+        <int32_t name='z' original-name='abs_z'/>
     </class-type>
 
     <class-type type-name='general_ref_entity_art_image' inherits-from='general_ref'
                 original-name='general_ref_entity_art_imagest'>
-        <int32_t name='entity_id' ref-target='historical_entity'/>
-        <int32_t name='index' comment='lookup in entity.resources.art_image_*'/>
+        <int32_t name='entity_id' original-name='enid' ref-target='historical_entity'/>
+        <int32_t name='index' original-name='im_index' comment='lookup in entity.resources.art_image_*'/>
     </class-type>
 
 
@@ -404,11 +404,11 @@
     <class-type type-name='general_ref_unit_riderst' inherits-from='general_ref_unit'/>
 
     <bitfield-type type-name='general_ref_unit_itemowner_flag' base-type='uint32_t'> bay12: GENERAL_REF_UNIT_ITEMOWNER_FLAG_*
-        <flag-bit name='litter' comment='PROBATION; set after 1000 ticks, then confiscated in 1000 more ticks'/>
+        <flag-bit name='litter' original-name='PROBATION' comment='set after 1000 ticks, then confiscated in 1000 more ticks'/>
     </bitfield-type>
 
     <class-type type-name='general_ref_unit_itemownerst' inherits-from='general_ref_unit'>
-        <bitfield name='flags' since='v0.34.06' base-type='uint32_t' type-name='general_ref_unit_itemowner_flag'/>
+        <bitfield name='flags' original-name='unit_itemowner_flag' since='v0.34.06' base-type='uint32_t' type-name='general_ref_unit_itemowner_flag'/>
     </class-type>
 
     <class-type type-name='general_ref_unit_tradebringerst' inherits-from='general_ref_unit'/>
@@ -431,12 +431,12 @@
 
     <class-type type-name='general_ref_activity_eventst' inherits-from='general_ref'>
         <int32_t name='activity_id' ref-target='activity_entry'/>
-        <int32_t name='event_id'/>
+        <int32_t name='event_id' original-name='activity_event_id'/>
     </class-type>
 
     <class-type type-name='general_ref_projectile' inherits-from='general_ref'
                 original-name='general_ref_projectilest'>
-        <int32_t name='projectile_id' ref-target='projectile'/>
+        <int32_t name='projectile_id' original-name='proj_id' ref-target='projectile'/>
     </class-type>
 
 
@@ -453,7 +453,7 @@
 
     <class-type type-name='general_ref_building_well_tag' inherits-from='general_ref_building'
                 original-name='general_ref_building_well_tagst'>
-        <bitfield name='direction' type-name='well_tag'/>
+        <bitfield name='direction' original-name='well_tag' type-name='well_tag'/>
     </class-type>
 
     <class-type type-name='general_ref_building_use_target_1st' inherits-from='general_ref_building'/>

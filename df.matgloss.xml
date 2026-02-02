@@ -1,7 +1,7 @@
 <data-definition>
     -- Skipped: prefstringst (just a wrapper around string)
 
-    <enum-type type-name='inorganic_flags'> bay12: InorganicFlagType
+    <enum-type type-name='inorganic_flags' original-name='inorganic_flag_type'> bay12: InorganicFlagType
         <enum-item name='LAVA'/>
         <enum-item name='GENERATED'/>
         <enum-item name='CAN_OCCUR_ON_SURFACE'/>
@@ -12,86 +12,74 @@
         <enum-item name='METAMORPHIC'/>
 
         <enum-item name='DEEP_SURFACE'/>
-        <enum-item name='METAL_ORE'/>
+        <enum-item name='METAL_ORE' original-name='SMELTABLE'/>
         <enum-item name='AQUIFER'/>
-        <enum-item name='SOIL_ANY'/>
+        <enum-item name='SOIL_ANY' original-name='SOIL'/>
         <enum-item name='SOIL_OCEAN'/>
         <enum-item name='SOIL_SAND'/>
         <enum-item name='SEDIMENTARY_OCEAN_DEEP'/>
-        <enum-item name='THREAD_METAL'/>
+        <enum-item name='THREAD_METAL' original-name='THREADABLE'/>
 
         <enum-item name='SPECIAL' comment='or any DEEP_*'/>
-        <enum-item name='SOIL'/>
+        <enum-item name='SOIL' original-name='SOIL_NORMAL'/>
         <enum-item name='DEEP_SPECIAL'/>
         <enum-item name='DIVINE'/>
         <enum-item name='MYTHICAL'/>
         <enum-item name='MYTHICAL_REMNANT'/>
         <enum-item name='MYTHICAL_SUBSTANCE'/>
-        <enum-item/>
+        <enum-item name='UNUSED_03_08'/>
 
-        <enum-item/>
+        <enum-item name='UNUSED_04_01'/>
         <enum-item name='WAFERS'/>
-        <enum-item/>
-        <enum-item/>
-        <enum-item/>
-        <enum-item/>
-        <enum-item/>
-        <enum-item/>
     </enum-type>
 
     <struct-type type-name='inorganic_raw' original-name='inorganic_material_definitionst' instance-vector='$global.world.raws.inorganics.all' custom-methods='true'>
-        <stl-string name='id'/>
+        <stl-string name='id' original-name='token'/>
 
-        <stl-vector name='str' since='v0.34.01' pointer-type='stl-string'/>
+        <stl-vector name='str' original-name='current_definition' since='v0.34.01' pointer-type='stl-string'/>
 
         <code-helper name='describe'>$.id</code-helper>
 
-        <df-flagarray name='flags' index-enum='inorganic_flags'/>
+        <df-flagarray name='flags' original-name='flag' index-enum='inorganic_flags'/>
 
         <int32_t name='source_hfid' ref-target='historical_figure'/>
         <int32_t name='source_enid' ref-target='historical_entity' since='v0.42.01'/>
 
         <compound name='metal_ore'> not a compound
-            <stl-vector name='str' comment='only during parsing' pointer-type='stl-string'/>
-            <stl-vector name='mat_index'>
-                <int16_t ref-target='inorganic_raw'/>
-            </stl-vector>
-            <stl-vector type-name='int16_t' name='probability'/>
+            <stl-vector name='str' original-name='smelt_inorganic_token' comment='only during parsing' pointer-type='stl-string'/>
+            <stl-vector name='mat_index' original-name='smelt_inorganic' type-name='int16_t' ref-target='inorganic_raw'/>
+            <stl-vector type-name='int16_t' name='probability' original-name='smelt_inorganic_chance'/>
         </compound>
 
         <compound name='thread_metal'> not a compound
-            <stl-vector name='str' comment='only during parsing' pointer-type='stl-string'/>
-            <stl-vector name='mat_index'>
-                <int16_t ref-target='inorganic_raw'/>
-            </stl-vector>
-            <stl-vector type-name='int16_t' name='probability'/>
+            <stl-vector name='str' original-name='thread_inorganic_token' comment='only during parsing' pointer-type='stl-string'/>
+            <stl-vector name='mat_index' original-name='thread_inorganic' type-name='int16_t' ref-target='inorganic_raw'/>
+            <stl-vector type-name='int16_t' name='probability' original-name='thread_inorganic_chance'/>
         </compound>
 
-        <stl-vector type-name='int32_t' name='economic_uses' ref-target='reaction'/>
+        <stl-vector type-name='int32_t' name='economic_uses' original-name='involved_reaction' ref-target='reaction'/>
 
         <compound name='environment_spec'> not a compound
-            <stl-vector name='str' comment='only during parsing' pointer-type='stl-string'/>
-            <stl-vector name='mat_index'>
-                <int16_t ref-target='inorganic_raw'/>
-            </stl-vector>
-            <stl-vector name='inclusion_type'>
+            <stl-vector name='str' original-name='environment_spec' comment='only during parsing' pointer-type='stl-string'/>
+            <stl-vector name='mat_index' original-name='environment_spec_index' type-name='int16_t' ref-target='inorganic_raw'/>
+            <stl-vector name='inclusion_type' original-name='environment_spec_incl_type'>
                 <enum base-type='int16_t' type-name='inclusion_type'/>
             </stl-vector>
-            <stl-vector type-name='int8_t' name='probability'/>
+            <stl-vector type-name='int8_t' name='probability' original-name='environment_spec_freq'/>
         </compound>
 
         <compound name='environment'> not a compound
-            <stl-vector name='location'>
+            <stl-vector name='location' original-name='environment'>
                 <enum base-type='int16_t' type-name='environment_type'/>
             </stl-vector>
-            <stl-vector name='type'>
+            <stl-vector name='type' original-name='environment_incl_type'>
                 <enum base-type='int16_t' type-name='inclusion_type'/>
             </stl-vector>
-            <stl-vector type-name='int8_t' name='probability'/>
+            <stl-vector type-name='int8_t' name='probability' original-name='environment_freq'/>
         </compound>
 
-        <int16_t name='times_used_land'/>
-        <int16_t name='times_used_ocean'/>
+        <int16_t name='times_used_land' original-name='stone_count_0'/> actually an array
+        <int16_t name='times_used_ocean' original-name='stone_count_1'/>
 
         <compound name='material' type-name='material'/>
         <custom-methods>
@@ -103,17 +91,17 @@
     -- Unused: inorganic_handling_informationst
 
     <struct-type type-name='inorganic_material_definition_handlerst'>
-        <stl-vector name='all' pointer-type='inorganic_raw'/>
-        <stl-vector name='cheap'  pointer-type='inorganic_raw' comment='all inorganics with value less than 4'/>
+        <stl-vector name='all' original-name='inorganic' pointer-type='inorganic_raw'/>
+        <stl-vector name='cheap' original-name='cheap_inorganic' pointer-type='inorganic_raw' comment='all inorganics with value less than 4'/>
     </struct-type>
 
-    <enum-type type-name='plant_raw_flags'> bay12: PlantFlagType
+    <enum-type type-name='plant_raw_flags' original-name='plant_flag_type'> bay12: PlantFlagType
         <enum-item name='SPRING'/>
         <enum-item name='SUMMER'/>
         <enum-item name='AUTUMN'/>
         <enum-item name='WINTER'/>
         <enum-item name='BUNDLE'/>
-        <enum-item name='SEED'/>
+        <enum-item name='SEED' original-name='SEEDS'/>
         <enum-item name='TREE_HAS_MUSHROOM_CAP'/>
         <enum-item name='DRINK'/>
 
@@ -127,9 +115,9 @@
         <enum-item name='SOIL_BACKGROUND'/>
 
         <enum-item name='PROCESSABLE_GROWTHS'/>
-        <enum-item/> unused
-        <enum-item/>
-        <enum-item/>
+        <enum-item name='UNUSED_03_02'/>
+        <enum-item name='UNUSED_03_03'/>
+        <enum-item name='UNUSED_03_04'/>
         <enum-item name='WET'/>
         <enum-item name='DRY'/>
         <enum-item name='BIOME_MOUNTAIN'/>
@@ -208,44 +196,45 @@
         <enum-item name='TWIGS_BELOW_TRUNK'/>
     </enum-type>
 
-    <enum-type type-name='plant_material_def' base-type='int16_t'> bay12: PlantMaterialUseType
-        <enum-item name='basic_mat'/>
-        <enum-item name='tree'/>
-        <enum-item name='drink'/>
-        <enum-item name='seed'/>
-        <enum-item name='thread'/>
-        <enum-item name='mill'/>
-        <enum-item name='extract_vial'/>
-        <enum-item name='extract_barrel'/>
-        <enum-item name='extract_still_vial'/>
+    <enum-type type-name='plant_material_def' original-name='plant_material_use_type' base-type='int16_t'> bay12: PlantMaterialUseType
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='basic_mat' original-name='STRUCTURAL'/>
+        <enum-item name='tree' original-name='WOOD'/>
+        <enum-item name='drink' original-name='ALCOHOL'/>
+        <enum-item name='seed' original-name='SEED'/>
+        <enum-item name='thread' original-name='CLOTH'/>
+        <enum-item name='mill' original-name='MILL_PRODUCT'/>
+        <enum-item name='extract_vial' original-name='EXTRACT_VIAL'/>
+        <enum-item name='extract_barrel' original-name='EXTRACT_BARREL'/>
+        <enum-item name='extract_still_vial' original-name='EXTRACT_STILL_VIAL'/>
     </enum-type>
 
     -- Unused: TreePartTileType
 
     <bitfield-type type-name='growth_host_tile_flag' base-type='uint32_t'> bay12: GROWTH_HOST_TILE_FLAG_*
-        <flag-bit name='twigs'/>
-        <flag-bit name='light_branches'/>
-        <flag-bit name='heavy_branches'/>
-        <flag-bit name='trunk'/>
-        <flag-bit name='roots'/>
-        <flag-bit name='cap'/>
-        <flag-bit name='sapling'/>
+        <flag-bit name='twigs' original-name='TWIGS'/>
+        <flag-bit name='light_branches' original-name='BRANCHES'/>
+        <flag-bit name='heavy_branches' original-name='DIRECTED_BRANCHES'/>
+        <flag-bit name='trunk' original-name='TRUNK'/>
+        <flag-bit name='roots' original-name='ROOTS'/>
+        <flag-bit name='cap' original-name='CAP'/>
+        <flag-bit name='sapling' original-name='SAPLING'/>
     </bitfield-type>
 
     <struct-type type-name='plant_growth_print' original-name='pmd_growth_print_variantst'>
-        <int32_t name='priority' comment='final token in list'/>
-        <uint8_t name='tile_growth'/>
-        <uint8_t name='tile_item'/>
-        <static-array type-name='int16_t' name='color' count='3'/>
-        <int32_t name='timing_start'/>
-        <int32_t name='timing_end'/>
+        <int32_t name='priority' original-name='print_priority' comment='final token in list'/>
+        <uint8_t name='tile_growth' original-name='tile'/>
+        <uint8_t name='tile_item' original-name='item_tile'/>
+        <static-array type-name='int16_t' name='color' count='3'/> not an array
+        <int32_t name='timing_start' original-name='start_season_count'/>
+        <int32_t name='timing_end' original-name='end_season_count'/>
     </struct-type>
 
     <bitfield-type type-name='pmd_growth_flag' base-type='uint32_t'> bay12: PMD_GROWTH_FLAG_*
-        <flag-bit name='drops_off'/>
-        <flag-bit name='no_cloud'/>
-        <flag-bit name='has_seed'/>
-        <flag-bit count='4' name='graphics_type' type-name='pmd_growth_flag_graphics_type'/>
+        <flag-bit name='drops_off' original-name='DROPS_OFF'/>
+        <flag-bit name='no_cloud' original-name='NO_CLOUD_ON_DROP_OFF'/>
+        <flag-bit name='has_seed' original-name='HAS_SEED'/>
+        <flag-bit count='4' name='graphics_type' original-name='GRAPHICS_TYPE' type-name='pmd_growth_flag_graphics_type'/>
     </bitfield-type>
 
     <enum-type type-name='pmd_growth_flag_graphics_type' base-type='uint32_t'> bay12: PMD_GROWTH_FLAG_GRAPHICS_TYPE_*
@@ -261,37 +250,46 @@
     </enum-type>
 
     <struct-type type-name='plant_growth' original-name='pmd_growthst'>
-        <stl-string name='id'/>
+        <stl-string name='id' original-name='token'/>
 
         <code-helper name='describe'>(fmt "~:(~A ~A~)" $.id_id $.name[0])</code-helper>
         <code-helper name='find-instance'>$global.world.raws.plants.all[$$].growths[$]</code-helper>
 
         <stl-string name='name'/>
         <stl-string name='name_plural'/>
-        <static-array type-name='stl-string' name='str_growth_item' count='5'/>
+
+        <static-array type-name='stl-string' name='str_growth_item' original-name='item_type_str' count='5'/> not an array
+
         <enum name='item_type' type-name='item_type'/>
         <int16_t name='item_subtype'/>
-        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
-        <int32_t name='mat_index'/>
-        <stl-vector name='prints' pointer-type='plant_growth_print'/>
+        <int16_t name='mat_type' original-name='item_subcat1' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index' original-name='item_subcat2'/>
+
+        <stl-vector name='prints' original-name='print_variant' pointer-type='plant_growth_print'/>
         <static-array name='texpos_grass' type-name='int32_t' count='4'/>
         <int32_t name='texpos_picked'/>
-        <int32_t name='timing_1'/>
-        <int32_t name='timing_2'/>
-        <bitfield name='locations' base-type='uint32_t' type-name='growth_host_tile_flag'/>
+
+        <int32_t name='timing_1' original-name='start_season_count'/>
+        <int32_t name='timing_2' original-name='end_season_count'/>
+
+        <bitfield name='locations' original-name='host_tile_flag' base-type='uint32_t' type-name='growth_host_tile_flag'/>
+
         <int32_t name='density'/>
-        <bitfield name='behavior' base-type='uint32_t' type-name='pmd_growth_flag'/>
-        <int32_t name='trunk_height_perc_1'/>
-        <int32_t name='trunk_height_perc_2'/>
+
+        <bitfield name='behavior' original-name='flag' base-type='uint32_t' type-name='pmd_growth_flag'/>
+
+        <int32_t name='trunk_height_perc_1' original-name='start_trunk_height_perc'/>
+        <int32_t name='trunk_height_perc_2' original-name='end_trunk_height_perc'/>
     </struct-type>
 
     -- Simplified: pmd_tree_texture_infost
     <struct-type type-name='pmd_tree_texture_infost'>
         <static-array name='texpos_tree_wood_tile' type-name='int32_t' count='104'/> TREE_PART_TILENUM
-        <static-array name='texpos_tree_twigs_full' type-name='int32_t' count='12'/>
-        <static-array name='texpos_tree_twigs' type-name='int32_t' count='16'/>
+        <static-array name='texpos_tree_twigs_full' type-name='int32_t' count='12'/> most of these aren't actually arrays
+        <static-array name='texpos_tree_twigs' type-name='int32_t' count='16'/> but definining them all individually will make builds take longer
         <static-array name='texpos_overleaves' type-name='int32_t' count='15'/>
         <static-array name='texpos_tree_overleaves_heavy_branch' type-name='int32_t' count='15'/>
+
         <int32_t name='texpos_tree_cap_pillar'/>
         <static-array name='texpos_tree_cap_wall_thick' type-name='int32_t' count='8'/>
         <static-array name='texpos_tree_cap_wall' type-name='int32_t' count='15'/>
@@ -308,23 +306,23 @@
     </struct-type>
 
     <struct-type type-name='plant_raw' original-name='plant_material_definitionst' instance-vector='$global.world.raws.plants.all'>
-        <stl-string name='id'/>
+        <stl-string name='id' original-name='token'/>
 
         <int32_t name='index' since='v0.40.01'/>
-        <stl-vector name='raws' pointer-type='stl-string' since='v0.40.01'/>
+        <stl-vector name='raws' original-name='current_definition' pointer-type='stl-string' since='v0.40.01'/>
 
         <code-helper name='describe'>$.id</code-helper>
 
-        <df-flagarray name='flags' index-enum='plant_raw_flags'/>
+        <df-flagarray name='flags' original-name='flag' index-enum='plant_raw_flags'/>
 
         <stl-string name='name'/>
         <stl-string name='name_plural'/>
         <stl-string name='adj'/>
 
-        <stl-string name='seed_singular'/>
-        <stl-string name='seed_plural'/>
-        <stl-string name='leaves_singular' comment='unused'/>
-        <stl-string name='leaves_plural' comment='unused'/>
+        <stl-string name='seed_singular' original-name='seed_name'/>
+        <stl-string name='seed_plural' original-name='seed_name_plural'/>
+        <stl-string name='leaves_singular' original-name='leaf_name' comment='unused'/>
+        <stl-string name='leaves_plural' original-name='leaf_name_plural' comment='unused'/>
 
         <int32_t name='source_hfid' ref-target='historical_figure'/>
         <int32_t name='source_enid' ref-target='historical_entity' since='v0.42.01'/>
@@ -336,23 +334,23 @@
             <uint8_t name='dead_picked_tile'/>
             <uint8_t name='shrub_tile'/>
             <uint8_t name='dead_shrub_tile'/>
-            <uint8_t name='tree_tile' comment='unused'/>
-            <uint8_t name='dead_tree_tile' comment='unused'/>
+            <uint8_t name='tree_tile' comment='used on world map'/>
+            <uint8_t name='dead_tree_tile' comment='possibly used on world map'/>
             <uint8_t name='sapling_tile'/>
             <uint8_t name='dead_sapling_tile'/>
-            <static-array type-name='uint8_t' name='grass_tiles' count='16'/>
-            <static-array type-name='uint8_t' name='alt_grass_tiles' count='12'/>
-            <static-array type-name='uint8_t' name='tree_tiles' count='104'/> TREE_PART_TILENUM
+            <static-array type-name='uint8_t' name='grass_tiles' original-name='grass_tile' count='16'/> actually multiple arrays
+            <static-array type-name='uint8_t' name='alt_grass_tiles' original-name='alt_grass_tile' count='12'/> actually multiple arrays
+            <static-array type-name='uint8_t' name='tree_tiles' original-name='tree_part_tile' count='104'/> TREE_PART_TILENUM
         </compound>
 
-        <static-array type-name='int32_t' name='texpos' count='18'/>
+        <static-array type-name='int32_t' name='texpos' count='18'/> not an array
         <pointer name='tree_texture_info' type-name='pmd_tree_texture_infost'/>
 
         <int32_t name='growdur'/>
-        <int32_t name='value'/>
+        <int32_t name='value' original-name='modvalue'/>
 
         <compound name='colors'> not a compound
-            <static-array type-name='int8_t' name='picked_color' count='3'/>
+            <static-array type-name='int8_t' name='picked_color' count='3'/> none of these are arrays
             <static-array type-name='int8_t' name='dead_picked_color' count='3'/>
             <static-array type-name='int8_t' name='shrub_color' count='3'/>
             <static-array type-name='int8_t' name='dead_shrub_color' count='3'/>
@@ -362,50 +360,53 @@
             <static-array type-name='int8_t' name='sapling_color' count='3'/>
             <static-array type-name='int8_t' name='dead_sapling_color' count='3'/>
 
-            <static-array type-name='int8_t' name='grass_colors_f' count='20'/>
-            <static-array type-name='int8_t' name='grass_colors_b' count='20'/>
-            <static-array type-name='int8_t' name='grass_colors_br' count='20'/>
+            <static-array type-name='int8_t' name='grass_colors_f' original-name='grass_color_f' count='20'/> these are multiple arrays joined together
+            <static-array type-name='int8_t' name='grass_colors_b' original-name='grass_color_b' count='20'/>
+            <static-array type-name='int8_t' name='grass_colors_br' original-name='grass_color_br' count='20'/>
         </compound>
 
-        <static-array type-name='int32_t' name='alt_period' count='2'/>
+        <static-array type-name='int32_t' name='alt_period' count='2'/> not an array
 
         <int8_t name='shrub_drown_level'/>
         <int8_t name='tree_drown_level'/>
         <int8_t name='sapling_drown_level'/>
+
         <int16_t name='frequency'/>
-        <int16_t name='clustersize'/>
+
+        <int16_t name='clustersize' original-name='maxclustersize'/>
 
         <stl-vector name='prefstring' pointer-type='stl-string'/>
 
         <stl-vector name='material' pointer-type='material'/>
 
         <compound name='material_defs'> not a compound
-            <static-array name='type' index-enum='plant_material_def'>
+            <static-array name='type' original-name='use_mat' index-enum='plant_material_def'>
                 <int16_t ref-target='material' aux-value='$$._parent.idx[$._key]'/>
             </static-array>
-            <static-array name='idx' index-enum='plant_material_def' type-name='int32_t'/>
-            <static-array name='str' index-enum='plant_material_def'>
+            <static-array name='idx' original-name='use_matg' index-enum='plant_material_def' type-name='int32_t'/>
+            <static-array name='str' original-name='use_mat_str' index-enum='plant_material_def'>
                 <static-array type-name='stl-string' count='3'/>
             </static-array>
         </compound>
 
-        <int32_t name='underground_depth_min'/>
-        <int32_t name='underground_depth_max'/>
+        <int32_t name='underground_depth_min' original-name='min_depth'/>
+        <int32_t name='underground_depth_max' original-name='max_depth'/>
 
-        <stl-vector name='growths' pointer-type='plant_growth'/>
-        <stl-string name='root_name'/>
-        <stl-string name='trunk_name'/>
-        <stl-string name='heavy_branch_name'/>
-        <stl-string name='light_branch_name'/>
-        <stl-string name='twig_name'/>
-        <stl-string name='cap_name'/>
+        <stl-vector name='growths' original-name='growth' pointer-type='plant_growth'/>
+
+        <stl-string name='root_name' original-name='tile_name_roots'/>
+        <stl-string name='trunk_name' original-name='tile_name_trunk'/>
+        <stl-string name='heavy_branch_name' original-name='tile_name_directed_branches'/>
+        <stl-string name='light_branch_name' original-name='tile_name_branches'/>
+        <stl-string name='twig_name' original-name='tile_name_twigs'/>
+        <stl-string name='cap_name' original-name='tile_name_cap'/>
 
         <int32_t name='trunk_period'/>
-        <int32_t name='heavy_branch_density'/>
-        <int32_t name='light_branch_density'/>
+        <int32_t name='heavy_branch_density' original-name='directed_branch_density'/>
+        <int32_t name='light_branch_density' original-name='branch_density'/>
         <int32_t name='max_trunk_height'/>
-        <int32_t name='heavy_branch_radius'/>
-        <int32_t name='light_branch_radius'/>
+        <int32_t name='heavy_branch_radius' original-name='directed_branch_radius'/>
+        <int32_t name='light_branch_radius' original-name='branch_radius'/>
         <int32_t name='trunk_branching'/>
         <int32_t name='max_trunk_diameter'/>
         <int32_t name='trunk_width_period'/>
@@ -414,20 +415,9 @@
         <int32_t name='root_density'/>
         <int32_t name='root_radius'/>
 
-        <stl-vector name='stockpile_growths' type-name='int32_t' refers-to='$$._parent._parent.growths[$]' comment='indices of edible growths that are marked with STOCKPILE_PLANT_GROWTH'/>
-        <stl-vector name='stockpile_growth_flags' index-refers-to='$$._parent.stockpile_growths[$].refers-to'>
-            <bitfield base-type='uint32_t'> bay12: assuming RAS_CROP_FLAG_*; could also be RAS_EXTRACT_FLAG_* or RAS_POWDER_FLAG_*
-                <flag-bit name='EDIBLE_RAW'/>
-                <flag-bit name='EDIBLE_COOKED'/>
-                <flag-bit name='THREAD'/>
-                <flag-bit name='MILLABLE'/>
-                <flag-bit name='EXTRACTABLE_VIAL'/>
-                <flag-bit name='EXTRACTABLE_BARREL'/>
-                <flag-bit name='EXTRACTABLE_STILL_VIAL'/>
-                <flag-bit name='ORCHARD'/>
-                <flag-bit name='GARDEN'/>
-                <flag-bit name='FARMED'/>
-            </bitfield>
+        <stl-vector name='stockpile_growths' original-name='edible_growth_index' type-name='int32_t' refers-to='$$._parent._parent.growths[$]' comment='indices of edible growths that are marked with STOCKPILE_PLANT_GROWTH'/>
+        <stl-vector name='stockpile_growth_flags' original-name='edible_growth_rasflag' index-refers-to='$$._parent.stockpile_growths[$].refers-to'>
+            <bitfield type-name='ras_crop_flag' base-type='uint32_t' comment='could also be ras_extract_flag or ras_powder_flag'/>
         </stl-vector>
     </struct-type>
 
@@ -496,10 +486,10 @@
     </enum-type>
 
     <bitfield-type type-name='tree_leaf_graphics_flag' base-type='int32_t'> bay12: TREE_LEAF_GRAPHICS_FLAG_*
-        <flag-bit name='color_index' count='8'/>
-        <flag-bit name='tile' count='8' type-name='tree_leaf_tile_type'/>
-        <flag-bit name='growth' count='3' type-name='tree_leaf_graphics_flag_growth'/>
-        <flag-bit name='autumn' count='2' type-name='tree_leaf_graphics_flag_autumn'/>
+        <flag-bit name='color_index' original-name='COLOR_INDEX' count='8'/>
+        <flag-bit name='tile' original-name='TILE' count='8' type-name='tree_leaf_tile_type'/>
+        <flag-bit name='growth' original-name='GROWTH' count='3' type-name='tree_leaf_graphics_flag_growth'/>
+        <flag-bit name='autumn' original-name='AUTUMN' count='2' type-name='tree_leaf_graphics_flag_autumn'/>
     </bitfield-type>
 
     <enum-type type-name='tree_leaf_graphics_flag_growth' base-type='int32_t'> bay12: TREE_LEAF_GRAPHICS_FLAG_GROWTH_*
@@ -518,32 +508,32 @@
     </enum-type>
 
     <struct-type type-name='tree_leaf_graphics_infost'>
-        <bitfield name='flags' type-name='tree_leaf_graphics_flag' base-type='int32_t'/>
+        <bitfield name='flags' original-name='local_id' type-name='tree_leaf_graphics_flag' base-type='int32_t'/>
         <int32_t name='texpos'/>
     </struct-type>
 
     <bitfield-type type-name='tree_wood_graphics_flag' base-type='int32_t'> bay12: TREE_WOOD_GRAPHICS_FLAG_*
-        <flag-bit name='color_index' count='8'/>
-        <flag-bit name='tile' count='8' comment='TreePartTileType enum'/>
+        <flag-bit name='color_index' original-name='COLOR_INDEX' count='8'/>
+        <flag-bit name='tile' original-name='TILE' count='8' comment='TreePartTileType enum'/>
     </bitfield-type>
 
     <struct-type type-name='tree_wood_graphics_infost'>
-        <bitfield name='flags' type-name='tree_wood_graphics_flag' base-type='int32_t'/>
+        <bitfield name='flags' original-name='local_id' type-name='tree_wood_graphics_flag' base-type='int32_t'/>
         <int32_t name='texpos'/>
     </struct-type>
 
     <struct-type type-name='plant_material_definition_handlerst'>
-        <stl-vector name='all' pointer-type='plant_raw'/>
-        <stl-vector name='bushes' pointer-type='plant_raw'/>
-        <stl-vector name='bushes_idx' index-refers-to='$$._parent.bushes[$]'>
+        <stl-vector name='all' original-name='plant' pointer-type='plant_raw'/>
+        <stl-vector name='bushes' original-name='shrub' pointer-type='plant_raw'/>
+        <stl-vector name='bushes_idx' original-name='shrub_index' index-refers-to='$$._parent.bushes[$]'>
             <int32_t ref-target='plant_raw'/>
         </stl-vector>
-        <stl-vector name='trees' pointer-type='plant_raw'/>
-        <stl-vector name='trees_idx' index-refers-to='$$._parent.trees[$]'>
+        <stl-vector name='trees' original-name='tree' pointer-type='plant_raw'/>
+        <stl-vector name='trees_idx' original-name='tree_index' index-refers-to='$$._parent.trees[$]'>
             <int32_t ref-target='plant_raw'/>
         </stl-vector>
-        <stl-vector name='grasses' pointer-type='plant_raw'/>
-        <stl-vector name='grasses_idx' index-refers-to='$$._parent.grasses[$]'>
+        <stl-vector name='grasses' original-name='grass' pointer-type='plant_raw'/>
+        <stl-vector name='grasses_idx' original-name='grass_index' index-refers-to='$$._parent.grasses[$]'>
             <int32_t ref-target='plant_raw'/>
         </stl-vector>
         <stl-vector name='tree_leaf_graphics_info' pointer-type='tree_leaf_graphics_infost'/>

@@ -7,13 +7,13 @@
         <compound name='name' type-name='language_name'/>
         <code-helper name='describe'>(describe-obj $.name)</code-helper>
 
-        <compound name='path' type-name='coord2d_path'/>
-        <stl-vector name="flow" type-name='int32_t'/>
-        <stl-vector name="exit_tile" type-name='int16_t'/>  --  0 - 15
-        <stl-vector name="elevation" type-name='int16_t'/>
+        <compound name='path' original-name='square' type-name='coord2d_path'/>
+        <stl-vector name="flow" original-name='flow_amount' type-name='int32_t'/>
+        <stl-vector name="exit_tile" original-name='exit_point' type-name='int16_t'/>  --  0 - 15
+        <stl-vector name="elevation" original-name='exit_elevation' type-name='int16_t'/>
 
-        <compound name='end_pos' type-name='coord2d'/>
-        <df-flagarray name='flags' index-enum='river_flag_type'/>
+        <compound name='end_pos' original-name='end' type-name='coord2d'/>
+        <df-flagarray name='flags' original-name='flag' index-enum='river_flag_type'/>
         <comment>
             Additional river information:
             The flow element affects the width of the river and seems to follow the
@@ -45,30 +45,30 @@
 
     <enum-type type-name='feature_type' base-type='int16_t'> bay12: FeatureType
         <enum-item name='NONE' value='-1'/>
-        <enum-item name='outdoor_river'/>
-        <enum-item name='cave'/>
-        <enum-item name='pit'/>
-        <enum-item name='magma_pool'/>
-        <enum-item name='volcano'/>
-        <enum-item name='deep_special_tube'/>
-        <enum-item name='deep_surface_portal'/>
-        <enum-item name='subterranean_from_layer'/>
-        <enum-item name='magma_core_from_layer'/>
-        <enum-item name='underworld_from_layer'/>
+        <enum-item name='outdoor_river' original-name='OUTDOOR_RIVER'/>
+        <enum-item name='cave' original-name='CAVE'/>
+        <enum-item name='pit' original-name='PIT'/>
+        <enum-item name='magma_pool' original-name='MAGMA_POOL'/>
+        <enum-item name='volcano' original-name='VOLCANO'/>
+        <enum-item name='deep_special_tube' original-name='DEEP_SPECIAL_TUBE'/>
+        <enum-item name='deep_surface_portal' original-name='DEEP_SURFACE_PORTAL'/>
+        <enum-item name='subterranean_from_layer' original-name='SUBTERRANEAN_FROM_LAYER'/>
+        <enum-item name='magma_core_from_layer' original-name='MAGMA_CORE_FROM_LAYER'/>
+        <enum-item name='underworld_from_layer' original-name='UNDERWORLD_FROM_LAYER'/>
     </enum-type>
 
     <enum-type type-name='feature_alteration_type' base-type='int16_t'> bay12: FeatureAlterationType
         <enum-item name='NONE' value='-1'/>
-        <enum-item name='new_pop_max'/>
-        <enum-item name='new_lava_fill_z'/>
+        <enum-item name='new_pop_max' original-name='NEW_POP_MAX'/>
+        <enum-item name='new_lava_fill_z' original-name='NEW_LAVA_FILL_Z'/>
     </enum-type>
 
     <class-type type-name='feature_alteration' original-name='feature_alterationst'>
         <virtual-methods>
-            <vmethod ret-type='feature_alteration_type' name='getType'/>
-            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
+            <vmethod ret-type='feature_alteration_type' name='getType' original-name='type'/>
+            <vmethod name='write_file'> <pointer name='filecomp' type-name='file_compressorst'/> </vmethod>
             <vmethod name='read_file'>
-                <pointer name='file' type-name='file_compressorst'/>
+                <pointer name='filecomp' type-name='file_compressorst'/>
                 <enum name='loadversion' type-name='save_version'/>
             </vmethod>
             <vmethod is-destructor='true'/>
@@ -81,27 +81,27 @@
     </class-type>
 
     <class-type type-name='feature_alteration_new_lava_fill_zst' inherits-from='feature_alteration'>
-        <int32_t name='magma_fill_z'/>
+        <int32_t name='magma_fill_z' original-name='lava_fill_z_abs'/>
     </class-type>
 
     <class-type type-name='feature' original-name='featurest'>
-        <stl-vector name='population' pointer-type='world_population'/>
+        <stl-vector name='population' original-name='pop' pointer-type='world_population'/>
 
-        <int32_t name='irritation_level' comment='divide by 10k for attack chance, max 100k'/>
-        <int16_t name='irritation_attacks' comment='maxes at 10?'/>
+        <int32_t name='irritation_level' original-name='irritation' comment='divide by 10k for attack chance, max 100k'/>
+        <int16_t name='irritation_attacks' original-name='attack_power' comment='maxes at 10?'/>
 
-        <compound name='embark_pos' type-name='coord2d_path'/>
-        <stl-vector name='min_map_z' type-name='int16_t'/>
-        <stl-vector name='max_map_z' type-name='int16_t'/>
+        <compound name='embark_pos' original-name='abs_midmap' type-name='coord2d_path'/>
+        <stl-vector name='min_map_z' original-name='min_z' type-name='int16_t'/>
+        <stl-vector name='max_map_z' original-name='max_z' type-name='int16_t'/>
 
         <virtual-methods>
-            <vmethod ret-type='feature_type' name='getType'/>
-            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
+            <vmethod ret-type='feature_type' name='getType' original-name='type'/>
+            <vmethod name='write_file'> <pointer name='filecomp' type-name='file_compressorst'/> </vmethod>
             <vmethod name='read_file'>
-                <pointer name='file' type-name='file_compressorst'/>
+                <pointer name='filecomp' type-name='file_compressorst'/>
                 <enum name='loadversion' type-name='save_version'/>
             </vmethod>
-            <vmethod name='shiftCoords'><int16_t name='x'/><int16_t name='y'/><int16_t name='z'/></vmethod>
+            <vmethod name='shiftCoords' original-name='shift_locations'><int16_t name='shiftx'/><int16_t name='shifty'/><int16_t name='shiftz'/></vmethod>
             <vmethod name='discovery_realize' comment='originally used in 40d to populate demon pits'/>
 
             <vmethod is-destructor='true'/>
@@ -115,11 +115,11 @@
     <class-type type-name='feature_pitst' inherits-from='feature'/>
 
     <class-type type-name='feature_magma_poolst' inherits-from='feature'>
-        <int32_t name='magma_fill_z'/>
+        <int32_t name='magma_fill_z' original-name='lava_fill_z_abs'/>
     </class-type>
 
     <class-type type-name='feature_volcanost' inherits-from='feature'>
-        <int32_t name='magma_fill_z'/>
+        <int32_t name='magma_fill_z' original-name='lava_fill_z_abs'/>
     </class-type>
 
     <class-type type-name='feature_deep_special_tubest' inherits-from='feature'/>
@@ -132,75 +132,75 @@
 
     <class-type type-name='feature_underworld_from_layerst' inherits-from='feature'/>
 
-    <enum-type type-name='feature_init_flags'> bay12: FeatureInitFlagType
+    <enum-type type-name='feature_init_flags' original-name='feature_init_flag_type'> bay12: FeatureInitFlagType
         <enum-item name='NONE' value='-1'/>
-        <enum-item name='AddSavage'/>
-        <enum-item name='AddEvil'/>
-        <enum-item name='AddGood'/>
-        <enum-item name='Discovered'/>
-        <enum-item name='Announced'/>
-        <enum-item name='AnnouncedFully' comment='for tube inside vs. outside'/>
+        <enum-item name='AddSavage' original-name='ADD_SAVAGE'/>
+        <enum-item name='AddEvil' original-name='ADD_EVIL'/>
+        <enum-item name='AddGood' original-name='ADD_GOOD'/>
+        <enum-item name='Discovered' original-name='DISCOVERED'/>
+        <enum-item name='Announced' original-name='ANNOUNCED'/>
+        <enum-item name='AnnouncedFully' original-name='ANNOUNCED_FULLY' comment='for tube inside vs. outside'/>
     </enum-type>
 
     <class-type type-name='feature_init' original-name='feature_initst'>
-        <df-flagarray name='flags' index-enum='feature_init_flags'/>
-        <stl-vector name='alterations' pointer-type='feature_alteration'/>
-        <int16_t name='start_x'/>
-        <int16_t name='start_y'/>
-        <int16_t name='end_x'/>
-        <int16_t name='end_y'/>
-        <enum name='start_depth' type-name='layer_type' base-type='int16_t'/>
-        <enum name='end_depth' type-name='layer_type' base-type='int16_t'/>
+        <df-flagarray name='flags' original-name='flag' index-enum='feature_init_flags'/>
+        <stl-vector name='alterations' original-name='alteration' pointer-type='feature_alteration'/>
+        <int16_t name='start_x' original-name='midmap_preferred_x_min'/>
+        <int16_t name='start_y' original-name='midmap_preferred_y_min'/>
+        <int16_t name='end_x' original-name='midmap_preferred_x_max'/>
+        <int16_t name='end_y' original-name='midmap_preferred_y_max'/>
+        <enum name='start_depth' original-name='min_layer' type-name='layer_type' base-type='int16_t'/>
+        <enum name='end_depth' original-name='max_layer' type-name='layer_type' base-type='int16_t'/>
 
         <virtual-methods>
-            <vmethod ret-type='feature_type' name='getType'/>
+            <vmethod ret-type='feature_type' name='getType' original-name='type'/>
             <vmethod name='write_file'>
-                <pointer name='file' type-name='file_compressorst'/>
-                <bool name='include_feature'/>
+                <pointer name='filecomp' type-name='file_compressorst'/>
+                <bool name='active_game'/>
             </vmethod>
             <vmethod name='read_file'>
-                <pointer name='file' type-name='file_compressorst'/>
+                <pointer name='filecomp' type-name='file_compressorst'/>
                 <enum name='loadversion' type-name='save_version'/>
-                <bool name='include_feature'/>
+                <bool name='active_game'/>
             </vmethod>
-            <vmethod name='createFeature' comment='for load'>
+            <vmethod name='createFeature' original-name='allocate_feature_for_load'>
                 <ret-type><pointer type-name='feature'/></ret-type>
             </vmethod>
-            <vmethod name='recreateFeature' comment='destroyFeature(), then createFeature()'>
+            <vmethod name='recreateFeature' original-name='allocate_feature' comment='destroyFeature(), then createFeature()'>
                 <ret-type><pointer type-name='feature'/></ret-type>
             </vmethod>
 
-            <vmethod name='destroyFeature'/>
-            <vmethod name='getFeature'>
+            <vmethod name='destroyFeature' original-name='deallocate_feature'/>
+            <vmethod name='getFeature' original-name='get_feature'>
                 <ret-type><pointer type-name='feature'/></ret-type>
             </vmethod>
             <vmethod is-destructor='true'/>
-            <vmethod name='getMaterial'>
-                <pointer name='mat_type' type-name='int16_t'/>
-                <pointer name='mat_index' type-name='int32_t'/>
+            <vmethod name='getMaterial' original-name='get_featstone_mat_matg'>
+                <pointer name='mat' type-name='int16_t'/>
+                <pointer name='matg' type-name='int32_t'/>
             </vmethod>
             <vmethod ret-type='bool' name='generates_river_vermin'/>
 
             <vmethod ret-type='bool' name='outdoor_wildlife_feature'/>
             <vmethod ret-type='bool' name='indoor_wildlife_feature'/>
             <vmethod ret-type='bool' name='fishing_feature'/>
-            <vmethod name='getColor'>
-                <pointer name='foreground' type-name='int16_t'/>
-                <pointer name='background' type-name='int16_t'/>
-                <pointer name='bright' type-name='int8_t'/>
+            <vmethod name='getColor' original-name='get_feature_color'>
+                <pointer name='cf' type-name='int16_t'/>
+                <pointer name='cb' type-name='int16_t'/>
+                <pointer name='cbr' type-name='int8_t'/>
             </vmethod>
-            <vmethod name='getName'>
-                <pointer name='name' type-name='stl-string'/>
+            <vmethod name='getName' original-name='get_feature_name'>
+                <pointer name='nm' type-name='stl-string'/>
             </vmethod>
 
-            <vmethod name='isWater' ret-type='bool'/>
-            <vmethod name='isSubterranean' ret-type='bool'/>
-            <vmethod name='isMagma' ret-type='bool'/>
-            <vmethod name='isChasm' ret-type='bool'/>
-            <vmethod name='isUnderworld' ret-type='bool'/>
+            <vmethod name='isWater' original-name='counts_as_water_feature' ret-type='bool'/>
+            <vmethod name='isSubterranean' original-name='counts_as_cave_feature' ret-type='bool'/>
+            <vmethod name='isMagma' original-name='counts_as_magma_feature' ret-type='bool'/>
+            <vmethod name='isChasm' original-name='counts_as_open_cave_feature' ret-type='bool'/>
+            <vmethod name='isUnderworld' original-name='counts_as_underworld_feature' ret-type='bool'/>
 
-            <vmethod ret-type='bool' name='isOutdoorRiver'/>
-            <vmethod ret-type='int32_t' name='getLayer'/>
+            <vmethod ret-type='bool' name='isOutdoorRiver' original-name='is_outdoor_river_feature'/>
+            <vmethod ret-type='int32_t' name='getLayer' original-name='get_layer_id'/>
         </virtual-methods>
     </class-type>
 
@@ -225,51 +225,51 @@
     </class-type>
 
     <class-type type-name='feature_init_deep_special_tubest' inherits-from='feature_init'>
-        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
-        <int32_t name='mat_index'/>
+        <int16_t name='mat_type' original-name='featstone_material' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index' original-name='featstone_matgloss'/>
         <pointer name='feature' type-name='feature_deep_special_tubest'/>
     </class-type>
 
     <class-type type-name='feature_init_deep_surface_portalst' inherits-from='feature_init'>
-        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
-        <int32_t name='mat_index'/>
+        <int16_t name='mat_type' original-name='featstone_material' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index' original-name='featstone_matgloss'/>
         <pointer name='feature' type-name='feature_deep_surface_portalst'/>
     </class-type>
 
     <class-type type-name='feature_init_subterranean_from_layerst' inherits-from='feature_init'>
-        <int32_t name='layer' ref-target='world_underground_region'/>
+        <int32_t name='layer' original-name='layer_id' ref-target='world_underground_region'/>
         <pointer name='feature' type-name='feature_subterranean_from_layerst'/>
     </class-type>
 
     <class-type type-name='feature_init_magma_core_from_layerst' inherits-from='feature_init'>
-        <int32_t name='layer' ref-target='world_underground_region'/>
+        <int32_t name='layer' original-name='layer_id' ref-target='world_underground_region'/>
         <pointer name='feature' type-name='feature_magma_core_from_layerst'/>
     </class-type>
 
     <class-type type-name='feature_init_underworld_from_layerst' inherits-from='feature_init'>
-        <int32_t name='layer' ref-target='world_underground_region'/>
-        <int16_t name='mat_type' ref-target='material' aux-value='$$.mat_index'/>
-        <int32_t name='mat_index'/>
+        <int32_t name='layer' original-name='layer_id' ref-target='world_underground_region'/>
+        <int16_t name='mat_type' original-name='featstone_material' ref-target='material' aux-value='$$.mat_index'/>
+        <int32_t name='mat_index' original-name='featstone_matgloss'/>
         <pointer name='feature' type-name='feature_underworld_from_layerst'/>
     </class-type>
 
     <struct-type type-name='feature_mapst'>
-        <static-array name='feature_init' count='16'>
+        <static-array name='feature_init' original-name='feature' count='16'>
             <static-array count='16'>
                 <stl-vector pointer-type='feature_init'/>
             </static-array>
         </static-array>
-        <static-array name='index_ul' count='16'>
+        <static-array name='index_ul' original-name='feature_index_ul' count='16'>
             <static-array count='16'>
                 <static-array count='5'><static-array count='2' type-name='int32_t'/></static-array>
             </static-array>
         </static-array>
-        <static-array name='index_u' count='16'>
+        <static-array name='index_u' original-name='feature_index_u' count='16'>
             <static-array count='16'>
                 <static-array count='5'><static-array count='2' type-name='int32_t'/></static-array>
             </static-array>
         </static-array>
-        <static-array name='index_l' count='16'>
+        <static-array name='index_l' original-name='feature_index_l' count='16'>
             <static-array count='16'>
                 <static-array count='5'><static-array count='2' type-name='int32_t'/></static-array>
             </static-array>
@@ -293,11 +293,11 @@
     </struct-type>
 
     <struct-type type-name='feature_map_shellst'>
-        <int16_t name='x'/>
-        <int16_t name='y'/>
-        <pointer name='features' type-name='feature_mapst'/>
+        <int16_t name='x' original-name='coord_x'/>
+        <int16_t name='y' original-name='coord_y'/>
+        <pointer name='features' original-name='map' type-name='feature_mapst'/>
         <pointer name='river_info' type-name='feature_river_informationst'/>
-        <pointer name='layer_info' type-name='feature_layer_informationst'/>
+        <pointer name='layer_info' original-name='feature_layer_info' type-name='feature_layer_informationst'/>
     </struct-type>
 </data-definition>
 
