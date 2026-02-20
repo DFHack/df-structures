@@ -1,16 +1,23 @@
 <data-definition>
     <bitfield-type type-name='vehicle_ram_graphics_flag' base-type='int64_t'> bay12: VEHICLE_RAM_GRAPHICS_FLAG_*
-        <flag-bit name='wood_color_index' count='8'/>
-        <flag-bit name='bands_color_index' count='8'/>
-        <flag-bit name='head_color_index' count='8'/>
-        <flag-bit name='banded'/>
-        <flag-bit name='direction' count='3'/>
-        <flag-bit name='head_type' count='5'/>
-        <flag-bit name='segment_type' count='2'/>
+        <flag-bit name='wood_color_index' original-name='WOOD_COLOR_INDEX' count='8'/>
+        <flag-bit name='bands_color_index' original-name='BANDS_COLOR_INDEX' count='8'/>
+        <flag-bit name='head_color_index' original-name='HEAD_COLOR_INDEX' count='8'/>
+        <flag-bit name='banded' original-name='BANDED'/>
+        <flag-bit name='direction' original-name='DIRECTION' count='3'/>
+        <flag-bit name='head_type' original-name='HEAD_TYPE' count='5'/>
+        <flag-bit name='segment_type' original-name='SEGMENT_TYPE' count='2' type-name='vehicle_ram_graphics_flag_segment_type'/>
     </bitfield-type>
 
+    <enum-type type-name='vehicle_ram_graphics_flag_segment_type' base-type='int64_t'> bay12: VEHICLE_RAM_GRAPHICS_FLAG_SEGMENT_TYPE_*
+        <enum-item name='FRONT'/>
+        <enum-item name='MIDDLE'/>
+        <enum-item comment='not assigned'/>
+        <enum-item name='BACK'/>
+    </enum-type>
+
     <struct-type type-name='vehicle_ram_graphics_infost'>
-        <bitfield name='flags' type-name='vehicle_ram_graphics_flag' base-type='int64_t'/>
+        <bitfield name='flags' original-name='local_id' type-name='vehicle_ram_graphics_flag' base-type='int64_t'/>
         <int32_t name='texpos'/>
     </struct-type>
 
@@ -52,27 +59,28 @@
     <struct-type type-name='vehicle' original-name='vehiclest'
                  instance-vector='$global.world.vehicles.all' key-field='id'>
         <enum name='type' type-name='vehicle_type'/>
-        <int32_t name='id'/>
+        <int32_t name='id' original-name='global_id'/>
         <int32_t name='item_id' ref-target='item'/>
 
         -- Position within tile
-        <int32_t name='offset_x' comment='-50000..50000'/>
-        <int32_t name='offset_y'/>
-        <int32_t name='offset_z'/>
+        <int32_t name='offset_x' original-name='fine_x_adj' comment='-50000..50000'/>
+        <int32_t name='offset_y' original-name='fine_y_adj'/>
+        <int32_t name='offset_z' original-name='fine_z_adj'/>
 
-        <int32_t name='speed_x'/>
-        <int32_t name='speed_y'/>
-        <int32_t name='speed_z'/>
+        <int32_t name='speed_x' original-name='fine_x_vel'/>
+        <int32_t name='speed_y' original-name='fine_y_vel'/>
+        <int32_t name='speed_z' original-name='fine_z_vel'/>
 
         <int32_t name='fine_x_gain_vel'/>
         <int32_t name='fine_y_gain_vel'/>
         <int32_t name='fine_z_gain_vel'/>
         <bitfield name='flag' base-type='uint32_t' type-name='vehicle_flag'/>
 
-        <int32_t name='route_id' ref-target='hauling_route'/>
+        <int32_t name='route_id' original-name='hauling_route_id' ref-target='hauling_route'/>
+
         <compound name='last_dump' type-name='coord'/>
 
-        <int32_t name='time_stopped' comment='bay12: zero_vel_count; frames, up to 1000'/>
+        <int32_t name='time_stopped' original-name='zero_vel_count' comment='frames, up to 1000'/>
 
         <int32_t name='invasion_id' ref-target='invasion_info'/>
         <int32_t name='invasion_section_index'/>
@@ -81,8 +89,9 @@
     </struct-type>
 
     <struct-type type-name='vehicle_handlerst'>
-        <stl-vector name='all' pointer-type='vehicle'/>
-        <stl-vector name='active' pointer-type='vehicle'/>
+        <stl-vector name='all' original-name='global' pointer-type='vehicle'/>
+
+        <stl-vector name='active' original-name='play' pointer-type='vehicle'/>
         <stl-vector name='order_load' has-bad-pointers='true' pointer-type='vehicle'/>
 
         <stl-vector name='ram_graphics_info' pointer-type='vehicle_ram_graphics_infost'/>

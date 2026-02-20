@@ -1,19 +1,19 @@
 <data-definition>
     <struct-type type-name='machine_nodest'>
-        <int32_t name="building_id" ref-target='building'/>
-        <stl-vector name="connections" type-name='int32_t'
+        <int32_t name="building_id" original-name='building_global_id' ref-target='building'/>
+        <stl-vector name="connections" original-name='neighbor_index' type-name='int32_t'
                     comment='indices into the same component vector'/>
     </struct-type>
 
     <bitfield-type type-name="machine_flag" base-type='uint32_t'> bay12: MACHINE_FLAG_*
-        <flag-bit name='active'/>
-        <flag-bit name='frozen'/>
-        <flag-bit name='unfreeze_check'/>
+        <flag-bit name='active' original-name='ON'/>
+        <flag-bit name='frozen' original-name='FROZEN'/>
+        <flag-bit name='unfreeze_check' original-name='UNFREEZE_CHECK'/>
     </bitfield-type>
 
     <enum-type type-name='machine_type'> bay12: MachineType
         <enum-item name='NONE' value='-1'/>
-        <enum-item name='standard'/>
+        <enum-item name='standard' original-name='STANDARD'/>
     </enum-type>
 
     <class-type type-name='machine' original-name='machinest'
@@ -22,28 +22,28 @@
         <int32_t name="y"/>
         <int32_t name="z"/>
 
-        <int32_t name="id"/>
+        <int32_t name="id" original-name='global_id'/>
 
-        <stl-vector name="components" pointer-type='machine_nodest'/>
+        <stl-vector name="components" original-name='node' pointer-type='machine_nodest'/>
 
-        <int32_t name="cur_power"/>
-        <int32_t name="min_power"/>
+        <int32_t name="cur_power" original-name='total_power'/>
+        <int32_t name="min_power" original-name='total_power_needed'/>
 
-        <int8_t name='visual_phase'/>
-        <int16_t name="phase_timer"/>
+        <int8_t name='visual_phase' original-name='position'/>
+        <int16_t name="phase_timer" original-name='position_counter'/>
 
-        <bitfield name="flags" base-type='uint32_t' type-name='machine_flag'/>
+        <bitfield name="flags" original-name='flag' base-type='uint32_t' type-name='machine_flag'/>
 
         <virtual-methods>
-            <vmethod ret-type='machine_type' name='getType'/>
-            <vmethod name='moveMachine'>
-                <int16_t name='x'/>
-                <int16_t name='y'/>
-                <int16_t name='z'/>
+            <vmethod ret-type='machine_type' name='getType' original-name='type'/>
+            <vmethod name='moveMachine' original-name='shift_locations'>
+                <int16_t name='shiftx'/>
+                <int16_t name='shifty'/>
+                <int16_t name='shiftz'/>
             </vmethod>
-            <vmethod name='write_file'> <pointer name='file' type-name='file_compressorst'/> </vmethod>
+            <vmethod name='write_file'> <pointer name='filecomp' type-name='file_compressorst'/> </vmethod>
             <vmethod name='read_file'>
-                <pointer name='file' type-name='file_compressorst'/>
+                <pointer name='filecomp' type-name='file_compressorst'/>
                 <enum name='loadversion' type-name='save_version'/>
             </vmethod>
             <vmethod is-destructor='true'/>
@@ -53,11 +53,11 @@
     <class-type type-name='machine_standardst' inherits-from='machine'/>
 
     <class-type type-name='machine_handler' original-name='machine_handlerst' custom-methods='true'>
-        <stl-vector name='all' pointer-type='machine'/>
+        <stl-vector name='all' original-name='global' pointer-type='machine'/>
         <stl-vector name='temp_save' has-bad-pointers='true' pointer-type='machine'/>
         <virtual-methods>
             <vmethod name='add_to_machine'>
-                <pointer type-name='building'/>
+                <pointer type-name='building' name='bld'/>
             </vmethod>
         </virtual-methods>
     </class-type>
