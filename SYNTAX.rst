@@ -234,6 +234,7 @@ Primitive fields can be classified as following:
 4)  String::
 
         <static-string name='id' size='bytes'.../>
+        <static-wstring name='id' size='words'.../>
         <ptr-string name='id'.../>
         <stl-string name='id'.../>
 

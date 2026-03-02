@@ -207,10 +207,15 @@ Error: field <xsl:value-of select='$enum-key'/> corresponds to an enum value of 
 
         <prim-type ld:meta='bytes' ld:subtype='padding'/>
         <prim-type ld:meta='bytes' ld:subtype='static-string'/>
+        <prim-type ld:meta='bytes' ld:subtype='static-wstring'/>
 
         <prim-type ld:meta='pointer' ld:subtype='pointer'/>
         <prim-type ld:meta='pointer' ld:subtype='ptr-string' ld:is-container='true'>
             <static-string/>
+        </prim-type>
+
+        <prim-type ld:meta='pointer' ld:subtype='ptr-wstring' ld:is-container='true'>
+            <static-wstring/>
         </prim-type>
 
         <prim-type ld:meta='primitive' ld:subtype='stl-string'/>
