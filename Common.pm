@@ -177,13 +177,14 @@ my @primitive_type_list =
        size_t ssize_t
        s-float d-float
        bool flag-bit
-       padding static-string);
+       padding static-string static-wstring);
 
 my %primitive_aliases = (
     'ulong' => 'unsigned long',
     's-float' => 'float',
     'd-float' => 'double',
     'static-string' => 'char',
+    'static-wstring' => 'wchar_t',
     'flag-bit' => 'void',
     'padding' => 'void',
 );
