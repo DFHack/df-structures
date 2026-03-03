@@ -578,7 +578,7 @@ sub render_field_metadata_rec($$) {
             push @field_defs, [ "${FLD}(STATIC_STRING, $name)", 'NULL', $count, $extra ];
         } elsif ($subtype eq 'static-wstring') {
             my $count = $field->getAttribute('size') || 0;
-            push @field_defs, [ "${FLD}(STATIC_WSTRING, $name)", 'NULL', $count, $extra ];
+            push @field_defs, [ "${FLD}(PRIMITIVE, $name)", 'NULL', $count, $extra ];
         }
     } elsif ($meta eq 'global' || $meta eq 'compound') {
         if (is_attr_true($field, 'ld:enum-size-forced')) {
