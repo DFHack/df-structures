@@ -294,6 +294,10 @@ sub get_struct_field_type($;%) {
                 my $count = $tag->getAttribute('size') || 0;
                 $prefix = "char";
                 $suffix = "[$count]";
+            } elsif ($subtype eq 'static-wstring') {
+                my $count = $tag->getAttribute('size') || 0;
+                $prefix = "wchar_t";
+                $suffix = "[$count]";
             } elsif ($subtype eq 'padding') {
                 my $count = $tag->getAttribute('size') || 0;
                 my $alignment = $tag->getAttribute('alignment') || 1;
@@ -572,6 +576,9 @@ sub render_field_metadata_rec($$) {
         if ($subtype eq 'static-string') {
             my $count = $field->getAttribute('size') || 0;
             push @field_defs, [ "${FLD}(STATIC_STRING, $name)", 'NULL', $count, $extra ];
+        } elsif ($subtype eq 'static-wstring') {
+            my $count = $field->getAttribute('size') || 0;
+            push @field_defs, [ "${FLD}(PRIMITIVE, $name)", 'NULL', $count, $extra ];
         }
     } elsif ($meta eq 'global' || $meta eq 'compound') {
         if (is_attr_true($field, 'ld:enum-size-forced')) {
