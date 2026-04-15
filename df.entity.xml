@@ -36,7 +36,7 @@
 
         <bitfield base-type='uint32_t' type-name='evidence_hf_file_flag' name='flags' original-name='flag'/>
 
-        <stl-vector type-name='int32_t' name='evidence'/>
+        <stl-vector type-name='evidence_type' name='evidence'/>
         <stl-vector type-name='int32_t' name='agreement' original-name='evidence_agreement_id' ref-target='agreement'/>
         <stl-vector type-name='evidence_flag' name='evidence_flag'/>
 
@@ -649,14 +649,14 @@
         <static-array name='friendly_color' type-name='int16_t' count='3'/> not an array
 
         <enum base-type='int32_t' type-name='world_site_type' name='default_site_type'/>
-        <static-array name='likes_site' type-name='int8_t' index-enum='world_site_type'/>
-        <static-array name='tolerates_site' type-name='int8_t' index-enum='world_site_type'/>
+        <static-array name='likes_site' type-name='bool' index-enum='world_site_type'/>
+        <static-array name='tolerates_site' type-name='bool' index-enum='world_site_type'/>
 
         <static-array name='biome_support' type-name='int32_t' index-enum='biome_type'/>
-        <static-array name='start_biome' type-name='int8_t' index-enum='biome_type'/>
-        <static-array name='settlement_biome' type-name='int8_t' index-enum='biome_type'/>
+        <static-array name='start_biome' type-name='bool' index-enum='biome_type'/>
+        <static-array name='settlement_biome' type-name='bool' index-enum='biome_type'/>
 
-        <static-array name='active_season' type-name='int8_t' index-enum='season'/>
+        <static-array name='active_season' type-name='bool' index-enum='season'/>
 
         <compound name='progress_trigger'> not a compound
             <int16_t name='population' original-name='progress_trigger_population'/>
@@ -687,7 +687,7 @@
 
         <compound name='jobs'> not a compound
             <static-array name='permitted_job' type-name='bool' index-enum='profession'/>
-            <static-array name='permitted_labor' original-name='permitted_profession' type-name='bool' index-enum='unit_labor'/>
+            <static-array name='permitted_labor' original-name='permitted_profession' type-name='int8_t' index-enum='unit_labor'/>
             <static-array name='world_construction' type-name='bool' index-enum='world_construction_type'/>
         </compound>
 
@@ -751,9 +751,9 @@
 
     <enum-type type-name='entity_entity_link_type' original-name='entity_association_type'> bay12: EntityAssociation, no base type
         <enum-item name='NONE' value='-1'/>
-        <enum-item name='PARENT'/>
-        <enum-item name='CHILD'/>
-        <enum-item name='RELIGIOUS' comment='Seen between religion and merc company.' since='v0.47.01'/>
+        <enum-item name='PARENT' original-name='ID_IS_UMBRELLA_CIV'/>
+        <enum-item name='CHILD' original-name='ID_IS_UNDER_UMBRELLA'/>
+        <enum-item name='RELIGIOUS' original-name='ID_IS_CORELIGIOUS' comment='Seen between religion and merc company.' since='v0.47.01'/>
     </enum-type>
 
     <struct-type type-name='entity_entity_link' original-name='entity_associationst'>
@@ -857,7 +857,12 @@
     </struct-type>
 
     -- Unused: EquipmentRole
-    -- Unused: EntityArtImageType
+
+    <enum-type type-name='entity_art_image_type' base-type='int16_t'> bay12: EntityArtImageType, no base type but only used as int16
+        <enum-item name='NONE' value='-1'/>
+        <enum-item name='MAIN_SYMBOL'/>
+        <enum-item name='COMMISSIONED'/>
+    </enum-type>
 
     <enum-type type-name='entity_uniform_type' base-type='int16_t'> bay12: EntityUniformType
         <enum-item name='None' original-name='NONE' value='-1'/>
@@ -1382,7 +1387,7 @@
         <flag-bit name='might_have_interaction_region_pops' original-name='MIGHT_HAVE_INTERACTION_REGION_POPS'/>
     </bitfield-type>
 
-    <enum-type type-name='historical_entity_type' base-type='int16_t'> bay12: EntityType
+    <enum-type type-name='historical_entity_type' original-name='entity_type' base-type='int16_t'> bay12: EntityType; no base type, but usually int16
         <enum-item name='NONE' value='-1'/>
         <enum-item name='Civilization' original-name='CIVILIZATION'/>
         <enum-item name='SiteGovernment' original-name='SITE'/>
@@ -1562,10 +1567,10 @@
 
             <static-array name='ethic' index-enum='ethic_type' type-name='ethic_response'/>
             <static-array name='values' original-name='value' type-name='int32_t' count='64' index-enum='value_type'/> SAVE_VALUENUM
-            <uint32_t name='scholar_flag' since='v0.42.01'/> likely ENTITY_SCHOLAR_FLAG_*
+            <bitfield base-type='uint32_t' type-name='entity_scholar_flag' name='scholar_flag' since='v0.42.02'/>
             <static-array name='permitted_skill' type-name='bool' index-enum='job_skill'/>
 
-            <stl-vector type-name='int16_t' name='art_image_types' original-name='art_image_type' comment='0 = civilization symbol, 1 = commissioned'/>
+            <stl-vector type-name='entity_art_image_type' name='art_image_types' original-name='art_image_type'/>
             <stl-vector type-name='int32_t' name='art_image_ids' original-name='art_image_chunk'/>
             <stl-vector type-name='int16_t' name='art_image_subids' original-name='art_image_member'/>
             <stl-vector type-name='uint8_t' name='art_image_char'/>
@@ -1775,8 +1780,8 @@
         <stl-vector type-name='int32_t' name='attacked_site_id' comment='used during world gen'/>
         <stl-vector type-name='int32_t' name='attacked_site_timer' comment='used during world gen'/>
 
-        <int32_t name='did_wg_variable_position'/>
-        <int32_t name='did_wg_variable_market_position'/>
+        <uint32_t name='did_wg_variable_position'/>
+        <uint32_t name='did_wg_variable_market_position'/>
         <int32_t name='dig_caution_end_year'/>
 
         <int32_t name='total_pop'/>
@@ -1800,7 +1805,7 @@
         <int32_t name='account' since='v0.47.01'/>
 
         <stl-vector pointer-type='entity_burial_requestst' name='burial_request' since='v0.34.01'/>
-        <pointer pointer-type='world_gen_wandering_groupst' name='current_wgwg'/>
+        <pointer type-name='world_gen_wandering_groupst' name='current_wgwg'/>
         <int32_t name='total_outcast_strength' since='v0.47.01'/>
 
         <int32_t name='temporary_count'/>

@@ -161,7 +161,7 @@
             </vmethod>
             <vmethod name='finalize'><int32_t name='interaction_index'/></vmethod>
             <vmethod ret-type='bool' name='affects_body_component'><pointer type-name='item_body_component' name='ic'/><pointer type-name='interaction' name='it'/></vmethod>
-            <vmethod ret-type='bool' name='affects_unit'><pointer type-name='unit' name='un'/><pointer type-name='interaction' name='iut'/></vmethod>
+            <vmethod ret-type='bool' name='affects_unit'><pointer type-name='unit' name='un'/><pointer type-name='interaction' name='it'/></vmethod>
             <vmethod ret-type='bool' name='affects_histfig' original-name='affects_hf'>
                 <pointer type-name='historical_figure' name='hf'/>
                 <pointer type-name='interaction' name='it'/>
@@ -210,7 +210,7 @@
         <int16_t name='mat_type' original-name='material' ref-target='material' aux-value='$$.mat_index'/>
         <int32_t name='mat_index' original-name='matgloss'/>
         <enum type-name='matter_state' name='mat_state' original-name='matstate'/>
-        <enum type-name='breath_attack_type' original-name='breath_attack' name='breath_attack_type'/>
+        <enum type-name='breath_attack_type' name='breath_attack_type' original-name='breath_attack'/>
         <bitfield base-type='uint32_t' type-name='interaction_target_material_flag' name='restrictions' original-name='material_flag'/>
     </class-type>
 
@@ -341,10 +341,18 @@
         <stl-string name='caste_str' original-name='caste_token' comment='CREATURE'/>
         <stl-vector type-name='int32_t' name='races' original-name='race' ref-target='creature_raw'/>
         <stl-vector type-name='int16_t' name='castes' original-name='caste'/>
-        <stl-vector type-name='int32_t' name='required_creature_flags' original-name='required_creature_flag' comment='contains indexes of flags in creature_raw_flags, IE_CREATURE_FLAG'/>
-        <stl-vector type-name='int32_t' name='forbidden_creature_flags' original-name='forbidden_creature_flag' comment='contains indexes of flags in creature_raw_flags, IE_FORBIDDEN_CREATURE_FLAG'/>
-        <stl-vector type-name='int32_t' name='required_caste_flags' original-name='required_creature_caste_flag' comment='contains indexes of flags in caste_raw_flags, IE_CREATURE_CASTE_FLAG'/>
-        <stl-vector type-name='int32_t' name='forbidden_caste_flags' original-name='forbidden_creature_caste_flag' comment='contains indexes of flags in caste_raw_flags, IE_FORBIDDEN_CREATURE_CASTE_FLAG'/>
+        <stl-vector name='required_creature_flags' original-name='required_creature_flag' comment='IE_CREATURE_FLAG'>
+            <enum base-type='int32_t' type-name='creature_raw_flags'/>
+        </stl-vector>
+        <stl-vector name='forbidden_creature_flags' original-name='forbidden_creature_flag' comment='IE_FORBIDDEN_CREATURE_FLAG'>
+            <enum base-type='int32_t' type-name='creature_raw_flags'/>
+        </stl-vector>
+        <stl-vector name='required_caste_flags' original-name='required_creature_caste_flag' comment='IE_CREATURE_CASTE_FLAG'>
+            <enum base-type='int32_t' type-name='caste_raw_flags'/>
+        </stl-vector>
+        <stl-vector name='forbidden_caste_flags' original-name='forbidden_creature_caste_flag' comment='IE_FORBIDDEN_CREATURE_CASTE_FLAG'>
+            <enum base-type='int32_t' type-name='caste_raw_flags'/>
+        </stl-vector>
         <int32_t name='min_gait_speed' original-name='minimum_effortless_gait_speed' init-value='-1'/>
         <int32_t name='max_gait_speed' original-name='maximum_effortless_gait_speed' init-value='-1'/>
         <int32_t name='time_range_min' original-name='min_time' comment='IE_TIME_RANGE'/>
@@ -369,8 +377,8 @@
 
     <class-type type-name='interaction_effect_change_weatherst' inherits-from='interaction_effect'>
         <uint32_t name='spec_flags' original-name='change_weather_flag'/>
-        <int16_t name='add_weather_flag'/>
-        <int16_t name='remove_weather_flag'/>
+        <bitfield base-type='int16_t' type-name='region_weather_bits' name='add_weather_flag'/>
+        <bitfield base-type='int16_t' type-name='region_weather_bits' name='remove_weather_flag'/>
     </class-type>
 
     <class-type type-name='interaction_effect_hidest' inherits-from='interaction_effect'>
