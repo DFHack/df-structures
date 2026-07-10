@@ -340,8 +340,9 @@ sub get_struct_field_type($;%) {
         $prefix = get_container_item_type($tag, -weak => 1, -void => 'void')."*";
     } elsif ($meta eq 'static-array') {
         ($prefix, $suffix) = get_container_item_type($tag);
+        header_ref("array");
         my $count = get_container_count($tag);
-        $suffix = "[$count]".$suffix;
+        $prefix = "std::array<$prefix,$count>";
     } elsif ($meta eq 'primitive') {
         local $_ = $tag;
         my $handler = $custom_primitive_handlers{$subtype} or die "Invalid primitive: $subtype\n";
