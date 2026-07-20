@@ -154,7 +154,7 @@ with_header_file {
                 emit "INIT_GLOBAL_FUNCTION_PREFIX";
 
                 for my $item (@items) {
-                    emit "INIT_GLOBAL_FUNCTION_ITEM(", $item->[0], ', ', $item->[1], ");";
+                    emit "INIT_GLOBAL_FUNCTION_ITEM(", $item->[1], ', ', $item->[0], ");";
                 }
             } "void InitGlobals() ";
         } "namespace global ";
