@@ -128,6 +128,7 @@ my %custom_primitive_handlers = (
     'stl-condition-variable' => sub { header_ref("condition_variable"); return "std::condition_variable"; },
     'stl-future' => sub { header_ref("future"); return "std::future<void>"; },
     'stl-fs-path' => sub { header_ref("filesystem"); return "std::filesystem::path"; },
+    'stl-fs-filetime' => sub { header_ref("filesystem"); return "std::filesystem::file_time_type"; },
 );
 
 my %custom_primitive_inits = (
