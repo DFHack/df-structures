@@ -248,7 +248,14 @@ Primitive fields can be classified as following:
     abstractly represent a path to a filesystem object in an
     architecture-independent manner.
 
-6)  File Stream::
+6)  Filesystem Time::
+
+        <stl-fs-filetime name='id'/>
+
+    This tag correspond to ``std::filesystem::file_time_type`` and is used to represent
+    a filesystem time value in an architecture-independent manner.
+
+7)  File Stream::
 
         <stl-fstream name='id'/>
 
