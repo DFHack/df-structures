@@ -223,6 +223,8 @@ sub render_struct_type {
     my $has_methods = $is_class || is_attr_true($tag, 'has-methods');
     my $inherits = $tag->getAttribute('inherits-from');
     my $original_name = $tag->getAttribute('original-name');
+    my @codegen_override = $tag->findnodes('codegen-override');
+
     my $ispec = '';
 
     for my $extra ($tag->findnodes('extra-include')) {
@@ -252,72 +254,84 @@ sub render_struct_type {
         register_ref $list_link_type, 0;
     }
 
-    with_struct_block {
-        my $vmethod_emit = sub {
-            my %info;
+    my @struct = with_emit {
+        with_struct_block {
+            my $vmethod_emit = sub {
+                my %info;
 
-            emit_find_instance(%info, $tag);
+                emit_find_instance(%info, $tag);
 
-            if ($list_link_type) {
-                emit $list_link_type," *dfhack_get_list_link();";
-                emit "void dfhack_set_list_link(",$list_link_type," *);";
-                with_emit_static {
-                    emit_block {
-                        if ($list_link_field) {
-                            emit "return ",$list_link_field,";";
-                        } else {
-                            emit "return nullptr;";
+                if ($list_link_type) {
+                    emit $list_link_type," *dfhack_get_list_link();";
+                    emit "void dfhack_set_list_link(",$list_link_type," *);";
+                    with_emit_static {
+                        emit_block {
+                            if ($list_link_field) {
+                                emit "return ",$list_link_field,";";
+                            } else {
+                                emit "return nullptr;";
+                            }
+                        } "$list_link_type *${typename}::dfhack_get_list_link()";
+                        emit_block {
+                            if ($list_link_field) {
+                                emit "this->",$list_link_field," = l;";
+                            }
+                        } "void ${typename}::dfhack_set_list_link($list_link_type *l)";
+                    };
+                }
+
+                if ($has_methods || $custom_methods) {
+                    if ($custom_methods) {
+                        local $indentation = 0;
+                        emit '#include "custom/', $typename, '.methods.inc"';
+
+                        my %name_index;
+                        $info{cmethods} = [];
+                        for my $method ($tag->findnodes('custom-methods/cmethod')) {
+                            my $name = $method->getAttribute('name');
+                            die "Custom method has no name in ".$typename."\n"
+                                if not $name;
+                            die "Duplicate custom method: $name in ".$typename."\n"
+                                if exists $name_index{$name};
+                            $name_index{$name} = 1;
+                            push @{$info{cmethods}}, $method;
                         }
-                    } "$list_link_type *${typename}::dfhack_get_list_link()";
-                    emit_block {
-                        if ($list_link_field) {
-                            emit "this->",$list_link_field," = l;";
-                        }
-                    } "void ${typename}::dfhack_set_list_link($list_link_type *l)";
-                };
-            }
+                    }
 
-            if ($has_methods || $custom_methods) {
-                if ($custom_methods) {
-                    local $indentation = 0;
-                    emit '#include "custom/', $typename, '.methods.inc"';
-
-                    my %name_index;
-                    $info{cmethods} = [];
-                    for my $method ($tag->findnodes('custom-methods/cmethod')) {
-                        my $name = $method->getAttribute('name');
-                        die "Custom method has no name in ".$typename."\n"
-                            if not $name;
-                        die "Duplicate custom method: $name in ".$typename."\n"
-                            if exists $name_index{$name};
-                        $name_index{$name} = 1;
-                        push @{$info{cmethods}}, $method;
+                    if ($is_class) {
+                        my ($no_dtor, $vmethods) = render_virtual_methods $tag;
+                        $info{nodtor} = $no_dtor;
+                        $info{vmethods} = $vmethods;
+                    } elsif (!$custom_methods) {
+                        emit "~",$typename,"() {}";
                     }
                 }
 
-                if ($is_class) {
-                    my ($no_dtor, $vmethods) = render_virtual_methods $tag;
-                    $info{nodtor} = $no_dtor;
-                    $info{vmethods} = $vmethods;
-                } elsif (!$custom_methods) {
-                    emit "~",$typename,"() {}";
+                return %info;
+            };
+
+            emit_struct_fields($tag, $typename, -class => $is_class, -inherits => $inherits,
+                                -addmethods => $vmethod_emit);
+
+            if ($field_backrefs{$typename}) {
+                for my $backref (@{$field_backrefs{$typename}}) {
+                    register_ref $backref;
+                    emit 'friend struct ' . fully_qualified_name($types{$backref}, $backref) . ';';
                 }
             }
 
-            return %info;
-        };
+        } $tag, "$typename$ispec", -export => 1;
+    };
 
-        emit_struct_fields($tag, $typename, -class => $is_class, -inherits => $inherits,
-                            -addmethods => $vmethod_emit);
-
-        if ($field_backrefs{$typename}) {
-            for my $backref (@{$field_backrefs{$typename}}) {
-                register_ref $backref;
-                emit 'friend struct ' . fully_qualified_name($types{$backref}, $backref) . ';';
-            }
+    if (@codegen_override) {
+        my $using = $codegen_override[0]->getAttribute('using');
+        if ($using) {
+            emit "using $typename = $using;";
+            return;
         }
+    }
 
-    } $tag, "$typename$ispec", -export => 1;
+    emit $_ for @struct;
 
 }
 
