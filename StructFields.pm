@@ -753,7 +753,7 @@ sub emit_struct_fields($$;%) {
                 emit $_ for @ctor_lines;
             };
         }
-    } 'ctors' unless $flags{-noconstructor};
+    } 'ctors' unless $flags{-noctor};
 
     %info = $flags{-addmethods}->($tag) if $flags{-addmethods};
 
