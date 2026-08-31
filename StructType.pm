@@ -227,6 +227,20 @@ sub render_struct_type {
 
     my $ispec = '';
 
+    my $using = '';
+    my $noidentity = 0;
+    my $noctor = 0;
+
+    if (@codegen_override) {
+        $using = $codegen_override[0]->getAttribute('using');
+        $noidentity = $codegen_override[0]->getAttribute('no-identity');
+        $noctor = $codegen_override[0]->getAttribute('no-constructor');
+        my $template = $codegen_override[0]->getAttribute('template');
+        if ($template) {
+            $using = "$template<$using>";
+        }
+    }
+
     for my $extra ($tag->findnodes('extra-include')) {
         my $tname = $extra->getAttribute('type-name');
         if ($tname) {
@@ -311,7 +325,7 @@ sub render_struct_type {
             };
 
             emit_struct_fields($tag, $typename, -class => $is_class, -inherits => $inherits,
-                                -addmethods => $vmethod_emit);
+                                -addmethods => $vmethod_emit, -noidentity => $noidentity, -noctor => $noctor);
 
             if ($field_backrefs{$typename}) {
                 for my $backref (@{$field_backrefs{$typename}}) {
@@ -323,12 +337,9 @@ sub render_struct_type {
         } $tag, "$typename$ispec", -export => 1;
     };
 
-    if (@codegen_override) {
-        my $using = $codegen_override[0]->getAttribute('using');
-        if ($using) {
-            emit "using $typename = $using;";
-            return;
-        }
+    if ($using) {
+        emit "using $typename = $using;";
+        return;
     }
 
     emit $_ for @struct;

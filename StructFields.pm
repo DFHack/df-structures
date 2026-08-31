@@ -753,7 +753,7 @@ sub emit_struct_fields($$;%) {
                 emit $_ for @ctor_lines;
             };
         }
-    } 'ctors';
+    } 'ctors' unless $flags{-noconstructor};
 
     %info = $flags{-addmethods}->($tag) if $flags{-addmethods};
 
@@ -785,7 +785,7 @@ sub emit_struct_fields($$;%) {
                     ($inherits ? "&${inherits}::_identity" : 'NULL'), ', ',
                     "${ftable}${maybe_index_enum});";
         }
-    } 'fields-' . $fields_group;
+    } 'fields-' . $fields_group unless $flags{-noidentity};
 }
 
 for my $letter ('a' .. 'z') {
