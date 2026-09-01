@@ -594,7 +594,7 @@ sub render_field_metadata_rec($$) {
             if ($subtype && $subtype eq 'enum') {
                 push @field_defs, [ "${FLD}(PRIMITIVE, $name)", type_identity_reference($field), 0, $extra ];
             } else {
-                push @field_defs, [ "${FLD}(SUBSTRUCT, $name)", type_identity_reference($field), 0, $extra ];
+                push @field_defs, [ "${FLD}(SUBSTRUCT, $name)", type_idfun_reference($field), 0, $extra ];
             }
         }
     } elsif ($meta eq 'pointer') {
