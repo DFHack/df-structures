@@ -13,7 +13,7 @@ if(BUILD_XMLDUMP)
     FetchContent_MakeAvailable(fmt)
     set(FMTLIB fmt)
     add_definitions("-DUSE_FMTLIB")
-    add_subdirectory(lua)
+    add_subdirectory(depends/lua)
 
     file(GLOB XML_FILES ../df.*.xml)
     set(TYPE_DUMP_GENERATOR "${CMAKE_CURRENT_SOURCE_DIR}/generate-type-dump.py")
