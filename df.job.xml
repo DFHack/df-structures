@@ -1484,7 +1484,7 @@
 
         <flag-bit name='on_break' original-name='COUNTS_AS_BREAK' comment='job displayed as On Break'/>
         <flag-bit name='dessource' original-name='DESSOURCE' comment='created from designation'/>
-        <flag-bit name='do_now' original-name='DO_ME_NOW'/>
+        <flag-bit name='do_now' original-name='DO_ME_NOW' comment='adds exactly 20000000 to job_applicationst.value for this job, outbidding nearly everything'/>
     </bitfield-type>
 
     <enum-type type-name='killjob_exception_type' base-type='int16_t'> bay12: KillJobExceptionType
@@ -1780,13 +1780,13 @@
         <int32_t name='idx' original-name='index' comment='equal to position in vector'/>
         <pointer type-name='job' name='job' original-name='job_ptr' comment='bad if dead flag is set'/>
         <bitfield base-type='uint32_t' type-name='job_posting_flag' name='flags' original-name='flag'/>
-        <int32_t name='rough_number_of_applications' comment='not saved'/>
+        <int32_t name='rough_number_of_applications' comment='not saved; incremented as units apply during assignment passes'/>
     </struct-type>
 
     <struct-type type-name='job_applicationst'>
         <pointer type-name='unit' name='applicant'/>
-        <int32_t name='posting_index'/>
-        <int32_t name='value'/>
+        <int32_t name='posting_index' comment='index into job_handlerst.postings'/>
+        <int32_t name='value' comment='bid score; the highest-valued application wins the posting. job.flags.do_now adds exactly 20000000'/>
     </struct-type>
 
     <struct-type type-name='job_application_binary_heapst'>
@@ -1796,9 +1796,9 @@
 
     <class-type type-name='job_handler' original-name='job_handlerst' custom-methods='true'>
         <df-linked-list name='list' original-name='global' type-name='job_list_link'/>
-        <stl-vector pointer-type='job_postingst' name='postings' original-name='posting' comment='entries never removed'/>
+        <stl-vector pointer-type='job_postingst' name='postings' original-name='posting' comment='entries never removed; dead entries are recycled for new jobs, so an index can change jobs between passes'/>
 
-        <compound type-name='job_application_binary_heapst' name='job_application_heap' comment='this appears to be a priority queue of some sort'/>
+        <compound type-name='job_application_binary_heapst' name='job_application_heap' comment='max-heap priority queue used by the job-assignment pass; populated and drained within a single pass, so usually empty when observed'/>
 
         <virtual-methods>
             <vmethod name='cancel_job' original-name='remove_job'><pointer type-name='job' name='ptr'/></vmethod>
