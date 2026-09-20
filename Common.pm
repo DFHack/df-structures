@@ -413,7 +413,7 @@ sub fully_qualified_name($$;$) {
 sub type_identity_reference($%) {
     my ($tag, %flags) = @_;
 
-    return 'NULL' unless $tag;
+    return 'nullptr' unless $tag;
 
     my $name = $tag->nodeName;
 
@@ -431,7 +431,7 @@ sub type_identity_reference($%) {
             last if $tag->getAttribute('ld:typedef-name');
         }
 
-        return 'NULL' unless $tag;
+        return 'nullptr' unless $tag;
     }
 
     return '&global::_identity' if $name eq 'ld:global-object';
@@ -540,7 +540,7 @@ sub generate_field_table(&$) {
 
     &with_anon($blk, 'T_'.$ftable_name);
 
-    return 'NULL' unless @field_defs;
+    return 'nullptr' unless @field_defs;
 
     emit "#define CUR_STRUCT $full_name";
     if (%field_defs_extra) {
