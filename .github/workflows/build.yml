@@ -64,10 +64,11 @@ jobs:
     secrets: inherit
 
   docs:
+    needs: dfhack-ref
     uses: DFHack/dfhack/.github/workflows/build-linux.yml@develop
     with:
       dfhack_repo: ${{ format('{0}/dfhack', github.event_name == 'push' && github.repository_owner || github.event.pull_request.base.repo.owner.login) }}
-      dfhack_ref: ${{ (((github.base_ref || github.ref_name) == 'master') && 'develop' || (github.base_ref || github.ref_name)) }}
+      dfhack_ref: ${{ needs.dfhack-ref.outputs.ref }}
       structures_repo: ${{ github.repository }}
       structures_ref: ${{ github.ref }}
       artifact-name: docs
