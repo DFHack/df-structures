@@ -91,11 +91,12 @@ sub render_bitfield_core {
             emit "static const bitfield_item_info bits[bit_count];";
         } "template<> struct ${export_prefix}bitfield_$traits_name ", ";";
         emit_block {
-            emit "static const bitfield_identity identity;";
-            emit "static const bitfield_identity *get() { return &identity; }";
+            emit "static const type_identity_for<$full_name> identity;";
+            emit "static const type_identity_for<$full_name> *get() { return &identity; }";
         } "template<> struct ${export_prefix}identity_$traits_name ", ";";
         header_ref("Export.h");
         header_ref("DataDefs.h");
+        header_ref("DataIdentity.h");
     };
 
     with_emit_static {
@@ -112,7 +113,7 @@ sub render_bitfield_core {
             $lines[-1] =~ s/,$//;
         } "const bitfield_item_info bitfield_${traits_name}::bits[bit_count] = ", ";";
 
-        emit "const bitfield_identity identity_${traits_name}::identity(",
+        emit "const type_identity_for<$full_name> identity_${traits_name}::identity(",
              "sizeof($full_name), ",
              type_identity_reference($tag,-parent => 1), ', ',
              "\"$name\", bitfield_${traits_name}::bit_count, bitfield_${traits_name}::bits);";
