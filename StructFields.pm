@@ -41,6 +41,7 @@ sub with_struct_block(&$;$%) {
     my $exp = $name ? $export_prefix : '';
     header_ref("Export.h");
     header_ref("DataDefs.h");
+    header_ref("DataIdentity.h");
     my $prefix = $kwd.' '.$exp.($name ? $name.' ' : '');
 
     emit_comment $tag, -attr => 1;
@@ -693,19 +694,21 @@ sub emit_struct_fields($$;%) {
     if ($in_union_body) {
         my $traits_name = 'identity_traits<'.$full_name.'>';
 
+        emit "using df_identity_base = $identity_type;";
+
         with_emit_traits {
             emit_block {
-                emit "static const $identity_type identity;";
-                emit "static const $identity_type *get() { return &identity; }";
+                emit "static const type_identity_for<$full_name> identity;";
+                emit "static const type_identity_for<$full_name> *get() { return &identity; }";
             } "template<> struct ${export_prefix}$traits_name ", ";";
         };
 
         with_emit_static {
             my $ftable = render_field_metadata $tag, $full_name, @fields, %info;
-            emit "const $identity_type ${traits_name}::identity(",
+            emit "const type_identity_for<$full_name> ${traits_name}::identity(",
                     "sizeof($full_name), &allocator_fn<${full_name}>, ",
                     type_identity_reference($tag,-parent => 1), ', ',
-                    "\"$name\", NULL, $ftable);";
+                    "\"$name\", nullptr, $ftable);";
         } 'fields-' . $fields_group;
 
         # Needed for unions with fields with non-default ctors (e.g. bitfields)
@@ -731,7 +734,8 @@ sub emit_struct_fields($$;%) {
     my $inherits = $flags{-inherits};
     my $original_name = $tag->getAttribute('original-name');
 
-    emit "static const $identity_type _identity;";
+    emit "using df_identity_base = $identity_type;";
+    emit "static const type_identity_for<$full_name> _identity;";
 
     with_emit_static {
         local @simple_inits;
@@ -771,18 +775,18 @@ sub emit_struct_fields($$;%) {
         my $ftable = render_field_metadata $tag, $full_name, @fields, %info;
 
         if ($flags{-class}) {
-            emit "const virtual_identity ${full_name}::_identity(",
+            emit "const type_identity_for<${full_name}> ${full_name}::_identity(",
                     "sizeof($full_name), &${alloc_fn}<${full_name}>, ",
                     "\"$name\", ",
-                    ($original_name ? "\"$original_name\"" : 'NULL'), ', ',
-                    ($inherits ? "&${inherits}::_identity" : 'NULL'), ', ',
+                    ($original_name ? "\"$original_name\"" : 'nullptr'), ', ',
+                    ($inherits ? "&${inherits}::_identity" : 'nullptr'), ', ',
                     "$ftable);";
         } else {
-            emit "const $identity_type ${full_name}::_identity(",
+            emit "const type_identity_for<${full_name}> ${full_name}::_identity(",
                     "sizeof($full_name), &allocator_fn<${full_name}>, ",
                     type_identity_reference($tag,-parent => 1), ', ',
                     "\"$name\", ",
-                    ($inherits ? "&${inherits}::_identity" : 'NULL'), ', ',
+                    ($inherits ? "&${inherits}::_identity" : 'nullptr'), ', ',
                     "${ftable}${maybe_index_enum});";
         }
     } 'fields-' . $fields_group unless $flags{-noidentity};
