@@ -35,20 +35,40 @@ jobs:
         perl ./list.pl | cut -d/ -f2 | sort > list.pl.out
         diff ls.out list.pl.out
 
+  dfhack-ref:
+    runs-on: ubuntu-latest
+    outputs:
+      ref: ${{ steps.resolve.outputs.ref }}
+    steps:
+      - id: resolve
+        env:
+          REPO: ${{ format('{0}/dfhack', github.event_name == 'push' && github.repository_owner || github.event.pull_request.base.repo.owner.login) }}
+          BRANCH: ${{ github.base_ref || github.ref_name }}
+        run: |
+          ref="$BRANCH"
+          [ "$ref" = master ] && ref=develop
+          if [ "$ref" != develop ] && ! git ls-remote --exit-code --heads "https://github.com/$REPO" "$ref" >/dev/null 2>&1; then
+            echo "no '$ref' branch in $REPO; falling back to develop"
+            ref=develop
+          fi
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+
   test:
+    needs: dfhack-ref
     uses: DFHack/dfhack/.github/workflows/test.yml@develop
     with:
       dfhack_repo: ${{ format('{0}/dfhack', github.event_name == 'push' && github.repository_owner || github.event.pull_request.base.repo.owner.login) }}
-      dfhack_ref: ${{ (((github.base_ref || github.ref_name) == 'master') && 'develop' || (github.base_ref || github.ref_name)) }}
+      dfhack_ref: ${{ needs.dfhack-ref.outputs.ref }}
       structures_repo: ${{ github.repository }}
       structures_ref: ${{ github.ref }}
     secrets: inherit
 
   docs:
+    needs: dfhack-ref
     uses: DFHack/dfhack/.github/workflows/build-linux.yml@develop
     with:
       dfhack_repo: ${{ format('{0}/dfhack', github.event_name == 'push' && github.repository_owner || github.event.pull_request.base.repo.owner.login) }}
-      dfhack_ref: ${{ (((github.base_ref || github.ref_name) == 'master') && 'develop' || (github.base_ref || github.ref_name)) }}
+      dfhack_ref: ${{ needs.dfhack-ref.outputs.ref }}
       structures_repo: ${{ github.repository }}
       structures_ref: ${{ github.ref }}
       artifact-name: docs

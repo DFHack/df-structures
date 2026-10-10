@@ -1717,7 +1717,7 @@
 
     -- Unused: ItemSaveCompat
 
-    -- Helper type for item_handlerst
+    -- Helper type for item_handlerst, not actually from bay12
     <enum-type type-name='items_other_id'>
         <enum-attr name='item' type-name='item_type' default-value='NONE'
                    comment='if the vector is the master vector for an item type'/>
@@ -1739,30 +1739,31 @@
             <item-attr name='generic_item' value='TRAPCOMP'/>
         </enum-item>
         <enum-item name='ANY_SPIKE' original-name='spike'>
+            is_valid_upright_weapon:
             <item-attr name='generic_item' value='WEAPON'/>
             <item-attr name='generic_item' value='TRAPCOMP'/>
         </enum-item>
 
         <enum-item name='ANY_TRUE_ARMOR' original-name='armor'>
-            <item-attr name='generic_item' value='ARMOR'/>
+            <item-attr name='generic_item' value='ARMOR'/> ARMORLEVEL 1+
         </enum-item>
         <enum-item name='ANY_ARMOR_HELM' original-name='helm'>
-            <item-attr name='generic_item' value='HELM'/>
+            <item-attr name='generic_item' value='HELM'/> ARMORLEVEL 1+
         </enum-item>
         <enum-item name='ANY_ARMOR_SHOES' original-name='boots'>
-            <item-attr name='generic_item' value='SHOES'/>
+            <item-attr name='generic_item' value='SHOES'/> ARMORLEVEL 1+
         </enum-item>
         <enum-item name='SHIELD' original-name='shield'>
             <item-attr name='item' value='SHIELD'/>
         </enum-item>
         <enum-item name='ANY_ARMOR_GLOVES' original-name='gauntlets'>
-            <item-attr name='generic_item' value='GLOVES'/>
+            <item-attr name='generic_item' value='GLOVES'/> ARMORLEVEL 1+
         </enum-item>
 
         -- 10
 
         <enum-item name='ANY_ARMOR_PANTS' original-name='pants'>
-            <item-attr name='generic_item' value='PANTS'/>
+            <item-attr name='generic_item' value='PANTS'/> ARMORLEVEL 1+
         </enum-item>
         <enum-item name='QUIVER' original-name='quiver'>
             <item-attr name='item' value='QUIVER'/>
@@ -1800,6 +1801,7 @@
         </enum-item>
         <enum-item name='ANY_REFUSE' original-name='refuse'>
             <item-attr name='generic_item' value='CORPSE'/>
+            worn out:
             <item-attr name='generic_item' value='ARMOR'/>
             <item-attr name='generic_item' value='SHOES'/>
             <item-attr name='generic_item' value='HELM'/>
@@ -1817,11 +1819,10 @@
             <item-attr name='generic_item' value='CHEESE'/>
             <item-attr name='generic_item' value='FOOD'/>
             <item-attr name='generic_item' value='EGG'/>
-            do_not_clean:
-            <item-attr name='generic_item' value='GLOB'/>
+            <item-attr name='generic_item' value='GLOB'/> not DO_NOT_CLEAN_GLOB
         </enum-item>
-        <enum-item name='ANY_GOOD_FOOD' original-name='good'>
-            <item-attr name='generic_item' value='BOX'/>
+        <enum-item name='ANY_GOOD_FOOD' original-name='food'>
+            <item-attr name='generic_item' value='BAG'/>
             not rotten:
             <item-attr name='generic_item' value='MEAT'/>
             <item-attr name='generic_item' value='FISH'/>
@@ -1837,8 +1838,8 @@
             if on_ground, deleted on tick 1 of every season
             <item-attr name='generic_item' value='DRINK'/>
             <item-attr name='generic_item' value='POWDER_MISC'/>
-            <item-attr name='generic_item' value='LIQUID_MISC'/>
-            <item-attr name='generic_item' value='GLOB'/>
+            <item-attr name='generic_item' value='LIQUID_MISC'/> not EVAPORATES
+            <item-attr name='generic_item' value='GLOB'/> not DO_NOT_CLEAN_GLOB
         </enum-item>
         <enum-item name='ANY_EXTRACTABLE' original-name='i_extractable'>
             <item-attr name='generic_item' value='CAGE'/>
@@ -1857,8 +1858,9 @@
         </enum-item>
         <enum-item name='ANY_FURNITURE' original-name='furniture'/>
         <enum-item name='ANY_CAGE_OR_TRAP' original-name='animal'>
-            <item-attr name='generic_item' value='CAGE'/>
-            <item-attr name='generic_item' value='ANIMALTRAP'/>
+            is_animal_holder:
+            <item-attr name='generic_item' value='CAGE'/> not BURY
+            <item-attr name='generic_item' value='ANIMALTRAP'/> not BURY
         </enum-item>
         <enum-item name='ANY_EDIBLE_RAW' original-name='edible_all'/>
         <enum-item name='ANY_EDIBLE_CARNIVORE' original-name='edible_carn'/>
@@ -1866,28 +1868,56 @@
         -- 30
 
         <enum-item name='ANY_EDIBLE_BONECARN' original-name='edible_bonecarn'/>
-        <enum-item name='ANY_EDIBLE_VERMIN' original-name='verminfood'/>
+        <enum-item name='ANY_EDIBLE_VERMIN' original-name='verminfood'>
+            <item-attr name='generic_item' value='SEEDS'/>
+            <item-attr name='generic_item' value='CORPSE'/> not MURDERED
+            <item-attr name='generic_item' value='CORPSEPIECE'/> not MURDERED
+            <item-attr name='generic_item' value='FOOD'/>
+            <item-attr name='generic_item' value='FISH'/>
+            <item-attr name='generic_item' value='FISH_RAW'/>
+            <item-attr name='generic_item' value='PLANT'/> EDIBLE_VERMIN
+            <item-attr name='generic_item' value='PLANT_GROWTH'/> EDIBLE_VERMIN
+            <item-attr name='generic_item' value='MEAT'/>
+            <item-attr name='generic_item' value='EGG'/> EDIBLE_VERMIN
+            <item-attr name='generic_item' value='CHEESE'/>
+            <item-attr name='generic_item' value='POWDER_MISC'/> EDIBLE_VERMIN
+            <item-attr name='generic_item' value='REMAINS'/> not MURDERED
+        </enum-item>
         <enum-item name='ANY_EDIBLE_VERMIN_BOX' original-name='verminitem'>
+            always:
             <item-attr name='generic_item' value='BARREL'/>
-            <item-attr name='generic_item' value='BOX'/>
-            BASE*
+            <item-attr name='generic_item' value='BAG'/>
+            is_verminfood:
+            <item-attr name='generic_item' value='SEEDS'/>
+            <item-attr name='generic_item' value='CORPSE'/> not MURDERED
+            <item-attr name='generic_item' value='CORPSEPIECE'/> not MURDERED
+            <item-attr name='generic_item' value='FOOD'/>
+            <item-attr name='generic_item' value='FISH'/>
+            <item-attr name='generic_item' value='FISH_RAW'/>
+            <item-attr name='generic_item' value='PLANT'/> EDIBLE_VERMIN
+            <item-attr name='generic_item' value='PLANT_GROWTH'/> EDIBLE_VERMIN
+            <item-attr name='generic_item' value='MEAT'/>
+            <item-attr name='generic_item' value='EGG'/> EDIBLE_VERMIN
+            <item-attr name='generic_item' value='CHEESE'/>
+            <item-attr name='generic_item' value='POWDER_MISC'/> EDIBLE_VERMIN
+            <item-attr name='generic_item' value='REMAINS'/> not MURDERED
         </enum-item>
         <enum-item name='ANY_CAN_ROT' original-name='rottable'>
             <item-attr name='generic_item' value='CORPSE'/>
             <item-attr name='generic_item' value='CORPSEPIECE'/>
             <item-attr name='generic_item' value='REMAINS'/>
-
             <item-attr name='generic_item' value='MEAT'/>
             <item-attr name='generic_item' value='FISH'/>
             <item-attr name='generic_item' value='FISH_RAW'/>
-            <item-attr name='generic_item' value='SEEDS'/>
             <item-attr name='generic_item' value='PLANT'/>
             <item-attr name='generic_item' value='PLANT_GROWTH'/>
             <item-attr name='generic_item' value='CHEESE'/>
             <item-attr name='generic_item' value='FOOD'/>
             <item-attr name='generic_item' value='EGG'/>
+            <item-attr name='generic_item' value='GLOB'/>
         </enum-item>
         <enum-item name='ANY_MURDERED' original-name='murdered'>
+            if murdered:
             <item-attr name='generic_item' value='CORPSE'/>
             <item-attr name='generic_item' value='CORPSEPIECE'/>
             <item-attr name='generic_item' value='REMAINS'/>
@@ -1914,7 +1944,7 @@
             <item-attr name='generic_item' value='BRACELET'/>
             <item-attr name='generic_item' value='GEM'/>
             <item-attr name='generic_item' value='SKIN_TANNED'/>
-            <item-attr name='generic_item' value='THREAD'/>
+            <item-attr name='generic_item' value='THREAD'/> not UNDISTURBED
             <item-attr name='generic_item' value='CLOTH'/>
             <item-attr name='generic_item' value='TOTEM'/>
             <item-attr name='generic_item' value='BACKPACK'/>
@@ -1924,8 +1954,10 @@
             <item-attr name='generic_item' value='SPLINT'/>
             <item-attr name='generic_item' value='TOOL'/>
             <item-attr name='generic_item' value='BOOK'/>
+            <item-attr name='generic_item' value='SHEET'/>
         </enum-item>
         <enum-item name='ANY_GOES_IN_CABINET' original-name='i_cabinet'>
+            ARMORLEVEL 0
             <item-attr name='generic_item' value='ARMOR'/>
             <item-attr name='generic_item' value='SHOES'/>
             <item-attr name='generic_item' value='HELM'/>
@@ -1938,6 +1970,7 @@
             <item-attr name='generic_item' value='SIEGEAMMO'/>
         </enum-item>
         <enum-item name='ANY_GOES_IN_ARMORSTAND' original-name='i_stand'>
+            ARMORLEVEL 1+
             <item-attr name='generic_item' value='ARMOR'/>
             <item-attr name='generic_item' value='SHOES'/>
             <item-attr name='generic_item' value='SHIELD'/>
@@ -1977,7 +2010,7 @@
             <item-attr name='item' value='INSTRUMENT'/>
         </enum-item>
         <enum-item name='INSTRUMENT_STATIONARY' original-name='building_instrument'>
-            <item-attr name='item' value='INSTRUMENT'/>
+            <item-attr name='item' value='INSTRUMENT'/> PLACED_AS_BUILDING
         </enum-item>
 
         -- 50
@@ -2073,7 +2106,7 @@
             <item-attr name='item' value='TRAPPARTS'/>
         </enum-item>
         <enum-item name='ANY_WEBS' original-name='web'>
-            <item-attr name='generic_item' value='THREAD'/>
+            <item-attr name='generic_item' value='THREAD'/> UNDISTURBED
         </enum-item>
         <enum-item name='PIPE_SECTION' original-name='pipe_section'>
             <item-attr name='item' value='PIPE_SECTION'/>
@@ -2101,7 +2134,7 @@
             <item-attr name='generic_item' value='BARREL'/>
             <item-attr name='generic_item' value='BUCKET'/>
             <item-attr name='generic_item' value='ANIMALTRAP'/>
-            <item-attr name='generic_item' value='BOX'/>
+            <item-attr name='generic_item' value='BAG'/>
             <item-attr name='generic_item' value='MEAT'/>
             <item-attr name='generic_item' value='FISH'/>
             <item-attr name='generic_item' value='FISH_RAW'/>
@@ -2113,13 +2146,13 @@
             <item-attr name='generic_item' value='POWDER_MISC'/>
             <item-attr name='generic_item' value='CHEESE'/>
             <item-attr name='generic_item' value='LIQUID_MISC'/>
-            <item-attr name='generic_item' value='GLOB'/>
+            <item-attr name='generic_item' value='GLOB'/> if EDIBLE_COOKED
             <item-attr name='generic_item' value='TOOL'/>
             <item-attr name='generic_item' value='EGG'/>
         </enum-item>
 
         <enum-item name='ANY_GLASSABLE' original-name='i_glassable'>
-            <item-attr name='generic_item' value='BOX'/>
+            <item-attr name='generic_item' value='BAG'/>
         </enum-item>
         <enum-item name='VERMIN' original-name='i_vermin'>
             <item-attr name='generic_item' value='VERMIN'/>
@@ -2277,6 +2310,7 @@
             <item-attr name='generic_item' value='ANIMALTRAP'/>
             <item-attr name='generic_item' value='COFFIN'/>
             <item-attr name='generic_item' value='BOX'/>
+            <item-attr name='generic_item' value='BAG'/>
             <item-attr name='generic_item' value='BIN'/>
             <item-attr name='generic_item' value='ARMORSTAND'/>
             <item-attr name='generic_item' value='WEAPONRACK'/>
@@ -2297,7 +2331,7 @@
         <enum-item name='ANY_MELT_DESIGNATED' original-name='melt_designated'/>
     </enum-type>
 
-    -- Helper type for item_handlerst
+    -- Helper type for item_handlerst, not actually from bay12
     <df-other-vectors-type type-name='items_other' index-enum='items_other_id' item-type='item'>
         <stl-vector pointer-type='item_weaponst' name='WEAPON' original-name='weapon'/>
         <stl-vector pointer-type='item_armorst' name='ANY_TRUE_ARMOR' original-name='armor'/>

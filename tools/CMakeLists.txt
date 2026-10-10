@@ -8,12 +8,17 @@ if(BUILD_XMLDUMP)
     FetchContent_Declare(
         fmt
         GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-        GIT_TAG 790b9389ae99c4ddebdd2736a8602eca1fec684e # 12.1.0 + bugfix for MSVC warning + build time improvements
+        GIT_TAG 12.2.0
     )
     FetchContent_MakeAvailable(fmt)
     set(FMTLIB fmt)
     add_definitions("-DUSE_FMTLIB")
-    add_subdirectory(depends/lua)
+    if(NOT TARGET lua)
+        add_subdirectory(${dfhack_SOURCE_DIR}/depends/lua ${CMAKE_BINARY_DIR}/depends/lua)
+        if (UNIX)
+            set_target_properties(lua PROPERTIES COMPILE_FLAGS "-Wno-deprecated-declarations -Wno-deprecated-enum-enum-conversion")
+        endif()
+    endif()
 
     file(GLOB XML_FILES ../df.*.xml)
     set(TYPE_DUMP_GENERATOR "${CMAKE_CURRENT_SOURCE_DIR}/generate-type-dump.py")
