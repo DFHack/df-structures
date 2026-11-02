@@ -90,11 +90,12 @@ sub render_enum_tables($$$$$$) {
 
     with_emit_traits {
         emit_block {
-            emit "const static enum_identity identity;";
-            emit "const static enum_identity *get() { return &identity; }";
+            emit "const static type_identity_for<$full_name> identity;";
+            emit "const static type_identity_for<$full_name> *get() { return &identity; }";
         } "template<> struct ${export_prefix}identity_$traits_name ", ";";
         header_ref("Export.h");
         header_ref("DataDefs.h");
+        header_ref("DataIdentity.h");
     };
 
     # Enumerate enum attributes
@@ -175,7 +176,7 @@ sub render_enum_tables($$$$$$) {
                     for (my $i = 0; $i < @anames; $i++) {
                         emit "$atypes[$i] $anames[$i];";
                     }
-                    emit "const static struct_identity _identity;";
+                    emit "const static type_identity_for<attr_entry_type> _identity;";
                 } "struct attr_entry_type ", ";";
                 emit "static const attr_entry_type attr_table[", $count, "+1];";
                 emit "static const attr_entry_type &attrs(enum_type value);";
@@ -201,7 +202,7 @@ sub render_enum_tables($$$$$$) {
 
         # Emit complex data
 
-        my $complex_ptr = 'NULL';
+        my $complex_ptr = 'nullptr';
         if ($complex) {
             my @items = $tag->findnodes('child::enum-item');
             my $last_value = -1;
@@ -223,8 +224,8 @@ sub render_enum_tables($$$$$$) {
 
         # Emit attrs
 
-        my $atable_ptr = 'NULL';
-        my $atable_meta = 'NULL';
+        my $atable_ptr = 'nullptr';
+        my $atable_meta = 'nullptr';
 
         if (@anames) {
             my @table_entries;
@@ -296,17 +297,17 @@ sub render_enum_tables($$$$$$) {
                     @field_defs = @field_meta;
                 } $entry_type;
 
-                emit "const struct_identity ${entry_type}::_identity(",
-                        "sizeof($entry_type), NULL, ",
+                emit "const type_identity_for<${entry_type}> ${entry_type}::_identity(",
+                        "sizeof($entry_type), nullptr, ",
                         type_identity_reference($tag), ', ',
-                        "\"_attr_entry_type\", NULL, $ftable);";
+                        "\"_attr_entry_type\", nullptr, $ftable);";
             } 'fields';
 
             $atable_ptr = "enum_${traits_name}::attr_table";
             $atable_meta = "&${entry_type}::_identity";
         }
 
-        emit "const enum_identity identity_${traits_name}::identity(",
+        emit "const type_identity_for<$full_name> identity_${traits_name}::identity(",
                 "sizeof($full_name), ",
                 type_identity_reference($tag,-parent => 1), ', ',
                 "\"$name\", TID($base_type), $base, ",

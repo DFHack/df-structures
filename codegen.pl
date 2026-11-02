@@ -112,6 +112,7 @@ with_header_file {
 
     emit_block {
         emit "void InitGlobals();";
+        header_ref("DataIdentity.h");
         emit "extern ", $export_prefix, "global_identity _identity;";
 
         for my $name (sort { $a cmp $b } keys %globals) {
